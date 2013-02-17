@@ -1,0 +1,15 @@
+%Broad intro
+In our literature review, we cover research papers that broadly fall into two categories. One category deals with event extraction and semantic role labeling. The other deals with temporal ordering of events. We also looked at literature that covered biological event extraction for the BIONLP task for gaining further insights into event extraction specific to a popular domain.
+
+%Intro to Rishita's section
+The three paper series that we chose(\citeauthor{chju2008ec}, \citeauthor{chju2009}, and \citeauthor{chju2011}), builds gradually on the different aspects of event extraction. The motivation behind event extraction of this kind can often be NLP applications such as question answering and machine translations, since event models make this easy. Broadly, event extraction, as explained by Chambers and Jurafsky over the three papers comprises of the following main areas:
+\begin{enumerate}
+\item Event identification
+\item Temporal order identification 
+\item Argument Extraction (which may further become semantic role labeling)
+\end{enumerate} Thus, the three paper series, broadly deals with one or more sections of these while discussing event extraction.
+
+\citeauthor{chju2008ec} discusses chaining of events based on just one argument or participant. The second paper in the series, \citeauthor{chju2009} builds up on that by representing other entities involved in the events as well. This information of recognizing multiple entities can be very valuable, since now it is possible to overlap various event chains and form a larger event scenario or a 'narrative event schema' as described in the second paper \citeauthor{chju2009}. 
+\citeauthor{chju2008ec} also does not pay much attention to the ‘type’ or ‘role’ of the protagonist. Role information such as knowing if the protagonist is a place or a person or an object could help in clustering the events as well. More than mere verb comparison based on exact same argument, role and type information given to arguments in \citeauthor{chju2009} leads to a stronger approach for understanding the event chains and finding the next most likely event. Moreover,  another NLU task of semantic role labeling is also solved and linked to the task of event extraction herein.
+
+In the third paper in the series, \citeauthor{chju2011}, event extraction here is done one step after template induction. Co-reference similarity vector framework is a novelty for clustering events. This is unlike simplistic protagonist like approaches to forming event chains. Although this is a very systematic approach for information extraction without specific requirements, it might be overkill to use a learning approach with so many parameters and template induction for just event extraction.

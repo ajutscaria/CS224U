@@ -1,0 +1,51 @@
+
+
+\xhdr{8. Jointly Combining Implicit Constraints Improves Temporal Ordering - \citeauthor{temporalordering}}
+This paper discusses ways to improve existing work on ordering events
+in text. Previously, event-event ordering tasks were based on local pairwise decisions
+using classifiers like SVM using different features of the event like text of event,
+WordNet synset, POS tags, tense, etc. But these could sometimes introduce global
+inconsistencies when misclassifications occur, that are plainly obvious. For example, if
+event A occurs before B, B occurs before C, then A cannot occur after C. This paper tries
+to repair some of these event ordering mistakes by introducing two types of global
+constraints: transitivity and time expression normalization. In short, this work is on
+classifying relations between events, making use of relations between events and times,
+and between the times themselves.
+
+The dataset had newswire articles that are hand-tagged for events, time expressions and
+relations between events and times. The events are also tagged for temporal information
+like tense, modality, grammatical aspect etc. The first model for event-event ordering (to
+\em{before} and \em{after}) uses a pairwise classifier between events and a
+global constraint satisfaction layer (using an integer linear programming framework) that
+re-classifies certain examples from the first stage if it seems to violate properties like
+transitivity. These constraints can also help create more densely connected network of
+events by adding implicit relations that are not labeled. For example, if A occurs before
+B and B occurs before C, we can add the relation A occurs before C. However it was seen
+that having this additional layer did not change the results globally because the
+hand-tagged data had large amount of unlabeled relations and global constraints cannot
+assist local decisions if the graph is not connected.
+
+So, an addition was made to the model - time-time information that are deduced from
+logical time intervals. For example, if event A occured 'last month' and B occured
+'yesterday', we can conclude that A occured before B because 'last month' occured before
+'yesterday'. Having this additional feature along with the global constraints, greatly
+increased the size of  training data set (81\% increase) and also improved the performance
+(3.6\% absolute over pairwise decisions).
+
+Thus this paper shows how textual events can be indirectly connected through a time
+normalization algorithm that creates new relations between time expressions  and that this
+increased connectivity is essential for a global model to improve performance.
+
+
+\xhdr{9. Joint Inference for Event Timeline Construction - \citeauthor{quang}} 
+This paper tries to map events into a timeline representation where each event is associated with a specific absolute time interval of occurence rather than just inferring the relative temporal relations among the events. 
+
+The data is simliar to \citeauthor{temporalordering} where events in news articles and associated arguments are hand labeled. Four relations between events are considered - {\em before, after, overlap and no relation}. A time interval is represented in the form [start time, end time]. These intervals are sometimes explicitly mentioned in the text while at other times, it might have to be inferred relative to the document creation time of the article. 
+
+The model has three steps: 1) two local pair wise classifiers, one between event mentions and time intervals (E-T) and another between event-event mentions(E-E) 2) a combination step with event coreference (discussed later) to overwrite prediction probabilities in step 1 and 3) a joint inference  module that enforces global coherncy constraints on the final output of the local classifiers. 
+
+Classification in the local level is done using regularized average Perceptron over all possible pairs of event/time mentions using several features like the word, lemma, POS of events mentions, position of entities, tense, type of time interval, etc. Event coreference information is used to enhance the timeline construction performance, because all mentions of a single event overlap with each other and are associated with the same time interval. Also, all mentions of an event have same temporal relation with all mentions of another event. These two properties help avoiding misclassification in a lot of cases. The global inference model combines the local pairwise classifiers through the use of an Integer Linear Programming formulation of constraints. Both E-E and E-T tasks are optimized simultaneously. 
+
+The results showed that event coreference improved the performance of the classifier. The performance is better than most of the reported models and having time intervals instead of time points lowers the running time of the algorithm considerably. 
+
+

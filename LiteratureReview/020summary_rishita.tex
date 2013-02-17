@@ -1,0 +1,42 @@
+\xhdr{1. Unsupervised Learning of Narrative Event Chains - \citeauthor{chju2008ec}}
+
+This paper talks of just the areas of event extraction and temporal event ordering. It does argument extraction at a very crude level. This paper tried to work around the need for highly supervised scripts, by trying to generate event chains that they call ‘narrative event chains’ in an unsupervised manner. They follow the intuition that events related to a common protagonist, the common argument for the event verbs, should form a valid narrative event chain. This intuition builds up on the idea of case-frames and anchor based pairwise event relations’ models. In this paper (unlike the second and third) they do not pay much attention to the protagonist or the type of the argument as such. This paper also constructs a novel scoring method that involves two kinds of scores: 
+\begin{itemize}
+\item A score based on PMI that is give to events, pairwise, depending on how often the two events share
+grammatical arguments. 
+\item A score for the global narrative chain where all events in the chain provide some input (example, PMI) with a target event in question. This could be
+used to predict the next most likely event. 
+\end{itemize}
+Moreover, an interesting idea that emerges out of this paper is that of testing event extraction models. The novel approach here is the narrative cloze testing model, where you leave out a particular event in the chain and compare it to the event that the model you trained would predict. A temporal classifier attends to the second of the areas listed above. The paper just explores the establishment
+of the ‘before’ relationship in case of ‘Temporal order identification’. A major result that emerges from the paper is that the protagonist approach obviates the need for a presorted topic list of documents to perform event extraction and inferences.
+
+\xhdr{2. Unsupervised Learning of Narrative Schemas and their Participants - \citeauthor{chju2009}}
+
+This paper addresses narrative event chains in further detail. In the broader perspective, it addresses the areas of ‘Event identification’ and ‘Argument Extraction’ listed above.
+Event identification is extended to identify not only single event chains but to find overlapping chains and form, what is defined as a narrative schema now. Argument extraction is also done as unsupervised semantic role labeling which obviates the need of a predefined class of roles or hand built domain knowledge. These two endeavors also contribute to the improvement of each other since, as suggested above, rich event extraction largely revolves around extracting correlated events that in turn depends on finding coreferring arguments and linking them. If narrative chains are formed only based on the frequency with which two verbs share their arguments, ignoring the features of the arguments themselves, then it is likely that word sense ambiguities cause the wrong event to be clustered with other events. Instead, having attached types for the arguments and modeling argument overlaps across all pairs is what this paper advocates. 
+The semantic role labeling  task that the paper takes up, is done in an unsupervised manner and by learning the roles automatically rather than picking them from a pool of predefined domain of roles. Such narrative event chains are called typed narrative chains. The types are picked by finding the most frequent head-word in co-referential chains for the arguments. These narrative typed chains are combined into narrative schemas by scores depicting chain similarities and narrative similarities. These schemas are directly comparable to frames.
+The major difference is that schemas focus on events in a narrative and frames revolve around certain participants.
+
+The higher-level outcomes from the paper are that semantic role labeling and event extraction and chaining, can be put together. This could be done by unsupervised learning and lead to an improvement in the results for both of these NLP goals individually.
+
+\xhdr{3. Template-Based Information Extraction without the Templates - \citeauthor{chju2011}}
+
+This paper deals with information extraction for similar purposes as event extraction, but without using predefined templates for the same. The major novelty of the paper lies in the method introduced in the paper to learn the template structure from an unlabeled corpus. This work runs in parallel with relation discovery, frames, scripts and narrative schemas for the purpose of information extraction. The main positive of this paper over other approaches is that redundant documents about specific events are not needed. Also, templates with any type and number of slots can be filled in an unsupervised fashion.
+
+The main aim of the paper is to extract information from a domain specific corpus by learning a richly understood template structure. The method for this involves
+\begin{itemize}
+\item Expanding the corpus size by assembling a larger information retrieval corpus of
+documents for each cluster. 
+\item Clustering the words in the events based on their
+proximity, coreferring arguments and selectional preferences. 
+\item Inducing semantic role
+labels.
+\end{itemize}
+
+The clustering of event patterns is done by using LDA and agglomerative clustering based on word distance, PMI over all event patterns. \citeauthor {chju2009} recommended methods to learn situation-specific roles over narrative schemas. This paper introduces a novel vector approach to co-reference similarity. This approach builds on the intuition in \citeauthor {chju2008} and \citeauthor {chju2009} that coreferring arguments imply a semantic relationship or event chaining between two predicates. This idea is applied to build the vector similarity framework to perform role labeling. Document classification is analyzed as an example of information extraction based on these concepts then.
+
+The paper talks about over all template evaluation as well as a stricter per template evaluation. The results show that the MUC-4 template structure was learnt with many new semantic roles and template structures. Moreover, the results have comparable precision and an F1 score that approaches existing algorithms which rely heavily of prior knowledge of the domain.
+
+Since this approach is unsupervised, the recall is hurt. Also since event extraction here happens as an after stage of template induction, the number of parameters required are high and could be reduced in future work.
+
+
