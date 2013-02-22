@@ -25,15 +25,15 @@ public class Learner {
   
   public Params learn() {
     for(Example example:dataset) {
-      System.out.println("\n\nExample: " + example.id + "\nEntities in the paragraph\n-----------------------------");
+      System.out.println("\n\nExample: " + example.id + "\nEntities in the paragraphhh\n-----------------------------");
       for(EntityMention entity:example.gold.get(EntityMentionsAnnotation.class)) {
-        System.out.println(entity.getValue());// + entity.getExtent());
+        System.out.println(entity.prettyPrint());// + entity.getExtent());
         //System.out.println(findNodeInDependencyTree(entity.getSentence(), entity.getExtent()));
       }
       
       System.out.println("\nEvents in the paragraph\n-------------------------------");
       for(EventMention event:example.gold.get(EventMentionsAnnotation.class))
-        System.out.println(event.getValue());
+        System.out.println(event.prettyPrint());
     }
     return parameters;
   }

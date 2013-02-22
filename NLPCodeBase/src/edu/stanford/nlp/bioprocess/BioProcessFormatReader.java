@@ -1,9 +1,7 @@
 package edu.stanford.nlp.bioprocess;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -11,9 +9,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-
-import com.sun.org.apache.xml.internal.security.keys.content.KeyValue;
 
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
@@ -26,26 +21,14 @@ import edu.stanford.nlp.ie.machinereading.GenericDataSetReader;
 
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.NamedEntityTagAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TextAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
-import edu.stanford.nlp.trees.semgraph.SemanticGraph;
-import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 
 import edu.stanford.nlp.ie.machinereading.structure.Span;
-import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.StringUtils;
-import edu.stanford.nlp.util.TypesafeMap.Key;
-import edu.stanford.nlp.util.logging.Redwood;
-import edu.stanford.nlp.util.logging.Redwood.RedwoodChannels;
 
 public class BioProcessFormatReader extends GenericDataSetReader {
   protected static final String TEXT_EXTENSION = ".txt";
@@ -56,10 +39,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
   protected static final String ENTITY_TYPE = "Entity", STATIC_ENTITY_TYPE = "Static-Event";
   protected static final String TYPE_NEXT_EVENT = "next-event", TYPE_RESULT = "result", TYPE_AGENT = "agent", 
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
-      TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-event";
-  
-  private Map<String, EntityMention> idsToEntities;
-  private Map<String, EventMention> idsToEvents;
+      TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity";
  
   //TODO - How is this used?
   /** keeps track which entity is embedded (key) into which entity (value) */
@@ -86,65 +66,6 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       example.id = file.replace(TEXT_EXTENSION, "");
       example.gold = createAnnotation(path + file);
       examples.add(example);
-      
-      //for(CoreMap sentence: example.gold.get(SentencesAnnotation.class))
-      //  System.out.println(sentence.get(CharacterOffsetBeginAnnotation.class));
-      
-    /*for(CoreMap sentence: document.get(SentencesAnnotation.class)) {
-        if(document.get(EntityMentionsAnnotation.class) == null) {
-          List<EntityMention> ents = new ArrayList<EntityMention>();
-          //ents.add(new EntityMention("idd",sentence, null, null, null, null, null));
-          ents.add(new EntityMention("idd",sentence));
-          document.set(EntityMentionsAnnotation.class, ents);
-        }
-        else {
-          EntityMention me = new EntityMention("idd",sentence);
-          document.get(EntityMentionsAnnotation.class).add(me);
-        }
-        // traversing the words in the current sentence
-        // a CoreLabel is a CoreMap with additional token-specific methods
-        for (CoreLabel token: sentence.get(TokensAnnotation.class)) {
-          // this is the text of the token
-          String word = token.get(TextAnnotation.class);
-          Redwood.log("Word: " + word);
-          /*
-          // this is the POS tag of the token
-          String pos = token.get(PartOfSpeechAnnotation.class);
-          Redwood.log("POS: " + pos);
-          // this is the NER label of the token
-          String ne = token.get(NamedEntityTagAnnotation.class);
-          Redwood.log("NE: " + ne);
-          
-        }
-      }
-        
-        // this is the parse tree of the current sentence
-        //Tree tree = sentence.get(TreeAnnotation.class);
-        //for(CoreLabel label: tree.taggedLabeledYield())
-        //    System.out.println(label.lemma());
-        //Redwood.log("Tree:");
-        //Redwood.log(tree);
-        //printYield(tree);
-        // this is the Stanford dependency graph of the current sentence
-        
-      
-        SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-
-        Redwood.log("Semnatic graph:");
-        Redwood.log(dependencies);
-        IndexedWord root = dependencies.getRoots().iterator().next();
-        List<IndexedWord> children = dependencies.getChildList(root);
-        Redwood.log("Root: " + root);
-        for(IndexedWord child: children) {
-          Redwood.log(child);
-          List<EntityMention> ents = new ArrayList<EntityMention>();
-          //ents.add(new EntityMention("idd",sentence, null, null, null, null, null));
-          ents.add(new EntityMention("idd",sentence));
-          child.set(EntityMentionsAnnotation.class, ents);
-          //child.set(EntityMentionsAnnotation.class, ents);
-        }
-      }
-      System.out.println(document.get(EntityMentionsAnnotation.class).size());*/
     }
     return examples;
   }
@@ -174,7 +95,6 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             ArgumentMention m;
             
             int begin = Integer.parseInt(argumentDetails[1]), end =  Integer.parseInt(argumentDetails[2]);
-            //System.out.println(begin + ":" + end + "-" + line);
             CoreMap sentence = getContainingSentence(sentences, begin, end);
             Span span = getSpanFromSentence(sentence, begin, end);
             
@@ -187,26 +107,26 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             }
             mentions.put(desc, m);
             break;
+          case 'E':
+        	String[] parameters = splits[1].split(" ");
+        	String[] splts = parameters[0].split(":");
+        	if(splts[0].equals(EVENT_TYPE) || splts[0].equals(STATIC_ENTITY_TYPE)) {
+        		mentions.put(desc, mentions.get(splts[1]));
+        		mentions.remove(splts[1]);
+        	}
         }
       }
       reader.seek(0);
       while((line = reader.readLine())!=null) {
-    	//System.out.println(line);
         String[] splits = line.split("\t");
         String desc = splits[0];
         switch(desc.charAt(0)) {
           case 'E':
             String[] parameters = splits[1].split(" ");
-            EventMention event = null;
+            EventMention event = (EventMention)mentions.get(desc);
             for(String parameter:parameters) {
               String[] keyValue = parameter.split(":");
               switch(keyValue[0]) {
-                case EVENT_TYPE:
-                  event = (EventMention)mentions.get(keyValue[1]);
-                  break;
-                case STATIC_ENTITY_TYPE:
-                  event = (EventMention)mentions.get(keyValue[1]);
-                  break;
                 case TYPE_AGENT:
                   event.addArgument(mentions.get(keyValue[1]), RelationType.Agent);
                   break;
@@ -265,9 +185,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
   }
   
   private CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
-    //System.out.println("----" + begin + ":" + end);
     for(CoreMap sentence:sentences) {
-      //System.out.println(sentence.get(CharacterOffsetBeginAnnotation.class) + ":"+sentence.get(CharacterOffsetEndAnnotation.class));
       if(sentence.get(CharacterOffsetBeginAnnotation.class) <= begin && sentence.get(CharacterOffsetEndAnnotation.class) >= end)
         return sentence;
     }
@@ -276,7 +194,6 @@ public class BioProcessFormatReader extends GenericDataSetReader {
   
   private Span getSpanFromSentence(CoreMap sentence, int begin, int end) {
     Span span = new Span();
-    //System.out.println(sentence);
     for(CoreLabel label:sentence.get(TokensAnnotation.class)) {
       if(label.beginPosition() == begin)
         span.setStart(label.index() - 1);

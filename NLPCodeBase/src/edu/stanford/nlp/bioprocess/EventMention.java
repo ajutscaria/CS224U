@@ -32,6 +32,18 @@ public class EventMention extends ArgumentMention {
     return arguments;
   }
   
+  public String prettyPrint() {
+	  StringBuilder strBld = new StringBuilder();
+	  strBld.append(String.format("'%s'.", this.getValue()));
+	  if(this.arguments.size() > 0) {
+		  strBld.append("\tRelations -");
+		  for(ArgumentRelation rel:arguments) {
+			  strBld.append(String.format("   %s : '%s'", rel.type.toString(), rel.mention.getValue()));
+		  }
+	  }
+	  return strBld.toString();
+  }
+  
   private static int MENTION_COUNTER = 0;
 
   /**

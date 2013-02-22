@@ -3,7 +3,6 @@ package edu.stanford.nlp.bioprocess;
 import java.util.List;
 
 import edu.stanford.nlp.ling.CoreAnnotation;
-import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.ErasureUtils;
 
 /**

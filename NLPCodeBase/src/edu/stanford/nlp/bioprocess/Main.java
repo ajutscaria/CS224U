@@ -3,15 +3,11 @@ package edu.stanford.nlp.bioprocess;
 import java.util.HashMap;
 import java.util.Properties;
 
-import edu.stanford.nlp.ie.machinereading.domains.bionlp.BioNLPFormatReader;
-import edu.stanford.nlp.ie.machinereading.msteventextractor.GENIA09DataSet;
-import edu.stanford.nlp.pipeline.StanfordCoreNLP;
-import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 
 public class Main {
   public void run(HashMap<String, String> groups) {
-    Dataset dataset = new Dataset();
+    BioprocessDataset dataset = new BioprocessDataset();
     for(String group : groups.keySet())
       dataset.addGroup(group, groups.get(group));
     dataset.read();
