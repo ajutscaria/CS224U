@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Properties;
@@ -16,9 +17,11 @@ public class BioprocessDataset {
   LinkedHashMap<String, String> inPaths;
   ArrayList<Pair<String, Integer>> maxExamples;
   
-  public BioprocessDataset() {
+  public BioprocessDataset(HashMap<String, String> inPaths) {
     allExamples = new LinkedHashMap<String, List<Example>>();
-    inPaths = new LinkedHashMap<String, String>();
+    this.inPaths = new LinkedHashMap<String, String>();
+    for(String str:inPaths.keySet())
+    	addGroup(str, inPaths.get(str));
     maxExamples = new ArrayList<Pair<String,Integer>>();
   }
   

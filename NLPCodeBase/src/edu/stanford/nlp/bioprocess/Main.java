@@ -7,9 +7,7 @@ import edu.stanford.nlp.util.StringUtils;
 
 public class Main {
   public void run(HashMap<String, String> groups) {
-    BioprocessDataset dataset = new BioprocessDataset();
-    for(String group : groups.keySet())
-      dataset.addGroup(group, groups.get(group));
+    BioprocessDataset dataset = new BioprocessDataset(groups);
     dataset.read();
     Learner learner = new Learner(dataset.examples("train"));
     learner.learn();
