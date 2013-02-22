@@ -14,7 +14,7 @@ public class BioProcessAnnotations {
   private BioProcessAnnotations() {} // only static members
   
   /**
-   * The CoreMap key for getting the entity mentions corresponding to a sentence.
+   * The CoreMap key for getting the entity mentions corresponding to a document.
    * 
    * This key is typically set on sentence annotations.
    */
@@ -25,18 +25,18 @@ public class BioProcessAnnotations {
   }
 
   /**
-   * The CoreMap key for getting the relation mentions corresponding to a sentence.
+   * The CoreMap key for getting the relation mentions corresponding to a document.
    * 
    * This key is typically set on sentence annotations.
    */
-  public static class RelationMentionsAnnotation implements CoreAnnotation<List<ArgumentRelation>> {
+  /*public static class RelationMentionsAnnotation implements CoreAnnotation<List<ArgumentRelation>> {
     public Class<List<ArgumentRelation>> getType() {
       return ErasureUtils.<Class<List<ArgumentRelation>>>uncheckedCast(List.class);
     }
-  }
+  } */
   
   /**
-   * The CoreMap key for getting the event mentions corresponding to a sentence.
+   * The CoreMap key for getting the event mentions corresponding to a document.
    * 
    * This key is typically set on sentence annotations.
    */

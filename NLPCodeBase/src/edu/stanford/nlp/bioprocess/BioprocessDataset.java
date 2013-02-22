@@ -11,12 +11,25 @@ import java.util.Set;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.Pair;
 
+/***
+ * Dataset used to store the bio-process related data samples.
+ * @author Aju
+ *
+ */
+
 public class BioprocessDataset {
   final String ANNOTATED_FILE_EXTENSION = ".ann";
+  //Map between the type of data (e.g. train or test) and the list of examples of that type.
   LinkedHashMap<String, List<Example>> allExamples;
+  //Map between the type of data (e.g. train or test) and the input folder to read them.
   LinkedHashMap<String, String> inPaths;
+  //Maximum number of examples for a type of data - Unused as of now.
   ArrayList<Pair<String, Integer>> maxExamples;
   
+  /***
+   * Initialize the dataset with the types of data and its input folders.
+   * @param inPaths
+   */
   public BioprocessDataset(HashMap<String, String> inPaths) {
     allExamples = new LinkedHashMap<String, List<Example>>();
     this.inPaths = new LinkedHashMap<String, String>();
@@ -25,18 +38,35 @@ public class BioprocessDataset {
     maxExamples = new ArrayList<Pair<String,Integer>>();
   }
   
+  /***
+   * Add a type of data and its input path to the data set.
+   * @param groupName
+   * @param path
+   */
   public void addGroup(String groupName, String path) {
     inPaths.put(groupName, path);
   }
   
+  /***
+   * Get all the types of data in the dataset.
+   * @return
+   */
   public Set<String> groups() {
     return allExamples.keySet();
   }
   
+  /***
+   * Get the types of examples belonging to a type of data.
+   * @param group
+   * @return
+   */
   public List<Example> examples(String group) {
     return allExamples.get(group);
   }
   
+  /***
+   * Read all types of data and load it to the dataset.
+   */
   public void read() {
     Properties props = new Properties();
     props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");

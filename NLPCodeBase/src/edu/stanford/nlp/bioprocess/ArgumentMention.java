@@ -12,17 +12,15 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
 /**
- * Each entity mention is described by a type (possibly subtype) and a span of text
+ * Each argument to an event
  * 
- * @author Andrey Gusev
- * @author Mihai
+ * @author Aju
  */
 public class ArgumentMention extends ExtractionObject {
 
   private static final long serialVersionUID = -2745903102654191527L;
 
   /** Mention type, if available, e.g., nominal */
-  //private final MentionType mentionType;
   private String corefID = "-1";
   
 
