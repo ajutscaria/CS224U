@@ -34,7 +34,7 @@ public class EventMention extends ArgumentMention {
   
   public String prettyPrint() {
 	  StringBuilder strBld = new StringBuilder();
-	  strBld.append(String.format("'%s'.", this.getValue()));
+	  strBld.append(String.format("%-20s", this.getValue()));
 	  if(this.arguments.size() > 0) {
 		  strBld.append("\tRelations -");
 		  for(ArgumentRelation rel:arguments) {

@@ -27,11 +27,11 @@ public class EntityMention extends ArgumentMention {
   
   public String prettyPrint() {
 	  StringBuilder strBld = new StringBuilder();
-	  strBld.append(String.format("'%s'.", this.getValue()));
+	  strBld.append(String.format("%-25s", this.getValue()));
 	  if(this.relations.size() > 0) {
 		  strBld.append("\tSame entities:");
 		  for(ArgumentRelation rel:relations)
-			  strBld.append(String.format("  '%s'",rel.mention.getValue() + "   "));
+			  strBld.append(String.format("  '%s'",rel.mention.getValue()));
 	  }
 	  return strBld.toString();
   }

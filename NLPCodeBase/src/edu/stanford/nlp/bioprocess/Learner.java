@@ -25,7 +25,7 @@ public class Learner {
   
   public Params learn() {
     for(Example example:dataset) {
-      System.out.println("\n\nExample: " + example.id + "\nEntities in the paragraphhh\n-----------------------------");
+      System.out.println("\n\nExample: " + example.id + "\nEntities in the paragraph\n-----------------------------");
       for(EntityMention entity:example.gold.get(EntityMentionsAnnotation.class)) {
         System.out.println(entity.prettyPrint());// + entity.getExtent());
         //System.out.println(findNodeInDependencyTree(entity.getSentence(), entity.getExtent()));
