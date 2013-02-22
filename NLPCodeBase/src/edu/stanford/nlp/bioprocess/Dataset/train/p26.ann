@@ -1,0 +1,12 @@
+T1	Entity 15 71	transgene for a human blood protein such as antithrombin
+T2	Entity 210 217	protein
+T3	Event 226 234	purified
+E1	Event:T3 location:T4 theme:T2
+T4	Entity 235 248	from the milk
+T5	Event 79 87	inserted
+E2	Event:T5 theme:T1 location:T6 next-event:E3
+T6	Entity 88 113	into the genome of a goat
+T7	Event 160 168	secreted
+E3	Event:T7 location:T9 theme:T8 next-event:E1
+T8	Entity 137 156	transgene's product
+T9	Entity 169 189	in the animal's milk

@@ -1,0 +1,14 @@
+T1	Event 1 18	During each cycle
+E1	Event:T1 
+T2	Event 44 73	heated to denature (separate)
+E2	Event:T2 super-event:E1 theme:T4 next-event:E3 theme2:T3
+T3	Entity 24 40	reaction mixture
+T4	Entity 78 89	DNA strands
+T5	Event 99 143	cooled to allow annealing (hydrogen bonding)
+E3	Event:T5 theme:T6 next-event:E4
+T6	Entity 147 263	short, single-stranded DNA primers complementary to sequences on opposite strands at each end of the target sequence
+T7	Entity 276 302	heat-stable DNA polymerase
+T8	Event 303 310	extends
+E4	Event:T8 agent:T7 theme:T9 location:T10
+T9	Entity 315 322	primers
+T10	Entity 323 352	in the 5' &rarr; 3' direction

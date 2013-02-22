@@ -1,0 +1,24 @@
+T1	Entity 6 20	rRNA molecules
+T2	Event 25 36	transcribed
+E1	Event:T2 raw-material:T3 result:T1
+T3	Entity 44 69	single transcription unit
+T4	Event 78 126	repeated tandemly hundreds to thousands of times
+E2	Event:T4 location:T5 theme:T3 next-event:E3 super-event:E1
+T5	Entity 154 197	in the genome of a multicellular eukaryote.
+T6	Entity 202 245	many copies of this rRNA transcription unit
+T7	Event 246 250	help
+E3	Event:T7 agent:T6 theme:T8 cotemporal:E4
+T8	Entity 251 256	cells
+T9	Event 268 272	make
+E4	Event:T9 agent:T8 result:T10
+T10	Entity 277 298	millions of ribosomes
+T11	Entity 340 358	primary transcript
+T12	Event 362 378	cleaved to yield
+E5	Event:T12 theme:T11 result:T13 next-event:E6
+T13	Entity 383 403	three rRNA molecules
+T14	Event 411 418	combine
+E6	Event:T14 theme:T13 theme2:T16 next-event:E7
+T15	Event 473 477	form
+E7	Event:T15 super-event:E4 result:T17
+T16	Entity 424 469	proteins and one other kind of rRNA (5S rRNA)
+T17	Entity 478 496	ribosomal subunits

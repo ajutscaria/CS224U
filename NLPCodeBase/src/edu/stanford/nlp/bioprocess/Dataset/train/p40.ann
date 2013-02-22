@@ -1,0 +1,14 @@
+T1	Entity 4 54	red blood cells of people with sickle-cell disease
+T2	Event 62 92	distorted in shape, or sickled
+E1	Event:T2 theme:T1 time:T3 causes:E2
+T3	Entity 100 121	low-oxygen conditions
+T4	Entity 177 190	sickled cells
+T5	Event 195 209	clump together
+E2	Event:T5 agent:T4 causes:E3
+T6	Event 214 219	block
+E3	Event:T6 agent:T4 theme:T7 location:T8 causes:E4
+T7	Entity 224 237	flow of blood
+T8	Entity 238 256	in the capillaries
+T9	Event 271 285	serious damage
+E4	Event:T9 theme:T10
+T10	Entity 289 332	organs such as the kidney, heart, and brain

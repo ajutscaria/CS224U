@@ -1,0 +1,12 @@
+T1	Event 0 63	Analysis of hummingbird beta-globin gene expression with RT-PCR
+E1	Event:T1 
+T2	Event 112 130	isolation of mRNAs
+E2	Event:T2 super-event:E1 location:T4 next-event:E3
+T4	Entity 131 189	from different developmental stages of hummingbird embryos
+T3	Event 213 221	is added
+E3	Event:T3 result:T6 raw-material:T5 next-event:E4
+T5	Entity 191 212	Reverse transcriptase
+T6	Entity 235 239	cDNA
+T7	Event 252 294	serves as a template for PCR amplification
+E4	Event:T7 agent:T6 raw-material:T8 super-event:E1
+T8	Entity 301 334	primers from the beta-globin gene

@@ -1,0 +1,20 @@
+T1	Entity 3 10	E. coli
+T2	Entity 14 37	pilus of the donor cell
+T3	Event 38 46	attaches
+E1	Event:T3 agent:T2 theme:T4 location:T1 next-event:E2
+T4	Entity 54 63	recipient
+T5	Entity 84 89	pilus
+T6	Event 95 103	retracts
+E2	Event:T6 agent:T5 causes:E3
+T7	Event 105 112	pulling
+E3	Event:T7 theme:T8 next-event:E4
+T8	Entity 117 134	two cells togethe
+T9	Event 200 209	formation
+E4	Event:T9 result:T10 location:T11 enables:E5
+T10	Entity 215 240	temporary "mating bridge"
+T11	Entity 241 262	between the two cells
+T12	Event 288 300	may transfer
+E5	Event:T12 theme:T14 agent:T13 destination:T15
+T13	Entity 282 287	donor
+T14	Entity 301 304	DNA
+T15	Entity 305 321	to the recipient

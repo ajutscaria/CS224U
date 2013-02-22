@@ -1,0 +1,38 @@
+T1	Event 21 33	deactivating
+E1	Event:T1 agent:T2 theme:T3 cotemporal:E2 causes:E4
+T2	Entity 0 11	Methicillin
+T3	Entity 34 43	a protein
+T4	Entity 193 201	the drug
+*	same-entity T2 T4 T17
+T5	Event 65 75	synthesize
+E2	Event:T5 theme:T6 agent:T9
+T6	Entity 76 92	their cell walls
+T7	Event 125 134	exhibited
+E3	Event:T7 agent:T8 theme:T25 cotemporal:E4
+T8	Entity 103 124	S. aureus populations
+T9	Entity 49 57	bacteria
+T10	Entity 162 175	their members
+T11	Event 181 189	affected
+E4	Event:T11 theme:T10 agent:T4
+T12	Entity 218 234	some individuals
+T13	Event 248 258	synthesize
+E5	Event:T13 agent:T12 theme:T14 causes:E7 super-event:E4 raw-material:T16
+T14	Entity 259 275	their cell walls
+T15	Event 311 323	not affected
+E6	Event:T15 theme:T16 agent:T17 causes:E5
+T16	Entity 282 301	a different protein
+T17	Entity 327 338	methicillin
+T18	Entity 340 357	These individuals
+*	same-entity T12 T18 T22
+T19	Event 358 366	survived
+E7	Event:T19 agent:T18 theme:T20 next-event:E8
+T20	Entity 367 393	the methicillin treatments
+T21	Event 398 408	reproduced
+E8	Event:T21 agent:T18 causes:E9
+T22	Entity 464 491	these resistant individuals
+T23	Static-Event 499 518	increasingly common
+E9	Static-Event:T23 causes:E10 theme:T22
+T24	Event 535 541	spread
+E10	Event:T24 agent:T26
+T25	Entity 135 145	variations
+T26	Entity 545 549	MRSA

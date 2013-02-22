@@ -1,0 +1,6 @@
+T1	Entity 41 61	sympatric speciation
+T2	Event 62 71	can occur
+E1	Event:T2 theme:T1
+T4	Entity 77 125	gene flow to and from the isolated subpopulation
+T3	Event 126 136	is blocked
+E2	Event:T3 causes:E1 theme:T4

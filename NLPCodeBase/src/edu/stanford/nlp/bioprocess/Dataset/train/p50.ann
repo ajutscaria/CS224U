@@ -1,0 +1,59 @@
+T1	Entity 5 28	oxygenic photosynthesis
+T2	Event 35 42	evolved
+E1	Event:T2 agent:T1 cotemporal:E2
+T3	Entity 56 58	it
+T4	Event 59 67	produced
+E2	Event:T4 agent:T3 result:T5 next-event:E3
+T5	Entity 48 55	free O2
+*	same-entity T3 T1
+T6	Event 77 86	dissolved
+E3	Event:T6 agent:T5 location:T7 next-event:E4
+T7	Entity 87 111	in the surrounding water
+T8	Entity 118 120	it
+*	same-entity T5 T8
+T9	Event 121 128	reached
+E4	Event:T9 agent:T8 theme:T10 cotemporal:E5
+T10	Entity 131 156	high enough concentration
+T11	Event 160 165	react
+E5	Event:T11 agent:T8 theme:T12 causes:E6
+T12	Entity 171 185	dissolved iron
+T13	Entity 187 191	This
+T14	Event 222 233	precipitate
+E6	Event:T14 agent:T15 result:T16 cotemporal:E7 same-event:E12
+T15	Entity 214 218	iron
+T16	Entity 237 247	iron oxide
+T17	Event 255 266	accumulated
+E7	Event:T17 agent:T16 result:T18 next-event:E9
+T18	Entity 270 279	sediments
+T19	Event 203 209	caused
+E8	Event:T19 agent:T13 causes:E6
+T20	Entity 287 296	sediments
+T21	Event 302 312	compressed
+E9	Event:T21 raw-material:T20 result:T22
+*	same-entity T18 T20
+T22	Entity 318 340	banded iron formations
+T23	Event 361 371	containing
+E10	Event:T23 agent:T24 theme:T25 cotemporal:E9 cotemporal2:E11
+T24	Entity 342 360	red layers of rock
+T25	Entity 372 382	iron oxide
+T26	Event 388 391	are
+E11	Event:T26 theme:T27 agent:T22
+T27	Entity 394 418	source of iron ore today
+T28	Entity 436 450	dissolved iron
+T29	Event 451 467	had precipitated
+E12	Event:T29 agent:T28 next-event:E13
+T30	Entity 469 482	additional O2
+T31	Event 483 492	dissolved
+E13	Event:T31 agent:T30 location:T32 causes:E14
+T32	Entity 493 505	in the water
+T33	Entity 516 530	seas and lakes
+T34	Event 531 537	became
+E14	Event:T34 theme:T33 theme2:T35 next-event:E15
+T35	Entity 538 555	saturated with O2
+T36	Event 602 611	"gas out"
+E15	Event:T36 agent:T37 theme:T38 cotemporal:E16
+T37	Entity 582 584	O2
+T38	Entity 619 624	water
+T39	Event 629 634	enter
+E16	Event:T39 agent:T37 theme:T40
+T40	Entity 639 649	atmosphere

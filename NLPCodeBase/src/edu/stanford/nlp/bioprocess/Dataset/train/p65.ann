@@ -1,0 +1,29 @@
+T2	Entity 4 57	antigen receptors on the surface of the helper T cell
+T1	Event 58 62	bind
+E1	Event:T1 agent:T2 theme:T3 theme2:T4 cotemporal:E2 cotemporal2:E3
+T3	Entity 70 86	antigen fragment
+T4	Entity 98 119	class II MHC molecule
+T5	Event 120 130	displaying
+E2	Event:T5 agent:T4 theme:T6 location:T7
+T6	Entity 136 144	fragment
+T7	Entity 152 175	antigen-presenting cell
+T9	Entity 198 215	accessory protein
+T10	Entity 223 244	helper T cell surface
+T11	Event 245 250	binds
+E3	Event:T11 agent:T9 location:T10 theme:T12 causes:E4
+T12	Entity 258 279	class II MHC molecule
+*	same-entity T4 T12
+T13	Event 281 293	helping keep
+E4	Event:T13 agent:T9 theme:T14 cotemporal:E5
+T14	Entity 298 303	cells
+T15	Event 304 310	joined
+E5	Event:T15 theme:T14 cotemporal:E6
+T16	Entity 319 328	two cells
+T17	Event 329 337	interact
+E6	Event:T17 agent:T16
+*	same-entity T14 T16
+T18	Event 376 385	exchanged
+E7	Event:T18 cotemporal:E6 theme:T19 location:T20
+T19	Entity 339 371	signals in the form of cytokines
+T20	Entity 389 404	both directions
+*	same-entity T3 T6

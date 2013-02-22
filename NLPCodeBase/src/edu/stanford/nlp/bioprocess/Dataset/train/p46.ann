@@ -1,0 +1,22 @@
+T1	Entity 5 26	geographic separation
+T2	Event 27 39	has occurred
+E1	Event:T2 theme:T1 next-event:E2
+T3	Entity 45 65	separated gene pools
+T4	Event 70 77	diverge
+E2	Event:T4 agent:T3 next-event:E3
+T5	Entity 79 98	Different mutations
+T6	Event 99 104	arise
+E3	Event:T6 theme:T5 cotemporal:E4
+T7	Entity 110 127	natural selection
+T8	Entity 132 145	genetic drift
+T9	Event 150 155	alter
+E4	Event:T9 agent:T8 agent2:T7 theme:T10 causes:E5
+T10	Entity 156 174	allele frequencies
+T11	Entity 223 245	Reproductive isolation
+T12	Event 255 260	arise
+E5	Event:T12 theme:T11
+T13	Entity 280 289	selection
+T14	Entity 293 298	drift
+T15	Event 332 339	diverge
+E6	Event:T15 theme:T16 agent:T14 agent2:T13 causes:E5
+T16	Entity 317 328	populations

@@ -1,0 +1,29 @@
+T1	Entity 17 38	segment of the strand
+T2	Event 39 49	containing
+E1	Event:T2 agent:T1 theme:T3 cotemporal:E2
+T3	Entity 54 60	damage
+T4	Event 64 81	cut out (excised)
+E2	Event:T4 theme:T1 agent:T5 next-event:E3
+T5	Entity 87 105	DNA-cutting enzyme
+T6	Entity 109 117	nuclease
+T7	Entity 127 140	resulting gap
+T8	Event 149 158	filled in
+E3	Event:T8 theme:T7 raw-material:T9 cotemporal:E4 same-event:E5
+T9	Entity 164 175	nucleotides
+T10	Event 177 182	using
+E4	Event:T10 theme:T11 theme2:T12
+T11	Entity 187 203	undamaged strand
+T12	Entity 209 217	template
+*	same-entity T5 T6
+T13	Event 231 250	involved in filling
+E5	Event:T13 agent:T14 theme:T15 cotemporal:E6
+T14	Entity 223 230	enzymes
+T15	Entity 255 258	gap
+T16	Event 259 262	are
+E6	Event:T16 theme:T17 theme2:T18 cotemporal:E7
+T17	Entity 265 279	DNA polymerase
+T18	Entity 284 294	DNA ligase
+T19	Event 323 332	is called
+E7	Event:T19 agent:T20 theme:T21
+T20	Entity 305 322	DNA repair system
+T21	Entity 333 359	nucleotide excision repair

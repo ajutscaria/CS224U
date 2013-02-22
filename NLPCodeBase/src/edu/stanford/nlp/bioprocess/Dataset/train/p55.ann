@@ -1,0 +1,20 @@
+T1	Entity 10 23	triploid cell
+T2	Event 24 33	may arise
+E1	Event:T2 agent:T1
+T3	Event 44 57	fertilization
+E2	Event:T3 causes:E1 theme:T4 next-event:E4
+T4	Entity 64 84	abnormal diploid egg
+T5	Event 85 93	produced
+E3	Event:T5 result:T4 agent:T6 next-event:E2
+T6	Entity 97 134	nondisjunction of all its chromosomes
+T7	Event 196 202	divide
+E4	Event:T7 agent:T10 result:T11 next-event:E6
+T8	Event 209 220	replicating
+E5	Event:T8 next-event:E4 theme:T9 agent:T10
+T9	Entity 221 236	its chromosomes
+T10	Entity 183 192	2n zygote
+T11	Entity 136 147	Tetraploidy
+T12	Entity 238 273	Subsequent normal mitotic divisions
+T13	Event 285 292	produce
+E6	Event:T13 result:T14 agent:T12
+T14	Entity 295 304	4n embryo

@@ -1,6 +1,6 @@
 \begin{thebibliography}{}
 
-\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2008)}{2008-eventchains}]{chju2008ec}
+\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2008)[Event Chains]}{2008-eventchains}]{chju2008ec}
 Nathanael Chambers and Dan Jurafsky
 \newblock 2008.
 \newblock Unsupervised learning of narrative event chains.
@@ -24,7 +24,7 @@ Jari Bjorne, Juho Heimonen, Filip Ginter, Antti Airola, Tapio Pahikkala, Tapio S
 \newblock Extracting Complex Biological Events with Rich Graph-Based Feature Sets.
 \newblock In {\em Proceedings of the Workshop on BioNLP: Shared Task,}.
 
-\bibitem[\protect\citeauthoryear{Toutanova \bgroup et al.\egroup (2005)}{2005}]{toutanova}
+\bibitem[\protect\citeauthoryear{Toutanova \bgroup et al.\egroup}{2005}]{toutanova}
 Kristina Toutanova, Aria Haghighi, Christopher D. Manning
 \newblock 2005.
 \newblock Joint Learning Improves Semantic Role Labeling.
@@ -48,7 +48,7 @@ David McClosky, Mihai Surdeanu, and Christopher D. Manning
 \newblock Event Extraction as Dependency Parsing
 \newblock In {\em Proceedings of ACL-11}.
 
-\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2008)}{2008-temporal ordering}]{temporalordering}
+\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2008)[Temporal ordering]}{2008-temporal ordering}]{temporalordering}
 Nathanael Chambers and Dan Jurafsky
 \newblock 2008.
 \newblock Jointly Combining Implicit Constraints Improves Temporal Ordering

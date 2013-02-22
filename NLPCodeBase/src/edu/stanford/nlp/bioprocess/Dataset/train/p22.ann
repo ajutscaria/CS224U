@@ -1,0 +1,14 @@
+T1	Event 19 48	carry out gel electrophoresis
+E1	Event:T1 agent:T2 theme:T3 next-event:E2
+T2	Entity 16 18	we
+T3	Entity 52 127	samples of mRNA from hummingbird embryos at different stages of development
+T4	Event 129 137	transfer
+E2	Event:T4 theme:T5 agent:T2 location:T6 next-event:E3
+T5	Entity 142 149	samples
+T6	Entity 150 178	to a nitrocellulose membrane
+T7	Event 189 194	allow
+E3	Event:T7 agent:T2 theme:T8 enables:E4
+T8	Entity 199 220	mRNAs on the membrane
+T9	Event 221 233	to hybridize
+E4	Event:T9 agent:T8 theme:T10
+T10	Entity 241 283	labeled probe recognizing beta-globin mRNA

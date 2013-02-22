@@ -1,0 +1,26 @@
+T1	Entity 74 84	one B cell
+T2	Event 85 92	divides
+E1	Event:T2 agent:T1 cotemporal:E2 cotemporal2:E5
+T3	Event 97 102	forms
+E2	Event:T3 agent:T1 result:T4 same-event:E6
+T4	Entity 105 119	clone of cells
+T5	Entity 17 33	specific antigen
+T6	Entity 41 60	immune cell signals
+T7	Event 3 11	response
+E3	Event:T7 theme:T5 theme2:T6 causes:E1
+T8	Entity 125 142	remaining B cells
+T9	Event 150 154	have
+E4	Event:T9 agent:T8 theme:T10 cotemporal:E5
+T10	Entity 155 200	antigen receptors specific for other antigens
+T11	Event 205 216	not respond
+E5	Event:T11 agent:T8
+T12	Entity 222 236	clone of cells
+*	same-entity T4 T12
+T13	Event 237 243	formed
+E6	Event:T13 result:T12 agent:T14 next-event:E7
+T14	Entity 251 266	selected B cell
+*	same-entity T1 T14
+T15	Event 267 277	gives rise
+E7	Event:T15 agent:T12 result:T16 result2:T17
+T16	Entity 281 295	memory B cells
+T17	Entity 300 331	antibody-secreting plasma cells

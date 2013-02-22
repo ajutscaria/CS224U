@@ -1,0 +1,46 @@
+T1	Entity 0 39	Each mammalian Toll-like receptor (TLR)
+T2	Event 40 45	binds
+E1	Event:T2 agent:T1 theme:T3 cotemporal:E2 cotemporal2:E4
+T3	Entity 49 71	fragments of molecules
+T4	Entity 92 108	set of pathogens
+T5	Entity 142 166	recognized macromolecule
+T6	Event 167 185	is normally absent
+E2	Event:T6 agent:T5 theme:T7
+T7	Entity 195 210	vertebrate body
+T8	Event 215 217	is
+E3	Event:T8 cotemporal:E2 agent:T5 theme:T9
+T9	Entity 221 271	essential component of certain groups of pathogens
+T10	Event 279 288	detecting
+E4	Event:T10 theme:T11 next-event:E5 agent:T1
+T11	Entity 289 307	invading pathogens
+T12	Entity 311 326	phagocytic cell
+T13	Event 327 334	engulfs
+E5	Event:T13 cotemporal:E6 agent:T12 theme:T14
+T14	Entity 335 339	them
+T15	Event 341 349	trapping
+E6	Event:T15 agent:T12 theme:T16 location:T17 next-event:E7
+T16	Entity 350 354	them
+T17	Entity 360 367	vacuole
+*	same-entity T11 T14 T16
+T18	Entity 373 380	vacuole
+T19	Event 386 391	fuses
+E7	Event:T19 agent:T18 theme:T20 next-event:E8 next-event2:E10
+T20	Entity 399 407	lysosome
+T21	Event 438 449	destruction
+E8	Event:T21 theme:T22
+T22	Entity 457 465	invaders
+T23	Event 517 523	poison
+E9	Event:T23 super-event:E8 agent:T25 theme:T27 next-event:E11
+T24	Event 492 500	produced
+E10	Event:T24 location:T26 result:T25
+T25	Entity 486 491	gases
+T26	Entity 508 516	lysosome
+T27	Entity 528 546	engulfed pathogens
+T28	Entity 556 582	lysozyme and other enzymes
+T29	Event 599 606	degrade
+E11	Event:T29 theme:T30 location:T31 agent:T28
+T30	Entity 611 638	components of the pathogens
+T31	Entity 590 598	lysosome
+*	same-entity T26 T31 T20
+*	same-entity T18 T17
+*	same-entity T4 T9

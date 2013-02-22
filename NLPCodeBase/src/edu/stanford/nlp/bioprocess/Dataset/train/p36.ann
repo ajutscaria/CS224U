@@ -1,0 +1,23 @@
+T1	Entity 5 9	cAMP
+T2	Event 10 15	binds
+E1	Event:T2 agent:T1 theme:T3 next-event:E2
+T3	Entity 24 42	regulatory protein
+T4	Entity 44 47	CAP
+T5	Event 48 55	assumes
+E2	Event:T5 next-event:E3 theme:T6 agent:T4
+T6	Entity 60 72	active shape
+T7	Event 77 87	can attach
+E3	Event:T7 theme:T8 location:T9 agent:T4 causes:E4
+T8	Entity 88 106	to a specific site
+T9	Entity 107 146	at the upstream end of the lac promoter
+T10	Entity 168 178	attachment
+T11	Event 179 188	increases
+E4	Event:T11 agent:T10 theme:T12
+T12	Entity 193 236	affinity of RNA polymerase for the promoter
+T13	Event 244 246	is
+E5	Event:T13 agent:T12 theme:T14
+T14	Entity 247 266	actually rather low
+T15	Event 290 298	is bound
+E6	Event:T15 agent:T16 location:T17 super-event:E5
+T16	Entity 277 289	no repressor
+T17	Entity 299 314	to the operator

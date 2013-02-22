@@ -25,26 +25,22 @@ hand-tagged data had large amount of unlabeled relations and global constraints 
 assist local decisions if the graph is not connected.
 
 So, an addition was made to the model - time-time information that are deduced from
-logical time intervals. For example, if event A occured 'last month' and B occured
-'yesterday', we can conclude that A occured before B because 'last month' occured before
+logical time intervals. For example, if event A occurred 'last month' and B occurred
+'yesterday', we can conclude that A occurred before B because 'last month' occurred before
 'yesterday'. Having this additional feature along with the global constraints, greatly
 increased the size of  training data set (81\% increase) and also improved the performance
-(3.6\% absolute over pairwise decisions).
-
-Thus this paper shows how textual events can be indirectly connected through a time
-normalization algorithm that creates new relations between time expressions  and that this
-increased connectivity is essential for a global model to improve performance.\\
+(3.6\% absolute over pairwise decisions).\\
 
 
 \xhdr{9. Joint Inference for Event Timeline Construction - \citeauthor{quang}} 
 
-This paper tries to map events into a timeline representation where each event is associated with a specific absolute time interval of occurence rather than just inferring the relative temporal relations among the events. 
+This paper tries to map events into a timeline representation where each event is associated with a specific absolute time interval of occurrence rather than just inferring the relative temporal relations among the events. 
 
-The data is simliar to \citeauthor{temporalordering} where events in news articles and associated arguments are hand labeled. Four relations between events are considered - {\em before, after, overlap and no relation}. A time interval is represented in the form [start time, end time]. These intervals are sometimes explicitly mentioned in the text while at other times, it might have to be inferred relative to the document creation time of the article. The model has three steps: 
+The data is similar to \citeauthor{temporalordering} where events in news articles and associated arguments are hand labeled. Four relations between events are considered - {\em before, after, overlap and no relation}. A time interval is represented in the form [start time, end time]. These intervals are sometimes explicitly mentioned in the text while at other times, it might have to be inferred relative to the document creation time of the article. The model has three steps: 
 \begin{enumerate}
 \item Two local pair wise classifiers, one between event mentions and time intervals (E-T) and another between event-event mentions(E-E) 
 \item A combination step with event coreference (discussed later) to overwrite prediction probabilities in step 1 and 
-\item A joint inference  module that enforces global coherncy constraints on the final output of the local classifiers. 
+\item A joint inference  module that enforces global coherency constraints on the final output of the local classifiers. 
 \end{enumerate}
 
 Classification in the local level is done using regularized average Perceptron over all possible pairs of event/time mentions using several features like the word, lemma, POS of events mentions, position of entities, tense, type of time interval, etc. Event coreference information is used to enhance the timeline construction performance, because all mentions of a single event overlap with each other and are associated with the same time interval. Also, all mentions of an event have same temporal relation with all mentions of another event. These two properties help avoiding misclassification in a lot of cases. The global inference model combines the local pairwise classifiers through the use of an Integer Linear Programming formulation of constraints. Both E-E and E-T tasks are optimized simultaneously. 

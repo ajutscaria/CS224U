@@ -1,0 +1,33 @@
+T1	Entity 3 17	RNA polymerase
+T2	Event 18 23	moves
+E1	Event:T2 agent:T1 location:T3 cotemporal:E2 cotemporal2:E4
+T3	Entity 24 37	along the DNA
+T4	Entity 39 41	it
+*	same-entity T1 T4 T9 T15
+T5	Event 42 62	continues to untwist
+E2	Event:T5 agent:T4 theme:T6 causes:E3
+T6	Entity 67 79	double helix
+T7	Event 81 89	exposing
+E3	Event:T7 theme:T8 agent:T4 enables:E5
+T8	Entity 90 127	about 10-20 DNA nucleotides at a time
+T9	Entity 180 186	enzyme
+T10	Event 187 191	adds
+E4	Event:T10 location:T14 raw-material:T13 agent:T9
+T11	Event 132 139	pairing
+E5	Event:T11 theme:T8 theme2:T12
+T12	Entity 145 160	RNA nucleotides
+T13	Entity 192 203	nucleotides
+T14	Entity 204 245	to the 3' end of the growing RNA molecule
+T15	Entity 249 251	it
+T16	Event 252 261	continues
+E6	Event:T16 agent:T15 location:T17 cotemporal:E4 same-event:E7
+T17	Entity 262 284	along the double helix
+T18	Event 306 337	advancing wave of RNA synthesis
+E7	Event:T18 
+T19	Entity 343 359	new RNA molecule
+T20	Event 360 370	peels away
+E8	Event:T20 agent:T19 location:T21 cotemporal:E7 next-event:E9
+T21	Entity 371 392	from its DNA template
+T22	Entity 402 418	DNA double helix
+T23	Event 419 427	re-forms
+E9	Event:T23 agent:T22
