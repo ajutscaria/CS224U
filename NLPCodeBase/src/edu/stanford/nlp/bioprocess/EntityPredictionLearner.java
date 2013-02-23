@@ -9,22 +9,17 @@ import java.util.List;
  *
  */
 
-public class EntityPredictionLearner {
-  //Parameters used by the model
+public class EntityPredictionLearner extends Learner{
+  public EntityPredictionLearner(List<Example> ds) {
+		super(ds);
+  }
+
+//Parameters used by the model
   Params parameters;
   //List of examples used to learn the parameters
   List<Example> dataset;
   //Maximum number of iterations to be run
   final static int maxIterations = 100;
-  
-  /***
-   * Constructor to initialize the Learner with a list of training examples.
-   * @param ds - List of training examples to learn the parameters from.
-   */
-  public EntityPredictionLearner(List<Example> ds) {
-    dataset = ds;
-    parameters = new Params();
-  }
   
   /***
    * Method that will learn parameters for the model and return it.
