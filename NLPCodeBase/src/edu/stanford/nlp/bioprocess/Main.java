@@ -10,7 +10,14 @@ public class Main {
    * 
    * @param groups - The types of data groups that will be used, e.g. test and train.
    */
-  public void run(HashMap<String, String> groups) {
+  public void runEntityPrediction(HashMap<String, String> groups) {
+    BioprocessDataset dataset = new BioprocessDataset(groups);
+    dataset.read();
+    Learner learner = new Learner(dataset.examples("train"));
+    learner.learn();
+  }
+  
+  public void runEventPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
     dataset.read();
     Learner learner = new Learner(dataset.examples("train"));
@@ -27,6 +34,10 @@ public class Main {
     HashMap<String, String> folders = new HashMap<String, String>();
     folders.put("test", testDirectory);
     folders.put("train", trainDirectory);
-    new Main().run(folders);
+    System.out.println(args[0]);
+    if(args.length > 0 && args[0].equals("-entity"))
+    	new Main().runEntityPrediction(folders);
+    if(args.length > 0 && args[0].equals("-event"))
+    	new Main().runEventPrediction(folders);
   }
 }

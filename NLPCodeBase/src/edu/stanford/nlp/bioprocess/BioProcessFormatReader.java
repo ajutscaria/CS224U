@@ -30,7 +30,8 @@ public class BioProcessFormatReader extends GenericDataSetReader {
   protected static final String ENTITY_TYPE = "Entity", STATIC_ENTITY_TYPE = "Static-Event";
   protected static final String TYPE_NEXT_EVENT = "next-event", TYPE_RESULT = "result", TYPE_AGENT = "agent", 
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
-      TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity";
+      TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity",
+      TYPE_TIME = "time";
  
   public final List<Example> parseFolder(String path) throws IOException {
     List<Example> examples = new ArrayList<Example>();
@@ -133,8 +134,12 @@ public class BioProcessFormatReader extends GenericDataSetReader {
                 case TYPE_THEME:
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Theme);
                     break;
+                case TYPE_TIME:
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Time);
+                    break;
                 case TYPE_COTEMPORAL_EVENT:
                   event.addArgument(mentions.get(keyValue[1]), RelationType.CotemporalEvent);
+                  ((EventMention)mentions.get(keyValue[1])).addArgument(event, RelationType.CotemporalEvent);
                   break;
                 case TYPE_NEXT_EVENT:
                   event.addArgument(mentions.get(keyValue[1]), RelationType.NextEvent);

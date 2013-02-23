@@ -2,8 +2,8 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.List;
 
-public class EntityPredictionInferenceBaseline {
-	public void infer(List<Example> examples) {
+public class EntityPredictionInference {
+	public void baselineInfer(List<Example> examples) {
 		for(Example example:examples) {
 			
 		}

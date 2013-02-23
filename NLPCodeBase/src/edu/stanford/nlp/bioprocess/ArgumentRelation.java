@@ -14,7 +14,8 @@ public class ArgumentRelation {
     NextEvent,
     SameEvent,
     SuperEvent,
-    Enables
+    Enables,
+    Time
   }
   ArgumentMention mention;
   RelationType type;
