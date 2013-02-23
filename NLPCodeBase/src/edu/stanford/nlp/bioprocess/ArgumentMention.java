@@ -99,6 +99,11 @@ public class ArgumentMention extends ExtractionObject {
   public String getNormalizedName() { return normalizedName; }
   public void setNormalizedName(String n) { normalizedName = n; }
 
+  public boolean  equals(ArgumentMention other) {
+	  System.out.println("HELLOOOOOOOOOOOO");
+	  return false;
+  }
+  
   private static int MENTION_COUNTER = 0;
 
   /**

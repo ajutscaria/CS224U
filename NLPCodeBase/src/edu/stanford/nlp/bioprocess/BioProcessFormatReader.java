@@ -8,23 +8,14 @@ import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.ie.machinereading.GenericDataSetReader;
 
-//import edu.stanford.nlp.ie.machinereading.structure.EntityMention;
-//import edu.stanford.nlp.ie.machinereading.structure.MachineReadingAnnotations.EntityMentionsAnnotation;
-
 import edu.stanford.nlp.io.IOUtils;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 
 import edu.stanford.nlp.ie.machinereading.structure.Span;
@@ -41,10 +32,6 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
       TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity";
  
-  //TODO - How is this used?
-  /** keeps track which entity is embedded (key) into which entity (value) */
-  Map<String, String> inclusionLinks;
-  
   public final List<Example> parseFolder(String path) throws IOException {
     List<Example> examples = new ArrayList<Example>();
     File folder = new File(path);
@@ -65,7 +52,11 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       example.data = rawText;
       example.id = file.replace(TEXT_EXTENSION, "");
       example.gold = createAnnotation(path + file);
+      example.prediction = example.gold.copy();
+      example.prediction.set(EntityMentionsAnnotation.class, null);
+      example.prediction.set(EventMentionsAnnotation.class, null);
       examples.add(example);
+      break;
     }
     return examples;
   }
@@ -95,8 +86,8 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             ArgumentMention m;
             
             int begin = Integer.parseInt(argumentDetails[1]), end =  Integer.parseInt(argumentDetails[2]);
-            CoreMap sentence = getContainingSentence(sentences, begin, end);
-            Span span = getSpanFromSentence(sentence, begin, end);
+            CoreMap sentence = Utils.getContainingSentence(sentences, begin, end);
+            Span span = Utils.getSpanFromSentence(sentence, begin, end);
             
             if(type.equals(EVENT_TYPE) || type.equals(STATIC_ENTITY_TYPE)) {
               m = new EventMention(desc, sentence, span);
@@ -182,25 +173,6 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       e.printStackTrace();
     }
     return document;
-  }
-  
-  private CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
-    for(CoreMap sentence:sentences) {
-      if(sentence.get(CharacterOffsetBeginAnnotation.class) <= begin && sentence.get(CharacterOffsetEndAnnotation.class) >= end)
-        return sentence;
-    }
-    return null;
-  }
-  
-  private Span getSpanFromSentence(CoreMap sentence, int begin, int end) {
-    Span span = new Span();
-    for(CoreLabel label:sentence.get(TokensAnnotation.class)) {
-      if(label.beginPosition() == begin)
-        span.setStart(label.index() - 1);
-      if(label.endPosition() == end)
-        span.setEnd(label.index());
-    }
-    return span;
   }
   
   private void addAnnotation(Annotation document, EntityMention entity) {
