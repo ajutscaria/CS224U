@@ -41,8 +41,8 @@ public class Learner {
       
       for(EntityMention entity:example.gold.get(EntityMentionsAnnotation.class)) {
         System.out.println(entity.prettyPrint());
-        SemanticGraph graph = entity.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
-  	  	System.out.println(graph);
+        //SemanticGraph graph = entity.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
+  	  	//System.out.println(graph);
         //List<IndexedWord> words = Utils.findNodeInDependencyTree(entity);
         //Utils.checkEntityHead(words, entity.getSentence());
       }
