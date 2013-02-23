@@ -95,7 +95,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             }
             else {
               m = new EntityMention(desc, sentence, span);
-              addAnnotation(document, (EntityMention)m);
+              Utils.addAnnotation(document, (EntityMention)m);
             }
             mentions.put(desc, m);
             break;
@@ -106,7 +106,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
         		mentions.put(desc, mentions.get(splts[1]));
         		mentions.remove(splts[1]);
         	}
-        }
+         } 
       }
       reader.seek(0);
       while((line = reader.readLine())!=null) {
@@ -158,7 +158,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
               }
             }
-            addAnnotation(document, event);
+            Utils.addAnnotation(document, event);
             break;
           case '*':
         	  String[] params = splits[1].split(" ");
@@ -178,25 +178,5 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       e.printStackTrace();
     }
     return document;
-  }
-  
-  private void addAnnotation(Annotation document, EntityMention entity) {
-    if(document.get(EntityMentionsAnnotation.class) == null) {
-      List<EntityMention> mentions = new ArrayList<EntityMention>();
-      mentions.add(entity);
-      document.set(EntityMentionsAnnotation.class, mentions);
-    }
-    else
-      document.get(EntityMentionsAnnotation.class).add(entity);
-  }
-  
-  private void addAnnotation(Annotation document, EventMention event) {
-    if(document.get(EventMentionsAnnotation.class) == null) {
-      List<EventMention> mentions = new ArrayList<EventMention>();
-      mentions.add(event);
-      document.set(EventMentionsAnnotation.class, mentions);
-    }
-    else
-      document.get(EventMentionsAnnotation.class).add(event);
   }
 }

@@ -3,12 +3,15 @@ package edu.stanford.nlp.bioprocess;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
+import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
@@ -73,12 +76,37 @@ public class Utils {
 	  Span span = new Span();
 	  List<IndexedWord> words = findNodeInDependencyTree(entity);
 	  SemanticGraph graph = entity.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
+	  IndexedWord head = words.get(0);
 	  for(IndexedWord word : words) {
 		  for(IndexedWord w : graph.getChildList(word)) {
-			  
+			  if(words.contains(w)) {
+				  head = w;
+				  break;
+			  }
 		  }
 	  }
+	  span.setStart(head.index());
+	  span.setEnd(head.index() + 1);
 	  return span;
   }
+
+  public static void addAnnotation(Annotation document, EntityMention entity) {
+    if(document.get(EntityMentionsAnnotation.class) == null) {
+      List<EntityMention> mentions = new ArrayList<EntityMention>();
+      mentions.add(entity);
+      document.set(EntityMentionsAnnotation.class, mentions);
+    }
+    else
+      document.get(EntityMentionsAnnotation.class).add(entity);
+  }
   
+  public static void addAnnotation(Annotation document, EventMention event) {
+    if(document.get(EventMentionsAnnotation.class) == null) {
+      List<EventMention> mentions = new ArrayList<EventMention>();
+      mentions.add(event);
+      document.set(EventMentionsAnnotation.class, mentions);
+    }
+    else
+      document.get(EventMentionsAnnotation.class).add(event);
+  }
 }
