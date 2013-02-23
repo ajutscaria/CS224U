@@ -43,14 +43,14 @@ public class Learner {
         System.out.println(entity.prettyPrint());
         SemanticGraph graph = entity.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
   	  	System.out.println(graph);
-        List<IndexedWord> words = Utils.findNodeInDependencyTree(entity);
-        Utils.checkEntityHead(words, entity.getSentence());
+        //List<IndexedWord> words = Utils.findNodeInDependencyTree(entity);
+        //Utils.checkEntityHead(words, entity.getSentence());
       }
       
       System.out.println("\nEvents in the paragraph\n-------------------------------");
       for(EventMention event:example.gold.get(EventMentionsAnnotation.class))
         System.out.println(event.prettyPrint());
-      break;
+      //break;
     }
     return parameters;
   }
