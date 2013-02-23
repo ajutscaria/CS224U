@@ -12,14 +12,14 @@ public class Main {
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
-    dataset.read();
+    dataset.read("dev");
     Learner learner = new Learner(dataset.examples("dev"));
     learner.learn();
   }
   
   public void runEventPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
-    dataset.read();
+    dataset.readAll();
     //Learner learner = new Learner(dataset.examples("train"));
     //learner.learn();
     TriggerPredictionInference TrigPred = new TriggerPredictionInference();

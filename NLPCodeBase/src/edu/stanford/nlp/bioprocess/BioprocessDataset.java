@@ -25,7 +25,9 @@ public class BioprocessDataset {
   LinkedHashMap<String, String> inPaths;
   //Maximum number of examples for a type of data - Unused as of now.
   ArrayList<Pair<String, Integer>> maxExamples;
-  
+  BioProcessFormatReader reader;
+  StanfordCoreNLP processor;
+
   /***
    * Initialize the dataset with the types of data and its input folders.
    * @param inPaths
@@ -36,6 +38,12 @@ public class BioprocessDataset {
     for(String str:inPaths.keySet())
     	addGroup(str, inPaths.get(str));
     maxExamples = new ArrayList<Pair<String,Integer>>();
+    Properties props = new Properties();
+    props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+
+    processor = new StanfordCoreNLP(props, false);
+    reader = new BioProcessFormatReader();
+    reader.setProcessor(processor);
   }
   
   /***
@@ -67,23 +75,20 @@ public class BioprocessDataset {
   /***
    * Read all types of data and load it to the dataset.
    */
-  public void read() {
-    Properties props = new Properties();
-    props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-
-    StanfordCoreNLP processor = new StanfordCoreNLP(props, false);
-    BioProcessFormatReader reader = new BioProcessFormatReader();
-    reader.setProcessor(processor);
-
+  public void readAll() {
     for(String group:inPaths.keySet()) {
-      String folderName = inPaths.get(group);
-      try {
-        allExamples.put(group, reader.parseFolder(folderName));
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        System.out.println("Exception - " + e.getMessage());
-        e.printStackTrace();
-      }
+      read(group);
     }
+  }
+  
+  public void read(String group) {
+	  String folderName = inPaths.get(group);
+	  try {
+	    allExamples.put(group, reader.parseFolder(folderName));
+	  } catch (IOException e) {
+	    // TODO Auto-generated catch block
+	    System.out.println("Exception - " + e.getMessage());
+	    e.printStackTrace();
+	  }
   }
 }
