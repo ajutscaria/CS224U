@@ -48,9 +48,11 @@ public class Learner {
       }
       
       System.out.println("\nEvents in the paragraph\n-------------------------------");
-      for(EventMention event:example.gold.get(EventMentionsAnnotation.class))
+      for(EventMention event:example.gold.get(EventMentionsAnnotation.class)){
         System.out.println(event.prettyPrint());
-      //break;
+        SemanticGraph graph = event.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
+	  	System.out.println(graph);
+      }
     }
     return parameters;
   }

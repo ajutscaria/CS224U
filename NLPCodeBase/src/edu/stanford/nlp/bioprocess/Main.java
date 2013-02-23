@@ -26,7 +26,8 @@ public class Main {
     //Learner learner = new Learner(dataset.examples("train"));
     //learner.learn();
     TriggerPredictionInference TrigPred = new TriggerPredictionInference();
-    TrigPred.baselineInfer(dataset.examples("test"));
+    TrigPred.baselineInfer(dataset.examples("train"));
+    Scorer.scoreEventPrediction(dataset.examples("train"));
   }
   
   /***
