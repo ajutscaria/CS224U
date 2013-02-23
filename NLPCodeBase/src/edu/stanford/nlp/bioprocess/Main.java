@@ -13,7 +13,7 @@ public class Main {
   public void runEntityPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
     dataset.read();
-    Learner learner = new Learner(dataset.examples("train"));
+    Learner learner = new Learner(dataset.examples("dev"));
     learner.learn();
   }
   
@@ -32,10 +32,12 @@ public class Main {
    */
   public static void main(String[] args) {
     Properties props = StringUtils.propFileToProperties("src/edu/stanford/nlp/bioprocess/bioprocess.properties");
-    String trainDirectory = props.getProperty("train.dir"), testDirectory = props.getProperty("test.dir");
+    String trainDirectory = props.getProperty("train.dir"), testDirectory = props.getProperty("test.dir"),
+    		devDirectory = props.getProperty("dev.dir");
     HashMap<String, String> folders = new HashMap<String, String>();
     folders.put("test", testDirectory);
     folders.put("train", trainDirectory);
+    folders.put("dev", devDirectory);
     if(args.length > 0 && args[0].equals("-entity"))
     	new Main().runEntityPrediction(folders);
     if(args.length > 0 && args[0].equals("-event"))
