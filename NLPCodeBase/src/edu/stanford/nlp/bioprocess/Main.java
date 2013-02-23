@@ -34,7 +34,6 @@ public class Main {
     HashMap<String, String> folders = new HashMap<String, String>();
     folders.put("test", testDirectory);
     folders.put("train", trainDirectory);
-    System.out.println(args[0]);
     if(args.length > 0 && args[0].equals("-entity"))
     	new Main().runEntityPrediction(folders);
     if(args.length > 0 && args[0].equals("-event"))
