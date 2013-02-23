@@ -33,6 +33,7 @@ public class Scorer {
 				System.out.println(ex.id);
 			f1 += score;
 		}
+		System.out.println("F1 score: " + f1 / examples.size());
 		return f1 / examples.size();
 	}
 }

@@ -17,7 +17,7 @@ public class Main {
     //learner.learn();
     EntityPredictionInference infer = new EntityPredictionInference();
     infer.baselineInfer(dataset.examples("train"));
-    System.out.println(Scorer.scoreEntityPrediction(dataset.examples("train")));
+    Scorer.scoreEntityPrediction(dataset.examples("train"));
   }
   
   public void runEventPrediction(HashMap<String, String> groups) {
