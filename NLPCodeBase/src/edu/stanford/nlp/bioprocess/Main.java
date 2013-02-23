@@ -20,8 +20,10 @@ public class Main {
   public void runEventPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
     dataset.read();
-    Learner learner = new Learner(dataset.examples("train"));
-    learner.learn();
+    //Learner learner = new Learner(dataset.examples("train"));
+    //learner.learn();
+    TriggerPredictionInference TrigPred = new TriggerPredictionInference();
+    TrigPred.baselineInfer(dataset.examples("test"));
   }
   
   /***
