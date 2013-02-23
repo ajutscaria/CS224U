@@ -100,7 +100,9 @@ public class ArgumentMention extends ExtractionObject {
   public void setNormalizedName(String n) { normalizedName = n; }
 
   public boolean  equals(ArgumentMention other) {
-	  System.out.println("HELLOOOOOOOOOOOO");
+	  if(this.getExtent().start() == other.getExtent().start() && this.getExtent().end() == other.getExtent().end()
+			  && this.getSentence().equals(other.getSentence()))
+		  return true;
 	  return false;
   }
   

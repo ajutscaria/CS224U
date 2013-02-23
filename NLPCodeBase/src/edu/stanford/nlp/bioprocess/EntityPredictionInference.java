@@ -15,7 +15,7 @@ public class EntityPredictionInference {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
 				for(CoreLabel token: sentence.get(TokensAnnotation.class)) {
 					if(token.get(PartOfSpeechAnnotation.class).startsWith("NN")) {
-						EntityMention entity = new EntityMention("obj", sentence, new Span(token.index(), token.index() + 1));
+						EntityMention entity = new EntityMention("obj", sentence, new Span(token.index()-1, token.index()));
 						Utils.addAnnotation(example.prediction, entity);
 					}
 				}

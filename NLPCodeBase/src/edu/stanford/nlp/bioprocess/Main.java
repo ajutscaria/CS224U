@@ -12,9 +12,12 @@ public class Main {
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
-    dataset.read("dev");
-    Learner learner = new Learner(dataset.examples("dev"));
-    learner.learn();
+    dataset.readAll();
+    //Learner learner = new Learner(dataset.examples("dev"));
+    //learner.learn();
+    EntityPredictionInference infer = new EntityPredictionInference();
+    infer.baselineInfer(dataset.examples("train"));
+    System.out.println(Scorer.scoreEntityPrediction(dataset.examples("train")));
   }
   
   public void runEventPrediction(HashMap<String, String> groups) {

@@ -1,5 +1,7 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.util.List;
+
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 
@@ -17,7 +19,20 @@ public class Scorer {
 			totalCorrect++;
 		}
 		predicted = prediction.get(EntityMentionsAnnotation.class).size();
-		double precision = predictedCorrect / predicted, recall = predictedCorrect / totalCorrect;
-		return 2 * precision * recall / (precision + recall);
+
+		double precision = predicted == 0 ? 0 : (double)predictedCorrect / predicted, 
+				recall = totalCorrect == 0 ? 0 : (double)predictedCorrect / totalCorrect;
+		return (precision + recall) == 0 ? 0 : 2 * precision * recall / (precision + recall);
+	}
+	
+	public static double scoreEntityPrediction(List<Example> examples) {
+		double f1 = 0;
+		for(Example ex:examples) {
+			double score = scoreEntityPrediction(ex.gold, ex.prediction);
+			if(score == 0)
+				System.out.println(ex.id);
+			f1 += score;
+		}
+		return f1 / examples.size();
 	}
 }
