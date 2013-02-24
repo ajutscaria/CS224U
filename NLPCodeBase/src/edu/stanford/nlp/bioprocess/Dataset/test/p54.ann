@@ -4,7 +4,7 @@ T2	Entity 2 40	particular region of each X chromosome
 T3	Entity 50 63	several genes
 T4	Event 64 72	involved
 E2	Event:T4 theme:T3 theme2:T5
-T5	Entity 80 99	inactivation proces
+T5	Entity 80 100	inactivation process
 T6	Entity 106 117	two regions
 T7	Event 145 154	associate
 E3	Event:T7 agent:T6 theme:T8 location:T9 super-event:E4 next-event:E5

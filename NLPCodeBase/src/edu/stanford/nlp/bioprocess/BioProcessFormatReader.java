@@ -55,8 +55,8 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       example.id = file.replace(TEXT_EXTENSION, "");
       example.gold = createAnnotation(path + file);
       example.prediction = example.gold.copy();
-      example.prediction.set(EntityMentionsAnnotation.class, null);
-      example.prediction.set(EventMentionsAnnotation.class, null);
+      example.prediction.set(EntityMentionsAnnotation.class, new ArrayList<EntityMention>());
+      example.prediction.set(EventMentionsAnnotation.class, new ArrayList<EventMention>());
       examples.add(example);
       //break;
     }

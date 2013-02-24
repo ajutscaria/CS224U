@@ -12,7 +12,7 @@ public class Main {
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
-    dataset.readAll();
+    dataset.read("train");
     //Learner learner = new Learner(dataset.examples("dev"));
     //learner.learn();
     EntityPredictionInference infer = new EntityPredictionInference();

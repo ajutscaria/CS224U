@@ -10,8 +10,8 @@ import edu.stanford.nlp.util.Pair;
 
 public class Scorer {
 	boolean useF1 = true;
-	
-	public static double scoreEntityPrediction(Annotation gold, Annotation prediction) {
+	/*
+	public static double scoreEntityPredictionOld(Annotation gold, Annotation prediction) {
 		int predicted = 0, predictedCorrect = 0, totalCorrect = 0;
 		for(EntityMention entityGold: gold.get(EntityMentionsAnnotation.class)) {
 			for(EntityMention entityPredicted: prediction.get(EntityMentionsAnnotation.class)) {
@@ -29,16 +29,46 @@ public class Scorer {
 		return (precision + recall) == 0 ? 0 : 2 * precision * recall / (precision + recall);
 	}
 	
-	public static double scoreEntityPrediction(List<Example> examples) {
+	public static double scoreEntityPredictionOld(List<Example> examples) {
 		double f1 = 0;
 		for(Example ex:examples) {
-			double score = scoreEntityPrediction(ex.gold, ex.prediction);
+			double score = scoreEntityPredictionOld(ex.gold, ex.prediction);
 			if(score == 0)
 				System.out.println(ex.id);
 			f1 += score;
 		}
 		System.out.println("F1 score: " + f1 / examples.size());
 		return f1 / examples.size();
+	}
+	*/
+
+	public static double scoreEntityPrediction(Annotation gold, Annotation prediction) {
+		int predictedCorrect = 0;
+		for(EntityMention entityGold: gold.get(EntityMentionsAnnotation.class)) {
+			for(EntityMention entityPredicted: prediction.get(EntityMentionsAnnotation.class)) {
+				if(entityGold.equals(entityPredicted)) {
+					predictedCorrect++;
+					break;
+				}
+			}
+		}
+		return predictedCorrect;
+	}
+	
+	public static double scoreEntityPrediction(List<Example> examples) {
+		int predictedRight = 0;
+		int totalCorrect = 0;
+		int predicted = 0;
+		for(Example ex:examples) {
+			predictedRight += scoreEntityPrediction(ex.gold,ex.prediction);
+			totalCorrect += ex.gold.get(EntityMentionsAnnotation.class).size();
+			predicted += ex.prediction.get(EntityMentionsAnnotation.class).size();
+		}
+		double precision = predicted == 0 ? 0 : (double)predictedRight / predicted, 
+				recall = totalCorrect == 0 ? 0 : (double)predictedRight / totalCorrect;
+		double f1 = (precision + recall) == 0 ? 0 : 2 * precision * recall / (precision + recall);
+		System.out.println(String.format("Precision : %f, Recall : %f, F1 score: %f", precision, recall, f1));
+		return f1;
 	}
 	
 	public static Pair<Double, Double> scoreEventPredictionOld(Annotation gold, Annotation prediction) {
@@ -102,11 +132,9 @@ public class Scorer {
 			eventPredictedList.add(eventPredicted);
 		}
 		for(EventMention eventGold: gold.get(EventMentionsAnnotation.class)) {
-			boolean flag = false;
 			for(EventMention eventPredicted: prediction.get(EventMentionsAnnotation.class)) {
 				if(eventGold.equals(eventPredicted)) {
 					predictedCorrect++;
-					flag = true;
 					//System.out.println("predicted right " + eventGold.prettyPrint());
 					eventPredictedList.remove(eventPredicted);
 					break;

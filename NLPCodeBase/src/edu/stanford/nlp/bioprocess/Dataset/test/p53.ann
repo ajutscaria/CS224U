@@ -8,7 +8,7 @@ T6	Event 95 103	retracts
 E2	Event:T6 agent:T5 causes:E3
 T7	Event 105 112	pulling
 E3	Event:T7 theme:T8 next-event:E4
-T8	Entity 117 134	two cells togethe
+T8	Entity 117 135	two cells together
 T9	Event 200 209	formation
 E4	Event:T9 result:T10 location:T11 enables:E5
 T10	Entity 215 240	temporary "mating bridge"
