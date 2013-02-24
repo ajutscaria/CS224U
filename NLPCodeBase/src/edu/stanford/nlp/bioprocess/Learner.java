@@ -1,10 +1,20 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.objectbank.TokenizerFactory;
+import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
+import edu.stanford.nlp.process.CoreLabelTokenFactory;
+import edu.stanford.nlp.process.PTBTokenizer;
+import edu.stanford.nlp.trees.GrammaticalStructureFactory;
+import edu.stanford.nlp.trees.PennTreebankLanguagePack;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreebankLanguagePack;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 
@@ -35,12 +45,14 @@ public class Learner {
    * Method that will learn parameters for the model and return it.
    * @return Parameters learnt.
    */
-  public Params learn() {
+  public double[][] learn() {
+	//checkTree();
+	/*  
     for(Example example:dataset) {
       System.out.println("\n\nExample: " + example.id + "\nEntities in the paragraph\n-----------------------------");
       
       for(EntityMention entity:example.gold.get(EntityMentionsAnnotation.class)) {
-        System.out.println(entity.prettyPrint());
+        //System.out.println(entity.prettyPrint());
         //SemanticGraph graph = entity.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
   	  	//System.out.println(graph);
         //List<IndexedWord> words = Utils.findNodeInDependencyTree(entity);
@@ -49,12 +61,53 @@ public class Learner {
       
       System.out.println("\nEvents in the paragraph\n-------------------------------");
       for(EventMention event:example.gold.get(EventMentionsAnnotation.class)){
-        System.out.println(event.prettyPrint());
-        SemanticGraph graph = event.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
-	  	System.out.println(graph);
+        //System.out.println(event.prettyPrint());
+        //SemanticGraph graph = event.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
+	  	//System.out.println(graph);
       }
-    }
-    return parameters;
+    }*/
+    return train();
+  }
+  
+  private double[][] train() {
+	  FeatureFactory ff = new FeatureFactory();
+		// add the features
+		List<Datum> trainDataWithFeatures = ff.setFeaturesTrain(dataset);
+		
+		return runMEMM(trainDataWithFeatures, true);
+  }
+  
+  public static double[][] runMEMM(List<Datum> data, boolean print) {
+
+		LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);
+		double[] initial = new double[obj.domainDimension()];
+
+		QNMinimizer minimizer = new QNMinimizer(15);
+		double[][] weights = obj.to2D(minimizer.minimize(obj, 1e-4, initial,
+				-1, null));
+
+		/*if (print) {
+			for (int classType = 0; classType < weights.length; classType++) {
+				System.out.println("Class " + (classType == 0 ? "O" : "E"));
+				for (int j = 0; j < weights[0].length; j++) { 
+					System.out.println(obj.featureIndex.get(j) + " has weight =" + weights[classType][j]);
+				}
+			}
+		}*/
+		//System.out.println(test.size());
+		//System.out.println(testData.size());
+		return weights;
+	}
+  
+  private void checkTree()
+  {
+	  System.out.println("In check tree");
+	  String text = "A particular region of each X chromosome contains several genes involved in the inactivation process.";
+	  TreebankLanguagePack tlp = new PennTreebankLanguagePack();
+	  GrammaticalStructureFactory gsf = tlp.grammaticalStructureFactory();
+	  LexicalizedParser lp = LexicalizedParser.loadModel();
+	  Tree tree = lp.apply(text);
+	  tree.pennPrint();
   }
 
 }

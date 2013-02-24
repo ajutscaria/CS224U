@@ -1,5 +1,6 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
@@ -13,11 +14,24 @@ public class Main {
   public void runEntityPrediction(HashMap<String, String> groups) {
     BioprocessDataset dataset = new BioprocessDataset(groups);
     dataset.read("train");
-    //Learner learner = new Learner(dataset.examples("dev"));
-    //learner.learn();
-    EntityPredictionInference infer = new EntityPredictionInference();
-    infer.baselineInfer(dataset.examples("train"));
-    Scorer.scoreEntityPrediction(dataset.examples("train"));
+    int NumCrossValidation = 10;
+    CrossValidationSplit split = new CrossValidationSplit((ArrayList<Example>) dataset.examples("train"), NumCrossValidation);
+    double sum = 0.0;
+    for(int i = 1; i <= NumCrossValidation; i++) {
+    	System.out.println("Iteration: "+i);
+    	Learner learner = new Learner(split.GetTrainExamples(i));
+    	System.out.println(split.GetTrainExamples(i).size());
+        double[][] weights = learner.learn();
+        EntityPredictionInference infer = new EntityPredictionInference();
+
+        double f1 = infer.MEMMInfer(split.GetTestExamples(i), weights);
+        if (!Double.isNaN(f1)) {
+        	sum += f1;
+        }
+    }
+    double average = sum/NumCrossValidation;
+    System.out.println("Average Score: "+average);
+    //Scorer.scoreEntityPrediction(dataset.examples("dev"));
   }
   
   public void runEventPrediction(HashMap<String, String> groups) {
@@ -27,7 +41,7 @@ public class Main {
     //learner.learn();
     TriggerPredictionInference TrigPred = new TriggerPredictionInference();
     TrigPred.baselineInfer(dataset.examples("train"));
-    Scorer.scoreEventPrediction(dataset.examples("train"));
+    //Scorer.scoreEventPrediction(dataset.examples("train"));
   }
   
   /***
