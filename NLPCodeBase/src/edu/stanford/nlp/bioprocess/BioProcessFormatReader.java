@@ -48,6 +48,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
     };
     for(String file:folder.list(textFilter)){
       System.out.println(file);
+      
       String rawText = IOUtils.slurpFile(new File(path + file));
       Example example = new Example();
       example.data = rawText;
@@ -96,6 +97,8 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             else {
               m = new EntityMention(desc, sentence, span);
               Utils.addAnnotation(document, (EntityMention)m);
+              m.setHeadTokenSpan(Utils.findEntityHeadWord((EntityMention)m));
+              //System.out.println(m.getHeadToken().originalText());
             }
             mentions.put(desc, m);
             break;

@@ -10,6 +10,7 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
@@ -54,6 +55,7 @@ public class Utils {
   }
   
   public static CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
+	//System.out.println(begin + ":" + end);
     for(CoreMap sentence:sentences) {
       if(sentence.get(CharacterOffsetBeginAnnotation.class) <= begin && sentence.get(CharacterOffsetEndAnnotation.class) >= end)
         return sentence;
@@ -63,6 +65,7 @@ public class Utils {
   
   public static Span getSpanFromSentence(CoreMap sentence, int begin, int end) {
     Span span = new Span();
+    //System.out.println(sentence);
     for(CoreLabel label:sentence.get(TokensAnnotation.class)) {
       if(label.beginPosition() == begin)
         span.setStart(label.index() - 1);
@@ -74,19 +77,25 @@ public class Utils {
   
   public static Span findEntityHeadWord(EntityMention entity) {
 	  Span span = new Span();
+	  
 	  List<IndexedWord> words = findNodeInDependencyTree(entity);
 	  SemanticGraph graph = entity.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
+	  //System.out.println(entity.getValue() + " " + words.size() );
 	  IndexedWord head = words.get(0);
+	  //System.out.println("\nFinding head word for  - " + entity.getValue());
+	  //System.out.println(graph);
 	  for(IndexedWord word : words) {
-		  for(IndexedWord w : graph.getChildList(word)) {
-			  if(words.contains(w)) {
-				  head = w;
-				  break;
-			  }
+		  if(!head.get(PartOfSpeechAnnotation.class).startsWith("NN") && word.get(PartOfSpeechAnnotation.class).startsWith("NN")) {
+			  head = word;
 		  }
+		  else if(!head.equals(word) && word.get(PartOfSpeechAnnotation.class).startsWith("NN") && words.contains(graph.getCommonAncestor(head, word)))
+			  head = graph.getCommonAncestor(head, word);
 	  }
-	  span.setStart(head.index());
-	  span.setEnd(head.index() + 1);
+	  //System.out.println(head.index()-1);
+	  //System.out.println(entity.getExtent());
+	  //System.out.println("Headword  - " + head.originalText());
+	  span.setStart(head.index()-1);
+	  span.setEnd(head.index());
 	  return span;
   }
 

@@ -6,6 +6,7 @@ import java.util.List;
 import edu.stanford.nlp.ie.machinereading.structure.ExtractionObject;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreAnnotations;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
@@ -78,6 +79,11 @@ public class ArgumentMention extends ExtractionObject {
     headTokenSpan = s;
   }
 
+  public CoreLabel getHeadToken() {
+	  //System.out.println(this.getHeadTokenStart());
+	  return this.getSentence().get(TokensAnnotation.class).get(this.getHeadTokenStart());
+  }
+  
   public void setHeadTokenPosition(int i) {
     this.syntacticHeadTokenPosition = i;
   }
@@ -100,8 +106,7 @@ public class ArgumentMention extends ExtractionObject {
   public void setNormalizedName(String n) { normalizedName = n; }
 
   public boolean  equals(ArgumentMention other) {
-	  if(this.getExtent().start() == other.getExtent().start() && this.getExtent().end() == other.getExtent().end()
-			  && this.getSentence().equals(other.getSentence()))
+	  if(this.getHead().equals(other.getHead()) && this.getSentence().equals(other.getSentence()))
 		  return true;
 	  return false;
   }

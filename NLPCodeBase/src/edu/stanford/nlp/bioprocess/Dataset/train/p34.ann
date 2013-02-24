@@ -18,7 +18,7 @@ E5	Event:T12 cotemporal:E6 next-event:E7
 T13	Entity 238 240	it
 T14	Event 241 255	passes through
 E6	Event:T14 location:T15 agent:T13
-T15	Entity 256 301	an exit tunnel in the ribosome's large subuni
+T15	Entity 256 302	an exit tunnel in the ribosome's large subunit
 T16	Event 313 336	polypeptide is complete
 E7	Event:T16 next-event:E8
 T17	Event 344 352	released

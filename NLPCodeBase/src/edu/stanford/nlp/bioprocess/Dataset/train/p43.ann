@@ -1,4 +1,4 @@
-T1	Entity 250 263	segment of DN
+T1	Entity 250 264	segment of DNA
 T2	Event 268 289	deleted or duplicated
 E1	Event:T2 theme:T1
 T3	Event 6 14	slippage
