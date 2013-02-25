@@ -1,5 +1,8 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
@@ -12,8 +15,16 @@ public class Main {
    * @param groups - The types of data groups that will be used, e.g. test and train.
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
+	String examplesFileName = "trainExamples.data";
     BioprocessDataset dataset = new BioprocessDataset(groups);
-    dataset.read("train");
+    File f = new File(examplesFileName);
+    if(f.exists())
+    	dataset.allExamples.put("train", Utils.readFile(examplesFileName));
+    else {
+    	dataset.read("train");
+    	Utils.writeFile(dataset.examples("train"), examplesFileName);
+    }
+    System.out.println(dataset.examples("train").size());
     int NumCrossValidation = 10;
     CrossValidationSplit split = new CrossValidationSplit((ArrayList<Example>) dataset.examples("train"), NumCrossValidation);
     double sum = 0.0;

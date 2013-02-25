@@ -1,5 +1,9 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -118,4 +122,38 @@ public class Utils {
     else
       document.get(EventMentionsAnnotation.class).add(event);
   }
+  
+  public static void writeFile(List<Example> data, String fileName) {
+	  // Write to disk with FileOutputStream
+	    try{
+	    FileOutputStream f_out = new FileOutputStream(fileName);
+
+	    // Write object with ObjectOutputStream
+	    ObjectOutputStream obj_out = new ObjectOutputStream (f_out);
+
+	    // Write object out to disk
+	    obj_out.writeObject ( data);
+	    }catch (Exception ex) {
+	    	
+	    }
+  }
+  
+  public static List<Example> readFile(String fileName) {
+	// Read from disk using FileInputStream
+	  try
+	  {
+	  FileInputStream f_in = new FileInputStream(fileName);
+
+	  // Read object using ObjectInputStream
+	  ObjectInputStream obj_in = new ObjectInputStream (f_in);
+
+	  // Read an object
+	  Object obj = obj_in.readObject();
+	  return (List<Example>) obj;
+	  }catch(Exception ex) {
+		  System.out.println(ex.toString());
+	  }
+	  return null;
+  }
+  
 }

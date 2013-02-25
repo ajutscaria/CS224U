@@ -36,9 +36,10 @@ public class FeatureFactory {
 	features.add("word=" + currentWord);
 	features.add("pos=" + token.get(PartOfSpeechAnnotation.class));
 	features.add("lemma=" + token.get(LemmaAnnotation.class));
+	//features.add("noun=" + (token.get(PartOfSpeechAnnotation.class).startsWith("NN") ? 1 : 0));
 	//if(token.index() > 1) {
 	//	CoreLabel prev = sentence.get(TokensAnnotation.class).get(token.index() - 2);
-	//	features.add("prevword=" + prev.originalText());
+		//features.add("prevword=" + prev.originalText());
 	//	features.add("prevpos=" + prev.get(PartOfSpeechAnnotation.class));
 	//}
 	//features.add("trueCase=" + entity.get(TrueCaseAnnotation.class));

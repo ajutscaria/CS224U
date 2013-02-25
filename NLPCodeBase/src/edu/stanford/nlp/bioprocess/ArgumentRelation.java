@@ -1,6 +1,8 @@
 package edu.stanford.nlp.bioprocess;
 
-public class ArgumentRelation {
+import java.io.Serializable;
+
+public class ArgumentRelation implements Serializable {
   
   public enum RelationType {
     Agent,
