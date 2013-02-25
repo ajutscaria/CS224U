@@ -9,10 +9,10 @@ import java.lang.Math;
  * @author Rose
  */
 public class CrossValidationSplit  {
-	List<Example> allExamplesCV;
+	ArrayList<Example> allExamplesCV;
 	int numFoldsCV;
 	List<ArrayList<Example>> foldsCV;
-	public CrossValidationSplit(List<Example> examples, int numFolds){
+	public CrossValidationSplit(ArrayList<Example> examples, int numFolds){
 		numFoldsCV = numFolds;
 		allExamplesCV = examples;
 		foldsCV = new ArrayList<ArrayList<Example>>();
@@ -28,11 +28,11 @@ public class CrossValidationSplit  {
 		}
 	}
 	public List<Example> GetTrainExamples(int numFold){
-		List<Example> trainCV = new ArrayList<Example>();
+		ArrayList<Example> trainCV = new ArrayList<Example>();
 		if (numFold<1 || numFold>numFoldsCV){
 			return trainCV;
 		}
-		trainCV = allExamplesCV;
+		trainCV = (ArrayList<Example>) allExamplesCV.clone();
 		trainCV.removeAll(foldsCV.get(numFold-1));
 		return trainCV;
 	}

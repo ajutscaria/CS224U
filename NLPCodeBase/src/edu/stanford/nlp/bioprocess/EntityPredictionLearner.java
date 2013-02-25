@@ -9,7 +9,7 @@ import java.util.List;
  *
  */
 
-public class EntityPredictionLearner extends Learner{
+public class EntityPredictionLearner  extends Learner{
   public EntityPredictionLearner(List<Example> ds) {
 		super(ds);
   }
@@ -25,7 +25,7 @@ public class EntityPredictionLearner extends Learner{
    * Method that will learn parameters for the model and return it.
    * @return Parameters learnt.
    */
-  public Params learn() {
-    return parameters;
+  public double[][] learn() {
+    return new double[0][0];
   }
 }
