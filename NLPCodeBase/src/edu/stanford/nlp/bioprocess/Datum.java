@@ -8,7 +8,6 @@ public class Datum {
   public final String label;
   public List<String> features;
   public String guessLabel;
-  public String previousLabel;
   
   public Datum(String word, String label) {
     this.word = word;

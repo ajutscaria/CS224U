@@ -20,14 +20,14 @@ public class Main {
     for(int i = 1; i <= NumCrossValidation; i++) {
     	System.out.println("Iteration: "+i);
     	Learner learner = new Learner(split.GetTrainExamples(i));
-    	System.out.println(split.GetTrainExamples(i).size());
-        double[][] weights = learner.learn();
-        EntityPredictionInference infer = new EntityPredictionInference();
+    	double f1 = learner.learnAndPredict(split.GetTestExamples(i));
+    	//Learner learner = new Learner(dataset.examples("dev"));
+        //double f1 = learner.learnAndPredict(dataset.examples("dev"));
+        //EntityPredictionInference infer = new EntityPredictionInference();
 
-        double f1 = infer.MEMMInfer(split.GetTestExamples(i), weights);
-        if (!Double.isNaN(f1)) {
+        //if (!Double.isNaN(f1)) {
         	sum += f1;
-        }
+        //}
     }
     double average = sum/NumCrossValidation;
     System.out.println("Average Score: "+average);

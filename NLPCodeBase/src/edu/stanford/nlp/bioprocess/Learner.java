@@ -66,19 +66,15 @@ public class Learner {
 	  	//System.out.println(graph);
       }
     }*/
-    return train();
+    //return train();
+	  return new double[0][0];
   }
   
-  private double[][] train() {
-	  FeatureFactory ff = new FeatureFactory();
+  public double learnAndPredict(List<Example> testData) {
+	    FeatureFactory ff = new FeatureFactory();
 		// add the features
-		List<Datum> trainDataWithFeatures = ff.setFeaturesTrain(dataset);
+		List<Datum> data = ff.setFeaturesTrain(dataset);
 		
-		return runMEMM(trainDataWithFeatures, true);
-  }
-  
-  public static double[][] runMEMM(List<Datum> data, boolean print) {
-
 		LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);
 		double[] initial = new double[obj.domainDimension()];
 
@@ -86,17 +82,22 @@ public class Learner {
 		double[][] weights = obj.to2D(minimizer.minimize(obj, 1e-4, initial,
 				-1, null));
 
-		/*if (print) {
-			for (int classType = 0; classType < weights.length; classType++) {
-				System.out.println("Class " + (classType == 0 ? "O" : "E"));
-				for (int j = 0; j < weights[0].length; j++) { 
-					System.out.println(obj.featureIndex.get(j) + " has weight =" + weights[classType][j]);
-				}
-			}
-		}*/
-		//System.out.println(test.size());
-		//System.out.println(testData.size());
-		return weights;
+		List<Datum> test = ff.setFeaturesTest(testData);
+	    //System.out.println(obj.labelIndex.size());
+		List<Datum> testDataInDatum = new ArrayList<Datum>();
+
+		for (int i = 0; i < test.size(); i += obj.labelIndex.size()) {
+			testDataInDatum.add(test.get(i));
+		}
+		Viterbi viterbi = new Viterbi(obj.labelIndex, obj.featureIndex, weights);
+		viterbi.decode(testDataInDatum, test);
+		
+		for(Datum d:testDataInDatum)
+			System.out.println(String.format("%-20s Gold: %s, Predicted: %s", d.word, d.label, d.guessLabel));
+		
+		double f1 = Scorer.score(testDataInDatum);
+		
+		return f1;//testData;
 	}
   
   private void checkTree()

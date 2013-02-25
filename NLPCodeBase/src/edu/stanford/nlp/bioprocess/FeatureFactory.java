@@ -26,34 +26,39 @@ public class FeatureFactory {
      * is the word you are adding features for. PreviousLabel must be the
      * only label that is visible to this method. 
      */
-    private List<String> computeFeatures(CoreMap sentence, CoreLabel entity) {
+    private List<String> computeFeatures(CoreMap sentence, CoreLabel token, String tokenClass) {
 
 	List<String> features = new ArrayList<String>();
 
-	String currentWord = entity.originalText();
+	String currentWord = token.originalText();
 
-	// Baseline Features  
-	if(entity.index() > 0) {
-		CoreLabel prev = sentence.get(TokensAnnotation.class).get(entity.index() - 1);
-		features.add("prevword=" + prev.originalText());
-		features.add("prevpos=" + prev.get(PartOfSpeechAnnotation.class));
-	}
+	// Baseline Features 
 	features.add("word=" + currentWord);
-	features.add("pos=" + entity.get(PartOfSpeechAnnotation.class));
+	features.add("pos=" + token.get(PartOfSpeechAnnotation.class));
+	features.add("lemma=" + token.get(LemmaAnnotation.class));
+	//if(token.index() > 1) {
+	//	CoreLabel prev = sentence.get(TokensAnnotation.class).get(token.index() - 2);
+	//	features.add("prevword=" + prev.originalText());
+	//	features.add("prevpos=" + prev.get(PartOfSpeechAnnotation.class));
+	//}
 	//features.add("trueCase=" + entity.get(TrueCaseAnnotation.class));
-	features.add("lemma=" + entity.get(LemmaAnnotation.class));
 	//features.add("ner=" + entity.get(NamedEntityTagAnnotation.class));
 	//features.add("role=" + entity.get(RoleAnnotation.class));
-	features.add("stem=" + entity.get(StemAnnotation.class));
+	//features.add("stem=" + entity.get(StemAnnotation.class));
 	//features.add("prevLabel=" + previousLabel);
 	//features.add("word=" + currentWord + ", prevLabel=" + previousLabel);
+	String classString = "class=" + tokenClass + ",";
+	List<String> updatedFeatures = new ArrayList<String>();
+	for(String feature:features)
+		updatedFeatures.add(classString + feature);
+	//System.out.println(updatedFeatures);
 	/** Warning: If you encounter "line search failure" error when
 	 *  running the program, considering putting the baseline features
 	 *  back. It occurs when the features are too sparse. Once you have
 	 *  added enough features, take out the features that you don't need. 
 	 */
 
-	return features;
+	return updatedFeatures;
     }
 
 
@@ -106,17 +111,16 @@ public class FeatureFactory {
 		List<CoreLabel> entityHeads = getEntityTokens(ex);
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			String prevLabel = "O";
-			for(CoreLabel label: sentence.get(TokensAnnotation.class)) {
+			for(CoreLabel token: sentence.get(TokensAnnotation.class)) {
 				String type = "O";
-				if(entityHeads.contains(label)) {
+				if(entityHeads.contains(token)) {
 					type = "E";
 				}
-				Datum newDatum = new Datum(label.originalText(), type);
-				newDatum.features = computeFeatures(sentence, label);
-				newDatum.previousLabel = prevLabel;
+				Datum newDatum = new Datum(token.originalText(), type);
+				newDatum.features = computeFeatures(sentence, token, type);
 				newData.add(newDatum);
 				
-				prevLabel = newDatum.previousLabel;
+				prevLabel = newDatum.label;
 			}
 		}
 	}
@@ -139,38 +143,22 @@ public class FeatureFactory {
 
 	// compute features for all possible previous labels in advance for
 	// Viterbi algorithm
-	String prevLabel = "O";
-	int i = 0;
 	for (Example ex : data) {
 		List<CoreLabel> entityHeads = getEntityTokens(ex);
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(CoreLabel token: sentence.get(TokensAnnotation.class)) {
-				if (i == 0) {
+				for (String possibleLabel : labels) {
 					String type = "O";
 					if(entityHeads.contains(token)) {
 						type = "E";
-					}
+						}
+					
 					Datum newDatum = new Datum(token.originalText(), type);
-					newDatum.features = computeFeatures(sentence, token);
-					newDatum.previousLabel = prevLabel;
+					newDatum.features = computeFeatures(sentence, token, possibleLabel);
 					newData.add(newDatum);
-
-				} 
-				else {
-					for (String previousLabel : labels) {
-						String type = "O";
-						if(entityHeads.contains(token)) {
-							type = "E";
-							}
-						
-						Datum newDatum = new Datum(token.originalText(), type);
-						newDatum.features = computeFeatures(sentence, token);
-						newDatum.previousLabel = previousLabel;
-						newData.add(newDatum);
-					}
-			    }
-				i++;
-			}
+					//prevLabel = newDatum.label;
+				}
+		    }
 		}
 
 	}
