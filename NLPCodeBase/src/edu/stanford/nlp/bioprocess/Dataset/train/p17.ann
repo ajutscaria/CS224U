@@ -17,24 +17,13 @@ T11	Event 173 179	enters
 E4	Event:T11 agent:T10 theme:T12 next-event:E5
 T12	Entity 180 198	the cell's nucleus
 T13	Event 203 213	integrates
-E5	Event:T13 agent:T10 causes:E6 theme:T14
+E5	Event:T13 agent:T10 theme:T14 next-event:E9
 T14	Entity 219 242	the DNA of a chromosome
-T15	Entity 244 268	The integrated viral DNA
-T16	Entity 277 287	a provirus
-*	same-entity T16 T15 T26
-T17	Event 289 301	never leaves
-E6	Event:T17 agent:T16 theme:T18
-T18	Entity 302 319	the host's genome
-T19	Event 321 330	remaining
-E7	Event:T19 same-event:E6 next-event:E9 agent:T16 theme:T30
 T24	Entity 460 485	The host's RNA polymerase
 T25	Event 486 497	transcribes
-E9	Event:T25 agent:T24 result:T27 raw-material:T26 next-event:E8
+E9	Event:T25 agent:T24 result:T27 raw-material:T26 next-event:E10 next-event2:E11
 T26	Entity 498 514	the proviral DNA
 T27	Entity 520 533	RNA molecules
-T30	Entity 331 351	a permanent resident
-T20	Event 545 553	function
-E8	Event:T20 agent:T27 theme:T21 cotemporal:E10 theme2:T28 cotemporal2:E11
 T21	Entity 562 566	mRNA
 T22	Entity 588 602	viral proteins
 T23	Event 575 584	synthesis

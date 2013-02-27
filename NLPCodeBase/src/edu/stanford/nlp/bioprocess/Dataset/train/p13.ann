@@ -1,19 +1,13 @@
-T1	Entity 31 78	our original hypothetical wildflower population
-T2	Entity 88 106	another population
-T3	Static-Event 26 30	near
-E1	Static-Event:T3 theme:T1 cotemporal:E2 agent:T2
 T4	Event 174 182	carrying
-E2	Event:T4 agent:T5 cotemporal:E3 theme:T20 origin:T6 destination:T8
+E2	Event:T4 agent:T5 cotemporal:E3 theme:T20 origin:T6 destination:T8 cotemporal2:E1
 T5	Entity 166 173	Insects
-T6	Entity 190 207	from these plants
-T7	Event 212 232	fly to and pollinate
-E3	Event:T7 agent:T5 theme:T8 causes:E4 causes2:E5
+T6	Entity 195 207	these plants
+T7	Event 212 215	fly
+E3	Event:T7 agent:T5 theme:T8 next-event:E1
 T8	Entity 233 266	plants in our original population
-*	same-entity T6 T2
-*	same-entity T8 T1
 T9	Entity 268 293	The introduced CW alleles
 T10	Event 300 306	modify
-E4	Event:T10 agent:T9 theme:T11 time:T24
+E4	Event:T10 agent:T9 theme:T11 time:T24 cotemporal:E5
 T11	Entity 307 351	our original population's allele frequencies
 T12	Entity 384 391	alleles
 T13	Event 396 405	exchanged
@@ -30,8 +24,7 @@ E7	Event:T16 causes:E8
 T20	Entity 183 189	pollen
 T21	Event 446 452	reduce
 E9	Event:T21 theme:T15
-T22	Static-Event 107 117	consisting
-E10	Static-Event:T22 agent:T2 theme:T23 cotemporal:E1
-T23	Entity 131 164	white-flowered individuals (CWCW)
 T24	Entity 355 374	the next generation
 T25	Entity 406 425	between populations
+T1	Event 223 232	pollinate
+E1	Event:T1 theme:T8 causes:E4 causes2:E5 agent:T5
