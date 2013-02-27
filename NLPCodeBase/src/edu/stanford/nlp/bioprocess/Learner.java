@@ -114,7 +114,7 @@ public class Learner {
 	  GrammaticalStructureFactory gsf = tlp.grammaticalStructureFactory();
 	  LexicalizedParser lp = LexicalizedParser.loadModel();
 	  Tree tree = lp.apply(text);
-	  tree.pennPrint();
+	  //tree.pennPrint();
   }
 
 }

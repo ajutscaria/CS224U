@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
+import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
 /**
@@ -15,10 +16,15 @@ import edu.stanford.nlp.util.CoreMap;
 public class EntityMention extends ArgumentMention {
   private static final long serialVersionUID = -2745903102654191527L;
   private List<ArgumentRelation> relations;
+  private Tree entityRoot;
   
   public EntityMention(String objectId, CoreMap sentence, Span span) {
    super(objectId, sentence, span);
    relations = new ArrayList<ArgumentRelation>();
+  }
+  
+  public void setTreeNode(Tree node) {
+	  entityRoot = node;
   }
   
   public void addRelation(EntityMention mention, RelationType type) {

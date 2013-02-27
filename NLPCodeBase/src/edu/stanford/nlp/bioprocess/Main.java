@@ -22,30 +22,40 @@ public class Main {
    * @param groups - The types of data groups that will be used, e.g. test and train.
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
+	boolean useDev = false, useOneLoop = true;
 	String examplesFileName = "trainExamples.data";
     BioprocessDataset dataset = new BioprocessDataset(groups);
-    File f = new File(examplesFileName);
-    if(f.exists())
-    	dataset.allExamples.put("train", Utils.readFile(examplesFileName));
-    else {
-    	dataset.read("train");
-    	Utils.writeFile(dataset.examples("train"), examplesFileName);
-    }
-    System.out.println(dataset.examples("train").size());
+    CrossValidationSplit split = null;
     int NumCrossValidation = 10;
-    CrossValidationSplit split = new CrossValidationSplit((ArrayList<Example>) dataset.examples("train"), NumCrossValidation);
+    
+    if(!useDev) {
+	    File f = new File(examplesFileName);
+	    //if(f.exists())
+	    //	dataset.allExamples.put("train", Utils.readFile(examplesFileName));
+	    //else {
+	    	dataset.read("train");
+	    	//Utils.writeFile(dataset.examples("train"), examplesFileName);
+	    //}
+	    split = new CrossValidationSplit((ArrayList<Example>) dataset.examples("train"), NumCrossValidation);
+    }
+    else{
+    	dataset.read("dev");
+    }
+    
     double sum = 0.0;
     for(int i = 1; i <= NumCrossValidation; i++) {
+    	if(useDev) {
+    		Learner learner = new Learner(dataset.examples("dev"));
+            double f1 = learner.learnAndPredict(dataset.examples("dev"));
+            break;
+    	}
+    	else {
     	System.out.println("Iteration: "+i);
     	Learner learner = new Learner(split.GetTrainExamples(i));
     	double f1 = learner.learnAndPredict(split.GetTestExamples(i));
-    	//Learner learner = new Learner(dataset.examples("dev"));
-        //double f1 = learner.learnAndPredict(dataset.examples("dev"));
-        //EntityPredictionInference infer = new EntityPredictionInference();
-
-        //if (!Double.isNaN(f1)) {
-        	sum += f1;
-        //}
+    	}
+    	if(useOneLoop)
+    		break;
     }
     double average = sum/NumCrossValidation;
     System.out.println("Average Score: "+average);
@@ -74,11 +84,11 @@ public class Main {
     folders.put("test", testDirectory);
     folders.put("train", trainDirectory);
     folders.put("dev", devDirectory);
-//    if(args.length > 0 && args[0].equals("-entity"))
-//    	new Main().runEntityPrediction(folders);
-//    if(args.length > 0 && args[0].equals("-event"))
-//    	new Main().runEventPrediction(folders);
-    new Main().checkDP(folders);
+    if(args.length > 0 && args[0].equals("-entity"))
+    	new Main().runEntityPrediction(folders);
+    if(args.length > 0 && args[0].equals("-event"))
+    	new Main().runEventPrediction(folders);
+    //new Main().checkDP(folders);
     
   }
 

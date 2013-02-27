@@ -19,6 +19,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 
 import edu.stanford.nlp.ie.machinereading.structure.Span;
+import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
 public class BioProcessFormatReader extends GenericDataSetReader {
@@ -95,7 +96,10 @@ public class BioProcessFormatReader extends GenericDataSetReader {
               m = new EventMention(desc, sentence, span);
             }
             else {
+              
               m = new EntityMention(desc, sentence, span);
+              Tree entityRoot = Utils.getEntityNode(sentence, (EntityMention)m);
+              ((EntityMention)m).setTreeNode(entityRoot);
               Utils.addAnnotation(document, (EntityMention)m);
               m.setHeadTokenSpan(Utils.findEntityHeadWord((EntityMention)m));
               //System.out.println(m.getHeadToken().originalText());

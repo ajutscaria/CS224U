@@ -1,6 +1,7 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.HashMap;
+import java.util.List;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
@@ -18,6 +19,8 @@ public class DynamicProgramming {
 	Tree syntacticParse;
 	HashMap<Tree, Pair<Double, String>> tokenMap;
 	
+	HashMap<Tree, CoreLabel> treeLabelMap;
+	
 	public DynamicProgramming(CoreMap sentence, HashMap<Tree, Pair<Double, String>> tokenMap) {
 		this.syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		this.syntacticParse.pennPrint();
@@ -26,14 +29,20 @@ public class DynamicProgramming {
 			System.out.println(node.toString()+":"+this.tokenMap.get(node));
 		}
 		calculateLabels();
+		//addTreeNodeAnnotations(this.syntacticParse, sentence.get(TokensAnnotation.class));
 		for (Tree node : syntacticParse.preOrderNodeList()) {
 			System.out.println(node.toString()+":"+this.tokenMap.get(node));
 		}
 	}
 	
+	 
+	 
+	 
+
+	
 	// Assumes the map has probs for E.
 	private void calculateLabels() {
-		for (Tree node : this.syntacticParse.preOrderNodeList()) {
+		for (Tree node : this.syntacticParse.postOrderNodeList()) {
 			if (this.tokenMap.get(node).second == "O" || this.tokenMap.get(node).second == "E") {
 				continue;
 			}

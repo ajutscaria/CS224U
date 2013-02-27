@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
@@ -12,14 +13,20 @@ import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.IndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IntPair;
 
 public class Utils {
   public static boolean checkEntityHead(List<IndexedWord> words, CoreMap sentence) {
@@ -102,7 +109,60 @@ public class Utils {
 	  span.setEnd(head.index());
 	  return span;
   }
+  
+  public static Tree getEntityNode(CoreMap sentence, EntityMention entity) {
 
+	  
+	  Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+	  syntacticParse.setSpans();
+	  for (Tree node : syntacticParse.postOrderNodeList()) {
+		  if(node.isLeaf())
+			  continue;
+		  
+		  Span entitySpan = entity.getExtent();
+		  IntPair span = node.getSpan();
+		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
+			  //System.out.println("Found match - " + node);
+			  return node;
+		  }
+		  if(span.getSource() == entitySpan.start() - 1 && span.getTarget() == entitySpan.end() - 1) {
+			  //To check for an extra determiner like "a" or "the" in front of the entity
+			  if(sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class).equals("DT")) {
+				  //System.out.println("Found match - " + node);
+				  return node;
+			  }
+		  }
+	  }
+	  System.out.println("No match found for - " + entity.getValue());
+	  syntacticParse.pennPrint();
+	  return null;
+  }
+  /*
+  public void addTreeNodeAnnotations(CoreMap sentence) {
+		 HashMap<Tree, CoreLabel> treeLabelMap = new HashMap<Tree, CoreLabel>();
+		 Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+		 List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+		 for(Tree leaf : syntacticParse.getLeaves()) {
+			 if(leaf.label() instanceof CoreLabel) {
+				 CoreLabel label = (CoreLabel) leaf.label();
+			     // find matching token in tokens array
+			     CoreLabel matching = null;
+			     for(CoreLabel l : tokens) {
+			    	 if(l.beginPosition() == label.beginPosition() && l.endPosition() == label.endPosition()) {
+			    		 matching = l;
+			    		 break;
+			    	 }
+			     }
+			     if(matching != null) 
+			    	 treeLabelMap.put(leaf, matching);
+			     else 
+			    	 System.out.println("ERROR: found no matching token for " + label);
+			 } else {
+				 System.out.println("ERROR: leaf is not CoreLabel instance: " + leaf);
+			 }
+		 }
+	 }*/
+  
   public static void addAnnotation(Annotation document, EntityMention entity) {
     if(document.get(EntityMentionsAnnotation.class) == null) {
       List<EntityMention> mentions = new ArrayList<EntityMention>();
