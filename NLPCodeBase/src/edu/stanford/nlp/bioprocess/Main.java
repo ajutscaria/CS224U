@@ -7,6 +7,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations;
+import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 
 public class Main {
@@ -67,9 +74,40 @@ public class Main {
     folders.put("test", testDirectory);
     folders.put("train", trainDirectory);
     folders.put("dev", devDirectory);
-    if(args.length > 0 && args[0].equals("-entity"))
-    	new Main().runEntityPrediction(folders);
-    if(args.length > 0 && args[0].equals("-event"))
-    	new Main().runEventPrediction(folders);
+//    if(args.length > 0 && args[0].equals("-entity"))
+//    	new Main().runEntityPrediction(folders);
+//    if(args.length > 0 && args[0].equals("-event"))
+//    	new Main().runEventPrediction(folders);
+    new Main().checkDP(folders);
+    
   }
+
+	private void checkDP(HashMap<String, String> folders) {
+		 BioprocessDataset dataset = new BioprocessDataset(folders);
+		 dataset.readAll();
+		 for (Example ex : dataset.examples("train")) {
+			 for (CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
+				 HashMap<Tree, Pair<Double, String>> tokenMap = new HashMap<Tree, Pair<Double, String>>();
+				 Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+				 for (Tree node : syntacticParse.preOrderNodeList()) {
+					 Double prob = Math.random();
+					 String label;
+					 if (node.isLeaf()) {
+						 if (prob < 0.5) {
+							 label = "O";
+						 } else {
+							 label = "E";
+						 }
+					 } else {
+						 label = "NA";
+					 }
+					 Pair<Double, String> pair = new Pair<Double, String>(prob, label);
+					 tokenMap.put(node, pair);
+				 }
+				 DynamicProgramming dp = new DynamicProgramming(sentence, tokenMap);
+				 break;
+			 }
+			 break;
+		 }
+	}
 }
