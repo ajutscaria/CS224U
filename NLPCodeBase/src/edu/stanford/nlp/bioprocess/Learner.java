@@ -5,6 +5,7 @@ import java.util.List;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.objectbank.TokenizerFactory;
@@ -17,6 +18,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreebankLanguagePack;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.util.CoreMap;
 
 /***
  * Class that does the learning
@@ -71,6 +73,10 @@ public class Learner {
   }
   
   public double learnAndPredict(List<Example> testData) {
+	    for(Example ex:testData)
+	    	for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
+	    		printTree(sentence);
+	    	}
 	    FeatureFactory ff = new FeatureFactory();
 		// add the features
 		List<Datum> data = ff.setFeaturesTrain(dataset);
@@ -93,17 +99,17 @@ public class Learner {
 		viterbi.decode(testDataInDatum, test);
 		
 		for(Datum d:testDataInDatum)
-			System.out.println(String.format("%-20s Gold: %s, Predicted: %s", d.word, d.label, d.guessLabel));
+			if(d.guessLabel.equals("E") || d.label.equals("E"))
+				System.out.println(String.format("%-20s Gold: %s, Predicted: %s", d.word, d.label, d.guessLabel));
 		
 		double f1 = Scorer.score(testDataInDatum);
 		
 		return f1;//testData;
 	}
   
-  private void checkTree()
+  private void printTree(CoreMap sentence)
   {
-	  System.out.println("In check tree");
-	  String text = "A particular region of each X chromosome contains several genes involved in the inactivation process.";
+	  String text = sentence.toString();
 	  TreebankLanguagePack tlp = new PennTreebankLanguagePack();
 	  GrammaticalStructureFactory gsf = tlp.grammaticalStructureFactory();
 	  LexicalizedParser lp = LexicalizedParser.loadModel();
