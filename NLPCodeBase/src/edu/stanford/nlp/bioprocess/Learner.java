@@ -73,10 +73,10 @@ public class Learner {
   }
   
   public double learnAndPredict(List<Example> testData) {
-	    for(Example ex:testData)
-	    	for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
-	    		printTree(sentence);
-	    	}
+	    //for(Example ex:testData)
+	    //	for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
+	    //		printTree(sentence);
+	    //	}
 	    FeatureFactory ff = new FeatureFactory();
 		// add the features
 		List<Datum> data = ff.setFeaturesTrain(dataset);
@@ -114,7 +114,7 @@ public class Learner {
 	  GrammaticalStructureFactory gsf = tlp.grammaticalStructureFactory();
 	  LexicalizedParser lp = LexicalizedParser.loadModel();
 	  Tree tree = lp.apply(text);
-	  //tree.pennPrint();
+	  tree.pennPrint();
   }
 
 }

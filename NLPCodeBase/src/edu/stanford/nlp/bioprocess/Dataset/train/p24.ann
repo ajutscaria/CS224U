@@ -7,14 +7,14 @@ E2	Event:T4 super-event:E1 theme:T5 agent:T6 next-event:E3
 T5	Entity 67 76	a plasmid
 T6	Entity 42 53	researchers
 T7	Event 174 180	insert
-E3	Event:T7 agent:T6 raw-material:T8 theme:T10 next-event:E5
+E3	Event:T7 agent:T6 next-event:E5 theme2:T8 destination:T10
 T8	Entity 181 204	DNA from another source
 T9	Entity 205 220	("foreign" DNA)
 *	same-entity T9 T8
 T10	Entity 226 228	it
 *	same-entity T5 T10 T16
 T14	Event 321 329	returned
-E5	Event:T14 theme:T16 location:T15 result:T18 next-event:E7
+E5	Event:T14 theme:T16 result:T18 next-event:E7 destination:T15
 T15	Entity 333 349	a bacterial cell
 T16	Entity 301 312	The plasmid
 T18	Entity 361 384	a recombinant bacterium

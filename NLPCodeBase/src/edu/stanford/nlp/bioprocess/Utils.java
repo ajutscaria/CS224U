@@ -5,6 +5,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -29,6 +30,9 @@ import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IntPair;
 
 public class Utils {
+  public static List<String> Punctuations = Arrays.asList(".", ",");
+  public static int countBad = 0;
+	
   public static boolean checkEntityHead(List<IndexedWord> words, CoreMap sentence) {
 	  SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	  //System.out.println(graph);
@@ -110,31 +114,82 @@ public class Utils {
 	  return span;
   }
   
-  public static Tree getEntityNode(CoreMap sentence, EntityMention entity) {
-
-	  
+  public static Tree getEntityNodeBest(CoreMap sentence, EntityMention entity) {
 	  Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 	  syntacticParse.setSpans();
+	  Span entitySpan = entity.getExtent();
 	  for (Tree node : syntacticParse.postOrderNodeList()) {
 		  if(node.isLeaf())
 			  continue;
 		  
-		  Span entitySpan = entity.getExtent();
 		  IntPair span = node.getSpan();
 		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
-			  //System.out.println("Found match - " + node);
-			  return node;
+			  //System.out.println(node.value());
+			  //System.out.println(entity.getValue() + "| Found match - " + node);
+			  if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS"))
+				  return node;
 		  }
 		  if(span.getSource() == entitySpan.start() - 1 && span.getTarget() == entitySpan.end() - 1) {
 			  //To check for an extra determiner like "a" or "the" in front of the entity
-			  if(sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class).equals("DT")) {
-				  //System.out.println("Found match - " + node);
-				  return node;
+			  String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
+			  if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
+				  //System.out.println(entity.getValue() + "| Found match - " + node);
+				  if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS"))
+					  return node;
+			  }
+		  }
+		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()) {
+			  //To check for an extra punctuation at the end of the entity.
+			  List<Tree> leaves = node.getLeaves();
+			  if(Punctuations.contains(leaves.get(leaves.size()-1).toString())) {
+				  //System.out.println(entity.getValue() + "| Found match - " + node);
+				  if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS"))
+				  	return node;
 			  }
 		  }
 	  }
-	  System.out.println("No match found for - " + entity.getValue());
-	  syntacticParse.pennPrint();
+	  return null;  
+  }
+  
+  public static Tree getEntityNode(CoreMap sentence, EntityMention entity) {	  
+	  //Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+	  
+	  EntityMention entityNew = new EntityMention("id", entity.getSentence(), new Span(entity.getExtentTokenStart(), entity.getExtentTokenEnd()));
+	  
+	  // Perfect Match
+	  Tree bestMatch = getEntityNodeBest(sentence, entityNew);
+	  if (bestMatch != null) {
+		  return bestMatch;
+	  }
+	  
+	  //System.out.println("Missed first section");
+	  EntityMention entityNoLastToken = new EntityMention("id", entityNew.getSentence(), new Span(entityNew.getExtentTokenStart(), entityNew.getExtentTokenEnd() -1 ));
+	  while(entityNoLastToken.getExtent().end() - entityNoLastToken.getExtent().start() != 0) {
+		  //Remove last token
+		  bestMatch = getEntityNodeBest(sentence, entityNoLastToken);
+		  if (bestMatch != null) {
+			  //System.out.println(entity.getValue() + "| Found match - " + bestMatch);
+			  return bestMatch;
+		  }
+		  entityNoLastToken = new EntityMention("id", entityNoLastToken.getSentence(), new Span(entityNoLastToken.getExtentTokenStart(), entityNoLastToken.getExtentTokenEnd() -1 ));
+	  }
+	  //System.out.println("Missed second section");
+	  EntityMention entityNoFirstToken = new EntityMention("id", entityNew.getSentence(), new Span(entityNew.getExtentTokenStart()+1, entityNew.getExtentTokenEnd() ));
+	  while(entityNoFirstToken.getExtent().end() - entityNoFirstToken.getExtent().start() != 0) {
+		  //Remove first token
+		  
+		  bestMatch = getEntityNodeBest(sentence, entityNoFirstToken);
+		  if (bestMatch != null) {
+			  //System.out.println(entity.getValue() + "| Found match - " + bestMatch);
+			  return bestMatch;
+		  }
+		  entityNoFirstToken = new EntityMention("id", entityNoFirstToken.getSentence(), new Span(entityNoFirstToken.getExtentTokenStart()+1, entityNoFirstToken.getExtentTokenEnd() ));
+	  }
+	  
+	  countBad+=1;
+	  System.out.println("No match found for - " + entity.getValue() + ":"+  countBad);
+
+	  //syntacticParse.pennPrint();
 	  return null;
   }
   /*

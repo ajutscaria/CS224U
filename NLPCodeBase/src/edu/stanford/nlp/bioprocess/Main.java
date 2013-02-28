@@ -22,7 +22,7 @@ public class Main {
    * @param groups - The types of data groups that will be used, e.g. test and train.
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
-	boolean useDev = false, useOneLoop = true;
+	boolean useDev = true, useOneLoop = true;
 	String examplesFileName = "trainExamples.data";
     BioprocessDataset dataset = new BioprocessDataset(groups);
     CrossValidationSplit split = null;

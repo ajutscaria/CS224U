@@ -1,0 +1,103 @@
+% to compile, make sure you use the following (in order to get proper font embedding):
+% for PDF use dvipdfm
+% for PS use dvips -t letter -Pdownload35
+
+\documentclass[letterpaper]{article}
+\usepackage{aaai}
+\usepackage{times}
+\usepackage{helvet}
+\usepackage{courier}
+\frenchspacing
+\pdfinfo{
+/Title (...................)
+/Subject (AAAI Publications)
+/Author (AAAI Press)}
+\setcounter{secnumdepth}{0}
+
+\usepackage[show]{chato-notes} % set to ``hide'' for submission
+%\usepackage[hide]{chato-notes} % set to ``hide'' for submission
+
+\usepackage{graphicx}
+\usepackage{url}
+% to get formulae in the time font as well:
+\usepackage{mathptmx}
+\usepackage{hyphenat}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{subfigure}
+
+\newcommand{\hide}[1]{}
+%\newcommand{\xhdr}[1]{\vspace{2mm}\noindent{{\bf #1.}}}
+\newcommand{\xhdr}[1]{\vspace{0mm}{\bf #1.}}
+\newcommand{\xhdrNoPeriod}[1]{\vspace{0mm}{\bf #1}}
+\newcommand{\cpt}[1]{\textsc{\MakeLowercase{#1}}}
+\newcommand{\rev}[1]{\underline{#1}}
+
+%%% space saving ideas
+%\enlargethispage{\baselineskip} % to add additional line to a page
+%\renewcommand{\baselinestretch}{0.983}
+\newcommand{\denselist}{ \itemsep -2pt\topsep-10pt\partopsep-10pt }
+\newcommand{\denselistRefs}{ \itemsep -2pt\topsep-5pt\partopsep-7pt }
+
+\DeclareMathOperator*{\argmax}{arg\,max}
+
+% for line breaks in tables; e.g., \specialcell[t]{Foo\\bar}:
+\newcommand{\specialcell}[3]{\begin{tabular}[#1]{@{}#2@{}}#3\end{tabular}}
+
+\clubpenalty = 10000
+\widowpenalty = 10000 
+
+\hyphenation{
+Wi-ki-pe-dia
+Wi-ki-speedia
+Page-Rank
+un-suc-cess-ful
+}
+
+% for some reason it's important to have this line that late on in the doc:
+\usepackage{cmm-greek}
+
+\begin{document}
+
+\title{
+CS 224 U: Project Milestone
+}
+
+\author{
+Aju Thalappillil Scaria, Rishita Anubhai, Rose Marie Philip \\
+\{ajuts, rishita, rosep\}@stanford.edu\\
+%Stanford University \\
+}
+
+\maketitle
+
+
+%\begin{abstract}
+%\input{000abstract}
+%\end{abstract}
+
+\section{Project goals}
+\label{sec:projectgoals}
+\input{010projectgoals}
+
+\section{Previous approaches}
+\label{sec:previousapproaches}
+\input{020previousapproaches}
+
+\section{Current approach}
+\label{sec:currentapproach}
+\input{030currentapproach}
+
+\section{Progress}
+\label{sec:progress}
+\input{040progress}
+
+\bibliographystyle{aaai}
+\bibliography{bibliography}
+
+%\appendix
+%\section{Appendix -- leftovers}
+%\label{sec:appendix}
+%\input{070appendix}
+
+\end{document}

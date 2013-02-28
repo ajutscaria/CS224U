@@ -34,4 +34,4 @@ T31	Event 651 660	assembled
 E11	Event:T31 theme:T29 next-event:E12 raw-material:T28
 T32	Event 665 673	released
 E12	Event:T32 theme:T29 location:T33
-T33	Entity 679 688	the cell.
+T33	Entity 679 687	the cell

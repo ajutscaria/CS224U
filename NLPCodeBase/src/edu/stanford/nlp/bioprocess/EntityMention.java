@@ -27,6 +27,10 @@ public class EntityMention extends ArgumentMention {
 	  entityRoot = node;
   }
   
+  public Tree getTreeNode() {
+	  return entityRoot;
+  }
+  
   public void addRelation(EntityMention mention, RelationType type) {
 	  relations.add(new ArgumentRelation(mention, type));
   }
