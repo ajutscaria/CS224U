@@ -205,7 +205,7 @@ public class Utils {
 	  if (bestMatch != null) {
 		  return bestMatch;
 	  }
-	  
+	  //System.out.println(entity.getValue());
 	  //System.out.println("Missed first section");
 	  EntityMention entityNoLastToken = new EntityMention("id", entityNew.getSentence(), new Span(entityNew.getExtentTokenStart(), entityNew.getExtentTokenEnd() -1 ));
 	  while(entityNoLastToken.getExtent().end() - entityNoLastToken.getExtent().start() != 0) {
@@ -295,6 +295,13 @@ public class Utils {
 	    }catch (Exception ex) {
 	    	
 	    }
+  }
+  
+  public static List<Tree> getEntityNodes(Example ex) {
+  	List<Tree> lst = new ArrayList<Tree>();
+  	for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
+  		lst.add(entity.getTreeNode());
+  	return lst;
   }
   
   public static List<Example> readFile(String fileName) {

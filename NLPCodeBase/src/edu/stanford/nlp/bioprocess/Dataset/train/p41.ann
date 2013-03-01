@@ -10,7 +10,7 @@ T11	Entity 185 205	the RNA intermediate
 T12	Event 215 224	converted
 E5	Event:T12 agent:T14 result:T13 raw-material:T11 next-event2:E8 super-event:E4
 T13	Entity 233 236	DNA
-T14	Entity 241 261	everse transcriptase
+T14	Entity 240 261	reverse transcriptase
 T21	Entity 454 477	Another cellular enzyme
 T22	Event 478 487	catalyzes
 E8	Event:T22 agent:T21 theme:T23 location:T24

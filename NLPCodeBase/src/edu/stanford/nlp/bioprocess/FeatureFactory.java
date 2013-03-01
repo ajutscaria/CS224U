@@ -75,54 +75,12 @@ public class FeatureFactory {
 	return updatedFeatures;
     }
 
-
-    /** Do not modify this method **/
-    public List<Datum> readData(String filename) throws IOException {
-
-	List<Datum> data = new ArrayList<Datum>();
-	BufferedReader in = new BufferedReader(new FileReader(filename));
-
-	for (String line = in.readLine(); line != null; line = in.readLine()) {
-	    if (line.trim().length() == 0) {
-		continue;
-	    }
-	    String[] bits = line.split("\\s+");
-	    String word = bits[0];
-	    String label = bits[1];
-
-	    Datum datum = new Datum(word, label);
-	    data.add(datum);
-	}
-
-	return data;
-    }
-
-    /** Do not modify this method **/
-    public List<Datum> readTestData(String ch_aux) throws IOException {
-
-	List<Datum> data = new ArrayList<Datum>();
-
-	for (String line : ch_aux.split("\n")) {
-	    if (line.trim().length() == 0) {
-		continue;
-	    }
-	    String[] bits = line.split("\\s+");
-	    String word = bits[0];
-	    String label = bits[1];
-
-	    Datum datum = new Datum(word, label);
-	    data.add(datum);
-	}
-
-	return data;
-    }
-
     /** Do not modify this method **/
     public List<Datum> setFeaturesTrain(List<Example> data) {
 	List<Datum> newData = new ArrayList<Datum>();
 	
 	for (Example ex : data) {
-		List<Tree> entityNodes = getEntityNodes(ex);
+		List<Tree> entityNodes = Utils.getEntityNodes(ex);
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				if(node.isLeaf()||node.value().equals("ROOT"))
@@ -134,7 +92,7 @@ public class FeatureFactory {
 					type = "E";
 				}
 				
-				Datum newDatum = new Datum(getText(node), type);
+				Datum newDatum = new Datum(getText(node), type, node);
 				newDatum.features = computeFeatures(sentence, node, type);
 				//System.out.println(getText(node) + ":" + newDatum.features);
 				newData.add(newDatum);
@@ -161,7 +119,7 @@ public class FeatureFactory {
 	// compute features for all possible previous labels in advance for
 	// Viterbi algorithm
 	for (Example ex : data) {
-		List<Tree> entityNodes = getEntityNodes(ex);
+		List<Tree> entityNodes = Utils.getEntityNodes(ex);
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
@@ -172,7 +130,7 @@ public class FeatureFactory {
 						type = "E";
 						}
 					
-					Datum newDatum = new Datum(getText(node), type);
+					Datum newDatum = new Datum(getText(node), type, node);
 					newDatum.features = computeFeatures(sentence, node, possibleLabel);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;
@@ -186,19 +144,46 @@ public class FeatureFactory {
 	
     }
     
+    public List<Datum> setFeaturesTest(CoreMap sentence, List<Tree> entityNodes) {
+    	// this is so that the feature factory code doesn't accidentally use the
+    	// true label info
+    	List<Datum> newData = new ArrayList<Datum>();
+    	List<String> labels = new ArrayList<String>();
+    	Map<String, Integer> labelIndex = new HashMap<String, Integer>();
+
+    	labelIndex.put("O", 0);
+    	labelIndex.put("E", 1);
+    	labels.add("O");
+    	labels.add("E");
+
+
+		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+			for (String possibleLabel : labels) {
+				if(node.isLeaf()|| node.value().equals("ROOT"))
+					continue;
+				String type = "O";
+				if(entityNodes.contains(node)) {
+					type = "E";
+					}
+				
+				Datum newDatum = new Datum(getText(node), type, node);
+				newDatum.features = computeFeatures(sentence, node, possibleLabel);
+				newData.add(newDatum);
+				//prevLabel = newDatum.label;
+			}
+	    }
+
+
+    	return newData;
+    	
+    }
+    
     private String getText(Tree tree) {
     	StringBuilder b = new StringBuilder();
     	for(Tree leaf:tree.getLeaves()) {
     		b.append(leaf.value() + " ");
     	}
     	return b.toString().trim();
-    }
-
-    private List<Tree> getEntityNodes(Example ex) {
-    	List<Tree> lst = new ArrayList<Tree>();
-    	for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
-    		lst.add(entity.getTreeNode());
-    	return lst;
     }
     
     private List<CoreLabel> getEntityTokens(Example ex) {

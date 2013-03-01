@@ -14,25 +14,15 @@ public class Viterbi {
 		this.weights = weights;
 	}
 
-	public void decode(List<Datum> data, List<Datum> dataWithMultiplePrevLabels) {
-		// load words from the data
-		List<String> words = new ArrayList<String>();
-		for (Datum datum : data) {
-			words.add(datum.word);
-		}
-
+	public void decodeForEntity(List<Datum> data, List<Datum> dataWithMultiplePrevLabels) {
 		// for each position in data
 		for (int position = 0; position< data.size(); position++) {
-			int bestLabelIndex = -1;
-			double bestScore = Integer.MIN_VALUE;
-			for(int labelCounter = 0; labelCounter < labelIndex.size(); labelCounter++) {
-				double score = computeScore(dataWithMultiplePrevLabels.get(position * labelIndex.size() + labelCounter).features, labelCounter);
-				if(score > bestScore) {
-					bestScore = score;
-					bestLabelIndex = labelCounter;
-				}
-			}
+			double scoreO = computeScore(dataWithMultiplePrevLabels.get(position * labelIndex.size() + 0).features, 0);
+			double scoreE = computeScore(dataWithMultiplePrevLabels.get(position * labelIndex.size() + 1).features, 1);
+
+			int bestLabelIndex = scoreO > scoreE ? 0 : 1;
 			data.get(position).guessLabel = labelIndex.get(bestLabelIndex).toString();
+			data.get(position).setProbability(Math.exp(scoreE) / (Math.exp(scoreE) + Math.exp(scoreO)));
 		}
 	}
 

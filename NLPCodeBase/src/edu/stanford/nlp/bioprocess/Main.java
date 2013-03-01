@@ -22,9 +22,10 @@ public class Main {
    * @param groups - The types of data groups that will be used, e.g. test and train.
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
-	boolean useDev = false, useOneLoop = true;
+	boolean useDev = false, useOneLoop = true, refreshDataFile = true;
 	//useDev = true;
 	useOneLoop = false;
+	refreshDataFile = false;
 	String examplesFileName = "trainExamples.data";
     BioprocessDataset dataset = new BioprocessDataset(groups);
     CrossValidationSplit split = null;
@@ -32,7 +33,7 @@ public class Main {
     
     if(!useDev) {
 	    File f = new File(examplesFileName);
-	    if(f.exists())
+	    if(f.exists() && !refreshDataFile)
 	    	dataset.allExamples.put("train", Utils.readFile(examplesFileName));
 	    else {
 	    	dataset.read("train");
@@ -48,20 +49,24 @@ public class Main {
     for(int i = 1; i <= NumCrossValidation; i++) {
     	if(useDev) {
     		Learner learner = new Learner(dataset.examples("dev"));
-            double f1 = learner.learnAndPredict(dataset.examples("dev"));
+            double f1 = learner.learnAndPredictNew(dataset.examples("dev"));
+            System.out.println("F1 score: " + f1);
+            sum+=f1;
             break;
     	}
     	else {
 	    	System.out.println("Iteration: "+i);
 	    	Learner learner = new Learner(split.GetTrainExamples(i));
-	    	double f1 = learner.learnAndPredict(split.GetTestExamples(i));
+	    	double f1 = learner.learnAndPredictNew(split.GetTestExamples(i));
 	    	sum += f1;
     	}
     	if(useOneLoop)
     		break;
     }
-    double average = sum/NumCrossValidation;
-    System.out.println("Average Score: "+average);
+    if(!useDev) {
+	    double average = sum/NumCrossValidation;
+	    System.out.println("Average Score: "+average);
+    }
     //Scorer.scoreEntityPrediction(dataset.examples("dev"));
   }
   
@@ -117,7 +122,7 @@ public class Main {
 					 Pair<Double, String> pair = new Pair<Double, String>(prob, label);
 					 tokenMap.put(node, pair);
 				 }
-				 DynamicProgramming dp = new DynamicProgramming(sentence, tokenMap);
+				 //DynamicProgramming dp = new DynamicProgramming(sentence, tokenMap);
 				 break;
 			 }
 			 break;

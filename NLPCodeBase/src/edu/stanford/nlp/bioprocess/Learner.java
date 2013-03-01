@@ -1,6 +1,7 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
@@ -19,6 +20,7 @@ import edu.stanford.nlp.trees.TreebankLanguagePack;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.Pair;
 
 /***
  * Class that does the learning
@@ -72,6 +74,58 @@ public class Learner {
 	  return new double[0][0];
   }
   
+  public double learnAndPredictNew(List<Example> testData) {
+	    //for(Example ex:testData)
+	    //	for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
+	    //		printTree(sentence);
+	    //	}
+	    FeatureFactory ff = new FeatureFactory();
+		// add the features
+		List<Datum> data = ff.setFeaturesTrain(dataset);
+		List<Datum> predicted = new ArrayList<Datum>();
+		
+		LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);
+		double[] initial = new double[obj.domainDimension()];
+
+		QNMinimizer minimizer = new QNMinimizer(15);
+		double[][] weights = obj.to2D(minimizer.minimize(obj, 1e-4, initial,
+				-1, null));
+
+		for(Example ex:testData) {
+			List<Tree> entities = Utils.getEntityNodes(ex);
+			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
+				List<Datum> test = ff.setFeaturesTest(sentence, entities);
+				List<Datum> testDataInDatum = new ArrayList<Datum>();
+
+				for (int i = 0; i < test.size(); i += obj.labelIndex.size()) {
+					testDataInDatum.add(test.get(i));
+				}
+				Viterbi viterbi = new Viterbi(obj.labelIndex, obj.featureIndex, weights);
+				viterbi.decodeForEntity(testDataInDatum, test);
+				
+				HashMap<Tree, Pair<Double, String>> map = new HashMap<Tree, Pair<Double, String>>();
+				for(Datum d:testDataInDatum) 
+					map.put(d.node, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+				
+				
+				DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataInDatum);
+				dynamicProgrammer.calculateLabels();
+				
+				predicted.addAll(testDataInDatum);
+				
+				for(Datum d:testDataInDatum)
+					if(d.guessLabel.equals("E") || d.label.equals("E"))
+						System.out.println(String.format("%-20s Gold: %s, Predicted: %s", d.word, d.label, d.guessLabel));
+			}
+		}
+		
+				
+		double f1 = Scorer.score(predicted);
+		
+		return f1;//testData;
+	}
+  
+  /*
   public double learnAndPredict(List<Example> testData) {
 	    //for(Example ex:testData)
 	    //	for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
@@ -105,7 +159,7 @@ public class Learner {
 		double f1 = Scorer.score(testDataInDatum);
 		
 		return f1;//testData;
-	}
+	} */
   
   private void printTree(CoreMap sentence)
   {

@@ -5,51 +5,24 @@ import java.util.*;
 public class Scorer {
 
   public static double score(List<Datum> data) {
+    int tp = 0, fp = 0, tn = 0, fn = 0;
 
-    Set<Pair> trueEntities = new HashSet();
-    Set<Pair> guessEntities = new HashSet();
-    
-    String prevLabel = "O";
-    int start = 0;
-
-    for (int i = 0; i < data.size(); i++) {
-      String label = data.get(i).label;
-
-      if (label.equals("E") && prevLabel.equals("O")) {
-        start = i;        
-      } else if (label.equals("O") && prevLabel.equals("E")) {
-        Pair p = new Pair(start, i);
-        trueEntities.add(p);
-      }
-
-      prevLabel = label;
+    for (Datum d:data) {
+    	if(d.label.equals("E")) {
+    		if(d.guessLabel.equals("E"))
+    			tp++;
+    		else
+    			fn++;
+    	}
+    	if(d.label.equals("O")) {
+    		if(d.guessLabel.equals("E"))
+    			fp++;
+    	}
     }
-
-    prevLabel = "O";
+    double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+    double f= 2 * precision * recall / (precision + recall);
     
-    for (int i = 0; i < data.size(); i++) {
-      String label = data.get(i).guessLabel;
-
-      if (label.equals("E") && prevLabel.equals("O")) {
-        start = i;        
-      } else if (label.equals("O") && prevLabel.equals("E")) {
-        Pair p = new Pair(start, i);
-        guessEntities.add(p);
-      }
-
-      prevLabel = label;
-    }
-
-    Set<Pair> s = new HashSet(trueEntities);
-    s.retainAll(guessEntities);
-
-    int tp = s.size();
-
-    double prec = (double)tp / (double)guessEntities.size();
-    double recall = (double)tp / (double)trueEntities.size();
-    double f = (2 * prec * recall) / (prec + recall);
-
-    System.out.println("precision = "+prec);
+    System.out.println("precision = "+precision);
     System.out.println("recall = "+recall);
     System.out.println("F1 = "+f);
     

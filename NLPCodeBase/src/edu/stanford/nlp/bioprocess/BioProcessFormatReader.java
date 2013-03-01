@@ -102,7 +102,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
               m = new EventMention(desc, sentence, span);
             }
             else {
-              
+              //System.out.println(line);
               m = new EntityMention(desc, sentence, span);
               Tree entityRoot = Utils.getEntityNode(sentence, (EntityMention)m);
               ((EntityMention)m).setTreeNode(entityRoot);

@@ -6,7 +6,7 @@ T7	Entity 85 137	one or more short double-stranded hairpin structures
 T11	Entity 198 210	each hairpin
 T12	Event 214 217	cut
 E5	Event:T12 theme:T11 theme2:T13 next-event:E6
-T13	Entity 228 240	the precurso
+T13	Entity 228 241	the precursor
 T14	Entity 243 245	it
 T15	Event 249 256	trimmed
 E6	Event:T15 theme:T14 agent:T16 result:T17 next-event:E7

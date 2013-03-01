@@ -18,21 +18,26 @@ import edu.stanford.nlp.util.Pair;
 public class DynamicProgramming {
 	Tree syntacticParse;
 	HashMap<Tree, Pair<Double, String>> tokenMap;
-	
 	HashMap<Tree, CoreLabel> treeLabelMap;
+	HashMap<Tree, Datum> nodeDatumMap;
 	
-	public DynamicProgramming(CoreMap sentence, HashMap<Tree, Pair<Double, String>> tokenMap) {
+	public DynamicProgramming(CoreMap sentence, HashMap<Tree, Pair<Double, String>> tokenMap, List<Datum> data) {
 		this.syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		this.syntacticParse.pennPrint();
 		this.tokenMap = tokenMap;
-		for (Tree node : syntacticParse.preOrderNodeList()) {
-			System.out.println(node.toString()+":"+this.tokenMap.get(node));
+		nodeDatumMap = new HashMap<Tree, Datum>();
+		for (Datum d : data) {
+			nodeDatumMap.put(d.node, d);
+			System.out.println(d.node+":"+d.guessLabel+":"+d.getProbability());
 		}
-		calculateLabels();
+//		for (Tree node : syntacticParse.preOrderNodeList()) {
+//			System.out.println(node.toString()+":"+this.tokenMap.get(node));
+//		}
+		//calculateLabels();
 		//addTreeNodeAnnotations(this.syntacticParse, sentence.get(TokensAnnotation.class));
-		for (Tree node : syntacticParse.preOrderNodeList()) {
-			System.out.println(node.toString()+":"+this.tokenMap.get(node));
-		}
+//		for (Tree node : syntacticParse.preOrderNodeList()) {
+//			System.out.println(node.toString()+":"+this.tokenMap.get(node));
+//		}
 	}
 	
 	 
@@ -41,27 +46,49 @@ public class DynamicProgramming {
 
 	
 	// Assumes the map has probs for E.
-	private void calculateLabels() {
+	public void calculateLabels() {
 		for (Tree node : this.syntacticParse.postOrderNodeList()) {
-			if (this.tokenMap.get(node).second == "O" || this.tokenMap.get(node).second == "E") {
+			if (node.isLeaf() || node.value().equals("ROOT")) {
 				continue;
 			}
 			Pair<Double, String> targetNodePair = this.tokenMap.get(node);
 			Double nodeO = Math.log(1-targetNodePair.first);
 			Double nodeE = Math.log(targetNodePair.first);
 			for (Tree child : node.getChildrenAsList()) {
+				if (child.isLeaf()) {
+					continue;
+				}
 				Pair<Double, String> nodeVals = this.tokenMap.get(child);
-				nodeO += Math.log(nodeVals.first);
-				if (nodeVals.second == "E") {
-					nodeE += Math.log((1-nodeVals.first));
+				nodeE += (Math.log(1-nodeVals.first));
+				if (nodeVals.second.equals("O")) {
+					nodeO += Math.log((1-nodeVals.first));
 				} else {
-					nodeE += Math.log(nodeVals.first);
+					nodeO += Math.log(nodeVals.first);
 				}
 			}
+			nodeO = Math.exp(nodeO);
+			nodeE = Math.exp(nodeE);
+			double sum = nodeO + nodeE;
+			nodeO = nodeO/sum;
+			nodeE = nodeE/sum;
 			if (nodeO > nodeE) {
+				targetNodePair.setFirst(1-nodeO);
+				nodeDatumMap.get(node).setProbability(1-nodeO);
 				targetNodePair.setSecond("O");
+				nodeDatumMap.get(node).guessLabel = "O";
 			} else {
+				System.out.println("Predicted Entity: "+node);
+				targetNodePair.setFirst(nodeE);
+				nodeDatumMap.get(node).setProbability(nodeE);
 				targetNodePair.setSecond("E");
+				nodeDatumMap.get(node).guessLabel = "E";
+				for (Tree child : node.getChildrenAsList()) {
+					if (child.isLeaf()) {
+						continue;
+					}
+					this.tokenMap.get(child).setSecond("O");
+					nodeDatumMap.get(child).guessLabel = "O";
+				}
 			}
 		}
 	}
