@@ -23,7 +23,7 @@ public class Main {
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
 	boolean useDev = false, useOneLoop = true, refreshDataFile = true;
-	useDev = true;
+	//useDev = true;
 	//useOneLoop = false;
 	refreshDataFile = false;
 	String examplesFileName = "trainExamples.data";

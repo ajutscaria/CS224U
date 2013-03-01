@@ -22,6 +22,7 @@ import edu.stanford.nlp.trees.TreebankLanguagePack;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 
 /***
@@ -94,7 +95,7 @@ public class Learner {
 				-1, null));
 
 		for(Example ex:testData) {
-			Set<Tree> entities = Utils.getEntityNodes(ex);
+			IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence, entities);
 				List<Datum> testDataInDatum = new ArrayList<Datum>();
@@ -114,8 +115,8 @@ public class Learner {
 				}
 				System.out.println("----------------------------------\n\n");
 				
-				//DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataInDatum);
-				//dynamicProgrammer.calculateLabels();
+				DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataInDatum);
+				dynamicProgrammer.calculateLabels();
 				
 				predicted.addAll(testDataInDatum);
 				

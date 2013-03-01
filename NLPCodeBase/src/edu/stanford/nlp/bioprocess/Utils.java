@@ -274,10 +274,6 @@ public class Utils {
       document.get(EntityMentionsAnnotation.class).add(entity);
   }
   
-  public static String getKeyFromTree(Tree node) {
-	  return node + node.getSpan().toString();
-  }
-  
   public static void addAnnotation(Annotation document, EventMention event) {
     if(document.get(EventMentionsAnnotation.class) == null) {
       List<EventMention> mentions = new ArrayList<EventMention>();
@@ -303,8 +299,8 @@ public class Utils {
 	    }
   }
   
-  public static Set<Tree> getEntityNodes(Example ex) {
-  	Set<Tree> lst = new IdentityHashSet<Tree>();
+  public static IdentityHashSet<Tree> getEntityNodes(Example ex) {
+	  IdentityHashSet<Tree> lst = new IdentityHashSet<Tree>();
   	for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
   		lst.add(entity.getTreeNode());
   	return lst;
