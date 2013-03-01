@@ -103,19 +103,22 @@ public class Learner {
 				Viterbi viterbi = new Viterbi(obj.labelIndex, obj.featureIndex, weights);
 				viterbi.decodeForEntity(testDataInDatum, test);
 				
-				HashMap<Tree, Pair<Double, String>> map = new HashMap<Tree, Pair<Double, String>>();
-				for(Datum d:testDataInDatum) 
-					map.put(d.node, new Pair<Double, String>(d.getProbability(), d.guessLabel));
-				
-				
-				DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataInDatum);
-				dynamicProgrammer.calculateLabels();
+				HashMap<Datum, Pair<Double, String>> map = new HashMap<Datum, Pair<Double, String>>();
+				System.out.println("\n\n\n----------------------------------");
+				for(Datum d:testDataInDatum) {
+					if(d.label.equals("E"))
+						System.out.println(d.node + ":" + d.label);
+					map.put(d, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+				}
+				System.out.println("----------------------------------\n\n");
+				//DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataInDatum);
+				//dynamicProgrammer.calculateLabels();
 				
 				predicted.addAll(testDataInDatum);
 				
 				for(Datum d:testDataInDatum)
 					if(d.guessLabel.equals("E") || d.label.equals("E"))
-						System.out.println(String.format("%-20s Gold: %s, Predicted: %s", d.word, d.label, d.guessLabel));
+						System.out.println(String.format("%-20s Gold: %s, %s Predicted: %s", d.word, d.node.getSpan(), d.label, d.guessLabel));
 			}
 		}
 		

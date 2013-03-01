@@ -9,6 +9,7 @@ import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotatio
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
@@ -33,22 +34,36 @@ public class FeatureFactory {
     private List<String> computeFeatures(CoreMap sentence, Tree node, String tokenClass) {
     //node.pennPrint();
     //	System.out.println("Current node's text - " + getText(node));
+    	
 	List<String> features = new ArrayList<String>();
 
 	String currentWord = node.value();
 	List<Tree> leaves = node.getLeaves();
-
+	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+	//System.out.println(node.depth() +":" +root.depth());
 	IntPair ip = node.getSpan();
 	Span span = new Span(ip.getSource(), ip.getTarget() + 1);
-	CoreLabel headToken = sentence.get(TokensAnnotation.class).get(Utils.findHeadWord(sentence, span).start());
+	
+	//CoreLabel headToken = sentence.get(TokensAnnotation.class).get(Utils.findHeadWord(sentence, span).start());
 	
 	// Baseline Features 
-	features.add("value=" + currentWord);
+	features.add("POS=" + currentWord);
+	//features.add("text=" + getText(node));
 	features.add("firstchild=" + leaves.get(0));
 	features.add("lastchild=" + leaves.get(leaves.size()-1));
 	features.add("numleaves=" + leaves.size());
-	//features.add("depth=" + node.depth());
-	features.add("headword=" + headToken.originalText());
+	features.add("headword=" + node.headTerminal(new CollinsHeadFinder()));
+	features.add("headwordPOS=" + node.headPreTerminal(new CollinsHeadFinder()).value());
+
+	features.add("parentPOS=" + node.parent(root).value());
+	features.add("parentheadword=" + node.parent(root).headTerminal(new CollinsHeadFinder()));
+	features.add("parentheadwordPOS=" + node.parent(root).headPreTerminal(new CollinsHeadFinder()).value());
+
+	//features.add("height=" +  node.depth());
+	//features.add("isDT=" + node.value().equals("DT"));
+	
+	//features.add("headword=" + headToken.originalText());
+	
 	//features.add("noun=" + (token.get(PartOfSpeechAnnotation.class).startsWith("NN") ? 1 : 0));
 	//if(token.index() > 1) {
 	//	CoreLabel prev = sentence.get(TokensAnnotation.class).get(token.index() - 2);
@@ -123,7 +138,7 @@ public class FeatureFactory {
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
-					if(node.isLeaf()|| node.value().equals("ROOT"))
+					if(node.isLeaf() || node.value().equals("ROOT"))
 						continue;
 					String type = "O";
 					if(entityNodes.contains(node)) {

@@ -272,6 +272,10 @@ public class Utils {
       document.get(EntityMentionsAnnotation.class).add(entity);
   }
   
+  public static String getKeyFromTree(Tree node) {
+	  return node + node.getSpan().toString();
+  }
+  
   public static void addAnnotation(Annotation document, EventMention event) {
     if(document.get(EventMentionsAnnotation.class) == null) {
       List<EventMention> mentions = new ArrayList<EventMention>();
@@ -302,6 +306,14 @@ public class Utils {
   	for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
   		lst.add(entity.getTreeNode());
   	return lst;
+  }
+  
+  public static int getMaxHeight(Tree node) {
+	  int maxHeight = 0;
+	  for(Tree leaf:node.getLeaves())
+		  if(leaf.depth() - node.depth() > maxHeight)
+			  maxHeight = leaf.depth() - node.depth();
+	  return maxHeight;
   }
   
   public static List<Example> readFile(String fileName) {

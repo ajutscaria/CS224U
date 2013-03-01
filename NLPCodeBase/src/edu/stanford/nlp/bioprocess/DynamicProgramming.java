@@ -17,17 +17,16 @@ import edu.stanford.nlp.util.Pair;
 
 public class DynamicProgramming {
 	Tree syntacticParse;
-	HashMap<Tree, Pair<Double, String>> tokenMap;
-	HashMap<Tree, CoreLabel> treeLabelMap;
-	HashMap<Tree, Datum> nodeDatumMap;
+	HashMap<Datum, Pair<Double, String>> tokenMap;
+	HashMap<String, Datum> nodeDatumMap;
 	
-	public DynamicProgramming(CoreMap sentence, HashMap<Tree, Pair<Double, String>> tokenMap, List<Datum> data) {
+	public DynamicProgramming(CoreMap sentence, HashMap<Datum, Pair<Double, String>> tokenMap, List<Datum> data) {
 		this.syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		this.syntacticParse.pennPrint();
 		this.tokenMap = tokenMap;
-		nodeDatumMap = new HashMap<Tree, Datum>();
+		nodeDatumMap = new HashMap<String, Datum>();
 		for (Datum d : data) {
-			nodeDatumMap.put(d.node, d);
+			nodeDatumMap.put(Utils.getKeyFromTree(d.node), d);
 			System.out.println(d.node+":"+d.guessLabel+":"+d.getProbability());
 		}
 //		for (Tree node : syntacticParse.preOrderNodeList()) {
@@ -51,14 +50,14 @@ public class DynamicProgramming {
 			if (node.isLeaf() || node.value().equals("ROOT")) {
 				continue;
 			}
-			Pair<Double, String> targetNodePair = this.tokenMap.get(node);
+			Pair<Double, String> targetNodePair = this.tokenMap.get(nodeDatumMap.get(Utils.getKeyFromTree(node)));
 			Double nodeO = Math.log(1-targetNodePair.first);
 			Double nodeE = Math.log(targetNodePair.first);
 			for (Tree child : node.getChildrenAsList()) {
 				if (child.isLeaf()) {
 					continue;
 				}
-				Pair<Double, String> nodeVals = this.tokenMap.get(child);
+				Pair<Double, String> nodeVals = this.tokenMap.get(nodeDatumMap.get(Utils.getKeyFromTree(child)));
 				nodeE += (Math.log(1-nodeVals.first));
 				if (nodeVals.second.equals("O")) {
 					nodeO += Math.log((1-nodeVals.first));
@@ -71,27 +70,51 @@ public class DynamicProgramming {
 			double sum = nodeO + nodeE;
 			nodeO = nodeO/sum;
 			nodeE = nodeE/sum;
-			if (nodeO > nodeE) {
+			
+			if (nodeO > nodeE && !allchildrenE(node)) {
 				targetNodePair.setFirst(1-nodeO);
-				nodeDatumMap.get(node).setProbability(1-nodeO);
+				nodeDatumMap.get(Utils.getKeyFromTree(node)).setProbability(1-nodeO);
 				targetNodePair.setSecond("O");
-				nodeDatumMap.get(node).guessLabel = "O";
+				nodeDatumMap.get(Utils.getKeyFromTree(node)).guessLabel = "O";
 			} else {
-				System.out.println("Predicted Entity: "+node);
+				System.out.println("\n\n-------------------------Predicted Entity: "+node+":" +node.getSpan());
 				targetNodePair.setFirst(nodeE);
-				nodeDatumMap.get(node).setProbability(nodeE);
+				nodeDatumMap.get(Utils.getKeyFromTree(node)).setProbability(nodeE);
 				targetNodePair.setSecond("E");
-				nodeDatumMap.get(node).guessLabel = "E";
-				for (Tree child : node.getChildrenAsList()) {
-					if (child.isLeaf()) {
+				nodeDatumMap.get(Utils.getKeyFromTree(node)).guessLabel = "E";
+				for (Tree child : node.preOrderNodeList()) {
+					if (child.isLeaf() || child.equals(node)) {
 						continue;
 					}
-					this.tokenMap.get(child).setSecond("O");
-					nodeDatumMap.get(child).guessLabel = "O";
+					//System.out.println("Resetting " + child + " to O");
+					this.tokenMap.get(nodeDatumMap.get(Utils.getKeyFromTree(child))).setSecond("O");
+					nodeDatumMap.get(Utils.getKeyFromTree(child)).guessLabel = "O";
 				}
+				//for(String n:nodeDatumMap.keySet())
+				//	System.out.println(n + ":" + node.getSpan() +":"+ nodeDatumMap.get(n).guessLabel );
+				//System.out.println("============================================================\n\n");
 			}
 		}
+		
+		//HACK - remove all DT
+		for (Tree node : this.syntacticParse.postOrderNodeList()) {
+			if(node.value().equals("DT"))
+				nodeDatumMap.get(Utils.getKeyFromTree(node)).guessLabel = "O";
+		}
 	}
+
+	private boolean allchildrenE(Tree node) {
+		for (Tree child : node.getChildrenAsList()) {
+			if (child.isLeaf() || this.nodeDatumMap.get(Utils.getKeyFromTree(child)).guessLabel.equals("O"))
+				return false;
+		}
+		return true;
+	}
+
+
+
+
+
 
 	public static void checkTree()
 	  {
