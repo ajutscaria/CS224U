@@ -1,6 +1,6 @@
 T1	Event 3 17	binary fission
 E1	Event:T1 
-T2	Entity 40 63	single prokaryotic cell
+T2	Entity 38 63	a single prokaryotic cell
 T3	Event 64 71	divides
 E2	Event:T3 super-event:E1 agent:T2 result:T4 next-event:E3
 T4	Entity 77 84	2 cells

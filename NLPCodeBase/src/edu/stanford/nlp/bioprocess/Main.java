@@ -22,7 +22,9 @@ public class Main {
    * @param groups - The types of data groups that will be used, e.g. test and train.
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
-	boolean useDev = true, useOneLoop = true;
+	boolean useDev = false, useOneLoop = true;
+	//useDev = true;
+	useOneLoop = false;
 	String examplesFileName = "trainExamples.data";
     BioprocessDataset dataset = new BioprocessDataset(groups);
     CrossValidationSplit split = null;
@@ -30,12 +32,12 @@ public class Main {
     
     if(!useDev) {
 	    File f = new File(examplesFileName);
-	    //if(f.exists())
-	    //	dataset.allExamples.put("train", Utils.readFile(examplesFileName));
-	    //else {
+	    if(f.exists())
+	    	dataset.allExamples.put("train", Utils.readFile(examplesFileName));
+	    else {
 	    	dataset.read("train");
-	    	//Utils.writeFile(dataset.examples("train"), examplesFileName);
-	    //}
+	    	Utils.writeFile(dataset.examples("train"), examplesFileName);
+	    }
 	    split = new CrossValidationSplit((ArrayList<Example>) dataset.examples("train"), NumCrossValidation);
     }
     else{
@@ -50,9 +52,10 @@ public class Main {
             break;
     	}
     	else {
-    	System.out.println("Iteration: "+i);
-    	Learner learner = new Learner(split.GetTrainExamples(i));
-    	double f1 = learner.learnAndPredict(split.GetTestExamples(i));
+	    	System.out.println("Iteration: "+i);
+	    	Learner learner = new Learner(split.GetTrainExamples(i));
+	    	double f1 = learner.learnAndPredict(split.GetTestExamples(i));
+	    	sum += f1;
     	}
     	if(useOneLoop)
     		break;

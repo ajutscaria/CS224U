@@ -1,43 +1,31 @@
-T1	Event 41 49	contains
-E1	Event:T1 agent:T2 theme:T3 cotemporal:E2 cotemporal2:E3
-T2	Entity 2 40	particular region of each X chromosome
-T3	Entity 50 63	several genes
-T4	Event 64 72	involved
-E2	Event:T4 theme:T3 theme2:T5
-T5	Entity 80 100	inactivation process
 T6	Entity 106 117	two regions
 T7	Event 145 154	associate
-E3	Event:T7 agent:T6 theme:T8 location:T9 super-event:E4 next-event:E5
+E3	Event:T7 agent:T6 theme:T8 location:T9 next-event:E5 time:T1
 T8	Entity 168 178	each other
 T9	Entity 182 191	each cell
-T10	Event 198 234	early stage of embryonic development
-E4	Event:T10 
 T11	Entity 241 257	one of the genes
 T12	Entity 266 307	XIST (for X-inactive specific transcript)
 *	same-entity T12 T11
-T13	Event 308 322	becomes active
-E5	Event:T13 agent:T12 location:T14 next-event:E6 next-event2:E7
-T14	Entity 335 345	chromosome
-T15	Event 351 362	will become
-E6	Event:T15 agent:T14 result:T16
-T16	Entity 367 376	Barr body
+T13	Static-Event 316 322	active
+E5	Static-Event:T13 agent:T12 location:T14 next-event2:E7
+T14	Entity 331 376	the chromosome that will become the Barr body
 T17	Entity 378 425	Multiple copies of the RNA product of this gene
 T18	Event 437 443	attach
 E7	Event:T18 agent:T17 theme:T19 next-event:E8
-T19	Entity 451 463	X chromosome
+T19	Entity 447 486	the X chromosome on which they are made
 T20	Event 506 514	covering
-E8	Event:T20 agent:T17 theme:T21 next-event:E10
+E8	Event:T20 agent:T17 theme:T21 same-event:E1
 T21	Entity 515 517	it
-T22	Entity 473 477	they
-T23	Event 478 486	are made
-E9	Event:T23 theme:T22 next-event:E7
-*	same-entity T22 T17
-*	same-entity T19 T21
-T24	Entity 519 562	Interaction of this RNA with the chromosome
+*	same-entity T19 T21 T2
+T24	Entity 534 542	this RNA
 T25	Event 572 580	initiate
-E10	Event:T25 theme:T26 agent:T24
+E10	Event:T25 result:T26
 T26	Entity 581 595	X inactivation
-T27	Entity 605 632	RNA products of other genes
-T28	Event 660 676	help to regulate
-E11	Event:T28 cotemporal:E10 theme:T29 agent:T27
-T29	Entity 681 688	process
+T27	Entity 601 632	the RNA products of other genes
+T28	Event 668 676	regulate
+E11	Event:T28 theme:T29 agent:T27 next-event:E10
+T29	Entity 677 688	the process
+T1	Entity 195 234	an early stage of embryonic development
+T2	Entity 548 562	the chromosome
+T3	Event 519 530	Interaction
+E1	Event:T3 theme:T24 theme2:T2 causes:E10

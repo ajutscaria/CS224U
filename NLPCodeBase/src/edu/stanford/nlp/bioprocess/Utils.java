@@ -69,6 +69,22 @@ public class Utils {
     return dependencyNodes;
   }
   
+  public static List<IndexedWord> findNodeInDependencyTree(CoreMap sentence, Span span) {
+	    SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+	    //System.out.println(graph);
+	    //IndexedWord root = graph.getFirstRoot();
+	    ArrayList<IndexedWord> dependencyNodes = new ArrayList<IndexedWord>();
+	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
+	      //System.out.println(word.value() + "--" + word.index());
+	      if(word.index() - 1 >= span.start() && word.index()-1 < span.end()) {
+	        //System.out.println(word.value() + ":" + word.beginPosition());
+	        dependencyNodes.add(word);
+	      }
+	      //System.out.println();
+	    }
+	    return dependencyNodes;
+	  }
+  
   public static CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
 	//System.out.println(begin + ":" + end);
     for(CoreMap sentence:sentences) {
@@ -88,6 +104,34 @@ public class Utils {
         span.setEnd(label.index());
     }
     return span;
+  }
+  
+  public static Span findHeadWord(CoreMap sentence, Span nodeSpan) {
+	  if(nodeSpan.end()-nodeSpan.start() == 1)
+		  return nodeSpan;
+
+	  List<IndexedWord> words = findNodeInDependencyTree(sentence, nodeSpan);
+	  if(words.size()==0) {
+		  //System.out.println("Span not found in dependency tree.");
+		  return new Span(nodeSpan.start(), nodeSpan.start() + 1);
+	  }
+	  Span span = new Span();
+	  SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+	  //System.out.println(nodeSpan + " " + words.size() );
+	  
+	  IndexedWord head = words.get(0);
+	  //System.out.println("\nFinding head word for  - " + entity.getValue());
+	  //System.out.println(graph);
+	  for(IndexedWord word : words) {
+		  if(!head.equals(word) && words.contains(graph.getCommonAncestor(head, word)))
+			  head = graph.getCommonAncestor(head, word);
+	  }
+	  //System.out.println(head.index()-1);
+	  //System.out.println(entity.getExtent());
+	  //System.out.println("Headword  - " + head.originalText());
+	  span.setStart(head.index()-1);
+	  span.setEnd(head.index());
+	  return span;
   }
   
   public static Span findEntityHeadWord(EntityMention entity) {
@@ -116,7 +160,7 @@ public class Utils {
   
   public static Tree getEntityNodeBest(CoreMap sentence, EntityMention entity) {
 	  Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-	  syntacticParse.setSpans();
+	  //syntacticParse.setSpans();
 	  Span entitySpan = entity.getExtent();
 	  for (Tree node : syntacticParse.postOrderNodeList()) {
 		  if(node.isLeaf())
@@ -271,4 +315,12 @@ public class Utils {
 	  return null;
   }
   
+  public static boolean isChildOfEntity(List<Tree> entities, Tree node) {
+	for(Tree entity:entities) {
+		//System.out.println(entity);
+		if(entity != null && (entity.equals(node) || entity.depth(node) != -1))
+			return true;
+	}
+	return false;
+  }
 }

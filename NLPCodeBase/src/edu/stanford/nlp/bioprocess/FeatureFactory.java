@@ -6,11 +6,13 @@ import java.io.IOException;
 import java.util.*;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
+import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IntPair;
 
 public class FeatureFactory {
 
@@ -29,15 +31,24 @@ public class FeatureFactory {
      * only label that is visible to this method. 
      */
     private List<String> computeFeatures(CoreMap sentence, Tree node, String tokenClass) {
-
+    //node.pennPrint();
+    //	System.out.println("Current node's text - " + getText(node));
 	List<String> features = new ArrayList<String>();
 
 	String currentWord = node.value();
+	List<Tree> leaves = node.getLeaves();
 
+	IntPair ip = node.getSpan();
+	Span span = new Span(ip.getSource(), ip.getTarget() + 1);
+	CoreLabel headToken = sentence.get(TokensAnnotation.class).get(Utils.findHeadWord(sentence, span).start());
+	
 	// Baseline Features 
 	features.add("value=" + currentWord);
-	features.add("depth=" + node.depth());
-	features.add("numchildren=" + node.numChildren());
+	features.add("firstchild=" + leaves.get(0));
+	features.add("lastchild=" + leaves.get(leaves.size()-1));
+	features.add("numleaves=" + leaves.size());
+	//features.add("depth=" + node.depth());
+	features.add("headword=" + headToken.originalText());
 	//features.add("noun=" + (token.get(PartOfSpeechAnnotation.class).startsWith("NN") ? 1 : 0));
 	//if(token.index() > 1) {
 	//	CoreLabel prev = sentence.get(TokensAnnotation.class).get(token.index() - 2);
@@ -54,7 +65,7 @@ public class FeatureFactory {
 	List<String> updatedFeatures = new ArrayList<String>();
 	for(String feature:features)
 		updatedFeatures.add(classString + feature);
-	System.out.println(getText(node) + ":" + updatedFeatures);
+	
 	/** Warning: If you encounter "line search failure" error when
 	 *  running the program, considering putting the baseline features
 	 *  back. It occurs when the features are too sparse. Once you have
@@ -114,15 +125,18 @@ public class FeatureFactory {
 		List<Tree> entityNodes = getEntityNodes(ex);
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-				if(node.isLeaf())
+				if(node.isLeaf()||node.value().equals("ROOT"))
 					continue;
 				String type = "O";
-				if(entityNodes.contains(node)) {
+				//System.out.println(ex.id + ":" +entityNodes.size());
+				//if((!node.value().equals("DT")) && (entityNodes.contains(node) || Utils.isChildOfEntity(entityNodes, node))) {
+				if((entityNodes.contains(node) || Utils.isChildOfEntity(entityNodes, node))) {
 					type = "E";
 				}
 				
 				Datum newDatum = new Datum(getText(node), type);
 				newDatum.features = computeFeatures(sentence, node, type);
+				//System.out.println(getText(node) + ":" + newDatum.features);
 				newData.add(newDatum);
 			}
 		}
@@ -151,7 +165,7 @@ public class FeatureFactory {
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
-					if(node.isLeaf())
+					if(node.isLeaf()|| node.value().equals("ROOT"))
 						continue;
 					String type = "O";
 					if(entityNodes.contains(node)) {

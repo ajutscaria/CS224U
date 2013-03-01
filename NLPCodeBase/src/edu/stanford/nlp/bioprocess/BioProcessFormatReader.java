@@ -20,6 +20,7 @@ import edu.stanford.nlp.pipeline.Annotation;
 
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 
 public class BioProcessFormatReader extends GenericDataSetReader {
@@ -75,6 +76,11 @@ public class BioProcessFormatReader extends GenericDataSetReader {
     Annotation document = new Annotation(rawText);
     processor.annotate(document);
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+    //Setting spans of the tree nodes of each sentence to avoid running into excpetions where we encounter sentences without any entities later.
+    for(CoreMap sentence:sentences) {
+    	Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    	syntacticParse.setSpans();
+    }
     HashMap<String, ArgumentMention> mentions = new HashMap<String, ArgumentMention>();
     try {
       RandomAccessFile reader = new RandomAccessFile(new File(fileName.replace(TEXT_EXTENSION, ANNOTATION_EXTENSION)), "r");
