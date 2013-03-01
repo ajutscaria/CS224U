@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
@@ -27,6 +28,7 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
 
 public class Utils {
@@ -301,8 +303,8 @@ public class Utils {
 	    }
   }
   
-  public static List<Tree> getEntityNodes(Example ex) {
-  	List<Tree> lst = new ArrayList<Tree>();
+  public static Set<Tree> getEntityNodes(Example ex) {
+  	Set<Tree> lst = new IdentityHashSet<Tree>();
   	for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
   		lst.add(entity.getTreeNode());
   	return lst;
@@ -334,7 +336,7 @@ public class Utils {
 	  return null;
   }
   
-  public static boolean isChildOfEntity(List<Tree> entities, Tree node) {
+  public static boolean isChildOfEntity(Set<Tree> entities, Tree node) {
 	for(Tree entity:entities) {
 		//System.out.println(entity);
 		if(entity != null && (entity.equals(node) || entity.depth(node) != -1))

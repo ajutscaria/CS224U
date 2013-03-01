@@ -95,7 +95,7 @@ public class FeatureFactory {
 	List<Datum> newData = new ArrayList<Datum>();
 	
 	for (Example ex : data) {
-		List<Tree> entityNodes = Utils.getEntityNodes(ex);
+		Set<Tree> entityNodes = Utils.getEntityNodes(ex);
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				if(node.isLeaf()||node.value().equals("ROOT"))
@@ -134,7 +134,7 @@ public class FeatureFactory {
 	// compute features for all possible previous labels in advance for
 	// Viterbi algorithm
 	for (Example ex : data) {
-		List<Tree> entityNodes = Utils.getEntityNodes(ex);
+		Set<Tree> entityNodes = Utils.getEntityNodes(ex);
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
@@ -159,7 +159,7 @@ public class FeatureFactory {
 	
     }
     
-    public List<Datum> setFeaturesTest(CoreMap sentence, List<Tree> entityNodes) {
+    public List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> entityNodes) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<Datum> newData = new ArrayList<Datum>();

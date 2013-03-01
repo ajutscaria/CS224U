@@ -26,7 +26,7 @@ public class DynamicProgramming {
 		this.tokenMap = tokenMap;
 		nodeDatumMap = new HashMap<String, Datum>();
 		for (Datum d : data) {
-			nodeDatumMap.put(Utils.getKeyFromTree(d.node), d);
+			//nodeDatumMap.put(Utils.getKeyFromTree(d.node), d);
 			System.out.println(d.node+":"+d.guessLabel+":"+d.getProbability());
 		}
 //		for (Tree node : syntacticParse.preOrderNodeList()) {

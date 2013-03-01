@@ -2,7 +2,9 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
@@ -92,7 +94,7 @@ public class Learner {
 				-1, null));
 
 		for(Example ex:testData) {
-			List<Tree> entities = Utils.getEntityNodes(ex);
+			Set<Tree> entities = Utils.getEntityNodes(ex);
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence, entities);
 				List<Datum> testDataInDatum = new ArrayList<Datum>();
@@ -103,14 +105,15 @@ public class Learner {
 				Viterbi viterbi = new Viterbi(obj.labelIndex, obj.featureIndex, weights);
 				viterbi.decodeForEntity(testDataInDatum, test);
 				
-				HashMap<Datum, Pair<Double, String>> map = new HashMap<Datum, Pair<Double, String>>();
+				IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
 				System.out.println("\n\n\n----------------------------------");
 				for(Datum d:testDataInDatum) {
 					if(d.label.equals("E"))
 						System.out.println(d.node + ":" + d.label);
-					map.put(d, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+					map.put(d.node, new Pair<Double, String>(d.getProbability(), d.guessLabel));
 				}
 				System.out.println("----------------------------------\n\n");
+				
 				//DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataInDatum);
 				//dynamicProgrammer.calculateLabels();
 				
