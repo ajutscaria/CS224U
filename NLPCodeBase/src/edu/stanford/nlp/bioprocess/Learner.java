@@ -100,39 +100,48 @@ public class Learner {
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
-				List<Datum> testDataInDatum = new ArrayList<Datum>();
-
-				for (int i = 0; i < test.size(); i += obj.labelIndex.size()) {
-					testDataInDatum.add(test.get(i));
+				
+				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
+					System.out.println("------------------Event " + event.getValue()+"--------------");
+					List<Datum> testDataEvent = new ArrayList<Datum>();
+					for(Datum d:test)
+						if(d.eventNode == event.getTreeNode()) {
+							//System.out.println(d.entityNode);
+							testDataEvent.add(d);
+						}
+					List<Datum> testDataWithLabel = new ArrayList<Datum>();
+	
+					for (int i = 0; i < testDataEvent.size(); i += obj.labelIndex.size()) {
+						testDataWithLabel.add(testDataEvent.get(i));
+					}
+					Viterbi viterbi = new Viterbi(obj.labelIndex, obj.featureIndex, weights);
+					viterbi.decodeForEntity(testDataWithLabel, testDataEvent);
+					
+					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
+	
+					for(Datum d:testDataWithLabel) 
+						map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+					
+					
+					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
+					dynamicProgrammer.calculateLabels();
+					
+					predicted.addAll(testDataWithLabel);
+					
+					System.out.println(sentence);
+					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+					
+					System.out.println("\n---------GOLD ENTITIES-------------------------");
+					for(Datum d:testDataWithLabel) 
+						if(d.label.equals("E"))
+							System.out.println(d.entityNode + ":" + d.label);
+					
+					System.out.println("---------PREDICTIONS-------------------------");
+					for(Datum d:testDataWithLabel)
+						if(d.guessLabel.equals("E") || d.label.equals("E"))
+							System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+					System.out.println("------------------------------------------\n");
 				}
-				Viterbi viterbi = new Viterbi(obj.labelIndex, obj.featureIndex, weights);
-				viterbi.decodeForEntity(testDataInDatum, test);
-				
-				IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
-
-				for(Datum d:testDataInDatum) 
-					map.put(d.node, new Pair<Double, String>(d.getProbability(), d.guessLabel));
-				
-
-				
-				DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataInDatum);
-				dynamicProgrammer.calculateLabels();
-				
-				predicted.addAll(testDataInDatum);
-				
-				System.out.println(sentence);
-				sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
-				
-				System.out.println("\n---------GOLD ENTITIES-------------------------");
-				for(Datum d:testDataInDatum) 
-					if(d.label.equals("E"))
-						System.out.println(d.node + ":" + d.label);
-				
-				System.out.println("---------PREDICTIONS-------------------------");
-				for(Datum d:testDataInDatum)
-					if(d.guessLabel.equals("E") || d.label.equals("E"))
-						System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.node.getSpan(), d.label, d.guessLabel));
-				System.out.println("------------------------------------------\n");
 			}
 		}
 		

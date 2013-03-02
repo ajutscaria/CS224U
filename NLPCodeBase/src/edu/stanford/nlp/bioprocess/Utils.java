@@ -166,7 +166,7 @@ public class Utils {
 	  Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 	  //syntacticParse.setSpans();
 	  Span entitySpan = entity.getExtent();
-	  for (Tree node : syntacticParse.postOrderNodeList()) {
+	  for (Tree node : syntacticParse.preOrderNodeList()) {
 		  if(node.isLeaf())
 			  continue;
 		  
@@ -429,9 +429,8 @@ public class Utils {
 	return false;
   }
 
-  public static RelationType getArgumentMentionRelation(List<EventMention> events, Tree entityNode) {
-	for(EventMention event:events)
-	  for (ArgumentRelation argRel : event.getArguments()) {
+  public static RelationType getArgumentMentionRelation(EventMention event, Tree entityNode) {
+	for (ArgumentRelation argRel : event.getArguments()) {
 		if (argRel.mention.getTreeNode() == entityNode) {
 			return argRel.type;
 		}

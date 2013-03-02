@@ -16,10 +16,11 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
 
 public class FeatureFactory {
-
+	boolean printDebug = false, printAnnotations = false, printFeatures = false;
     /** Add any necessary initialization steps for your features here.
      *  Using this constructor is optional. Depending on your
      *  features, you may not need to intialize anything.
@@ -67,7 +68,7 @@ public class FeatureFactory {
 	//Features of event
 	features.add("eventPOS=" + event.value());
 	features.add("eventhead=" + event.preTerminalYield().get(0).value()); 
-	features.add("path=" + Utils.getPathString(Trees.pathNodeToNode(entity, event, Trees.getLowestCommonAncestor(entity, event, root))));
+	//features.add("path=" + Utils.getPathString(Trees.pathNodeToNode(entity, event, Trees.getLowestCommonAncestor(entity, event, root))));
 	features.add("position=" + (event.getSpan().getSource() > entity.getSpan().getSource() ? "before" : "after"));
 
 	//features.add("height=" +  node.depth());
@@ -106,38 +107,50 @@ public class FeatureFactory {
 	List<Datum> newData = new ArrayList<Datum>();
 	
 	for (Example ex : data) {
-		
+		if(printDebug || printAnnotations) System.out.println("\n-------------------- " + ex.id + "---------------------");
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
-			Set<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+			IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+			if(printDebug) System.out.println(sentence);
+			if(printAnnotations) {
+				System.out.println("---Events--");
+				for(EventMention event: sentence.get(EventMentionsAnnotation.class))
+					System.out.println(event.getValue());
+				System.out.println("---Entities--");
+				for(EntityMention entity: sentence.get(EntityMentionsAnnotation.class))
+					System.out.println(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
+			}
 			for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
+				if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 					if(node.isLeaf()||node.value().equals("ROOT"))
 						continue;
 					
 					String type = "O";
 					
-					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence.get(EventMentionsAnnotation.class), node) != RelationType.NONE) {
+					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE) {
 						type = "E";
 					}
-					
+					if(printDebug) System.out.println(type + " : " + node + ":" + node.getSpan());
 //					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
 //						type = "E";
 //					}
 					
-					Datum newDatum = new Datum(getText(node), type, node);
+					Datum newDatum = new Datum(getText(node), type, node, event.getTreeNode());
 					newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
-					System.out.println(getText(node) + ":" + newDatum.features);
+					if(printFeatures) System.out.println(getText(node) + ":" + newDatum.features);
 					newData.add(newDatum);
 				}
 			}
 		}
+		if(printDebug) System.out.println("\n------------------------------------------------");
 	}
 
 	return newData;
     }
     
     /** Do not modify this method **/
-    public List<Datum> setFeaturesTest(List<Example> data) {
+    /*
+	public List<Datum> setFeaturesTest(List<Example> data) {
 		// this is so that the feature factory code doesn't accidentally use the
 		// true label info
 		List<Datum> newData = new ArrayList<Datum>();
@@ -151,7 +164,7 @@ public class FeatureFactory {
 		}
 	
 		return newData;
-    }
+    }*/
     
     public List<Datum> setFeaturesTest(CoreMap sentence) {
     	// this is so that the feature factory code doesn't accidentally use the
@@ -166,7 +179,7 @@ public class FeatureFactory {
     	labels.add("E");
 
 
-    	Set<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+    	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 		for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
@@ -175,11 +188,11 @@ public class FeatureFactory {
 					
 					String type = "O";
 					
-					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence.get(EventMentionsAnnotation.class), node) != RelationType.NONE) {
+					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE) {
 						type = "E";
 					}
 					
-					Datum newDatum = new Datum(getText(node), type, node);
+					Datum newDatum = new Datum(getText(node), type, node, event.getTreeNode());
 					newDatum.features = computeFeatures(sentence, possibleLabel, node, event.getTreeNode());
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;

@@ -5,6 +5,7 @@ import java.io.Serializable;
 public class ArgumentRelation implements Serializable {
   
   public enum RelationType {
+	  Origin,
     Agent,
     Location,
     Destination,

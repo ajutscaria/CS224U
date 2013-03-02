@@ -27,7 +27,7 @@ public class DynamicProgramming {
 		this.tokenMap = tokenMap;
 		nodeDatumMap = new IdentityHashMap<Tree, Datum>();
 		for (Datum d : data) {
-			nodeDatumMap.put(d.node, d);
+			nodeDatumMap.put(d.entityNode, d);
 			//System.out.println(d.node+":"+d.guessLabel+":"+d.getProbability());
 		}
 //		for (Tree node : syntacticParse.preOrderNodeList()) {
@@ -112,6 +112,8 @@ public class DynamicProgramming {
 		return true;
 	}
 	
+
+
 	public static void checkTree()
 	  {
 		  System.out.println("In check tree");

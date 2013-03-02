@@ -30,7 +30,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
   protected static final String THEME_TYPE_PREFIX = "T";
   protected static final String EVENT_TYPE = "Event";
   protected static final String ENTITY_TYPE = "Entity", STATIC_ENTITY_TYPE = "Static-Event";
-  protected static final String TYPE_NEXT_EVENT = "next-event", TYPE_RESULT = "result", TYPE_AGENT = "agent", 
+  protected static final String TYPE_NEXT_EVENT = "next-event", TYPE_RESULT = "result", TYPE_AGENT = "agent", TYPE_ORIGIN = "origin",
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
       TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity",
       TYPE_TIME = "time";
@@ -79,6 +79,13 @@ public class BioProcessFormatReader extends GenericDataSetReader {
     //Setting spans of the tree nodes of each sentence to avoid running into excpetions where we encounter sentences without any entities later.
     for(CoreMap sentence:sentences) {
     	Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    	
+    	List<EventMention> eventMentions = new ArrayList<EventMention>();
+        sentence.set(EventMentionsAnnotation.class, eventMentions);
+        
+        List<EntityMention> entityMentions = new ArrayList<EntityMention>();
+        sentence.set(EntityMentionsAnnotation.class, entityMentions);
+        
     	syntacticParse.setSpans();
     }
     HashMap<String, ArgumentMention> mentions = new HashMap<String, ArgumentMention>();
@@ -138,6 +145,9 @@ public class BioProcessFormatReader extends GenericDataSetReader {
                 case TYPE_AGENT:
                   event.addArgument(mentions.get(keyValue[1]), RelationType.Agent);
                   break;
+                case TYPE_ORIGIN:
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Origin);
+                    break;
                 case TYPE_DESTINATION:
                   event.addArgument(mentions.get(keyValue[1]), RelationType.Destination);
                   break;

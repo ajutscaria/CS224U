@@ -10,13 +10,14 @@ public class Datum {
   public final String label;
   public List<String> features;
   public String guessLabel;
-  Tree node;
+  Tree entityNode, eventNode;
   double probEntity;
   
-  public Datum(String word, String label, Tree nodeInTree) {
+  public Datum(String word, String label, Tree entityNode, Tree eventNode) {
     this.word = word;
     this.label = label;
-    this.node = nodeInTree;
+    this.entityNode = entityNode;
+    this.eventNode = eventNode;
   }
   
   public void setProbability(double prob) {
