@@ -24,7 +24,7 @@ public class ArgumentMention extends ExtractionObject {
   /** Mention type, if available, e.g., nominal */
   private String corefID = "-1";
   
-
+  private Tree argumentRoot;
   /** 
    * Offsets the head span, e.g., "George Bush" in the extent "the president George Bush"
    * The offsets are relative to the sentence containing this mention 
@@ -56,6 +56,14 @@ public class ArgumentMention extends ExtractionObject {
     this.normalizedName = null;
   }
 
+  public void setTreeNode(Tree node) {
+	  argumentRoot = node;
+  }
+  
+  public Tree getTreeNode() {
+	  return argumentRoot;
+  }
+  
   public String getCorefID(){
     return corefID;
   }

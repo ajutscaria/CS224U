@@ -17,7 +17,8 @@ public class ArgumentRelation implements Serializable {
     SameEvent,
     SuperEvent,
     Enables,
-    Time
+    Time,
+    NONE
   }
   ArgumentMention mention;
   RelationType type;

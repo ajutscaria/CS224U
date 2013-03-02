@@ -23,7 +23,7 @@ public class DynamicProgramming {
 	
 	public DynamicProgramming(CoreMap sentence, IdentityHashMap<Tree, Pair<Double, String>> tokenMap, List<Datum> data) {
 		this.syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-		this.syntacticParse.pennPrint();
+		
 		this.tokenMap = tokenMap;
 		nodeDatumMap = new IdentityHashMap<Tree, Datum>();
 		for (Datum d : data) {
@@ -78,7 +78,7 @@ public class DynamicProgramming {
 				targetNodePair.setSecond("O");
 				nodeDatumMap.get(node).guessLabel = "O";
 			} else {
-				System.out.println("\n\n-------------------------Predicted Entity: "+node+":" +node.getSpan());
+				//System.out.println("\n\n-------------------------Predicted Entity: "+node+":" +node.getSpan());
 				targetNodePair.setFirst(nodeE);
 				nodeDatumMap.get(node).setProbability(nodeE);
 				targetNodePair.setSecond("E");

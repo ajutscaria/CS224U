@@ -23,7 +23,7 @@ public class Main {
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
 	boolean useDev = false, useOneLoop = true, refreshDataFile = true;
-	//useDev = true;
+	useDev = true;
 	//useOneLoop = false;
 	refreshDataFile = false;
 	String examplesFileName = "trainExamples.data";
@@ -57,7 +57,8 @@ public class Main {
     	else {
 	    	System.out.println("Iteration: "+i);
 	    	Learner learner = new Learner(split.GetTrainExamples(i));
-	    	double f1 = learner.learnAndPredictNew(split.GetTestExamples(i));
+	    	double f1 = 0;
+	    	f1 = learner.learnAndPredictNew(split.GetTestExamples(i));
 	    	sum += f1;
     	}
     	if(useOneLoop)

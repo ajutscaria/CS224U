@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
@@ -30,6 +31,7 @@ import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCP
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
+import edu.stanford.nlp.util.StringUtils;
 
 public class Utils {
   public static List<String> Punctuations = Arrays.asList(".", ",");
@@ -199,7 +201,6 @@ public class Utils {
   
   public static Tree getEntityNode(CoreMap sentence, EntityMention entity) {	  
 	  //Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-	  
 	  EntityMention entityNew = new EntityMention("id", entity.getSentence(), new Span(entity.getExtentTokenStart(), entity.getExtentTokenEnd()));
 	  
 	  // Perfect Match
@@ -233,11 +234,72 @@ public class Utils {
 	  }
 	  
 	  countBad+=1;
-	  System.out.println("No match found for - " + entity.getValue() + ":"+  countBad);
+	  //System.out.println("No match found for - " + entity.getValue() + ":"+  countBad);
 
 	  //syntacticParse.pennPrint();
 	  return null;
   }
+  
+  public static Tree getSingleEventNode(CoreMap sentence, EventMention event) {
+	  Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+	  for(int spanStart = event.getExtentTokenStart(); spanStart < event.getExtentTokenEnd(); spanStart++) {
+		  for(Tree node:syntacticParse.postOrderNodeList()) {
+			  if(node.isLeaf())
+				  continue;
+			  
+			  IntPair span = node.getSpan();
+			  if(span.getSource() == spanStart && span.getTarget() == spanStart && 
+					  ( (node.value().startsWith("VB") && !node.firstChild().value().equals("is")) || node.value().startsWith("NN"))) {
+				  //System.out.println("Compressing " + event.getValue() + " to " + node);
+				  return node;
+			  }
+		  }
+	  }
+	  //If everything fails, returns first pre-terminal
+	  for(Tree node:syntacticParse.postOrderNodeList()) {
+		  if(node.isLeaf())
+			  continue;
+		  
+		  IntPair span = node.getSpan();
+		  if(span.getSource() == event.getExtentTokenStart() && span.getTarget() == event.getExtentTokenStart()) {
+			  //System.out.println("Compressing " + event.getValue() + " to " + node);
+			  return node;
+		  }
+	  }
+
+	  return null;
+  }
+  
+  public static Tree getEventNode(CoreMap sentence, EventMention event) {
+	  Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+	  Span entitySpan = event.getExtent();
+	  for(Tree node:syntacticParse.postOrderNodeList()) {
+		  if(node.isLeaf())
+			  continue;
+		  
+		  IntPair span = node.getSpan();
+		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
+			  return node;
+		  }
+		  
+		  if(span.getSource() == entitySpan.start() - 1 && span.getTarget() == entitySpan.end() - 1) {
+			  //To check for an extra determiner like "a" or "the" in front of the entity
+			  String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
+			  if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
+				  //System.out.println("Matching " + event.getValue() + " with " + node);
+				  return node;
+			  }
+		  }
+	  }
+	  Tree ret = getSingleEventNode(sentence, event);
+	  if(ret!=null)
+		  return ret;
+	  
+	  syntacticParse.pennPrint();
+	  System.out.println("No match found for - " + event.getValue());
+	  return null;
+  }
+  
   /*
   public void addTreeNodeAnnotations(CoreMap sentence) {
 		 HashMap<Tree, CoreLabel> treeLabelMap = new HashMap<Tree, CoreLabel>();
@@ -272,6 +334,16 @@ public class Utils {
     }
     else
       document.get(EntityMentionsAnnotation.class).add(entity);
+    
+    CoreMap sentence = entity.getSentence();
+    if (sentence.get(EntityMentionsAnnotation.class) == null) {
+    	List<EntityMention> mentions = new ArrayList<EntityMention>();
+        mentions.add(entity);
+        sentence.set(EntityMentionsAnnotation.class, mentions);
+    }
+    else
+    	sentence.get(EntityMentionsAnnotation.class).add(entity);
+      
   }
   
   public static void addAnnotation(Annotation document, EventMention event) {
@@ -282,6 +354,15 @@ public class Utils {
     }
     else
       document.get(EventMentionsAnnotation.class).add(event);
+    
+    CoreMap sentence = event.getSentence();
+    if (sentence.get(EventMentionsAnnotation.class) == null) {
+    	List<EventMention> mentions = new ArrayList<EventMention>();
+        mentions.add(event);
+        sentence.set(EventMentionsAnnotation.class, mentions);
+    }
+    else
+    	sentence.get(EventMentionsAnnotation.class).add(event);
   }
   
   public static void writeFile(List<Example> data, String fileName) {
@@ -300,10 +381,17 @@ public class Utils {
   }
   
   public static IdentityHashSet<Tree> getEntityNodes(Example ex) {
-	  IdentityHashSet<Tree> lst = new IdentityHashSet<Tree>();
-  	for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
-  		lst.add(entity.getTreeNode());
-  	return lst;
+	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+	  for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
+  		set.add(entity.getTreeNode());
+  	  return set;
+  }
+  
+  public static IdentityHashSet<Tree> getEntityNodesFromSentence(CoreMap sentence) {
+	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+	  for(EntityMention entity : sentence.get(EntityMentionsAnnotation.class))
+  		set.add(entity.getTreeNode());
+	  return set;
   }
   
   public static int getMaxHeight(Tree node) {
@@ -339,5 +427,19 @@ public class Utils {
 			return true;
 	}
 	return false;
+  }
+
+  public static RelationType getArgumentMentionRelation(List<EventMention> events, Tree entityNode) {
+	for(EventMention event:events)
+	  for (ArgumentRelation argRel : event.getArguments()) {
+		if (argRel.mention.getTreeNode() == entityNode) {
+			return argRel.type;
+		}
+	}
+	return RelationType.NONE;
+  }
+  
+  public static String getPathString(List<String> path) {
+	  return StringUtils.join(path, " ");
   }
 }

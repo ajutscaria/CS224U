@@ -100,6 +100,9 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             
             if(type.equals(EVENT_TYPE) || type.equals(STATIC_ENTITY_TYPE)) {
               m = new EventMention(desc, sentence, span);
+              //System.out.println("\t\t\t\t" + line);
+              Tree eventRoot = Utils.getEventNode(sentence, (EventMention)m);
+              m.setTreeNode(eventRoot);
             }
             else {
               //System.out.println(line);

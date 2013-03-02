@@ -16,19 +16,10 @@ import edu.stanford.nlp.util.CoreMap;
 public class EntityMention extends ArgumentMention {
   private static final long serialVersionUID = -2745903102654191527L;
   private List<ArgumentRelation> relations;
-  private Tree entityRoot;
   
   public EntityMention(String objectId, CoreMap sentence, Span span) {
    super(objectId, sentence, span);
    relations = new ArrayList<ArgumentRelation>();
-  }
-  
-  public void setTreeNode(Tree node) {
-	  entityRoot = node;
-  }
-  
-  public Tree getTreeNode() {
-	  return entityRoot;
   }
   
   public void addRelation(EntityMention mention, RelationType type) {

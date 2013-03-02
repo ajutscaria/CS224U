@@ -19,7 +19,7 @@ T4	Event 46 59	fire or flood
 E11	Event:T4 same-event:E10
 T20	Entity 19 34	the environment
 T21	Entity 127 142	population size
-T6	Event 157 173	bottleneck effec
+T6	Event 157 174	bottleneck effect
 E12	Event:T6 causes:E4 causes2:E5 causes3:E6
 T7	Event 432 445	genetic drift
 E3	Event:T7 causes:E9
