@@ -2,13 +2,13 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
-public class Viterbi {
+public class MaxEntModel {
 
 	private final Index labelIndex;
 	private final Index featureIndex;
 	private final double[][] weights;
 
-	public Viterbi(Index labelIndex, Index featureIndex, double[][] weights) {
+	public MaxEntModel(Index labelIndex, Index featureIndex, double[][] weights) {
 		this.labelIndex = labelIndex;
 		this.featureIndex = featureIndex;
 		this.weights = weights;

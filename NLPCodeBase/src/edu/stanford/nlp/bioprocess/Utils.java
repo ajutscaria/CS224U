@@ -441,4 +441,13 @@ public class Utils {
   public static String getPathString(List<String> path) {
 	  return StringUtils.join(path, " ");
   }
+
+	public static boolean subsumesEvent(Tree entityNode, CoreMap sentence) {
+		for (EventMention ev : sentence.get(EventMentionsAnnotation.class)) {
+			if (entityNode.dominates(ev.getTreeNode())) {
+				return true;
+			}
+		}
+		return false;
+	}
 }

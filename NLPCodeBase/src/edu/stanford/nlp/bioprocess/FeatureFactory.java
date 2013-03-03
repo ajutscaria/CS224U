@@ -18,9 +18,10 @@ import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
+import edu.stanford.nlp.util.StringUtils;
 
 public class FeatureFactory {
-	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	boolean printDebug = false, printAnnotations = false, printFeatures = true;
     /** Add any necessary initialization steps for your features here.
      *  Using this constructor is optional. Depending on your
      *  features, you may not need to intialize anything.
@@ -54,22 +55,30 @@ public class FeatureFactory {
 	//CoreLabel headToken = sentence.get(TokensAnnotation.class).get(Utils.findHeadWord(sentence, span).start());
 	
 	//Features of entity
-	features.add("POS=" + currentWord);
-	features.add("firstchild=" + leaves.get(0));
-	features.add("lastchild=" + leaves.get(leaves.size()-1));
-	features.add("numleaves=" + leaves.size());
-	features.add("headword=" + entity.headTerminal(new CollinsHeadFinder()));
-	features.add("headwordPOS=" + entity.headPreTerminal(new CollinsHeadFinder()).value());
+	//features.add("POS=" + currentWord);
+	//features.add("firstchild=" + leaves.get(0));
+	//features.add("lastchild=" + leaves.get(leaves.size()-1));
+	//features.add("numleaves=" + leaves.size());
+	//features.add("headword=" + entity.headTerminal(new CollinsHeadFinder()));
+	//features.add("headwordPOS=" + entity.headPreTerminal(new CollinsHeadFinder()).value());
 
-	features.add("parentPOS=" + entity.parent(root).value());
-	features.add("parentheadword=" + entity.parent(root).headTerminal(new CollinsHeadFinder()));
-	features.add("parentheadwordPOS=" + entity.parent(root).headPreTerminal(new CollinsHeadFinder()).value());
+	//features.add("parentPOS=" + entity.parent(root).value());
+	//features.add("parentheadword=" + entity.parent(root).headTerminal(new CollinsHeadFinder()));
+	//features.add("parentheadwordPOS=" + entity.parent(root).headPreTerminal(new CollinsHeadFinder()).value());
+	
+	//features.add("firstchild=" + leaves.get(0)+",lastchild=" + leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
+	
+	features.add("entWordevtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
+	//features.add("entPOSevtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
+	//if(entity.value().startsWith("N") && StringUtils.join(Trees.pathNodeToNode(event, root, root), " ").contains("VP"));
+	//	features.add("NPEntityAndVPParentForTrigger");
+	//features.add("combtrigger=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0).value());
 	
 	//Features of event
-	features.add("eventPOS=" + event.value());
-	features.add("eventhead=" + event.preTerminalYield().get(0).value()); 
+	//features.add("eventPOS=" + event.value());
+	//features.add("eventhead=" + event.preTerminalYield().get(0).value()); 
 	//features.add("path=" + Utils.getPathString(Trees.pathNodeToNode(entity, event, Trees.getLowestCommonAncestor(entity, event, root))));
-	features.add("position=" + (event.getSpan().getSource() > entity.getSpan().getSource() ? "before" : "after"));
+	//features.add("position=" + (event.getSpan().getSource() > entity.getSpan().getSource() ? "before" : "after"));
 
 	//features.add("height=" +  node.depth());
 	//features.add("isDT=" + node.value().equals("DT"));
@@ -127,7 +136,7 @@ public class FeatureFactory {
 					
 					String type = "O";
 					
-					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE) {
+					if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 						type = "E";
 					}
 					if(printDebug) System.out.println(type + " : " + node + ":" + node.getSpan());

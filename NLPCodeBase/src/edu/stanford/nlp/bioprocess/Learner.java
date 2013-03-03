@@ -114,14 +114,18 @@ public class Learner {
 					for (int i = 0; i < testDataEvent.size(); i += obj.labelIndex.size()) {
 						testDataWithLabel.add(testDataEvent.get(i));
 					}
-					Viterbi viterbi = new Viterbi(obj.labelIndex, obj.featureIndex, weights);
+					MaxEntModel viterbi = new MaxEntModel(obj.labelIndex, obj.featureIndex, weights);
 					viterbi.decodeForEntity(testDataWithLabel, testDataEvent);
 					
 					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
 	
-					for(Datum d:testDataWithLabel) 
-						map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
-					
+					for(Datum d:testDataWithLabel) {
+						if (Utils.subsumesEvent(d.entityNode, sentence)) {
+							map.put(d.entityNode, new Pair<Double, String>(0.0, "O"));
+						} else {
+							map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+						}
+					}
 					
 					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
 					dynamicProgrammer.calculateLabels();
