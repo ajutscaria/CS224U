@@ -24,6 +24,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
@@ -446,6 +447,34 @@ public class Utils {
 		for (EventMention ev : sentence.get(EventMentionsAnnotation.class)) {
 			if (entityNode.dominates(ev.getTreeNode())) {
 				return true;
+			}
+		}
+		return false;
+	}
+	
+	public static IndexedWord findDependencyNode(CoreMap sentence, Tree node) {
+		//System.out.println(node);
+		Tree head = node.headPreTerminal(new CollinsHeadFinder());
+		//System.out.println(head.getSpan());
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
+	      //System.out.println(word.value() + "--" + word.index());
+	      if(word.index() - 1 == head.getSpan().getSource() && word.index() - 1 == head.getSpan().getTarget()) {
+	        //System.out.println("Found - " + word.value());
+	        return word;
+	      }
+	    }
+	    System.out.println("Did not find entity for - " + node);
+	    return null;
+	}
+	
+	public static boolean isNodesRelated(CoreMap sentence, Tree entity, EventMention event) {
+		IndexedWord entityIndexWord = findDependencyNode(sentence, entity);
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+		System.out.println(graph.getParent(entityIndexWord));
+		for(IndexedWord w:graph.descendants(event.getHeadInDependencyTree())) {
+			if(w.equals(entityIndexWord)) {
+				System.out.println(String.format("%s is parent of %s", event.getTreeNode(), entity));
 			}
 		}
 		return false;

@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 
 public class Datum {
@@ -11,6 +12,7 @@ public class Datum {
   public List<String> features;
   public String guessLabel;
   Tree entityNode, eventNode;
+  IndexedWord entityHead, eventHead;
   double probEntity;
   
   public Datum(String word, String label, Tree entityNode, Tree eventNode) {

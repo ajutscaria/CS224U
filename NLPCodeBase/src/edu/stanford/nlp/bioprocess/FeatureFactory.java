@@ -36,14 +36,15 @@ public class FeatureFactory {
      * is the word you are adding features for. PreviousLabel must be the
      * only label that is visible to this method. 
      */
-    private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
+    private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  EventMention eventMention) {
     //	System.out.println("Current node's text - " + getText(node));
-    	
+    Tree event = eventMention.getTreeNode();
 	List<String> features = new ArrayList<String>();
 
 	String currentWord = entity.value();
 	List<Tree> leaves = entity.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+	Utils.isNodesRelated(sentence, entity, eventMention);
 	//root.pennPrint();
 	//System.out.println(event);
 	//System.out.println(entity);
@@ -69,6 +70,7 @@ public class FeatureFactory {
 	//features.add("firstchild=" + leaves.get(0)+",lastchild=" + leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
 	
 	features.add("entWordevtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
+	
 	//features.add("entPOSevtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
 	//if(entity.value().startsWith("N") && StringUtils.join(Trees.pathNodeToNode(event, root, root), " ").contains("VP"));
 	//	features.add("NPEntityAndVPParentForTrigger");
@@ -145,7 +147,7 @@ public class FeatureFactory {
 //					}
 					
 					Datum newDatum = new Datum(getText(node), type, node, event.getTreeNode());
-					newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
+					newDatum.features = computeFeatures(sentence, type, node, event);
 					if(printFeatures) System.out.println(getText(node) + ":" + newDatum.features);
 					newData.add(newDatum);
 				}
@@ -202,7 +204,7 @@ public class FeatureFactory {
 					}
 					
 					Datum newDatum = new Datum(getText(node), type, node, event.getTreeNode());
-					newDatum.features = computeFeatures(sentence, possibleLabel, node, event.getTreeNode());
+					newDatum.features = computeFeatures(sentence, possibleLabel, node, event);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;
 				}

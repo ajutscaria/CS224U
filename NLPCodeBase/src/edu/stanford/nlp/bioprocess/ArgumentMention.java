@@ -8,6 +8,7 @@ import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreAnnotations;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
@@ -39,6 +40,8 @@ public class ArgumentMention extends ExtractionObject {
    */
   private int syntacticHeadTokenPosition;
   
+  private IndexedWord headInDependencyTree;
+  
   private String normalizedName;
 
   public ArgumentMention(String objectId,
@@ -54,6 +57,14 @@ public class ArgumentMention extends ExtractionObject {
     this.headTokenSpan = null;
     this.syntacticHeadTokenPosition = -1;
     this.normalizedName = null;
+  }
+  
+  public void setHeadInDependencyTree(IndexedWord head) {
+	  this.headInDependencyTree = head;
+  }
+  
+  public IndexedWord getHeadInDependencyTree(){
+	  return this.headInDependencyTree;
   }
 
   public void setTreeNode(Tree node) {
