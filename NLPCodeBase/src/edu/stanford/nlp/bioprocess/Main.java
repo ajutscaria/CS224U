@@ -23,7 +23,7 @@ public class Main {
    */
   public void runEntityPrediction(HashMap<String, String> groups) {
 	boolean useDev = false, useOneLoop = true, refreshDataFile = true;
-	useDev = true;
+	//useDev = true;
 	useOneLoop = false;
 	refreshDataFile = false;
 	String examplesFileName = "trainExamples.data";
@@ -49,7 +49,8 @@ public class Main {
     for(int i = 1; i <= NumCrossValidation; i++) {
     	if(useDev) {
     		Learner learner = new Learner(dataset.examples("dev"));
-            double f1 = learner.learnAndPredictNew(dataset.examples("dev"));
+            double f1 = 0; 
+            f1 = learner.learnAndPredictNew(dataset.examples("dev"));
             System.out.println("F1 score: " + f1);
             sum+=f1;
             break;

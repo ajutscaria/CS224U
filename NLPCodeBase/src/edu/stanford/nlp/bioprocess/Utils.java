@@ -235,7 +235,7 @@ public class Utils {
 	  }
 	  
 	  countBad+=1;
-	  //System.out.println("No match found for - " + entity.getValue() + ":"+  countBad);
+	  System.out.println("No match found for - " + entity.getValue() + ":"+  countBad);
 
 	  //syntacticParse.pennPrint();
 	  return null;
@@ -460,9 +460,11 @@ public class Utils {
 	}
 	
 	public static IndexedWord findDependencyNode(CoreMap sentence, Tree node) {
-		//System.out.println(node);
+		//node is null if it cannot be found in the sentence's parse tree.
+		if(node == null)
+			return null;
 		Tree head = node.headPreTerminal(new CollinsHeadFinder());
-		//System.out.println(head.getSpan());
+		//System.out.println(node + ":" + head + ":" + head.getSpan());
 		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
 	      //System.out.println(word.value() + "--" + word.index());
@@ -471,19 +473,35 @@ public class Utils {
 	        return word;
 	      }
 	    }
-	    System.out.println("Did not find entity for - " + node);
+	    //In case head span was not found, return the word in next span. For instance event 'in order' in p27.txt
+	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
+		      if(word.index() - 1 == head.getSpan().getSource() + 1 && word.index() - 1 == head.getSpan().getTarget() + 1) {
+			        //System.out.println("Found - " + word.value());
+			        return word;
+		      }
+		    }
 	    return null;
 	}
 	
 	public static boolean isNodesRelated(CoreMap sentence, Tree entity, EventMention event) {
+		//event ideally wouldn't be parent of full sentence. But, it will tag it as parent because the full sentence has the trigger
+		//word as head token.
+		if(entity == null || entity.value().equals("S") || entity.value().equals("SBAR"))
+			return false;
 		IndexedWord entityIndexWord = findDependencyNode(sentence, entity);
-		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-		System.out.println(graph.getParent(entityIndexWord));
-		for(IndexedWord w:graph.descendants(event.getHeadInDependencyTree())) {
-			if(w.equals(entityIndexWord)) {
-				System.out.println(String.format("%s is parent of %s", event.getTreeNode(), entity));
+		//In case of punctuation marks, there is no head found.
+		if(entityIndexWord != null) {
+			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			//System.out.println("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			for(IndexedWord w:graph.getChildList(event.getHeadInDependencyTree())) {
+				if(w.equals(entityIndexWord)) {
+					System.out.println(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
+					return true;
+				}
 			}
 		}
+		//System.out.println(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		
 		return false;
 	}
 }

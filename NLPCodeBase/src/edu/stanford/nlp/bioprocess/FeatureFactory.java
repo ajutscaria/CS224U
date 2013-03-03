@@ -15,13 +15,16 @@ import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
+import edu.stanford.nlp.trees.semgraph.SemanticGraph;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.StringUtils;
+import edu.stanford.nlp.util.logging.Redwood;
 
 public class FeatureFactory {
-	boolean printDebug = false, printAnnotations = false, printFeatures = true;
+	boolean printDebug = false, printAnnotations = true, printFeatures = false;
     /** Add any necessary initialization steps for your features here.
      *  Using this constructor is optional. Depending on your
      *  features, you may not need to intialize anything.
@@ -44,7 +47,7 @@ public class FeatureFactory {
 	String currentWord = entity.value();
 	List<Tree> leaves = entity.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-	Utils.isNodesRelated(sentence, entity, eventMention);
+	boolean dependencyExists = Utils.isNodesRelated(sentence, entity, eventMention);
 	//root.pennPrint();
 	//System.out.println(event);
 	//System.out.println(entity);
@@ -69,8 +72,8 @@ public class FeatureFactory {
 	
 	//features.add("firstchild=" + leaves.get(0)+",lastchild=" + leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
 	
-	features.add("entWordevtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
-	
+	features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
+	features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);
 	//features.add("entPOSevtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
 	//if(entity.value().startsWith("N") && StringUtils.join(Trees.pathNodeToNode(event, root, root), " ").contains("VP"));
 	//	features.add("NPEntityAndVPParentForTrigger");
@@ -121,15 +124,24 @@ public class FeatureFactory {
 		if(printDebug || printAnnotations) System.out.println("\n-------------------- " + ex.id + "---------------------");
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 			IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
-			if(printDebug) System.out.println(sentence);
+			if(printDebug){
+				System.out.println(sentence);
+				sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+			}
 			if(printAnnotations) {
 				System.out.println("---Events--");
 				for(EventMention event: sentence.get(EventMentionsAnnotation.class))
 					System.out.println(event.getValue());
 				System.out.println("---Entities--");
-				for(EntityMention entity: sentence.get(EntityMentionsAnnotation.class))
-					System.out.println(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
+				for(EntityMention entity: sentence.get(EntityMentionsAnnotation.class)) {
+					if(entity.getTreeNode() != null)
+						System.out.println(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
+					else
+						System.out.println("Couldn't find node:" + entity.getValue());
+				}
 			}
+			SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			System.out.println(dependencies);
 			for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 				if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
