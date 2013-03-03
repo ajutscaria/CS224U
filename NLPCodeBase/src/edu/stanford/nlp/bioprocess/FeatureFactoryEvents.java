@@ -36,11 +36,9 @@ public class FeatureFactoryEvents {
      * is the word you are adding features for. PreviousLabel must be the
      * only label that is visible to this method. 
      */
-    private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
+ private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
     System.out.println("Current node's text - " + getText(event));
-    	
 	List<String> features = new ArrayList<String>();
-
 	String currentWord = event.value();
 	List<Tree> leaves = event.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
@@ -56,8 +54,8 @@ public class FeatureFactoryEvents {
 	//CoreLabel headToken = sentence.get(TokensAnnotation.class).get(Utils.findHeadWord(sentence, span).start());
 	
 	//Features of entity
-	features.add("POS=" + currentWord);
-	//features.add("firstchild=" + leaves.get(0));
+	features.add("POS="+currentWord);
+	features.add("firstchild=" + leaves.get(0));
 	//features.add("lastchild=" + leaves.get(leaves.size()-1));
 	//features.add("numleaves=" + leaves.size());
 	//features.add("headword=" + entity.headTerminal(new CollinsHeadFinder()));
@@ -81,7 +79,7 @@ public class FeatureFactoryEvents {
 	//features.add("path=" + Utils.getPathString(Trees.pathNodeToNode(entity, event, Trees.getLowestCommonAncestor(entity, event, root))));
 	//features.add("position=" + (event.getSpan().getSource() > entity.getSpan().getSource() ? "before" : "after"));
 
-	//features.add("height=" +  node.depth());
+	//features.add("height=" +  event.depth());
 	//features.add("isDT=" + node.value().equals("DT"));
 	
 	//features.add("headword=" + headToken.originalText());
