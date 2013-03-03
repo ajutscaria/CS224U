@@ -37,13 +37,14 @@ public class FeatureFactoryEvents {
      * only label that is visible to this method. 
      */
     private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
-    	//System.out.println("Current node's text - " + getText(node));
+    System.out.println("Current node's text - " + getText(event));
     	
 	List<String> features = new ArrayList<String>();
 
 	String currentWord = event.value();
 	List<Tree> leaves = event.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+	System.out.println("value of event is "+event.value());
 	//root.pennPrint();
 	//System.out.println(event);
 	//System.out.println(entity);
@@ -55,7 +56,7 @@ public class FeatureFactoryEvents {
 	//CoreLabel headToken = sentence.get(TokensAnnotation.class).get(Utils.findHeadWord(sentence, span).start());
 	
 	//Features of entity
-	//features.add("POS=" + currentWord);
+	features.add("POS=" + currentWord);
 	//features.add("firstchild=" + leaves.get(0));
 	//features.add("lastchild=" + leaves.get(leaves.size()-1));
 	//features.add("numleaves=" + leaves.size());
@@ -131,7 +132,7 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 			//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 				//if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-					if(node.isLeaf()||node.value().equals("ROOT"))
+					if(node.isLeaf()||node.value().equals("ROOT") || (!node.isPreTerminal()))
 						continue;
 					
 					String type = "O";
@@ -191,7 +192,7 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
-					if(node.isLeaf() || node.value().equals("ROOT"))
+					if(node.isLeaf() || node.value().equals("ROOT") || (!node.isPreTerminal()))
 						continue;
 					
 					String type = "O";

@@ -72,7 +72,7 @@ public class Main {
   }
   
   public void runEventPrediction(HashMap<String, String> groups) {
-	    boolean useDev = true, useOneLoop = true, refreshDataFile = false;
+	    boolean useDev = false, useOneLoop = true, refreshDataFile = false;
 		String examplesFileName = "trainExamples.data";
 	    BioprocessDataset dataset = new BioprocessDataset(groups);
 	    CrossValidationSplit split = null;
@@ -111,7 +111,7 @@ public class Main {
 	    	if(useOneLoop)
 	    		break;
 	    }
-	    if(!useDev) {
+	    if(!useDev && !useOneLoop) {
 		    double average = sum/NumCrossValidation;
 		    System.out.println("Average Score: "+average);
 	    }

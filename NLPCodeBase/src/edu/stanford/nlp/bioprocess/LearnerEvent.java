@@ -66,38 +66,36 @@ public class LearnerEvent {
 
 		for(Example ex:testData) {
 			System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
-			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				
-				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
-					System.out.println("------------------Event " + event.getValue()+"--------------");
-					List<Datum> testDataEvent = new ArrayList<Datum>();
-					for(Datum d:test)
-						if(d.eventNode == event.getTreeNode()) {
-							//System.out.println(d.entityNode);
-							testDataEvent.add(d);
-						}
+				//for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
+					//System.out.println("------------------Event " + event.getValue()+"--------------");
+					//List<Datum> testDataEvent = new ArrayList<Datum>();
+					//for(Datum d:test)
+						//if(d.eventNode == event.getTreeNode()) {
+							//testDataEvent.add(d);
+						//}
 					List<Datum> testDataWithLabel = new ArrayList<Datum>();
 	
-					for (int i = 0; i < testDataEvent.size(); i += obj.labelIndex.size()) {
-						testDataWithLabel.add(testDataEvent.get(i));
+					for (int i = 0; i < test.size(); i += obj.labelIndex.size()) {
+						testDataWithLabel.add(test.get(i));
 					}
-					MaxEntModel viterbi = new MaxEntModel(obj.labelIndex, obj.featureIndex, weights);
-					viterbi.decodeForEntity(testDataWithLabel, testDataEvent);
+					MaxEntModel maxEnt = new MaxEntModel(obj.labelIndex, obj.featureIndex, weights);
+					maxEnt.decodeForEntity(testDataWithLabel, test);
 					
-					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
-	
-					for(Datum d:testDataWithLabel) {
-						if (Utils.subsumesEvent(d.entityNode, sentence)) {
-							map.put(d.entityNode, new Pair<Double, String>(0.0, "O"));
-						} else {
-							map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
-						}
-					}
+					//IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
+	//
+		//			for(Datum d:testDataWithLabel) {
+			//			if (Utils.subsumesEvent(d.entityNode, sentence)) {
+				//			map.put(d.entityNode, new Pair<Double, String>(0.0, "O"));
+				//		} else {
+					//		map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+						//}
+					//}
 					
-					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
-					dynamicProgrammer.calculateLabels();
+				//	DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
+					//dynamicProgrammer.calculateLabels();
 					
 					predicted.addAll(testDataWithLabel);
 					
@@ -107,7 +105,7 @@ public class LearnerEvent {
 					System.out.println("\n---------GOLD ENTITIES-------------------------");
 					for(Datum d:testDataWithLabel) 
 						if(d.label.equals("E"))
-							System.out.println(d.entityNode + ":" + d.label);
+							System.out.println(d.eventNode + ":" + d.label);
 					
 					System.out.println("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
@@ -115,7 +113,7 @@ public class LearnerEvent {
 							System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
 					System.out.println("------------------------------------------\n");
 				}
-			}
+			//}
 		}
 		
 				
