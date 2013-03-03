@@ -72,13 +72,50 @@ public class Main {
   }
   
   public void runEventPrediction(HashMap<String, String> groups) {
-    BioprocessDataset dataset = new BioprocessDataset(groups);
-    dataset.readAll();
-    //Learner learner = new Learner(dataset.examples("train"));
-    //learner.learn();
-    TriggerPredictionInference TrigPred = new TriggerPredictionInference();
-    TrigPred.baselineInfer(dataset.examples("train"));
-    //Scorer.scoreEventPrediction(dataset.examples("train"));
+	    boolean useDev = true, useOneLoop = true, refreshDataFile = false;
+		String examplesFileName = "trainExamples.data";
+	    BioprocessDataset dataset = new BioprocessDataset(groups);
+	    CrossValidationSplit split = null;
+	    int NumCrossValidation = 10;
+	    
+	    if(!useDev) {
+		    File f = new File(examplesFileName);
+		    if(f.exists() && !refreshDataFile)
+		    	dataset.allExamples.put("train", Utils.readFile(examplesFileName));
+		    else {
+		    	dataset.read("train");
+		    	Utils.writeFile(dataset.examples("train"), examplesFileName);
+		    }
+		    split = new CrossValidationSplit((ArrayList<Example>) dataset.examples("train"), NumCrossValidation);
+	    }
+	    else{
+	    	dataset.read("dev");
+	    }
+	    
+	    double sum = 0.0;
+	    for(int i = 1; i <= NumCrossValidation; i++) {
+	    	if(useDev) {
+	    		LearnerEvent learner = new LearnerEvent(dataset.examples("dev"));
+	            double f1 = learner.learnAndPredictNew(dataset.examples("dev"));
+	            System.out.println("F1 score: " + f1);
+	            sum+=f1;
+	            break;
+	    	}
+	    	else {
+		    	System.out.println("Iteration: "+i);
+		    	LearnerEvent learner = new LearnerEvent(split.GetTrainExamples(i));
+		    	double f1 = 0;
+		    	f1 = learner.learnAndPredictNew(split.GetTestExamples(i));
+		    	sum += f1;
+	    	}
+	    	if(useOneLoop)
+	    		break;
+	    }
+	    if(!useDev) {
+		    double average = sum/NumCrossValidation;
+		    System.out.println("Average Score: "+average);
+	    }
+	    //Scorer.scoreEntityPrediction(dataset.examples("dev"));
   }
   
   /***
