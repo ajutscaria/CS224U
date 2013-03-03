@@ -21,10 +21,10 @@ import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.StringUtils;
 
 public class FeatureFactoryEvents {
-	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	boolean printDebug = true, printAnnotations = true, printFeatures = false;
     /** Add any necessary initialization steps for your features here.
      *  Using this constructor is optional. Depending on your
-     *  features, you may not need to intialize anything.
+     *  features, you may not need to initialize anything.
      */
     public FeatureFactoryEvents() {
 
@@ -44,7 +44,7 @@ public class FeatureFactoryEvents {
 	String currentWord = entity.value();
 	List<Tree> leaves = entity.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-	root.pennPrint();
+	//root.pennPrint();
 	//System.out.println(event);
 	//System.out.println(entity);
 	//System.out.println(Trees.getLowestCommonAncestor(entity, event, root));
@@ -118,37 +118,37 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 	for (Example ex : data) {
 		if(printDebug || printAnnotations) System.out.println("\n-------------------- " + ex.id + "---------------------");
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
-			IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+			//IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 			if(printDebug) System.out.println(sentence);
 			if(printAnnotations) {
 				System.out.println("---Events--");
 				for(EventMention event: sentence.get(EventMentionsAnnotation.class))
 					System.out.println(event.getValue());
-				System.out.println("---Entities--");
-				for(EntityMention entity: sentence.get(EntityMentionsAnnotation.class))
-					System.out.println(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
+				//System.out.println("---Entities--");
+				//for(EntityMention entity: sentence.get(EntityMentionsAnnotation.class))
+					//System.out.println(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
 			}
-			for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
-				if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
+			//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
+				//if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-					if(node.isLeaf()||node.value().equals("ROOT"))
-						continue;
+					//if(node.isLeaf()||node.value().equals("ROOT"))
+						//continue;
 					
-					String type = "O";
+					//String type = "O";
 					
-					if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
-						type = "E";
-					}
-					if(printDebug) System.out.println(type + " : " + node + ":" + node.getSpan());
-//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
-//						type = "E";
-//					}
+					//if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
+						//type = "E";
+					//}
+					//if(printDebug) System.out.println(type + " : " + node + ":" + node.getSpan());
+//					//if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
+//						//type = "E";
+//					//}
 					
 					Datum newDatum = new Datum(getText(node), type, node, event.getTreeNode());
 					newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
 					if(printFeatures) System.out.println(getText(node) + ":" + newDatum.features);
 					newData.add(newDatum);
-				}
+				//}
 			}
 		}
 		if(printDebug) System.out.println("\n------------------------------------------------");
