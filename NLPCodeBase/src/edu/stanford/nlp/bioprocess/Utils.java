@@ -387,6 +387,13 @@ public class Utils {
   		set.add(entity.getTreeNode());
   	  return set;
   }
+  public static IdentityHashSet<Tree> getEventNodesFromSentence(CoreMap sentence) {
+	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+	  for(EventMention event : sentence.get(EventMentionsAnnotation.class))
+  		set.add(event.getTreeNode());
+	  return set;
+  }
+  
   
   public static IdentityHashSet<Tree> getEntityNodesFromSentence(CoreMap sentence) {
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();

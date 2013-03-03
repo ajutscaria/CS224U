@@ -36,13 +36,13 @@ public class FeatureFactoryEvents {
      * is the word you are adding features for. PreviousLabel must be the
      * only label that is visible to this method. 
      */
-    private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
+    private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
     	//System.out.println("Current node's text - " + getText(node));
     	
 	List<String> features = new ArrayList<String>();
 
-	String currentWord = entity.value();
-	List<Tree> leaves = entity.getLeaves();
+	String currentWord = event.value();
+	List<Tree> leaves = event.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 	//root.pennPrint();
 	//System.out.println(event);
@@ -68,7 +68,7 @@ public class FeatureFactoryEvents {
 	
 	//features.add("firstchild=" + leaves.get(0)+",lastchild=" + leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
 	
-	features.add("entWordevtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
+//	//features.add("entWordevtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 	//features.add("entPOSevtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
 	//if(entity.value().startsWith("N") && StringUtils.join(Trees.pathNodeToNode(event, root, root), " ").contains("VP"));
 	//	features.add("NPEntityAndVPParentForTrigger");
@@ -118,7 +118,7 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 	for (Example ex : data) {
 		if(printDebug || printAnnotations) System.out.println("\n-------------------- " + ex.id + "---------------------");
 		for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
-			//IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+			IdentityHashSet<Tree> eventNodes = Utils.getEventNodesFromSentence(sentence);
 			if(printDebug) System.out.println(sentence);
 			if(printAnnotations) {
 				System.out.println("---Events--");
@@ -131,21 +131,20 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 			//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 				//if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-					//if(node.isLeaf()||node.value().equals("ROOT"))
-						//continue;
+					if(node.isLeaf()||node.value().equals("ROOT"))
+						continue;
 					
-					//String type = "O";
+					String type = "O";
 					
 					//if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 						//type = "E";
 					//}
+					if (eventNodes.contains(node)){
+						type = "E";
+					}
 					//if(printDebug) System.out.println(type + " : " + node + ":" + node.getSpan());
-//					//if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
-//						//type = "E";
-//					//}
-					
-					Datum newDatum = new Datum(getText(node), type, node, event.getTreeNode());
-					newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
+					Datum newDatum = new Datum(getText(node), type, node, node);
+					newDatum.features = computeFeatures(sentence, type, node);
 					if(printFeatures) System.out.println(getText(node) + ":" + newDatum.features);
 					newData.add(newDatum);
 				//}
@@ -188,8 +187,8 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
     	labels.add("E");
 
 
-    	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
-		for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
+    	IdentityHashSet<Tree> eventNodes = Utils.getEventNodesFromSentence(sentence);
+		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT"))
@@ -197,16 +196,16 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 					
 					String type = "O";
 					
-					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE) {
+					if (eventNodes.contains(node)) {
 						type = "E";
 					}
 					
-					Datum newDatum = new Datum(getText(node), type, node, event.getTreeNode());
-					newDatum.features = computeFeatures(sentence, possibleLabel, node, event.getTreeNode());
+					Datum newDatum = new Datum(getText(node), type, node, node);
+					newDatum.features = computeFeatures(sentence, possibleLabel, node);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;
 				}
-		    }
+		    //}
 		}
     	return newData;
     }
