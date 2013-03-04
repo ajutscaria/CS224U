@@ -36,6 +36,8 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
       TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity",
       TYPE_TIME = "time";
+  
+  //static int StaticEventCount =0;
  
   public final List<Example> parseFolder(String path) throws IOException {
     List<Example> examples = new ArrayList<Example>();
@@ -64,6 +66,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       examples.add(example);
       //break;
     }
+    //System.out.println("Number of static events - " + StaticEventCount);
     return examples;
   }
   
@@ -112,6 +115,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
               //System.out.println("\t\t\t\t" + line);
               Tree eventRoot = Utils.getEventNode(sentence, (EventMention)m);
               IndexedWord head = Utils.findDependencyNode(sentence, eventRoot);
+              Utils.findDepthInDependencyTree(sentence, eventRoot);
               m.setHeadInDependencyTree(head);
               m.setTreeNode(eventRoot);
             }
@@ -133,6 +137,8 @@ public class BioProcessFormatReader extends GenericDataSetReader {
         	String[] splts = parameters[0].split(":");
         		
    			((EventMention)mentions.get(splts[1])).eventType = splts[0].equals(EVENT_TYPE) ? EventType.Event : EventType.StaticEvent;
+   			//if(splts[0].equals(STATIC_ENTITY_TYPE))
+   			//	StaticEventCount += 1;
     		mentions.put(desc, mentions.get(splts[1]));
     		mentions.remove(splts[1]);
          } 

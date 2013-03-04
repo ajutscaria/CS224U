@@ -21,7 +21,7 @@ import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.StringUtils;
 
 public class FeatureFactoryEvents {
-	boolean printDebug = true, printAnnotations = true, printFeatures = false;
+	boolean printDebug = false, printAnnotations = false, printFeatures = false;
     /** Add any necessary initialization steps for your features here.
      *  Using this constructor is optional. Depending on your
      *  features, you may not need to initialize anything.
@@ -42,60 +42,17 @@ public class FeatureFactoryEvents {
 	String currentWord = event.value();
 	List<Tree> leaves = event.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-	//System.out.println("value of event is "+event.value());
-	//root.pennPrint();
-	//System.out.println(event);
-	//System.out.println(entity);
-	//System.out.println(Trees.getLowestCommonAncestor(entity, event, root));
-	//System.out.println(node.depth() +":" +root.depth());
-	//IntPair ip = node.getSpan();
-	//Span span = new Span(ip.getSource(), ip.getTarget() + 1);
+	CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
 	
-	//CoreLabel headToken = sentence.get(TokensAnnotation.class).get(Utils.findHeadWord(sentence, span).start());
-	
-	//Features of entity
 	features.add("POS="+currentWord);
-	features.add("firstchild=" + leaves.get(0));
-	//features.add("lastchild=" + leaves.get(leaves.size()-1));
-	//features.add("numleaves=" + leaves.size());
-	//features.add("headword=" + entity.headTerminal(new CollinsHeadFinder()));
-	//features.add("headwordPOS=" + entity.headPreTerminal(new CollinsHeadFinder()).value());
+	features.add("lemma="+token.lemma());
+	features.add("word=" + leaves.get(0));
+	features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
+	features.add("POSlemma=" + currentWord+","+token.lemma());
 
-	//features.add("parentPOS=" + entity.parent(root).value());
-	//features.add("parentheadword=" + entity.parent(root).headTerminal(new CollinsHeadFinder()));
-	//features.add("parentheadwordPOS=" + entity.parent(root).headPreTerminal(new CollinsHeadFinder()).value());
+	//features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
+	//features.add("isverb=" + currentWord.startsWith("VB"));
 	
-	//features.add("firstchild=" + leaves.get(0)+",lastchild=" + leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
-	
-//	//features.add("entWordevtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
-	//features.add("entPOSevtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
-	//if(entity.value().startsWith("N") && StringUtils.join(Trees.pathNodeToNode(event, root, root), " ").contains("VP"));
-	//	features.add("NPEntityAndVPParentForTrigger");
-	//features.add("combtrigger=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0).value());
-	
-	//Features of event
-	//features.add("eventPOS=" + event.value());
-	//features.add("eventhead=" + event.preTerminalYield().get(0).value()); 
-	//features.add("path=" + Utils.getPathString(Trees.pathNodeToNode(entity, event, Trees.getLowestCommonAncestor(entity, event, root))));
-	//features.add("position=" + (event.getSpan().getSource() > entity.getSpan().getSource() ? "before" : "after"));
-
-	//features.add("height=" +  event.depth());
-	//features.add("isDT=" + node.value().equals("DT"));
-	
-	//features.add("headword=" + headToken.originalText());
-	
-	//features.add("noun=" + (token.get(PartOfSpeechAnnotation.class).startsWith("NN") ? 1 : 0));
-	//if(token.index() > 1) {
-	//	CoreLabel prev = sentence.get(TokensAnnotation.class).get(token.index() - 2);
-		//features.add("prevword=" + prev.originalText());
-	//	features.add("prevpos=" + prev.get(PartOfSpeechAnnotation.class));
-	//}
-	//features.add("trueCase=" + entity.get(TrueCaseAnnotation.class));
-	//features.add("ner=" + entity.get(NamedEntityTagAnnotation.class));
-	//features.add("role=" + entity.get(RoleAnnotation.class));
-	//features.add("stem=" + entity.get(StemAnnotation.class));
-	//features.add("prevLabel=" + previousLabel);
-	//features.add("word=" + currentWord + ", prevLabel=" + previousLabel);
 	String classString = "class=" + tokenClass + ",";
 	List<String> updatedFeatures = new ArrayList<String>();
 	for(String feature:features)

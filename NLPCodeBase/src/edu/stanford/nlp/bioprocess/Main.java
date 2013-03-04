@@ -73,7 +73,7 @@ public class Main {
   }
   
   public void runEventPrediction(HashMap<String, String> groups) {
-	    boolean useDev = false, useOneLoop = false, refreshDataFile = true;
+	    boolean useDev = false, useOneLoop = false, refreshDataFile = false;
 		String examplesFileName = "trainExamples.data";
 	    BioprocessDataset dataset = new BioprocessDataset(groups);
 	    CrossValidationSplit split = null;

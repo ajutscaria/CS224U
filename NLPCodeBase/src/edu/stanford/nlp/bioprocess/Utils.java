@@ -280,7 +280,7 @@ public class Utils {
 		  
 		  IntPair span = node.getSpan();
 		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
-			  System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
+			  //System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
 			  return node.headPreTerminal(new CollinsHeadFinder());
 		  }
 		  
@@ -288,7 +288,7 @@ public class Utils {
 			  //To check for an extra determiner like "a" or "the" in front of the entity
 			  String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
 			  if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
-				  System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
+				  //System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
 				  return  node.headPreTerminal(new CollinsHeadFinder());
 			  }
 		  }
@@ -460,6 +460,11 @@ public class Utils {
 		return false;
 	}
 	
+	public static CoreLabel findCoreLabelFromTree(CoreMap sentence, Tree node) {
+		Tree head = node.headPreTerminal(new CollinsHeadFinder());
+		return sentence.get(TokensAnnotation.class).get(head.getSpan().getSource());
+	}
+	
 	public static IndexedWord findDependencyNode(CoreMap sentence, Tree node) {
 		//node is null if it cannot be found in the sentence's parse tree.
 		if(node == null)
@@ -482,6 +487,14 @@ public class Utils {
 		      }
 		    }
 	    return null;
+	}
+	
+	public static int findDepthInDependencyTree(CoreMap sentence, Tree node) {
+		IndexedWord word = findDependencyNode(sentence, node);
+		if(word == null)
+			return -1;
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+		return graph.getShortestDirectedPathEdges(graph.getFirstRoot(), word).size();
 	}
 	
 	public static boolean isNodesRelated(CoreMap sentence, Tree entity, EventMention event) {
