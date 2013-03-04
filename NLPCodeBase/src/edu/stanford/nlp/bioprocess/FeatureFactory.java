@@ -44,23 +44,28 @@ public class FeatureFactory {
     Tree event = eventMention.getTreeNode();
 	List<String> features = new ArrayList<String>();
 
-	String currentWord = entity.value();
 	List<Tree> leaves = entity.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 	boolean dependencyExists = Utils.isNodesRelated(sentence, entity, eventMention);
 	
 	features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 	features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);
+	features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
 	features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
 	features.add("EntPOSEntParentPOSEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 	features.add("PathEntToEvt=" + Trees.pathNodeToNode(event, entity, root));
 	features.add("EntLastWordEvtPOS="+leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
 	features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));
 	features.add("PathEntToAncestor="+Trees.pathNodeToNode(entity, Trees.getLowestCommonAncestor(entity, event, root), root));
+	features.add("PathEntToRoot="+Trees.pathNodeToNode(entity, root, root));
+	features.add("EntParentPOSEvtPOS=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 	
 	//This feature did not work surprisingly. Maybe because the path from ancestor to event might lead to a lot of different variations.
 	//features.add("PathAncestorToEvt="+Trees.pathNodeToNode(Trees.getLowestCommonAncestor(entity, event, root), event, root));
-
+	//This is a bad feature too.
+	//features.add("EvtPOSDepRel=" + event.preTerminalYield().get(0).value() + ","  + dependencyExists);
+	//Not a good feature too.
+	//features.add("EntPOSEvtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
 	String classString = "class=" + tokenClass + ",";
 	List<String> updatedFeatures = new ArrayList<String>();
 	for(String feature:features)
@@ -99,8 +104,8 @@ public class FeatureFactory {
 						System.out.println("Couldn't find node:" + entity.getValue());
 				}
 			}
-			SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-			System.out.println(dependencies);
+			//SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			//System.out.println(dependencies);
 			for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 				if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
