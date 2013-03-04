@@ -235,7 +235,7 @@ public class Utils {
 	  }
 	  
 	  countBad+=1;
-	  System.out.println("No match found for - " + entity.getValue() + ":"+  countBad);
+	  System.out.println("No ENTITY match found for - " + entity.getValue() + ":"+  countBad);
 
 	  //syntacticParse.pennPrint();
 	  return null;
@@ -280,24 +280,25 @@ public class Utils {
 		  
 		  IntPair span = node.getSpan();
 		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
-			  return node;
+			  System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
+			  return node.headPreTerminal(new CollinsHeadFinder());
 		  }
 		  
 		  if(span.getSource() == entitySpan.start() - 1 && span.getTarget() == entitySpan.end() - 1) {
 			  //To check for an extra determiner like "a" or "the" in front of the entity
 			  String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
 			  if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
-				  //System.out.println("Matching " + event.getValue() + " with " + node);
-				  return node;
+				  System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
+				  return  node.headPreTerminal(new CollinsHeadFinder());
 			  }
 		  }
 	  }
 	  Tree ret = getSingleEventNode(sentence, event);
 	  if(ret!=null)
-		  return ret;
+		  return ret.headPreTerminal(new CollinsHeadFinder());
 	  
 	  syntacticParse.pennPrint();
-	  System.out.println("No match found for - " + event.getValue());
+	  System.out.println("No EVENT match found for - " + event.getValue());
 	  return null;
   }
   

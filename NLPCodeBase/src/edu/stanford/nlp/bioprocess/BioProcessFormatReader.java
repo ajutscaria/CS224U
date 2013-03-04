@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
@@ -130,10 +131,10 @@ public class BioProcessFormatReader extends GenericDataSetReader {
           case 'E':
         	String[] parameters = splits[1].split(" ");
         	String[] splts = parameters[0].split(":");
-        	if(splts[0].equals(EVENT_TYPE) || splts[0].equals(STATIC_ENTITY_TYPE)) {
-        		mentions.put(desc, mentions.get(splts[1]));
-        		mentions.remove(splts[1]);
-        	}
+        		
+   			((EventMention)mentions.get(splts[1])).eventType = splts[0].equals(EVENT_TYPE) ? EventType.Event : EventType.StaticEvent;
+    		mentions.put(desc, mentions.get(splts[1]));
+    		mentions.remove(splts[1]);
          } 
       }
       reader.seek(0);

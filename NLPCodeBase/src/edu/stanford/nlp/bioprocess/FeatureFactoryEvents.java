@@ -37,12 +37,12 @@ public class FeatureFactoryEvents {
      * only label that is visible to this method. 
      */
  private List<String> computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
-    System.out.println("Current node's text - " + getText(event));
+    //System.out.println("Current node's text - " + getText(event));
 	List<String> features = new ArrayList<String>();
 	String currentWord = event.value();
 	List<Tree> leaves = event.getLeaves();
 	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-	System.out.println("value of event is "+event.value());
+	//System.out.println("value of event is "+event.value());
 	//root.pennPrint();
 	//System.out.println(event);
 	//System.out.println(entity);
@@ -130,7 +130,7 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 			//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 				//if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-					if(node.isLeaf()||node.value().equals("ROOT") || (!node.isPreTerminal()))
+					if(node.isLeaf()||node.value().equals("ROOT"))
 						continue;
 					
 					String type = "O";
@@ -190,7 +190,7 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
-					if(node.isLeaf() || node.value().equals("ROOT") || (!node.isPreTerminal()))
+					if(node.isLeaf() || node.value().equals("ROOT"))
 						continue;
 					
 					String type = "O";

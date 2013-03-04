@@ -3,7 +3,10 @@ package edu.stanford.nlp.bioprocess;
 import java.io.Serializable;
 
 public class ArgumentRelation implements Serializable {
-  
+  public enum EventType {
+	  Event,
+	  StaticEvent
+  }
   public enum RelationType {
 	  Origin,
     Agent,

@@ -3,6 +3,7 @@ package edu.stanford.nlp.bioprocess;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.IndexedWord;
@@ -17,6 +18,7 @@ public class EventMention extends ArgumentMention {
  
   private static final long serialVersionUID = -2745903102654191527L;
   private List<ArgumentRelation> arguments;
+  public EventType eventType;
  /**
   * 
   */
