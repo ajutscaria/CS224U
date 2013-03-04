@@ -50,7 +50,7 @@ public class FeatureFactoryEvents {
 	features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
 	features.add("POSlemma=" + currentWord+","+token.lemma());
 	features.add("path=" + Trees.pathFromRoot(event, root));
-
+	//features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
 	//Cannot use this feature when looking at all tree nodes as candidates
 		//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
 	//Doesn't seem to work as expected even though the event triggers are mostly close to root in dependency tree.
