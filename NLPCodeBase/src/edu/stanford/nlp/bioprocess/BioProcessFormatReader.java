@@ -187,6 +187,10 @@ public class BioProcessFormatReader extends GenericDataSetReader {
                 default:
                   if(keyValue[0].startsWith(TYPE_RESULT))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
+                  else if(keyValue[0].startsWith(TYPE_LOCATION))
+                  	event.addArgument(mentions.get(keyValue[1]), RelationType.Location);
+                  else if(keyValue[0].startsWith(TYPE_DESTINATION))
+                    	event.addArgument(mentions.get(keyValue[1]), RelationType.Destination);
               }
             }
             Utils.addAnnotation(document, event);

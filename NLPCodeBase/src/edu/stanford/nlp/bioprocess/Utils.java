@@ -495,7 +495,7 @@ public class Utils {
 			//System.out.println("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
 			for(IndexedWord w:graph.getChildList(event.getHeadInDependencyTree())) {
 				if(w.equals(entityIndexWord)) {
-					System.out.println(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
+					//System.out.println(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
 					return true;
 				}
 			}

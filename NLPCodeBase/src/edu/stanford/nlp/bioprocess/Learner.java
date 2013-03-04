@@ -133,7 +133,7 @@ public class Learner {
 					predicted.addAll(testDataWithLabel);
 					
 					System.out.println(sentence);
-					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
 					System.out.println("\n---------GOLD ENTITIES-------------------------");
 					for(Datum d:testDataWithLabel) 
