@@ -68,7 +68,9 @@ public class LearnerEvent {
 			System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
-				
+				System.out.println(sentence);
+				sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+				System.out.println(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 				//for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
 					//System.out.println("------------------Event " + event.getValue()+"--------------");
 					//List<Datum> testDataEvent = new ArrayList<Datum>();

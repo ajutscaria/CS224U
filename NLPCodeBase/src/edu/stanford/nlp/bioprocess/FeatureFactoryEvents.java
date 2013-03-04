@@ -49,9 +49,12 @@ public class FeatureFactoryEvents {
 	features.add("word=" + leaves.get(0));
 	features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
 	features.add("POSlemma=" + currentWord+","+token.lemma());
+	features.add("path=" + Trees.pathFromRoot(event, root));
 
+	//Cannot use this feature when looking at all tree nodes as candidates
+		//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
+	//Doesn't seem to work as expected even though the event triggers are mostly close to root in dependency tree.
 	//features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
-	//features.add("isverb=" + currentWord.startsWith("VB"));
 	
 	String classString = "class=" + tokenClass + ",";
 	List<String> updatedFeatures = new ArrayList<String>();
@@ -87,7 +90,7 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 			//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 				//if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-					if(node.isLeaf()||node.value().equals("ROOT"))
+					if(node.isLeaf() || node.value().equals("ROOT"))// || !node.isPreTerminal())
 						continue;
 					
 					String type = "O";
@@ -147,7 +150,7 @@ public List<Datum> setFeaturesTrain(List<Example> data) {
 		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
-					if(node.isLeaf() || node.value().equals("ROOT"))
+					if(node.isLeaf() || node.value().equals("ROOT"))// || !node.isPreTerminal())
 						continue;
 					
 					String type = "O";
