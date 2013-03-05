@@ -1,31 +1,37 @@
 package edu.stanford.nlp.bioprocess;
 
-import java.util.HashMap;
-
 public class Params {
-  HashMap<String, Double> weights;
+  double[][] weights;
+  Index featureIndex, labelIndex;
   int numUpdates;
   
   public Params() {
-    weights = new HashMap<String, Double>();
   }
   
-  public void read(String fileName) throws Exception {
-    throw new Exception("Method not implemented");
+  public double[][] getWeights() {
+    return weights;
   }
   
-  public void update(HashMap<String, Double> wts)  throws Exception {
-    throw new Exception("Method not implemented");
+  public void setWeights(double[][] wt) {
+    weights = wt;
   }
   
-  public double getWeight(String feature) {
-    return weights.get(feature);
+  public Index getFeatureIndex() {
+	return featureIndex;
   }
-  
-  public void setWeight(String feature, double weight) {
-    weights.put(feature, weight);
+
+  public void setFeatureIndex(Index featureIndex) {
+	this.featureIndex = featureIndex;
   }
-  
+
+  public Index getLabelIndex() {
+	return labelIndex;
+  }
+
+  public void setLabelIndex(Index labelIndex) {
+	this.labelIndex = labelIndex;
+  }
+
   public void write(String fileName) throws Exception {
     throw new Exception("Method not implemented");
   }

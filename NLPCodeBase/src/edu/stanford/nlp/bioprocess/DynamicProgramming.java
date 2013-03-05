@@ -1,18 +1,10 @@
 package edu.stanford.nlp.bioprocess;
 
-import java.util.HashMap;
 import java.util.IdentityHashMap;
 import java.util.List;
 
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
-import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
-import edu.stanford.nlp.trees.GrammaticalStructureFactory;
-import edu.stanford.nlp.trees.PennTreebankLanguagePack;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
-import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
-import edu.stanford.nlp.trees.TreebankLanguagePack;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
 
@@ -103,25 +95,4 @@ public class DynamicProgramming {
 				nodeDatumMap.get(node).guessLabel = "O";
 		}
 	}
-
-	private boolean allchildrenE(Tree node) {
-		for (Tree child : node.getChildrenAsList()) {
-			if (child.isLeaf() || this.nodeDatumMap.get(child).guessLabel.equals("O"))
-				return false;
-		}
-		return true;
-	}
-	
-
-
-	public static void checkTree()
-	  {
-		  System.out.println("In check tree");
-		  String text = "A particular region of each X chromosome contains several genes involved in the inactivation process.";
-		  TreebankLanguagePack tlp = new PennTreebankLanguagePack();
-		  GrammaticalStructureFactory gsf = tlp.grammaticalStructureFactory();
-		  LexicalizedParser lp = LexicalizedParser.loadModel();
-		  Tree tree = lp.apply(text);
-		  tree.pennPrint();
-	  }
 }

@@ -9,23 +9,25 @@ import java.util.List;
  *
  */
 
-public class EntityPredictionLearner  extends Learner{
-  public EntityPredictionLearner(List<Example> ds) {
-		super(ds);
-  }
-
-//Parameters used by the model
-  Params parameters;
-  //List of examples used to learn the parameters
-  List<Example> dataset;
-  //Maximum number of iterations to be run
-  final static int maxIterations = 100;
+public class EntityPredictionLearner extends Learner {
   
   /***
    * Method that will learn parameters for the model and return it.
    * @return Parameters learnt.
    */
-  public double[][] learn() {
-    return new double[0][0];
+  public Params learn(List<Example> ds) {
+	dataset = ds;
+    FeatureFactory ff = new FeatureFactory();
+	// add the features
+	List<Datum> data = ff.setFeaturesTrain(dataset);
+	LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);
+	double[] initial = new double[obj.domainDimension()];
+
+	QNMinimizer minimizer = new QNMinimizer(15);
+	double[][] weights = obj.to2D(minimizer.minimize(obj, 1e-4, initial, -1, null));
+	parameters.setWeights(weights);
+	parameters.setFeatureIndex(obj.featureIndex);
+	parameters.setLabelIndex(obj.labelIndex);
+    return parameters;
   }
 }

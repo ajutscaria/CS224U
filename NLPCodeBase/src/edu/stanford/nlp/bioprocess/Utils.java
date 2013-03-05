@@ -6,7 +6,6 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -16,13 +15,10 @@ import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
-import edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.IndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
-import edu.stanford.nlp.ling.Label;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
@@ -411,7 +407,8 @@ public class Utils {
 	  return maxHeight;
   }
   
-  public static List<Example> readFile(String fileName) {
+  @SuppressWarnings("unchecked")
+public static List<Example> readFile(String fileName) {
 	// Read from disk using FileInputStream
 	  try
 	  {
@@ -518,4 +515,12 @@ public class Utils {
 		
 		return false;
 	}
+	
+    public static String getText(Tree tree) {
+    	StringBuilder b = new StringBuilder();
+    	for(Tree leaf:tree.getLeaves()) {
+    		b.append(leaf.value() + " ");
+    	}
+    	return b.toString().trim();
+    }
 }

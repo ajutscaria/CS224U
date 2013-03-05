@@ -27,12 +27,13 @@ public class CrossValidationSplit  {
 			foldsCV.add(devCV);
 		}
 	}
+	@SuppressWarnings("unchecked")
 	public List<Example> GetTrainExamples(int numFold){
 		ArrayList<Example> trainCV = new ArrayList<Example>();
 		if (numFold<1 || numFold>numFoldsCV){
 			return trainCV;
 		}
-		trainCV = (ArrayList<Example>) allExamplesCV.clone();
+		trainCV = (ArrayList<Example>)allExamplesCV.clone();
 		trainCV.removeAll(foldsCV.get(numFold-1));
 		return trainCV;
 	}

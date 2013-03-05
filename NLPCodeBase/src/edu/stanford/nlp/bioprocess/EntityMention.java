@@ -5,8 +5,6 @@ import java.util.List;
 
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
-import edu.stanford.nlp.ling.IndexedWord;
-import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
 /**

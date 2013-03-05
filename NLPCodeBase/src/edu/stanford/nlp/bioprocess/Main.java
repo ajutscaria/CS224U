@@ -1,19 +1,10 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Properties;
 
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
-import edu.stanford.nlp.trees.Tree;
-import edu.stanford.nlp.trees.TreeCoreAnnotations;
-import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 
 public class Main {
@@ -48,18 +39,22 @@ public class Main {
     double sum = 0.0;
     for(int i = 1; i <= NumCrossValidation; i++) {
     	if(useDev) {
-    		Learner learner = new Learner(dataset.examples("dev"));
+    		Learner learner = new EntityPredictionLearner();
+    		Params param = learner.learn(dataset.examples("dev"));
             double f1 = 0; 
-            f1 = learner.learnAndPredictNew(dataset.examples("dev"));
+            EntityPredictionInference inferer = new EntityPredictionInference();
+	    	f1 = inferer.Infer(dataset.examples("dev"), param);
             System.out.println("F1 score: " + f1);
             sum+=f1;
             break;
     	}
     	else {
 	    	System.out.println("Iteration: "+i);
-	    	Learner learner = new Learner(split.GetTrainExamples(i));
+	    	EntityPredictionLearner learner = new EntityPredictionLearner();
+	    	Params param = learner.learn(split.GetTrainExamples(i));
 	    	double f1 = 0;
-	    	f1 = learner.learnAndPredictNew(split.GetTestExamples(i));
+	    	EntityPredictionInference inferer = new EntityPredictionInference();
+	    	f1 = inferer.Infer(split.GetTestExamples(i), param);
 	    	sum += f1;
     	}
     	if(useOneLoop)
@@ -74,7 +69,7 @@ public class Main {
   
   public void runEventPrediction(HashMap<String, String> groups) {
 	    boolean useDev = false, useOneLoop = false, refreshDataFile = false;
-	    useOneLoop = true;
+	    //useOneLoop = true;
 		String examplesFileName = "trainExamples.data";
 	    BioprocessDataset dataset = new BioprocessDataset(groups);
 	    CrossValidationSplit split = null;
@@ -97,17 +92,21 @@ public class Main {
 	    double sum = 0.0;
 	    for(int i = 1; i <= NumCrossValidation; i++) {
 	    	if(useDev) {
-	    		LearnerEvent learner = new LearnerEvent(dataset.examples("dev"));
-	            double f1 = learner.learnAndPredictNew(dataset.examples("dev"));
+	    		Learner learner = new LearnerEvent();
+	    		Params params = learner.learn(dataset.examples("dev"));
+	    		TriggerPredictionInference inferer = new TriggerPredictionInference();
+	            double f1 = inferer.Infer(dataset.examples("dev"), params);
 	            System.out.println("F1 score: " + f1);
 	            sum+=f1;
 	            break;
 	    	}
 	    	else {
 		    	System.out.println("Iteration: "+i);
-		    	LearnerEvent learner = new LearnerEvent(split.GetTrainExamples(i));
+		    	LearnerEvent learner = new LearnerEvent();
+	    		Params params = learner.learn(split.GetTrainExamples(i));
 		    	double f1 = 0;
-		    	f1 = learner.learnAndPredictNew(split.GetTestExamples(i));
+		    	TriggerPredictionInference inferer = new TriggerPredictionInference();
+	            f1 = inferer.Infer(split.GetTestExamples(i), params);
 		    	sum += f1;
 	    	}
 	    	if(useOneLoop)
@@ -117,7 +116,6 @@ public class Main {
 		    double average = sum/NumCrossValidation;
 		    System.out.println("Average Score: "+average);
 	    }
-	    //Scorer.scoreEntityPrediction(dataset.examples("dev"));
   }
   
   /***
@@ -132,40 +130,9 @@ public class Main {
     folders.put("test", testDirectory);
     folders.put("train", trainDirectory);
     folders.put("dev", devDirectory);
-    if(args.length > 0 && args[0].equals("-entity"))
+    if(args.length > 0 && args[0].toLowerCase().equals("-entity"))
     	new Main().runEntityPrediction(folders);
     if(args.length > 0 && args[0].equals("-event"))
     	new Main().runEventPrediction(folders);
-    //new Main().checkDP(folders);
-    
   }
-
-	private void checkDP(HashMap<String, String> folders) {
-		 BioprocessDataset dataset = new BioprocessDataset(folders);
-		 dataset.readAll();
-		 for (Example ex : dataset.examples("train")) {
-			 for (CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
-				 HashMap<Tree, Pair<Double, String>> tokenMap = new HashMap<Tree, Pair<Double, String>>();
-				 Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-				 for (Tree node : syntacticParse.preOrderNodeList()) {
-					 Double prob = Math.random();
-					 String label;
-					 if (node.isLeaf()) {
-						 if (prob < 0.5) {
-							 label = "O";
-						 } else {
-							 label = "E";
-						 }
-					 } else {
-						 label = "NA";
-					 }
-					 Pair<Double, String> pair = new Pair<Double, String>(prob, label);
-					 tokenMap.put(node, pair);
-				 }
-				 //DynamicProgramming dp = new DynamicProgramming(sentence, tokenMap);
-				 break;
-			 }
-			 break;
-		 }
-	}
 }

@@ -3,7 +3,12 @@ package edu.stanford.nlp.bioprocess;
 import java.io.Serializable;
 
 public class ArgumentRelation implements Serializable {
-  public enum EventType {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 7366414613762160263L;
+
+public enum EventType {
 	  Event,
 	  StaticEvent
   }

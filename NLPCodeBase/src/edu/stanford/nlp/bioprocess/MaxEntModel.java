@@ -26,10 +26,10 @@ public class MaxEntModel {
 		}
 	}
 
-	private double computeScore(List<String> features, int labelNumber) {
+	private double computeScore(FeatureVector features, int labelNumber) {
 		double score = 0;
 
-		for (Object feature : features) {
+		for (Object feature : features.getFeatures()) {
 			int f = featureIndex.indexOf(feature);
 			if (f < 0) {
 				continue;
@@ -39,9 +39,4 @@ public class MaxEntModel {
 
 		return score;
 	}
-
-	private int numLabels() {
-		return labelIndex.size();
-	}
-
 }

@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Index {
 
-  List objects = new ArrayList();
+  List<Object> objects = new ArrayList<Object>();
   Map<Object,Integer> indexes = new HashMap<Object,Integer>();
 
   public boolean add(Object o) {

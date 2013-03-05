@@ -5,7 +5,11 @@ import java.io.Serializable;
 import edu.stanford.nlp.pipeline.Annotation;
 
 public class Example implements Serializable {
-  String id, data;
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+String id, data;
   Annotation gold, prediction;
   
   public String getData() {

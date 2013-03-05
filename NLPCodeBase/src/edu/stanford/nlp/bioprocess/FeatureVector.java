@@ -1,34 +1,28 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
-
-import edu.stanford.nlp.util.Pair;
+import java.util.List;
 
 public class FeatureVector {
-  ArrayList<String> indicatorFeatures;
-  ArrayList<Pair<String, Double>> generalFeatures;
-  ArrayList<Pair<String, Integer>> maxExamples;
+  List<String> features;
   
   public FeatureVector() {
-    indicatorFeatures = new ArrayList<String>();
-    generalFeatures = new ArrayList<Pair<String, Double>>();
-    maxExamples = new ArrayList<Pair<String, Integer>>();
+	  features = new ArrayList<String>();
   }
   
-  public void add(String indicator) {
-    indicatorFeatures.add(indicator);
+  public FeatureVector(List<String> features) {
+	  this.features = features;
   }
   
-  public void add(String feature, double value) {
-    generalFeatures.add(new Pair<String, Double>(feature, value));
+  public void add(String feature) {
+	  features.add(feature);
+  }  
+  
+  public List<String> getFeatures(){
+	  return features;
   }
   
-  public void add(FeatureVector fv) throws Exception {
-    throw new Exception("Method not implemented");
+  public void add(List<String> feature) {
+	  features.addAll(features);
   }
-  
-  public double dotProduct(Params param) throws Exception {
-    throw new Exception("Method not implemented");
-  }
-  
 }

@@ -14,7 +14,7 @@ public class LogConditionalObjectiveFunction {
 
     for (Datum datum : data) {
       labelIndex.add(datum.label);
-      for (Object f : datum.features) {
+      for (Object f : datum.features.getFeatures()) {
         featureIndex.add(f);
       }
     }
@@ -68,7 +68,7 @@ public class LogConditionalObjectiveFunction {
 
     for (Datum datum : data) {
       double[] scores = new double[labelIndex.size()];
-      for (Object feature : datum.features) {
+      for (Object feature : datum.getFeatures()) {
         int f = featureIndex.indexOf(feature);
         if (f < 0) { continue; }
         for (int i = 0; i < labelIndex.size(); i++) {
@@ -80,7 +80,7 @@ public class LogConditionalObjectiveFunction {
 
       for (int i = 0; i < labelIndex.size(); i++) {
         double prob = Math.exp(scores[i] - Z);
-        for (Object feature : datum.features) {
+        for (Object feature : datum.getFeatures()) {
           int f = featureIndex.indexOf(feature);
           derivative[i][f] += prob;
           if (i == labelIndex.indexOf(datum.label)) {

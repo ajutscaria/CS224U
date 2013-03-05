@@ -1,6 +1,6 @@
 package edu.stanford.nlp.bioprocess;
 
-import java.util.*;
+import java.util.List;
 
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
@@ -9,7 +9,15 @@ public class Datum {
 
   public final String word;
   public final String label;
-  public List<String> features;
+  FeatureVector features;
+  public List<String> getFeatures() {
+	return features.getFeatures();
+  }
+
+  public void setFeatures(FeatureVector features) {
+	this.features = features;
+  }
+ 
   public String guessLabel;
   Tree entityNode, eventNode;
   IndexedWord entityHead, eventHead;
@@ -29,4 +37,5 @@ public class Datum {
   public double getProbability() {
 	  return probEntity;
   }
+ 
 }
