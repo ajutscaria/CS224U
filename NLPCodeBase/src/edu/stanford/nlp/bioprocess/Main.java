@@ -92,9 +92,9 @@ public class Main {
 	    double sum = 0.0;
 	    for(int i = 1; i <= NumCrossValidation; i++) {
 	    	if(useDev) {
-	    		Learner learner = new LearnerEvent();
+	    		Learner learner = new EventPredictionLearner();
 	    		Params params = learner.learn(dataset.examples("dev"));
-	    		TriggerPredictionInference inferer = new TriggerPredictionInference();
+	    		EventPredictionInference inferer = new EventPredictionInference();
 	            double f1 = inferer.Infer(dataset.examples("dev"), params);
 	            System.out.println("F1 score: " + f1);
 	            sum+=f1;
@@ -102,10 +102,10 @@ public class Main {
 	    	}
 	    	else {
 		    	System.out.println("Iteration: "+i);
-		    	LearnerEvent learner = new LearnerEvent();
+		    	EventPredictionLearner learner = new EventPredictionLearner();
 	    		Params params = learner.learn(split.GetTrainExamples(i));
 		    	double f1 = 0;
-		    	TriggerPredictionInference inferer = new TriggerPredictionInference();
+		    	EventPredictionInference inferer = new EventPredictionInference();
 	            f1 = inferer.Infer(split.GetTestExamples(i), params);
 		    	sum += f1;
 	    	}

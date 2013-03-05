@@ -12,7 +12,7 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 
-public class TriggerPredictionInference {
+public class EventPredictionInference {
 	public void BaselineInfer(List<Example> examples) {
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
@@ -28,7 +28,7 @@ public class TriggerPredictionInference {
 	
     public double Infer(List<Example> testData, Params parameters) {
 		List<Datum> predicted = new ArrayList<Datum>(); 
-		FeatureFactory ff = new FeatureFactory();
+		FeatureFactoryEvents ff = new FeatureFactoryEvents();
 		for(Example ex:testData) {
 			System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {

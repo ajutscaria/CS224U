@@ -8,7 +8,7 @@ import java.util.List;
  *
  */
 
-public class LearnerEvent extends Learner {
+public class EventPredictionLearner extends Learner {
 	
 	@Override
 	public Params learn(List<Example> dataset) {
