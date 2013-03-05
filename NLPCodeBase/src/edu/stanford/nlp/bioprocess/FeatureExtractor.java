@@ -1,10 +1,10 @@
 package edu.stanford.nlp.bioprocess;
 
-public class FeatureExtractor {
-  public FeatureVector extractFeature(Example example) throws Exception {
-    FeatureVector features = new FeatureVector();
-    
-    
-    return features;
-  }
+import java.util.List;
+
+import edu.stanford.nlp.util.CoreMap;
+
+public abstract class FeatureExtractor {
+	public abstract List<Datum> setFeaturesTrain(List<Example> data);
+	public abstract List<Datum> setFeaturesTest(CoreMap sentence);
 }

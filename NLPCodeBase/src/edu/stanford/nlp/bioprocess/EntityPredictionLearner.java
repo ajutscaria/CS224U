@@ -17,7 +17,7 @@ public class EntityPredictionLearner extends Learner {
    */
   public Params learn(List<Example> ds) {
 	dataset = ds;
-    FeatureFactory ff = new FeatureFactory();
+    EntityFeatureFactory ff = new EntityFeatureFactory();
 	// add the features
 	List<Datum> data = ff.setFeaturesTrain(dataset);
 	LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);

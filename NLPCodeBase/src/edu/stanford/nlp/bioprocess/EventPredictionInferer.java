@@ -12,8 +12,8 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 
-public class EventPredictionInference {
-	public void BaselineInfer(List<Example> examples) {
+public class EventPredictionInferer extends Inferer {
+	public List<Datum> BaselineInfer(List<Example> examples) {
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
 				for(CoreLabel token: sentence.get(TokensAnnotation.class)) {
@@ -24,11 +24,12 @@ public class EventPredictionInference {
 				}
 			}
 		}
+		return null;
 	}
 	
-    public double Infer(List<Example> testData, Params parameters) {
+    public List<Datum> Infer(List<Example> testData, Params parameters) {
 		List<Datum> predicted = new ArrayList<Datum>(); 
-		FeatureFactoryEvents ff = new FeatureFactoryEvents();
+		EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example ex:testData) {
 			System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
@@ -61,10 +62,6 @@ public class EventPredictionInference {
 				System.out.println("------------------------------------------\n");
 			}
 		}
-		
-				
-		double f1 = Scorer.score(predicted);
-		
-		return f1;
+		return predicted;
 	}
 }

@@ -13,8 +13,8 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
 
-public class EntityPredictionInference {
-	public void baselineInfer(List<Example> examples) {
+public class EntityPredictionInferer extends Inferer {
+	public List<Datum> BaselineInfer(List<Example> examples) {
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
 				for(CoreLabel token: sentence.get(TokensAnnotation.class)) {
@@ -26,11 +26,12 @@ public class EntityPredictionInference {
 				}
 			}
 		}
+		return null;
 	}
 	
-	public double Infer(List<Example> testData, Params parameters) {
+	public List<Datum> Infer(List<Example> testData, Params parameters) {
 		List<Datum> predicted = new ArrayList<Datum>();
-		FeatureFactory ff = new FeatureFactory();
+		EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
 			System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
@@ -84,11 +85,7 @@ public class EntityPredictionInference {
 				}
 			}
 		}
-		
-				
-		double f1 = Scorer.score(predicted);
-		
-		return f1;
+		return predicted;
 	}
 	
 }

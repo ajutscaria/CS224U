@@ -11,10 +11,10 @@ import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 
-public class FeatureFactoryEvents {
+public class EventFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
    
-	private FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
+	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
 	    //System.out.println("Current node's text - " + getText(event));
 		
 		List<String> features = new ArrayList<String>();
