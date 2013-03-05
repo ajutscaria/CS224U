@@ -5,28 +5,57 @@ import java.util.IdentityHashMap;
 import java.util.List;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
-import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
 
 public class EntityPredictionInferer extends Inferer {
-	public List<Datum> BaselineInfer(List<Example> examples) {
+	public List<Datum> BaselineInfer(List<Example> examples, Params parameters) {
+		List<Datum> predicted = new ArrayList<Datum>();
+		EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
+			System.out.println(String.format("==================EXAMPLE %s======================", example.id));
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
-				for(CoreLabel token: sentence.get(TokensAnnotation.class)) {
-					if(token.get(PartOfSpeechAnnotation.class).startsWith("NN")) {
-						//EntityMention entity = new EntityMention("obj", sentence, new Span(token.index()-1, token.index()));
-						//entity.setHeadTokenSpan(entity.getExtent());
-						//Utils.addAnnotation(example.prediction, entity);
+				List<Datum> test = ff.setFeaturesTest(sentence);
+				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
+					System.out.println("------------------Event " + event.getValue()+"--------------");
+					List<Datum> testDataEvent = new ArrayList<Datum>();
+					for(Datum d:test)
+						if(d.eventNode == event.getTreeNode()) {
+							testDataEvent.add(d);
+						}
+					List<Datum> testDataWithLabel = new ArrayList<Datum>();
+	
+					for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
+						testDataWithLabel.add(testDataEvent.get(i));
 					}
+					
+					for(Datum d:testDataWithLabel) {
+						if(d.entityNode.value().equals("NP") && Utils.isNodesRelated(sentence, d.entityNode, event))
+							d.guessLabel = "E";
+						else
+							d.guessLabel = "O";
+					}
+					predicted.addAll(testDataWithLabel);
+					
+					System.out.println(sentence);
+					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+					
+					System.out.println("\n---------GOLD ENTITIES-------------------------");
+					for(Datum d:testDataWithLabel) 
+						if(d.label.equals("E"))
+							System.out.println(d.entityNode + ":" + d.label);
+					
+					System.out.println("---------PREDICTIONS-------------------------");
+					for(Datum d:testDataWithLabel)
+						if(d.guessLabel.equals("E") || d.label.equals("E"))
+							System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+					System.out.println("------------------------------------------\n");
 				}
 			}
 		}
-		return null;
+		return predicted;
 	}
 	
 	public List<Datum> Infer(List<Example> testData, Params parameters) {

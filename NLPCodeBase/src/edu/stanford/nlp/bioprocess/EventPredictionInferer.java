@@ -3,28 +3,33 @@ package edu.stanford.nlp.bioprocess;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.stanford.nlp.ie.machinereading.structure.Span;
-import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 
 public class EventPredictionInferer extends Inferer {
-	public List<Datum> BaselineInfer(List<Example> examples) {
+	public List<Datum> BaselineInfer(List<Example> examples, Params parameters) {
+		List<Datum> predicted = new ArrayList<Datum>(); 
+		EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
-				for(CoreLabel token: sentence.get(TokensAnnotation.class)) {
-					if(token.get(PartOfSpeechAnnotation.class).startsWith("VB")) {
-						EventMention event = new EventMention("obj", sentence, new Span(token.index()-1, token.index()));
-						Utils.addAnnotation(example.prediction, event);
-					}
+				List<Datum> test = ff.setFeaturesTest(sentence);
+				List<Datum> testDataWithLabel = new ArrayList<Datum>();
+
+				for (int i = 0; i < test.size(); i += parameters.getLabelIndex().size()) {
+					testDataWithLabel.add(test.get(i));
 				}
+				
+				for(Datum d:testDataWithLabel)
+					if(d.entityNode.isPreTerminal() && d.entityNode.value().startsWith("VB"))
+						d.guessLabel = "E";
+					else
+						d.guessLabel = "O";
+				predicted.addAll(testDataWithLabel);
 			}
 		}
-		return null;
+		return predicted;
 	}
 	
     public List<Datum> Infer(List<Example> testData, Params parameters) {

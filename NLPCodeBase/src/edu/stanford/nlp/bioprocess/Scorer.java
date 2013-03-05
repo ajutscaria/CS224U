@@ -2,9 +2,11 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
+import edu.stanford.nlp.util.Triple;
+
 public class Scorer {
 
-  public static double score(List<Datum> data) {
+  public static Triple<Double, Double, Double> score(List<Datum> data) {
     int tp = 0, fp = 0, fn = 0;
 
     for (Datum d:data) {
@@ -22,10 +24,10 @@ public class Scorer {
     double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
     double f= 2 * precision * recall / (precision + recall);
     
-    System.out.println("precision = "+precision);
-    System.out.println("recall = "+recall);
-    System.out.println("F1 = "+f);
+    //System.out.println("precision = "+precision);
+    //System.out.println("recall = "+recall);
+    //System.out.println("F1 = "+f);
     
-    return f;
+    return new Triple<Double, Double, Double>(precision, recall, f);
   }
 }
