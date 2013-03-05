@@ -31,6 +31,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		features.add("POSlemma=" + currentWord+","+token.lemma());
 		features.add("path=" + Trees.pathFromRoot(event, root));
 		
+		//Nominalization did not give much improvement
 		/*if(nominalizations.contains(leaves.get(0).value())) {
 			//System.out.println("Adding nominalization - " + leaves.get(0));
 			//features.add("nominalization");

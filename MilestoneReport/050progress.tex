@@ -2,31 +2,42 @@ We have built the project based on the Stanford Core NLP tools. We use the annot
 
 \begin{enumerate}
 
-\item \xhdr{Event prediction} As we mentioned earlier, events are represented as pre-terminal nodes in the parse tree of a sentence. As a first step to the task, we built a baseline model that predicted every pre-terminal node whose part-of-speech tag started with 'VB' to be an event trigger. This model performed quite well giving an F1 score of 0.565, considering that it was a very naive approach. As the next step, we designed a MaxEnt model that trained on the annotated samples using several lexical and path features. The features we currently have include part-of-speech tag of the word, its lemma, the part-of-speech tag of its parent, the actual word itself and the path from root to the node. The results we have are in Table~\ref{table:backclickproperties}..
+\item \xhdr{Event prediction} As we mentioned earlier, events are represented as pre-terminal nodes in the parse tree of a sentence. As a first step to the task, we built a baseline model that predicted every pre-terminal node whose part-of-speech tag started with 'VB' to be an event trigger. This model performed quite well giving an F1 score of 0.565, considering that it was a very naive approach. As the next step, we designed a MaxEnt model that trained on the annotated samples using several lexical and path features. The features we currently have include part-of-speech tag of the word, its lemma, the part-of-speech tag of its parent, the actual word itself and the path from root to the node. The results we have are in Table~\ref{table:eventprediction}. On doing error analysis, we found that our classifier fails to identify nominalized verb forms as event triggers. Even though we tried using a feature to indicate nominalization by looking up in a dictionary of nominalized verb forms, the classification accuracy did not improve, probably because they are common even in words that are not event triggers.
 
 \begin{table}
 \centering
-\begin{tabular}{|l||c|c|c||c|c|c|} \hline
-& \multicolumn{3}{|c||}{\textbf{Finished}} & \multicolumn{3}{|c|}{\textbf{Unfinished}}\\ \hline
-&$-$&$=$&$+$&$-$&$=$&$+$ \\ \hline
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
 %%%%%%%%%% NB: I changed the meaning of the sign!!!!!
 \hline
-SPL&24.2 & 10.2&3.3 &23.3 &15.3 &11.6\\
-\hline
-TF-IDF dist.&18.9&9.6&4.9&25.3&16.1&11.1\\
-%Lucrative ratio&0.11 & 0&0.05 & 0.18& 0.13&0\\ 
+Baseline& 0.47 & 0.72&0.57\\
+MaxEnt-Train& 0.86 & 0.71&  0.77 \\
+MaxEnt&0.71&0.67&0.69\\
 \hline
 \end{tabular}
-\caption{Back-click probability conditional on progress:
-\textbf{($+$)} progress, i.e., property decreased with last click;
-\textbf{($-$)} regress, i.e., property increased;
-\textbf{($=$)} neither progress nor regress (in the case of TF-IDF, taken as a relative change of $<10$\%).
-}
-\label{table:backclickproperties}
+\caption{Event trigger prediction}
+\label{table:eventprediction}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
+%%%%%%%%%% NB: I changed the meaning of the sign!!!!!
+\hline
+Baseline&0.52&0.70&0.59\\
+MaxEnt-Train&0.81&0.66&0.72\\
+MaxEnt&0.69&0.60&0.64\\
+\hline
+\end{tabular}
+\caption{Entity prediction for event triggers}
+\label{table:entityprediction}
 \end{table}
 
 \item \xhdr{Entity prediction and Semantic role labeling} An entity is represented as a node in the parse tree spanning over the full text of the entity along the leaves of the tree. The fact that there are more than one events in almost all sentences makes our task of event-entity associaton harder. This is because, instead of just predicting a node in the parse tree as an entity, we have to predict if a node is associated with a specific trigger from step 1. Since this model was developed in parallel to the one in task 1, we are currently using the gold standard trigger words to denote events. Once we attain reasonable performance levels, we will use the predictions from step 1 to replace the gold standard. In addition, currently the model only tags if a node in the parse tree is associated with a specific event trigger or not. Since we are using a MaxEnt model, extending this to predict semantic role labeling would make it from a 2 class classification (Argument and None) to a multi-class classification (where the classes are the semantic roles like Agent, Theme, Destination, Origin, Result etc. and None).
 
-As a first step, we built a baseline model that predicts a node in the parse tree as an argument to an event trigger, if it is of part-of-speech tag 'NP' and if the headword of the node in the parse tree is a child of the event trigger in the dependency tree of the sentence. We used Collins head finder algorithm to identify the head word of a parse tree node. The baseline model intuitively captures the relation between event triggers and its arguments as is evident from the F1 score of 0.593 achieved using a relatively simple approach. We then implemented a MaxEnt based model using more features between the event triggers and the candidate nodes. The features we use include POS tag of node + POS tag of event trigger, head word of node + POS tag of event trigger, path from the node to the event trigger, indicator feature denoting whether the headword of the node is a child of the trigger in the dependency tree. The results are presented in Table 2.
+As a first step, we built a baseline model that predicts a node in the parse tree as an argument to an event trigger, if it is of part-of-speech tag 'NP' and if the headword of the node in the parse tree is a child of the event trigger in the dependency tree of the sentence. We used Collins head finder algorithm to identify the head word of a parse tree node. The baseline model intuitively captures the relation between event triggers and its arguments as is evident from the F1 score of 0.593 achieved using a relatively simple approach. We then implemented a MaxEnt based model using more features between the event triggers and the candidate nodes. The features we use include POS tag of node + POS tag of event trigger, head word of node + POS tag of event trigger, path from the node to the event trigger, indicator feature denoting whether the headword of the node is a child of the trigger in the dependency tree. The results are presented in Table~\ref{table:entityprediction} .
+
+\xhdrNoPeriod{Dynamic Program for non-overlapping constraint} Since we predict a node in the parse tree as an entity or not, there are many instances when there exists overlap between predicted entities. For instance, a sub-tree of a tree node may also be tagged as an entity. To avoid this, we devised a bottom-up dynamic program that tags a node as entity or not looking at the probability of the node and its immediate children being an entity. There are two scenarios. If we tag the node as entity, none of its children can be an entity. If we do not tag the node as an entity, then the children can retain their class (Entity or None). This gave us a huge boost in F1 score.
 
 \end{enumerate}
