@@ -18,7 +18,7 @@ public class ExchangeWordClustering {
 
 	public final static int MIN_WORD_FREQ = 5;
 	public final static int TRAIN_ITER_NUM = 20;
-	public final static int CLUSTER_NUM = 100;
+	public final static int CLUSTER_NUM = 200;
 	public final static String BINARY_PATH = "lib/posinduction/bin/cluster_neyessenmorph";
 	public final static String OUTPUT_PREFIX = "word_cluster_clark";
 
