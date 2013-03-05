@@ -24,7 +24,7 @@ public class Main {
 		//useSmallSample = true;
 		//useOneLoop = true;
 		//refreshDataFile = true;
-		String examplesFileName = "trainExamples.bpa";
+		String examplesFileName = "data.bpa";
 	    BioprocessDataset dataset = new BioprocessDataset(groups);
 	    CrossValidationSplit split = null;
 	    
