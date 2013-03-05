@@ -9,6 +9,8 @@ import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCP
 import edu.stanford.nlp.util.CoreMap;
 
 public class EventPredictionInferer extends Inferer {
+	boolean printDebugInformation = true;
+	
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters) {
 		List<Datum> predicted = new ArrayList<Datum>(); 
 		EventFeatureFactory ff = new EventFeatureFactory();
@@ -36,12 +38,15 @@ public class EventPredictionInferer extends Inferer {
 		List<Datum> predicted = new ArrayList<Datum>(); 
 		EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example ex:testData) {
-			System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
+			if(printDebugInformation)
+				System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
-				System.out.println(sentence);
-				sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
-				System.out.println(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
+				if(printDebugInformation) {
+					System.out.println(sentence);
+					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+					System.out.println(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
+				}
 
 				List<Datum> testDataWithLabel = new ArrayList<Datum>();
 
@@ -53,18 +58,18 @@ public class EventPredictionInferer extends Inferer {
 				
 				predicted.addAll(testDataWithLabel);
 				
-
-				
-				System.out.println("\n---------GOLD ENTITIES-------------------------");
-				for(Datum d:testDataWithLabel) 
-					if(d.label.equals("E"))
-						System.out.println(d.eventNode + ":" + d.label);
-				
-				System.out.println("---------PREDICTIONS-------------------------");
-				for(Datum d:testDataWithLabel)
-					if(d.guessLabel.equals("E") || d.label.equals("E"))
-						System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-				System.out.println("------------------------------------------\n");
+				if(printDebugInformation) {
+					System.out.println("\n---------GOLD ENTITIES-------------------------");
+					for(Datum d:testDataWithLabel) 
+						if(d.label.equals("E"))
+							System.out.println(d.eventNode + ":" + d.label);
+					
+					System.out.println("---------PREDICTIONS-------------------------");
+					for(Datum d:testDataWithLabel)
+						if(d.guessLabel.equals("E") || d.label.equals("E"))
+							System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+					System.out.println("------------------------------------------\n");
+				}
 			}
 		}
 		return predicted;

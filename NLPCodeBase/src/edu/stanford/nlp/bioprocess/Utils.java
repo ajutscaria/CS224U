@@ -1,11 +1,15 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -522,5 +526,45 @@ public static List<Example> readFile(String fileName) {
     		b.append(leaf.value() + " ");
     	}
     	return b.toString().trim();
+    }
+    
+    /*public static Set<String> getNominalizedVerbs() {
+    	Set<String> nominalization = new HashSet<String>();
+    	try {
+			BufferedReader reader = new BufferedReader(new FileReader("derivation.txt"));
+			String line;
+			while((line = reader.readLine()) != null){
+				String[] splits = line.split("\t");
+				if(splits[1].equals("n") && splits[3].equals("v")) {
+					nominalization.add(splits[0].trim());
+				}
+				else if(splits[3].equals("n") && splits[1].equals("v")) {
+					nominalization.add(splits[2].trim());
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	//System.out.println(nominalization);
+    	return nominalization;
+    }*/
+    
+    public static Set<String> getNominalizedVerbs() {
+    	Set<String> nominalization = new HashSet<String>();
+    	try {
+			BufferedReader reader = new BufferedReader(new FileReader("nomlex.txt"));
+			String line;
+			while((line = reader.readLine()) != null){
+				if(!line.startsWith("(NOM :ORTH "))
+					continue;
+				nominalization.add(line.replace("(NOM :ORTH ", "").replace("\"", ""));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	//System.out.println(nominalization);
+    	return nominalization;
     }
 }

@@ -13,6 +13,7 @@ import edu.stanford.nlp.util.IdentityHashSet;
 
 public class EventFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
 	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
 	    //System.out.println("Current node's text - " + getText(event));
@@ -29,6 +30,11 @@ public class EventFeatureFactory extends FeatureExtractor {
 		features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
 		features.add("POSlemma=" + currentWord+","+token.lemma());
 		features.add("path=" + Trees.pathFromRoot(event, root));
+		
+		/*if(nominalizations.contains(leaves.get(0).value())) {
+			//System.out.println("Adding nominalization - " + leaves.get(0));
+			//features.add("nominalization");
+		}*/
 		//features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
 		//Cannot use this feature when looking at all tree nodes as candidates
 			//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
