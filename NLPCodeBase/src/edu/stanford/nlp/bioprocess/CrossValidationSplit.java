@@ -1,6 +1,7 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.lang.Math;
 /**
@@ -12,7 +13,13 @@ public class CrossValidationSplit  {
 	ArrayList<Example> allExamplesCV;
 	int numFoldsCV;
 	List<ArrayList<Example>> foldsCV;
+	List<Integer> randomExampleIndex = new ArrayList<Integer>();
+	
 	public CrossValidationSplit(ArrayList<Example> examples, int numFolds){
+		for(int i = 0; i < examples.size(); i++)
+			randomExampleIndex.add(i);
+		Collections.shuffle(randomExampleIndex);
+		System.out.println(randomExampleIndex);
 		numFoldsCV = numFolds;
 		allExamplesCV = examples;
 		foldsCV = new ArrayList<ArrayList<Example>>();
@@ -20,13 +27,12 @@ public class CrossValidationSplit  {
 			ArrayList<Example> devCV = new ArrayList<Example>();
 			for (int j = 0 ; j < examples.size()/numFolds ; j++){
 				int elemNum = (i*(int)(Math.floor(examples.size()/numFolds)) + j);
-				if (elemNum == examples.size())
-					break;
-				devCV.add(examples.get(elemNum));
+				devCV.add(examples.get(randomExampleIndex.get(elemNum)));
 			}
 			foldsCV.add(devCV);
 		}
 	}
+	
 	@SuppressWarnings("unchecked")
 	public List<Example> GetTrainExamples(int numFold){
 		ArrayList<Example> trainCV = new ArrayList<Example>();
