@@ -1,0 +1,63 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2008)[Event Chains]}{2008-eventchains}]{chju2008ec}
+Nathanael Chambers and Dan Jurafsky
+\newblock 2008.
+\newblock Unsupervised learning of narrative event chains.
+\newblock In {\em Proceedings of ACL-08}.
+
+\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2009)}{2009}]{chju2009}
+Nathanael Chambers and Dan Jurafsky
+\newblock 2009.
+\newblock Unsupervised Learning of Narrative Schemas and their Participants
+\newblock In {\em Proceedings of ACL-09}.
+
+\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2011)}{2011}]{chju2011}
+Nathanael Chambers and Dan Jurafsky
+\newblock 2011.
+\newblock Template-Based Information Extraction without the Templates
+\newblock In {\em Proceedings of ACL-11}.
+
+\bibitem[\protect\citeauthoryear{Bjorne \bgroup et al.\egroup (2009)}{2009}]{bjorne}
+Jari Bjorne, Juho Heimonen, Filip Ginter, Antti Airola, Tapio Pahikkala, Tapio Salakoski
+\newblock 2009.
+\newblock Extracting Complex Biological Events with Rich Graph-Based Feature Sets.
+\newblock In {\em Proceedings of the Workshop on BioNLP: Shared Task,}.
+
+\bibitem[\protect\citeauthoryear{Toutanova \bgroup et al.\egroup}{2005}]{toutanova}
+Kristina Toutanova, Aria Haghighi, Christopher D. Manning
+\newblock 2005.
+\newblock Joint Learning Improves Semantic Role Labeling.
+\newblock In {\em Proceedings of ACL 2005}.
+
+\bibitem[\protect\citeauthoryear{Riedel and McCallum (2008)}{2008}]{riedelmc}
+Sebastian Riedel Andrew McCallum
+\newblock 2008.
+\newblock Fast and Robust Joint Models for Biomedical Event Extraction.
+\newblock In {\em Proceedings of the 2011 Conference on Empirical Methods in Natural Language Processing}.
+
+\bibitem[\protect\citeauthoryear{Miwa \bgroup et al.\egroup}{2010c}]{miwa2010c}
+Makoto Miwa, Rune Saetre, Jin-Dong D. Kim, and Jun’ichi Tsujii
+\newblock 2010c.
+\newblock Event extraction with complex event classification using rich features
+\newblock In {\em Journal of bioinformatics and computational biology}.
+
+\bibitem[\protect\citeauthoryear{McCloskly \bgroup et al.\egroup (2011)}{2011}]{mcclosky}
+David McClosky, Mihai Surdeanu, and Christopher D. Manning
+\newblock 2011.
+\newblock Event Extraction as Dependency Parsing
+\newblock In {\em Proceedings of ACL-11}.
+
+\bibitem[\protect\citeauthoryear{Chambers and Jurafsky (2008)[Temporal ordering]}{2008-temporal ordering}]{temporalordering}
+Nathanael Chambers and Dan Jurafsky
+\newblock 2008.
+\newblock Jointly Combining Implicit Constraints Improves Temporal Ordering
+\newblock In {\em EMNLP-08}.
+
+\bibitem[\protect\citeauthoryear{McCloskly \bgroup et al.\egroup (2012)}{2012}]{quang}
+Quang Xuan Do, Wei Lu, Dan Roth
+\newblock 2012.
+\newblock Joint Inference for Event Timeline Construction
+\newblock In {\em EMNLP-12}.
+
+\end{thebibliography}

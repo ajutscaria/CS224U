@@ -1,1 +1,8 @@
-This document talks about current approach.
+In this project, we combine the learnings from the different methodologies to build a model that can be used for event and entity extraction with classes that are not specific to any domain. Even though our dataset is based on paragraphs from a biology textbook, we belives our models would generalize well to deal with more general content as our features and event/entity classes are not tied to the biological domain in anyway. The key modeling decisions are as follows:
+
+\begin{itemize}
+\item We model events and entities as nodes in the constituency tree. Each sentence is assumed to be independent of each other as far as entity-event relationships are concerned. Events are denoted by their trigger word and are hence pre-terminals in the parse tree. Entities are denoted by a parse tree-node that covers the whole span of text of the entity. In some cases when there is no single node that covers the entire entity (mostly because of parser errors, for e.g., PP attachment), we use some approximation by repeatedly removing tokens from the end or beginning of the span of text to identify a node that covers it. We manually verified that this heuristic works well in practice and results entities that convey almost the full meaning of original span and are well-formed.
+\item Since the dependency parse of a sentence has a lot of information about the dependencies between tokens, we also use features based on the dependeny parse in conjuction with the constituency parse. This is done by identifying the position of the head word of an entity or event from the dependency tree and analyzing the relations.
+\item We handle Task 1 as an independent task. Task 2 and 3 are done jointly. Task 4 is done as a separate task.
+\item For the classification tasks, we use maximum entropy model based on an implementation of L-BFGS for Quasi Newton unconstrained minimization.
+\end{itemize}
