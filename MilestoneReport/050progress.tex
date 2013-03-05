@@ -2,7 +2,28 @@ We have built the project based on the Stanford Core NLP tools. We use the annot
 
 \begin{enumerate}
 
-\item \xhdr{Event prediction} As we mentioned earlier, events are represented as pre-terminal nodes in the parse tree of a sentence. As a first step to the task, we built a baseline model that predicted every pre-terminal node whose part-of-speech tag started with 'VB' to be an event trigger. This model performed quite well giving an F1 score of 0.565, considering that it was a very naive approach. As the next step, we designed a MaxEnt model that trained on the annotated samples using several lexical and path features. The features we currently have include part-of-speech tag of the word, its lemma, the part-of-speech tag of its parent, the actual word itself and the path from root to the node. The results we have are in Table 1.
+\item \xhdr{Event prediction} As we mentioned earlier, events are represented as pre-terminal nodes in the parse tree of a sentence. As a first step to the task, we built a baseline model that predicted every pre-terminal node whose part-of-speech tag started with 'VB' to be an event trigger. This model performed quite well giving an F1 score of 0.565, considering that it was a very naive approach. As the next step, we designed a MaxEnt model that trained on the annotated samples using several lexical and path features. The features we currently have include part-of-speech tag of the word, its lemma, the part-of-speech tag of its parent, the actual word itself and the path from root to the node. The results we have are in Table~\ref{table:backclickproperties}..
+
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c||c|c|c|} \hline
+& \multicolumn{3}{|c||}{\textbf{Finished}} & \multicolumn{3}{|c|}{\textbf{Unfinished}}\\ \hline
+&$-$&$=$&$+$&$-$&$=$&$+$ \\ \hline
+%%%%%%%%%% NB: I changed the meaning of the sign!!!!!
+\hline
+SPL&24.2 & 10.2&3.3 &23.3 &15.3 &11.6\\
+\hline
+TF-IDF dist.&18.9&9.6&4.9&25.3&16.1&11.1\\
+%Lucrative ratio&0.11 & 0&0.05 & 0.18& 0.13&0\\ 
+\hline
+\end{tabular}
+\caption{Back-click probability conditional on progress:
+\textbf{($+$)} progress, i.e., property decreased with last click;
+\textbf{($-$)} regress, i.e., property increased;
+\textbf{($=$)} neither progress nor regress (in the case of TF-IDF, taken as a relative change of $<10$\%).
+}
+\label{table:backclickproperties}
+\end{table}
 
 \item \xhdr{Entity prediction and Semantic role labeling} An entity is represented as a node in the parse tree spanning over the full text of the entity along the leaves of the tree. The fact that there are more than one events in almost all sentences makes our task of event-entity associaton harder. This is because, instead of just predicting a node in the parse tree as an entity, we have to predict if a node is associated with a specific trigger from step 1. Since this model was developed in parallel to the one in task 1, we are currently using the gold standard trigger words to denote events. Once we attain reasonable performance levels, we will use the predictions from step 1 to replace the gold standard. In addition, currently the model only tags if a node in the parse tree is associated with a specific event trigger or not. Since we are using a MaxEnt model, extending this to predict semantic role labeling would make it from a 2 class classification (Argument and None) to a multi-class classification (where the classes are the semantic roles like Agent, Theme, Destination, Origin, Result etc. and None).
 
