@@ -16,12 +16,15 @@ public class Main {
 	    		precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation],
 	    				precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
 	    
+	    //Flags to indicate if evaluation of model should be run on training set, baseline and dev-test set.
 	    boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
-		boolean useSmallSample = false, useOneLoop = true, refreshDataFile = true;
-		useSmallSample = true;
-		useOneLoop = false;
-		refreshDataFile = false;
-		String examplesFileName = "trainExamples.data";
+	    //Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
+	    //refreshDataFile is to re-generate the bpa (bio process annotation) file
+		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
+		//useSmallSample = true;
+		//useOneLoop = true;
+		//refreshDataFile = true;
+		String examplesFileName = "trainExamples.bpa";
 	    BioprocessDataset dataset = new BioprocessDataset(groups);
 	    CrossValidationSplit split = null;
 	    
@@ -44,7 +47,9 @@ public class Main {
 	    		Params param = learner.learn(dataset.examples("sample"));
 	            List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param);
 	            Triple<Double, Double, Double> triple = Scorer.score(predicted);
-	            System.out.println("F1 score: " + triple.third);
+	            System.out.println("Precision : " + triple.first);
+	            System.out.println("Recall    : " + triple.second);
+	            System.out.println("F1 score  : " + triple.third);
 	            break;
 	    	}
 	    	else {
