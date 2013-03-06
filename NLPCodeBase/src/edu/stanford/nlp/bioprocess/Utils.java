@@ -498,8 +498,32 @@ public static List<Example> readFile(String fileName) {
 		return graph.getShortestDirectedPathEdges(graph.getFirstRoot(), word).size();
 	}
 	
+	public static boolean isNodesRelated(CoreMap sentence, Tree entity, Tree event) {
+		//Event ideally wouldn't be parent of full sentence. But, it will tag it as parent because the full sentence has the trigger
+		//word as head token.
+		if(entity == null || entity.value().equals("S") || entity.value().equals("SBAR"))
+			return false;
+		IndexedWord entityIndexWord = findDependencyNode(sentence, entity);
+		//In case of punctuation marks, there is no head found.
+		if(entityIndexWord != null) {
+			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			//System.out.println("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			IndexedWord word = findDependencyNode(sentence, event);
+			if(word == null) return false;
+			for(IndexedWord w:graph.getChildList(word)) {
+				if(w.equals(entityIndexWord)) {
+					//System.out.println(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
+					return true;
+				}
+			}
+		}
+		//System.out.println(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		
+		return false;
+	}
+	
 	public static boolean isNodesRelated(CoreMap sentence, Tree entity, EventMention event) {
-		//event ideally wouldn't be parent of full sentence. But, it will tag it as parent because the full sentence has the trigger
+		//Event ideally wouldn't be parent of full sentence. But, it will tag it as parent because the full sentence has the trigger
 		//word as head token.
 		if(entity == null || entity.value().equals("S") || entity.value().equals("SBAR"))
 			return false;

@@ -1,0 +1,5 @@
+\begin{enumerate}
+\item Since most of the errors made by event prediction model is related to verb nominalizations, extend the model to capture them as well.
+\item Extend the entity prediction task for semantic role labeling. This would be an extension from binary classification to multiclass classification using the MaxEnt model. Depending on the performance of this model, we would also look at re-ranking models similar to Toutanova et. al.
+\item We feel that knowing entities might help in improving our event trigger prediction. For this, we need features in task 1 that use information about entities in the sentence. We are thinking of an iterative solution similar to Expectation Maximization algorithm that would repeat tasks 1 and 2 to converge to the best event-entity extractions.
+\end{enumerate}

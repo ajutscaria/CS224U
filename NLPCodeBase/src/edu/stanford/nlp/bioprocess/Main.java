@@ -17,7 +17,7 @@ public class Main {
 	    				precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
 	    
 	    //Flags to indicate if evaluation of model should be run on training set, baseline and dev-test set.
-	    boolean evaluateTrain = true, evaluateBaseline = false, evaluateDev = true;
+	    boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
 	    //Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 	    //refreshDataFile is to re-generate the bpa (bio process annotation) file
 		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
