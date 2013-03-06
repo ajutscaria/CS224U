@@ -11,8 +11,7 @@ import java.util.List;
 public class EventPredictionLearner extends Learner {
 	
 	@Override
-	public Params learn(List<Example> dataset) {
-		EventFeatureFactory ff = new EventFeatureFactory();
+	public Params learn(List<Example> dataset, FeatureExtractor ff) {
 		// add the features
 		List<Datum> data = ff.setFeaturesTrain(dataset);
 		LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);

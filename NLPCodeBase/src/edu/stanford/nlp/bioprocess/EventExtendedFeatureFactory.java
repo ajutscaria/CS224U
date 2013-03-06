@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
+import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -11,7 +12,7 @@ import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 
-public class EventFeatureFactory extends FeatureExtractor {
+public class EventExtendedFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
@@ -30,6 +31,12 @@ public class EventFeatureFactory extends FeatureExtractor {
 		features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
 		features.add("POSlemma=" + currentWord+","+token.lemma());
 		features.add("path=" + Trees.pathFromRoot(event, root));
+		
+		//Trying to look at entities to improve prediction
+		for(EntityMention m:sentence.get(EntityMentionsAnnotation.class)) {
+			if(Utils.isNodesRelated(sentence, m.getTreeNode(), event));
+				//features.add("Entityparent");
+		}
 		
 		//Nominalization did not give much improvement
 		/*if(nominalizations.contains(leaves.get(0).value())) {

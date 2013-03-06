@@ -18,7 +18,7 @@ public class CrossValidationSplit  {
 	public CrossValidationSplit(ArrayList<Example> examples, int numFolds){
 		for(int i = 0; i < examples.size(); i++)
 			randomExampleIndex.add(i);
-		Collections.shuffle(randomExampleIndex);
+		//Collections.shuffle(randomExampleIndex);
 		System.out.println(randomExampleIndex);
 		numFoldsCV = numFolds;
 		allExamplesCV = examples;

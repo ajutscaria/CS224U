@@ -59,7 +59,7 @@ public class EventPredictionInferer extends Inferer {
 				predicted.addAll(testDataWithLabel);
 				
 				if(printDebugInformation) {
-					System.out.println("\n---------GOLD ENTITIES-------------------------");
+					System.out.println("\n---------GOLD EVENTS-------------------------");
 					for(Datum d:testDataWithLabel) 
 						if(d.label.equals("E"))
 							System.out.println(d.eventNode + ":" + d.label);

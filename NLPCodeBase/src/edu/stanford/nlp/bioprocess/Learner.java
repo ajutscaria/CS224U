@@ -29,5 +29,5 @@ public abstract class Learner {
    * Method that will learn parameters for the model and return it.
    * @return Parameters learnt.
    */
-  public abstract Params learn(List<Example> dataset);
+  public abstract Params learn(List<Example> dataset, FeatureExtractor featureExtractor);
 }

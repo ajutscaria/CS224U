@@ -15,9 +15,8 @@ public class EntityPredictionLearner extends Learner {
    * Method that will learn parameters for the model and return it.
    * @return Parameters learnt.
    */
-  public Params learn(List<Example> ds) {
+  public Params learn(List<Example> ds, FeatureExtractor ff) {
 	dataset = ds;
-    EntityFeatureFactory ff = new EntityFeatureFactory();
 	// add the features
 	List<Datum> data = ff.setFeaturesTrain(dataset);
 	LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);

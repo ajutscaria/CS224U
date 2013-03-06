@@ -17,7 +17,7 @@ public class Main {
 	    				precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
 	    
 	    //Flags to indicate if evaluation of model should be run on training set, baseline and dev-test set.
-	    boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
+	    boolean evaluateTrain = true, evaluateBaseline = true, evaluateDev = true;
 	    //Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 	    //refreshDataFile is to re-generate the bpa (bio process annotation) file
 		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
@@ -44,7 +44,7 @@ public class Main {
 
 	    for(int i = 1; i <= NumCrossValidation; i++) {
 	    	if(useSmallSample) {
-	    		Params param = learner.learn(dataset.examples("sample"));
+	    		Params param = learner.learn(dataset.examples("sample"), featureFactory);
 	            List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param);
 	            Triple<Double, Double, Double> triple = Scorer.score(predicted);
 	            System.out.println("Precision : " + triple.first);
@@ -54,7 +54,7 @@ public class Main {
 	    	}
 	    	else {
 		    	System.out.println("Iteration: "+i);
-		    	Params param = learner.learn(split.GetTrainExamples(i));
+		    	Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
 		    	List<Datum> predicted;
 		    	Triple<Double, Double, Double> triple;
 		    	if(evaluateTrain) {
@@ -130,5 +130,7 @@ public class Main {
     	new Main().runPrediction(folders, new EntityFeatureFactory(), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
     if(args.length > 0 && args[0].equals("-event"))
     	new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+    if(args.length > 0 && args[0].equals("-em"))
+    	new Main().runPrediction(folders, new EventExtendedFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
   }
 }
