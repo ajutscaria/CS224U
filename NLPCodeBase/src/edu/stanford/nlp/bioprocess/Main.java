@@ -41,8 +41,11 @@ public class Main implements Runnable {
 
 		if(!useSmallSample) {
 			File f = new File(examplesFileName);
-			if(f.exists() && !refreshDataFile)
+			if(f.exists() && !refreshDataFile) {
+				LogInfo.begin_track("Quick data read");
 				dataset.allExamples.put("train", Utils.readFile(examplesFileName));
+				LogInfo.end_track();
+			}
 			else {
 				dataset.read("train");
 				Utils.writeFile(dataset.examples("train"), examplesFileName);
@@ -53,7 +56,9 @@ public class Main implements Runnable {
 			dataset.read("sample");
 		}
 			
+		LogInfo.begin_track("Cross validation");
 		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
 			if(useSmallSample) {
 				Params param = learner.learn(dataset.examples("sample"), featureFactory);
 				List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param);
@@ -87,18 +92,29 @@ public class Main implements Runnable {
 			}
 			if(useOneLoop)
 				break;
+			LogInfo.end_track();
 		}
+		LogInfo.end_track();
+		
+		LogInfo.begin_track("Evaluation");
 		if(!useSmallSample) {
 			if(evaluateTrain) {
+				LogInfo.begin_track("Training");
 				printScores("Train", precisionTrain, recallTrain, f1Train);
+				LogInfo.end_track();
 			}
 			if(evaluateBaseline) {
+				LogInfo.begin_track("Basline");
 				printScores("Baseline", precisionBaseline, recallBaseline, f1Baseline);
+				LogInfo.end_track();
 			}
 			if(evaluateDev) {
+				LogInfo.begin_track("dev");
 				printScores("Dev", precisionDev, recallDev, f1Dev);
+				LogInfo.end_track();
 			}
 		}
+		LogInfo.end_track();
 	}
 
 	public void printScores(String category, double[] precision, double[] recall, double[] f1) {
