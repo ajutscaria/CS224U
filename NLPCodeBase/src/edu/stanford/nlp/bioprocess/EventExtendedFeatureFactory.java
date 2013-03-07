@@ -45,15 +45,16 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 				if(pathLength > nodesInPath.size()) {
 					shortestPath = StringUtils.join(nodesInPath, ",");
 				}
-				//System.out.println(shortestPath);
+				System.out.println(shortestPath);
 			}
 		}
 		
 		if(token.index() > 0) {
 			features.add("POStokenbefore=" + currentWord + "," + tokens.get(token.index()-1).originalText());
-			//features.add("tokenbefore=" + tokens.get(token.index()-1).originalText());
+			features.add("tokenbefore=" + tokens.get(token.index()-1).originalText());
 		}
-		//features.add("numrelatedentities" + (numRelatedEntities > 1));
+		
+		features.add("numrelatedentities" + (numRelatedEntities > 1));
 		if(pathLength<Integer.MAX_VALUE) {
 			features.add("splpath=" + shortestPath);
 			features.add("splpathlength=" + pathLength);
@@ -64,11 +65,11 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			//features.add("nominalization");
 		}*/
-		//features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
+		features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
 		//Cannot use this feature when looking at all tree nodes as candidates
 			//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
 		//Doesn't seem to work as expected even though the event triggers are mostly close to root in dependency tree.
-		//features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
+		features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
 		
 		String classString = "class=" + tokenClass + ",";
 		List<String> updatedFeatures = new ArrayList<String>();
@@ -142,7 +143,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-							!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+							!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
 					String type = "O";
