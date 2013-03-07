@@ -24,7 +24,7 @@ import edu.stanford.nlp.util.StringUtils;
 
 public class EventExtendedFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
-	boolean addEntityFeatures = false;
+	boolean addEntityFeatures = true;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
 	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
@@ -107,8 +107,8 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			features.add("numrelatedentities=" + (numRelatedEntities ));
 			//not so great
 			if(pathLength<Integer.MAX_VALUE) {
-				features.add("splpath=" + shortestPath);
-				features.add("splpathlength=" + pathLength);
+				//features.add("splpath=" + shortestPath);
+				//features.add("splpathlength=" + pathLength);
 			}
 		}
 		
