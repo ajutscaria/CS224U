@@ -6,6 +6,7 @@ import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.graph.Graph;
+import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
@@ -17,11 +18,13 @@ import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCP
 import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import edu.stanford.nlp.util.IntPair;
 import fig.basic.LogInfo;
 import edu.stanford.nlp.util.StringUtils;
 
 public class EventExtendedFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	boolean addEntityFeatures = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
 	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
@@ -36,6 +39,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
 		IndexedWord word = Utils.findDependencyNode(sentence, event);
 		Tree parent = event.parent(root);
+		IntPair eventSpan = event.getSpan();
 		
 		String parentCFGRule = parent.value() + "->";
 		for(Tree n:parent.getChildrenAsList()) {
@@ -63,35 +67,49 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		//}
 		
 		//Trying to look at entities to improve prediction
-		String shortestPath = "";
-		int pathLength = Integer.MAX_VALUE, numRelatedEntities = 0;
-		
-		for(EntityMention m:sentence.get(EntityMentionsAnnotation.class)) {
-			if(m.getTreeNode()==null)
-				continue;
-			if(Utils.isNodesRelated(sentence, m.getTreeNode(), event))
-				numRelatedEntities++;
-			
-			List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), Trees.getLowestCommonAncestor(event, m.getTreeNode(), root));
-			if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
-				features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
-			
-			if(pathLength > nodesInPath.size()) {
-				shortestPath = StringUtils.join(nodesInPath, ",");
+		if(addEntityFeatures) {
+			String shortestPath = "";
+			int pathLength = Integer.MAX_VALUE, numRelatedEntities = 0;
+			int closestEntitySpanBefore = Integer.MAX_VALUE, closestEntitySpanAfter = Integer.MAX_VALUE;
+			for(EntityMention m:sentence.get(EntityMentionsAnnotation.class)) {
+				if(m.getTreeNode()==null)
+					continue;
+				if(Utils.isNodesRelated(sentence, m.getTreeNode(), event)) 
+					numRelatedEntities++;
+				
+				List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), Trees.getLowestCommonAncestor(event, m.getTreeNode(), root));
+				//Okayish
+				if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
+					features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
+				
+				if(pathLength > nodesInPath.size()) {
+					shortestPath = StringUtils.join(nodesInPath, ",");
+				}
+				IntPair entitySpan = m.getTreeNode().getSpan();
+				if(entitySpan.getSource() < eventSpan.getSource()) {
+					//features.add("entitybefore");
+					if(Math.abs(entitySpan.getTarget() - eventSpan.getSource()) < closestEntitySpanBefore)
+						closestEntitySpanBefore = Math.abs(entitySpan.getTarget() - eventSpan.getSource());
+				}
+				if(entitySpan.getSource() > eventSpan.getSource()) {
+					//features.add("entityafter");
+					if(Math.abs(entitySpan.getSource() - eventSpan.getTarget()) < closestEntitySpanBefore)
+						closestEntitySpanBefore = Math.abs(entitySpan.getSource() - eventSpan.getTarget());
+				}
 			}
-			//System.out.println(event);
-			//System.out.println(m.getTreeNode());
-			//System.out.println(StringUtils.join(nodesInPath, ","));
+	
+			//if(closestEntitySpanAfter > Integer.MAX_VALUE)
+			//	features.add("closestEntitySpanAfter=" + closestEntitySpanAfter);
 			
-			//System.out.println(shortestPath);
-			//}
-		}
-
-		//High recall bad precision
-		features.add("numrelatedentities=" + (numRelatedEntities ));
-		if(pathLength<Integer.MAX_VALUE) {
-			features.add("splpath=" + shortestPath);
-			features.add("splpathlength=" + pathLength);
+			//if(closestEntitySpanBefore > Integer.MAX_VALUE)
+			//	features.add("closestEntitySpanBefore" + closestEntitySpanBefore);
+			//Quite good
+			features.add("numrelatedentities=" + (numRelatedEntities ));
+			//not so great
+			if(pathLength<Integer.MAX_VALUE) {
+				features.add("splpath=" + shortestPath);
+				features.add("splpathlength=" + pathLength);
+			}
 		}
 		
 		//Nominalization did not give much improvement
