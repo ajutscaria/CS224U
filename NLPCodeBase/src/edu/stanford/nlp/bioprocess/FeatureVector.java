@@ -25,4 +25,12 @@ public class FeatureVector {
   public void add(List<String> feature) {
 	  features.addAll(features);
   }
+
+  public String getFeatureString() {
+	  StringBuilder f = new StringBuilder();
+	  for(String feature:features)
+		  f.append(feature + "  ");
+	return f.toString().trim();
+  }
 }
+
