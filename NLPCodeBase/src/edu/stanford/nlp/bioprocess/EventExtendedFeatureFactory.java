@@ -12,6 +12,7 @@ import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import fig.basic.LogInfo;
+import edu.stanford.nlp.util.StringUtils;
 
 public class EventExtendedFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
@@ -25,6 +26,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		List<Tree> leaves = event.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
+		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
 		
 		features.add("POS="+currentWord);
 		features.add("lemma="+token.lemma());
@@ -34,9 +36,27 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		features.add("path=" + Trees.pathFromRoot(event, root));
 		
 		//Trying to look at entities to improve prediction
+		String shortestPath = "";
+		int pathLength = Integer.MAX_VALUE, numRelatedEntities = 0;
 		for(EntityMention m:sentence.get(EntityMentionsAnnotation.class)) {
-			if(Utils.isNodesRelated(sentence, m.getTreeNode(), event));
-				//features.add("Entityparent");
+			if(Utils.isNodesRelated(sentence, m.getTreeNode(), event)) {
+				numRelatedEntities++;
+				List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), root);
+				if(pathLength > nodesInPath.size()) {
+					shortestPath = StringUtils.join(nodesInPath, ",");
+				}
+				//System.out.println(shortestPath);
+			}
+		}
+		
+		if(token.index() > 0) {
+			features.add("POStokenbefore=" + currentWord + "," + tokens.get(token.index()-1).originalText());
+			//features.add("tokenbefore=" + tokens.get(token.index()-1).originalText());
+		}
+		//features.add("numrelatedentities" + (numRelatedEntities > 1));
+		if(pathLength<Integer.MAX_VALUE) {
+			features.add("splpath=" + shortestPath);
+			features.add("splpathlength=" + pathLength);
 		}
 		
 		//Nominalization did not give much improvement
@@ -78,7 +98,8 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 				//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 					//if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal())
+						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
+								!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 							continue;
 						
 						String type = "O";
@@ -92,7 +113,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
 						Datum newDatum = new Datum(Utils.getText(node), type, node, node);
 						newDatum.features = computeFeatures(sentence, type, node);
-						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
+						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 						newData.add(newDatum);
 					//}
 				}
@@ -120,7 +141,8 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
-					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal())
+					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
+							!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
 					String type = "O";

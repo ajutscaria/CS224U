@@ -1,6 +1,7 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.lang.Math;
@@ -21,6 +22,7 @@ public class CrossValidationSplit  {
 		for(int i = 0; i < examples.size(); i++)
 			randomExampleIndex.add(i);
 		//Collections.shuffle(randomExampleIndex);
+		randomExampleIndex = Arrays.asList(new Integer[]{51, 1, 30, 5, 21, 28, 23, 18, 45, 42, 20, 46, 40, 32, 2, 39, 17, 0, 33, 47, 43, 44, 38, 22, 50, 49, 8, 9, 13, 7, 15, 10, 48, 26, 3, 16, 6, 12, 14, 37, 4, 41, 35, 34, 31, 19, 36, 27, 29, 24, 11, 25});
 		LogInfo.logs(randomExampleIndex);
 		numFoldsCV = numFolds;
 		allExamplesCV = examples;

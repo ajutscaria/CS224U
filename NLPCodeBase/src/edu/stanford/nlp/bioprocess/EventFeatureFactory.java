@@ -24,6 +24,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		List<Tree> leaves = event.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
+		//List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
 		
 		features.add("POS="+currentWord);
 		features.add("lemma="+token.lemma());
