@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.graph.Graph;
@@ -68,27 +69,29 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		for(EntityMention m:sentence.get(EntityMentionsAnnotation.class)) {
 			if(m.getTreeNode()==null)
 				continue;
-			//if(Utils.isNodesRelated(sentence, m.getTreeNode(), event)) {
+			if(Utils.isNodesRelated(sentence, m.getTreeNode(), event))
 				numRelatedEntities++;
-				List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), Trees.getLowestCommonAncestor(event, m.getTreeNode(), root));
-				//if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
-				//	features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
-				//if(pathLength > nodesInPath.size()) {
-				//	shortestPath = StringUtils.join(nodesInPath, ",");
-				//}
-				//System.out.println(event);
-				//System.out.println(m.getTreeNode());
-				//System.out.println(StringUtils.join(nodesInPath, ","));
-				
-				//System.out.println(shortestPath);
+			
+			List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), Trees.getLowestCommonAncestor(event, m.getTreeNode(), root));
+			if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
+				features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
+			
+			if(pathLength > nodesInPath.size()) {
+				shortestPath = StringUtils.join(nodesInPath, ",");
+			}
+			//System.out.println(event);
+			//System.out.println(m.getTreeNode());
+			//System.out.println(StringUtils.join(nodesInPath, ","));
+			
+			//System.out.println(shortestPath);
 			//}
 		}
 
-		
-		//features.add("numrelatedentities=" + (numRelatedEntities ));
+		//High recall bad precision
+		features.add("numrelatedentities=" + (numRelatedEntities ));
 		if(pathLength<Integer.MAX_VALUE) {
-		//	features.add("splpath=" + shortestPath);
-		//	features.add("splpathlength=" + pathLength);
+			features.add("splpath=" + shortestPath);
+			features.add("splpathlength=" + pathLength);
 		}
 		
 		//Nominalization did not give much improvement
@@ -117,7 +120,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
-				IdentityHashSet<Tree> eventNodes = Utils.getEventNodesFromSentence(sentence);
+				IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
 				if(printDebug) LogInfo.logs(sentence);
 				if(printAnnotations) {
 					LogInfo.logs("---Events--");
@@ -139,7 +142,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 						//if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 							//type = "E";
 						//}
-						if (eventNodes.contains(node)){
+						if (eventNodes.keySet().contains(node)){
 							type = "E";
 						}
 						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
@@ -169,7 +172,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
     	labels.add("E");
 
 
-    	IdentityHashSet<Tree> eventNodes = Utils.getEventNodesFromSentence(sentence);
+    	IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
 		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
@@ -179,7 +182,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 					
 					String type = "O";
 					
-					if (eventNodes.contains(node)) {
+					if (eventNodes.keySet().contains(node)) {
 						type = "E";
 					}
 					

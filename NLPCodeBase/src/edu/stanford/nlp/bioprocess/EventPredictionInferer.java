@@ -12,9 +12,9 @@ import fig.basic.LogInfo;
 public class EventPredictionInferer extends Inferer {
 	boolean printDebugInformation = true;
 	
-	public List<Datum> BaselineInfer(List<Example> examples, Params parameters) {
+	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>(); 
-		EventFeatureFactory ff = new EventFeatureFactory();
+		//EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
@@ -35,9 +35,9 @@ public class EventPredictionInferer extends Inferer {
 		return predicted;
 	}
 	
-    public List<Datum> Infer(List<Example> testData, Params parameters) {
+    public List<Datum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>(); 
-		EventFeatureFactory ff = new EventFeatureFactory();
+		//EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example ex:testData) {
 			LogInfo.begin_track("Example %s",ex.id);
 

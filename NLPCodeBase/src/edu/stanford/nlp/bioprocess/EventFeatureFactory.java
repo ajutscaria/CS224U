@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
@@ -10,6 +11,7 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EventFeatureFactory extends FeatureExtractor {
@@ -59,7 +61,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
-				IdentityHashSet<Tree> eventNodes = Utils.getEventNodesFromSentence(sentence);
+				IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
 				if(printDebug) LogInfo.logs(sentence);
 				if(printAnnotations) {
 					LogInfo.logs("---Events--");
@@ -72,16 +74,17 @@ public class EventFeatureFactory extends FeatureExtractor {
 				//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 					//if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal())
+						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
+								!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 							continue;
 						
-						String type = "O";
+						String type = EventType.NONE.toString();
 						
 						//if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 							//type = "E";
 						//}
-						if (eventNodes.contains(node)){
-							type = "E";
+						if (eventNodes.keySet().contains(node)){
+							type = eventNodes.get(node).toString();
 						}
 						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
 						Datum newDatum = new Datum(Utils.getText(node), type, node, node);
@@ -110,17 +113,18 @@ public class EventFeatureFactory extends FeatureExtractor {
     	labels.add("E");
 
 
-    	IdentityHashSet<Tree> eventNodes = Utils.getEventNodesFromSentence(sentence);
+    	IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
 		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
-					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal())
+					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
+							!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
-					String type = "O";
+					String type = EventType.NONE.toString();
 					
-					if (eventNodes.contains(node)) {
-						type = "E";
+					if (eventNodes.keySet().contains(node)){
+						type = eventNodes.get(node).toString();
 					}
 					
 					Datum newDatum = new Datum(Utils.getText(node), type, node, node);

@@ -10,7 +10,8 @@ public class ArgumentRelation implements Serializable {
 
 public enum EventType {
 	  Event,
-	  StaticEvent
+	  StaticEvent,
+	  NONE
   }
   public enum RelationType {
 	  Origin,

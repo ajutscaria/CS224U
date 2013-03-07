@@ -12,9 +12,9 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
-	public List<Datum> BaselineInfer(List<Example> examples, Params parameters) {
+	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>();
-		EntityFeatureFactory ff = new EntityFeatureFactory();
+		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
 			LogInfo.begin_track("Example %s",example.id);
 			
@@ -61,9 +61,9 @@ public class EntityPredictionInferer extends Inferer {
 		return predicted;
 	}
 	
-	public List<Datum> Infer(List<Example> testData, Params parameters) {
+	public List<Datum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>();
-		EntityFeatureFactory ff = new EntityFeatureFactory();
+		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
 			LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);

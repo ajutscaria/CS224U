@@ -27,7 +27,7 @@ public class Main implements Runnable {
 				precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
 
 		//Flags to indicate if evaluation of model should be run on training set, baseline and dev-test set.
-		boolean evaluateTrain = true, evaluateBaseline = true, evaluateDev = true;
+		boolean evaluateTrain = true, evaluateBaseline = false, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
 		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
@@ -61,7 +61,7 @@ public class Main implements Runnable {
 			LogInfo.begin_track("Iteration " + i);
 			if(useSmallSample) {
 				Params param = learner.learn(dataset.examples("sample"), featureFactory);
-				List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param);
+				List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
 				Triple<Double, Double, Double> triple = Scorer.score(predicted);
 				LogInfo.logs("Precision : " + triple.first);
 				LogInfo.logs("Recall    : " + triple.second);
@@ -73,17 +73,17 @@ public class Main implements Runnable {
 				List<Datum> predicted;
 				Triple<Double, Double, Double> triple;
 				if(evaluateTrain) {
-					predicted = inferer.Infer(split.GetTrainExamples(i), param);
+					predicted = inferer.Infer(split.GetTrainExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionTrain[i-1] = triple.first; recallTrain[i-1] = triple.second; f1Train[i-1] = triple.third;
 				}
 				if(evaluateBaseline) {
-					predicted = inferer.BaselineInfer(split.GetTestExamples(i), param);
+					predicted = inferer.BaselineInfer(split.GetTestExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
 				}
 				if(evaluateDev) {
-					predicted = inferer.Infer(split.GetTestExamples(i), param);
+					predicted = inferer.Infer(split.GetTestExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 				}

@@ -10,9 +10,11 @@ import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
@@ -32,6 +34,7 @@ import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCP
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
+import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
@@ -389,11 +392,11 @@ public class Utils {
   		set.add(entity.getTreeNode());
   	  return set;
   }
-  public static IdentityHashSet<Tree> getEventNodesFromSentence(CoreMap sentence) {
-	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+  public static IdentityHashMap<Tree, EventType> getEventNodesFromSentence(CoreMap sentence) {
+	  IdentityHashMap<Tree, EventType> map = new IdentityHashMap<Tree, EventType>();
 	  for(EventMention event : sentence.get(EventMentionsAnnotation.class))
-  		set.add(event.getTreeNode());
-	  return set;
+  		map.put(event.getTreeNode(), event.eventType);
+	  return map;
   }
   
   
