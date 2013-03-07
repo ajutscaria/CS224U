@@ -24,9 +24,9 @@ public class Scorer {
     double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
     double f= 2 * precision * recall / (precision + recall);
     
-    //System.out.println("precision = "+precision);
-    //System.out.println("recall = "+recall);
-    //System.out.println("F1 = "+f);
+    //LogInfo.logs("precision = "+precision);
+    //LogInfo.logs("recall = "+recall);
+    //LogInfo.logs("F1 = "+f);
     
     return new Triple<Double, Double, Double>(precision, recall, f);
   }

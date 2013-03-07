@@ -99,7 +99,7 @@ public class ArgumentMention extends ExtractionObject {
   }
 
   public CoreLabel getHeadToken() {
-	  //System.out.println(this.getHeadTokenStart());
+	  //LogInfo.logs(this.getHeadTokenStart());
 	  return this.getSentence().get(TokensAnnotation.class).get(this.getHeadTokenStart());
   }
   

@@ -7,6 +7,7 @@ import java.io.PrintWriter;
 
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.util.logging.Redwood;
+import fig.basic.LogInfo;
 
 /**
  * Gets a text file in the proper format (one word per line, new line for new sentence) and outputs a clustering by 
@@ -53,7 +54,7 @@ public class ExchangeWordClustering {
 					new BufferedReader(new InputStreamReader(p.getErrorStream()));
 			String line;
 			while ((line = err.readLine()) != null) {
-				System.out.println(line);
+				LogInfo.logs(line);
 			}
 		}
 		writer.close();

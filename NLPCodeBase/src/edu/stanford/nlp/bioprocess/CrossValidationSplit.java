@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.lang.Math;
+
+import fig.basic.LogInfo;
 /**
  * Split training file to cross validation splits given the total number of folds and the nth fold of test required
  * 
@@ -19,7 +21,7 @@ public class CrossValidationSplit  {
 		for(int i = 0; i < examples.size(); i++)
 			randomExampleIndex.add(i);
 		//Collections.shuffle(randomExampleIndex);
-		System.out.println(randomExampleIndex);
+		LogInfo.logs(randomExampleIndex);
 		numFoldsCV = numFolds;
 		allExamplesCV = examples;
 		foldsCV = new ArrayList<ArrayList<Example>>();

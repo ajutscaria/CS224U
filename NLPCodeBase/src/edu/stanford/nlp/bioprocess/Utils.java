@@ -33,6 +33,7 @@ import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.StringUtils;
+import fig.basic.LogInfo;
 
 public class Utils {
   public static List<String> Punctuations = Arrays.asList(".", ",");
@@ -40,11 +41,11 @@ public class Utils {
 	
   public static boolean checkEntityHead(List<IndexedWord> words, CoreMap sentence) {
 	  SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-	  //System.out.println(graph);
+	  //LogInfo.logs(graph);
 	  for(IndexedWord word: words) {
-		  System.out.println("\nCurrent word : " + word);
+		  LogInfo.logs("\nCurrent word : " + word);
 		  for(IndexedWord w:graph.getChildList(word)) {
-			  System.out.println("\tRelated to - " + w);
+			  LogInfo.logs("\tRelated to - " + w);
 		  }
 	  }
 	  return true;
@@ -60,38 +61,38 @@ public class Utils {
 	CoreMap sentence = mention.getSentence();
 	Span span = mention.getExtent();
     SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-    //System.out.println(graph);
+    //LogInfo.logs(graph);
     //IndexedWord root = graph.getFirstRoot();
     ArrayList<IndexedWord> dependencyNodes = new ArrayList<IndexedWord>();
     for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
-      //System.out.println(word.value() + "--" + word.index());
+      //LogInfo.logs(word.value() + "--" + word.index());
       if(word.index() - 1 >= span.start() && word.index()-1 < span.end()) {
-        //System.out.println(word.value() + ":" + word.beginPosition());
+        //LogInfo.logs(word.value() + ":" + word.beginPosition());
         dependencyNodes.add(word);
       }
-      //System.out.println();
+      //LogInfo.logs();
     }
     return dependencyNodes;
   }
   
   public static List<IndexedWord> findNodeInDependencyTree(CoreMap sentence, Span span) {
 	    SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-	    //System.out.println(graph);
+	    //LogInfo.logs(graph);
 	    //IndexedWord root = graph.getFirstRoot();
 	    ArrayList<IndexedWord> dependencyNodes = new ArrayList<IndexedWord>();
 	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
-	      //System.out.println(word.value() + "--" + word.index());
+	      //LogInfo.logs(word.value() + "--" + word.index());
 	      if(word.index() - 1 >= span.start() && word.index()-1 < span.end()) {
-	        //System.out.println(word.value() + ":" + word.beginPosition());
+	        //LogInfo.logs(word.value() + ":" + word.beginPosition());
 	        dependencyNodes.add(word);
 	      }
-	      //System.out.println();
+	      //LogInfo.logs();
 	    }
 	    return dependencyNodes;
 	  }
   
   public static CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
-	//System.out.println(begin + ":" + end);
+	//LogInfo.logs(begin + ":" + end);
     for(CoreMap sentence:sentences) {
       if(sentence.get(CharacterOffsetBeginAnnotation.class) <= begin && sentence.get(CharacterOffsetEndAnnotation.class) >= end)
         return sentence;
@@ -101,7 +102,7 @@ public class Utils {
   
   public static Span getSpanFromSentence(CoreMap sentence, int begin, int end) {
     Span span = new Span();
-    //System.out.println(sentence);
+    //LogInfo.logs(sentence);
     for(CoreLabel label:sentence.get(TokensAnnotation.class)) {
       if(label.beginPosition() == begin)
         span.setStart(label.index() - 1);
@@ -117,23 +118,23 @@ public class Utils {
 
 	  List<IndexedWord> words = findNodeInDependencyTree(sentence, nodeSpan);
 	  if(words.size()==0) {
-		  //System.out.println("Span not found in dependency tree.");
+		  //LogInfo.logs("Span not found in dependency tree.");
 		  return new Span(nodeSpan.start(), nodeSpan.start() + 1);
 	  }
 	  Span span = new Span();
 	  SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-	  //System.out.println(nodeSpan + " " + words.size() );
+	  //LogInfo.logs(nodeSpan + " " + words.size() );
 	  
 	  IndexedWord head = words.get(0);
-	  //System.out.println("\nFinding head word for  - " + entity.getValue());
-	  //System.out.println(graph);
+	  //LogInfo.logs("\nFinding head word for  - " + entity.getValue());
+	  //LogInfo.logs(graph);
 	  for(IndexedWord word : words) {
 		  if(!head.equals(word) && words.contains(graph.getCommonAncestor(head, word)))
 			  head = graph.getCommonAncestor(head, word);
 	  }
-	  //System.out.println(head.index()-1);
-	  //System.out.println(entity.getExtent());
-	  //System.out.println("Headword  - " + head.originalText());
+	  //LogInfo.logs(head.index()-1);
+	  //LogInfo.logs(entity.getExtent());
+	  //LogInfo.logs("Headword  - " + head.originalText());
 	  span.setStart(head.index()-1);
 	  span.setEnd(head.index());
 	  return span;
@@ -144,10 +145,10 @@ public class Utils {
 	  
 	  List<IndexedWord> words = findNodeInDependencyTree(entity);
 	  SemanticGraph graph = entity.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
-	  //System.out.println(entity.getValue() + " " + words.size() );
+	  //LogInfo.logs(entity.getValue() + " " + words.size() );
 	  IndexedWord head = words.get(0);
-	  //System.out.println("\nFinding head word for  - " + entity.getValue());
-	  //System.out.println(graph);
+	  //LogInfo.logs("\nFinding head word for  - " + entity.getValue());
+	  //LogInfo.logs(graph);
 	  for(IndexedWord word : words) {
 		  if(!head.get(PartOfSpeechAnnotation.class).startsWith("NN") && word.get(PartOfSpeechAnnotation.class).startsWith("NN")) {
 			  head = word;
@@ -155,9 +156,9 @@ public class Utils {
 		  else if(!head.equals(word) && word.get(PartOfSpeechAnnotation.class).startsWith("NN") && words.contains(graph.getCommonAncestor(head, word)))
 			  head = graph.getCommonAncestor(head, word);
 	  }
-	  //System.out.println(head.index()-1);
-	  //System.out.println(entity.getExtent());
-	  //System.out.println("Headword  - " + head.originalText());
+	  //LogInfo.logs(head.index()-1);
+	  //LogInfo.logs(entity.getExtent());
+	  //LogInfo.logs("Headword  - " + head.originalText());
 	  span.setStart(head.index()-1);
 	  span.setEnd(head.index());
 	  return span;
@@ -173,8 +174,8 @@ public class Utils {
 		  
 		  IntPair span = node.getSpan();
 		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
-			  //System.out.println(node.value());
-			  //System.out.println(entity.getValue() + "| Found match - " + node);
+			  //LogInfo.logs(node.value());
+			  //LogInfo.logs(entity.getValue() + "| Found match - " + node);
 			  if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS"))
 				  return node;
 		  }
@@ -182,7 +183,7 @@ public class Utils {
 			  //To check for an extra determiner like "a" or "the" in front of the entity
 			  String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
 			  if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
-				  //System.out.println(entity.getValue() + "| Found match - " + node);
+				  //LogInfo.logs(entity.getValue() + "| Found match - " + node);
 				  if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS"))
 					  return node;
 			  }
@@ -191,7 +192,7 @@ public class Utils {
 			  //To check for an extra punctuation at the end of the entity.
 			  List<Tree> leaves = node.getLeaves();
 			  if(Punctuations.contains(leaves.get(leaves.size()-1).toString())) {
-				  //System.out.println(entity.getValue() + "| Found match - " + node);
+				  //LogInfo.logs(entity.getValue() + "| Found match - " + node);
 				  if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS"))
 				  	return node;
 			  }
@@ -209,33 +210,33 @@ public class Utils {
 	  if (bestMatch != null) {
 		  return bestMatch;
 	  }
-	  //System.out.println(entity.getValue());
-	  //System.out.println("Missed first section");
+	  //LogInfo.logs(entity.getValue());
+	  //LogInfo.logs("Missed first section");
 	  EntityMention entityNoLastToken = new EntityMention("id", entityNew.getSentence(), new Span(entityNew.getExtentTokenStart(), entityNew.getExtentTokenEnd() -1 ));
 	  while(entityNoLastToken.getExtent().end() - entityNoLastToken.getExtent().start() != 0) {
 		  //Remove last token
 		  bestMatch = getEntityNodeBest(sentence, entityNoLastToken);
 		  if (bestMatch != null) {
-			  //System.out.println(entity.getValue() + "| Found match - " + bestMatch);
+			  //LogInfo.logs(entity.getValue() + "| Found match - " + bestMatch);
 			  return bestMatch;
 		  }
 		  entityNoLastToken = new EntityMention("id", entityNoLastToken.getSentence(), new Span(entityNoLastToken.getExtentTokenStart(), entityNoLastToken.getExtentTokenEnd() -1 ));
 	  }
-	  //System.out.println("Missed second section");
+	  //LogInfo.logs("Missed second section");
 	  EntityMention entityNoFirstToken = new EntityMention("id", entityNew.getSentence(), new Span(entityNew.getExtentTokenStart()+1, entityNew.getExtentTokenEnd() ));
 	  while(entityNoFirstToken.getExtent().end() - entityNoFirstToken.getExtent().start() != 0) {
 		  //Remove first token
 		  
 		  bestMatch = getEntityNodeBest(sentence, entityNoFirstToken);
 		  if (bestMatch != null) {
-			  //System.out.println(entity.getValue() + "| Found match - " + bestMatch);
+			  //LogInfo.logs(entity.getValue() + "| Found match - " + bestMatch);
 			  return bestMatch;
 		  }
 		  entityNoFirstToken = new EntityMention("id", entityNoFirstToken.getSentence(), new Span(entityNoFirstToken.getExtentTokenStart()+1, entityNoFirstToken.getExtentTokenEnd() ));
 	  }
 	  
 	  countBad+=1;
-	  System.out.println("No ENTITY match found for - " + entity.getValue() + ":"+  countBad);
+	  LogInfo.logs("No ENTITY match found for - " + entity.getValue() + ":"+  countBad);
 
 	  //syntacticParse.pennPrint();
 	  return null;
@@ -251,7 +252,7 @@ public class Utils {
 			  IntPair span = node.getSpan();
 			  if(span.getSource() == spanStart && span.getTarget() == spanStart && 
 					  ( (node.value().startsWith("VB") && !node.firstChild().value().equals("is")) || node.value().startsWith("NN"))) {
-				  //System.out.println("Compressing " + event.getValue() + " to " + node);
+				  //LogInfo.logs("Compressing " + event.getValue() + " to " + node);
 				  return node;
 			  }
 		  }
@@ -263,7 +264,7 @@ public class Utils {
 		  
 		  IntPair span = node.getSpan();
 		  if(span.getSource() == event.getExtentTokenStart() && span.getTarget() == event.getExtentTokenStart()) {
-			  //System.out.println("Compressing " + event.getValue() + " to " + node);
+			  //LogInfo.logs("Compressing " + event.getValue() + " to " + node);
 			  return node;
 		  }
 	  }
@@ -280,7 +281,7 @@ public class Utils {
 		  
 		  IntPair span = node.getSpan();
 		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
-			  //System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
+			  //LogInfo.logs("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
 			  return node.headPreTerminal(new CollinsHeadFinder());
 		  }
 		  
@@ -288,7 +289,7 @@ public class Utils {
 			  //To check for an extra determiner like "a" or "the" in front of the entity
 			  String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
 			  if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
-				  //System.out.println("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
+				  //LogInfo.logs("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
 				  return  node.headPreTerminal(new CollinsHeadFinder());
 			  }
 		  }
@@ -298,7 +299,7 @@ public class Utils {
 		  return ret.headPreTerminal(new CollinsHeadFinder());
 	  
 	  syntacticParse.pennPrint();
-	  System.out.println("No EVENT match found for - " + event.getValue());
+	  LogInfo.logs("No EVENT match found for - " + event.getValue());
 	  return null;
   }
   
@@ -321,9 +322,9 @@ public class Utils {
 			     if(matching != null) 
 			    	 treeLabelMap.put(leaf, matching);
 			     else 
-			    	 System.out.println("ERROR: found no matching token for " + label);
+			    	 LogInfo.logs("ERROR: found no matching token for " + label);
 			 } else {
-				 System.out.println("ERROR: leaf is not CoreLabel instance: " + leaf);
+				 LogInfo.logs("ERROR: leaf is not CoreLabel instance: " + leaf);
 			 }
 		 }
 	 }*/
@@ -425,14 +426,14 @@ public static List<Example> readFile(String fileName) {
 	  Object obj = obj_in.readObject();
 	  return (List<Example>) obj;
 	  }catch(Exception ex) {
-		  System.out.println(ex.toString());
+		  LogInfo.logs(ex.toString());
 	  }
 	  return null;
   }
   
   public static boolean isChildOfEntity(Set<Tree> entities, Tree node) {
 	for(Tree entity:entities) {
-		//System.out.println(entity);
+		//LogInfo.logs(entity);
 		if(entity != null && (entity.equals(node) || entity.depth(node) != -1))
 			return true;
 	}
@@ -471,19 +472,19 @@ public static List<Example> readFile(String fileName) {
 		if(node == null)
 			return null;
 		Tree head = node.headPreTerminal(new CollinsHeadFinder());
-		//System.out.println(node + ":" + head + ":" + head.getSpan());
+		//LogInfo.logs(node + ":" + head + ":" + head.getSpan());
 		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
-	      //System.out.println(word.value() + "--" + word.index());
+	      //LogInfo.logs(word.value() + "--" + word.index());
 	      if(word.index() - 1 == head.getSpan().getSource() && word.index() - 1 == head.getSpan().getTarget()) {
-	        //System.out.println("Found - " + word.value());
+	        //LogInfo.logs("Found - " + word.value());
 	        return word;
 	      }
 	    }
 	    //In case head span was not found, return the word in next span. For instance event 'in order' in p27.txt
 	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
 		      if(word.index() - 1 == head.getSpan().getSource() + 1 && word.index() - 1 == head.getSpan().getTarget() + 1) {
-			        //System.out.println("Found - " + word.value());
+			        //LogInfo.logs("Found - " + word.value());
 			        return word;
 		      }
 		    }
@@ -507,17 +508,17 @@ public static List<Example> readFile(String fileName) {
 		//In case of punctuation marks, there is no head found.
 		if(entityIndexWord != null) {
 			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-			//System.out.println("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			//LogInfo.logs("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
 			IndexedWord word = findDependencyNode(sentence, event);
 			if(word == null) return false;
 			for(IndexedWord w:graph.getChildList(word)) {
 				if(w.equals(entityIndexWord)) {
-					//System.out.println(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
+					//LogInfo.logs(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
 					return true;
 				}
 			}
 		}
-		//System.out.println(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		//LogInfo.logs(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
 		
 		return false;
 	}
@@ -531,15 +532,15 @@ public static List<Example> readFile(String fileName) {
 		//In case of punctuation marks, there is no head found.
 		if(entityIndexWord != null) {
 			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-			//System.out.println("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			//LogInfo.logs("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
 			for(IndexedWord w:graph.getChildList(event.getHeadInDependencyTree())) {
 				if(w.equals(entityIndexWord)) {
-					//System.out.println(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
+					//LogInfo.logs(String.format("%s is direct parent of %s in dependency tree", event.getTreeNode(), entity));
 					return true;
 				}
 			}
 		}
-		//System.out.println(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		//LogInfo.logs(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
 		
 		return false;
 	}
@@ -570,7 +571,7 @@ public static List<Example> readFile(String fileName) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	//System.out.println(nominalization);
+    	//LogInfo.logs(nominalization);
     	return nominalization;
     }*/
     
@@ -588,7 +589,7 @@ public static List<Example> readFile(String fileName) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-    	//System.out.println(nominalization);
+    	//LogInfo.logs(nominalization);
     	return nominalization;
     }
 }
