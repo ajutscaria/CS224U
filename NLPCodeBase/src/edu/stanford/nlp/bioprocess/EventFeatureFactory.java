@@ -6,12 +6,18 @@ import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
+import edu.stanford.nlp.trees.semgraph.SemanticGraph;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.Pair;
+import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class EventFeatureFactory extends FeatureExtractor {
@@ -25,15 +31,31 @@ public class EventFeatureFactory extends FeatureExtractor {
 		String currentWord = event.value();
 		List<Tree> leaves = event.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
-		//List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+		IndexedWord word = Utils.findDependencyNode(sentence, event);
+		Tree parent = event.parent(root);
+		IntPair eventSpan = event.getSpan();
+		
+		String parentCFGRule = parent.value() + "->";
+		for(Tree n:parent.getChildrenAsList()) {
+			parentCFGRule += n.value() + "|";
+		}
+		parentCFGRule = parentCFGRule.trim();
 		
 		features.add("POS="+currentWord);
 		features.add("lemma="+token.lemma());
-		features.add("word=" + leaves.get(0));
+		features.add("word="+token.originalText());
+		features.add("POSword=" + currentWord+","+leaves.get(0));
 		features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
 		features.add("POSlemma=" + currentWord+","+token.lemma());
-		features.add("path=" + Trees.pathFromRoot(event, root));
+		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
+		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		
+		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
+			features.add("depedgein="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
+		}
 		
 		//Nominalization did not give much improvement
 		/*if(nominalizations.contains(leaves.get(0).value())) {
@@ -78,13 +100,13 @@ public class EventFeatureFactory extends FeatureExtractor {
 								!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 							continue;
 						
-						String type = EventType.NONE.toString();
+						String type = "O";//EventType.NONE.toString();
 						
 						//if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 							//type = "E";
 						//}
 						if (eventNodes.keySet().contains(node)){
-							type = eventNodes.get(node).toString();
+							type = "E";//eventNodes.get(node).toString();
 						}
 						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
 						Datum newDatum = new Datum(Utils.getText(node), type, node, node);
@@ -121,10 +143,10 @@ public class EventFeatureFactory extends FeatureExtractor {
 							!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
-					String type = EventType.NONE.toString();
+					String type = "O";//EventType.NONE.toString();
 					
 					if (eventNodes.keySet().contains(node)){
-						type = eventNodes.get(node).toString();
+						type = "E";//eventNodes.get(node).toString();
 					}
 					
 					Datum newDatum = new Datum(Utils.getText(node), type, node, node);
