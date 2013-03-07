@@ -20,7 +20,7 @@ import fig.basic.LogInfo;
 import edu.stanford.nlp.util.StringUtils;
 
 public class EventExtendedFeatureFactory extends FeatureExtractor {
-	boolean printDebug = false, printAnnotations = false, printFeatures = true;
+	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
 	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
@@ -64,18 +64,24 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		//Trying to look at entities to improve prediction
 		String shortestPath = "";
 		int pathLength = Integer.MAX_VALUE, numRelatedEntities = 0;
+		
 		for(EntityMention m:sentence.get(EntityMentionsAnnotation.class)) {
-			if(Utils.isNodesRelated(sentence, m.getTreeNode(), event)) {
+			if(m.getTreeNode()==null)
+				continue;
+			//if(Utils.isNodesRelated(sentence, m.getTreeNode(), event)) {
 				numRelatedEntities++;
-				List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), root);
-				if(nodesInPath.contains("S") || nodesInPath.contains("SBAR"))
-					
-				if(pathLength > nodesInPath.size()) {
-					shortestPath = StringUtils.join(nodesInPath, ",");
-				}
-				//features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));
+				List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), Trees.getLowestCommonAncestor(event, m.getTreeNode(), root));
+				//if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
+				//	features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
+				//if(pathLength > nodesInPath.size()) {
+				//	shortestPath = StringUtils.join(nodesInPath, ",");
+				//}
+				//System.out.println(event);
+				//System.out.println(m.getTreeNode());
+				//System.out.println(StringUtils.join(nodesInPath, ","));
+				
 				//System.out.println(shortestPath);
-			}
+			//}
 		}
 
 		

@@ -45,7 +45,7 @@ public class EventPredictionInferer extends Inferer {
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				if(printDebugInformation) {
 					LogInfo.logs(sentence);
-					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
 					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 				}
 
