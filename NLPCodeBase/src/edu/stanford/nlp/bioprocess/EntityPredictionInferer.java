@@ -9,17 +9,18 @@ import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
+import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters) {
 		List<Datum> predicted = new ArrayList<Datum>();
 		EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
-			System.out.println(String.format("==================EXAMPLE %s======================", example.id));
+			LogInfo.logs(String.format("==================EXAMPLE %s======================", example.id));
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
-					System.out.println("------------------Event " + event.getValue()+"--------------");
+					LogInfo.logs("------------------Event " + event.getValue()+"--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
 						if(d.eventNode == event.getTreeNode()) {
@@ -39,19 +40,19 @@ public class EntityPredictionInferer extends Inferer {
 					}
 					predicted.addAll(testDataWithLabel);
 					
-					System.out.println(sentence);
+					LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
-					System.out.println("\n---------GOLD ENTITIES-------------------------");
+					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
 					for(Datum d:testDataWithLabel) 
 						if(d.label.equals("E"))
-							System.out.println(d.entityNode + ":" + d.label);
+							LogInfo.logs(d.entityNode + ":" + d.label);
 					
-					System.out.println("---------PREDICTIONS-------------------------");
+					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
 						if(d.guessLabel.equals("E") || d.label.equals("E"))
-							System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-					System.out.println("------------------------------------------\n");
+							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+					LogInfo.logs("------------------------------------------\n");
 				}
 			}
 		}
@@ -62,17 +63,17 @@ public class EntityPredictionInferer extends Inferer {
 		List<Datum> predicted = new ArrayList<Datum>();
 		EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
-			System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
+			LogInfo.logs(String.format("==================EXAMPLE %s======================",ex.id));
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				
 				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
-					System.out.println("------------------Event " + event.getValue()+"--------------");
+					LogInfo.logs("------------------Event " + event.getValue()+"--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
 						if(d.eventNode == event.getTreeNode()) {
-							//System.out.println(d.entityNode);
+							//LogInfo.logs(d.entityNode);
 							testDataEvent.add(d);
 						}
 					List<Datum> testDataWithLabel = new ArrayList<Datum>();
@@ -98,19 +99,19 @@ public class EntityPredictionInferer extends Inferer {
 					
 					predicted.addAll(testDataWithLabel);
 					
-					System.out.println(sentence);
+					LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
-					System.out.println("\n---------GOLD ENTITIES-------------------------");
+					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
 					for(Datum d:testDataWithLabel) 
 						if(d.label.equals("E"))
-							System.out.println(d.entityNode + ":" + d.label);
+							LogInfo.logs(d.entityNode + ":" + d.label);
 					
-					System.out.println("---------PREDICTIONS-------------------------");
+					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
 						if(d.guessLabel.equals("E") || d.label.equals("E"))
-							System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-					System.out.println("------------------------------------------\n");
+							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+					LogInfo.logs("------------------------------------------\n");
 				}
 			}
 		}

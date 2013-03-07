@@ -12,6 +12,7 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import fig.basic.LogInfo;
 
 public class EntityFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
@@ -58,29 +59,29 @@ public class EntityFeatureFactory extends FeatureExtractor {
     	List<Datum> newData = new ArrayList<Datum>();
 	
 		for (Example ex : data) {
-			if(printDebug || printAnnotations) System.out.println("\n-------------------- " + ex.id + "---------------------");
+			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 				IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 				if(printDebug){
-					System.out.println(sentence);
+					LogInfo.logs(sentence);
 					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 				}
 				if(printAnnotations) {
-					System.out.println("---Events--");
+					LogInfo.logs("---Events--");
 					for(EventMention event: sentence.get(EventMentionsAnnotation.class))
-						System.out.println(event.getValue());
-					System.out.println("---Entities--");
+						LogInfo.logs(event.getValue());
+					LogInfo.logs("---Entities--");
 					for(EntityMention entity: sentence.get(EntityMentionsAnnotation.class)) {
 						if(entity.getTreeNode() != null)
-							System.out.println(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
+							LogInfo.logs(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
 						else
-							System.out.println("Couldn't find node:" + entity.getValue());
+							LogInfo.logs("Couldn't find node:" + entity.getValue());
 					}
 				}
 				//SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-				//System.out.println(dependencies);
+				//LogInfo.logs(dependencies);
 				for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
-					if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
+					if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 						if(node.isLeaf()||node.value().equals("ROOT"))
 							continue;
@@ -90,19 +91,19 @@ public class EntityFeatureFactory extends FeatureExtractor {
 						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 							type = "E";
 						}
-						if(printDebug) System.out.println(type + " : " + node + ":" + node.getSpan());
+						if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
 	//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
 	//						type = "E";
 	//					}
 						
 						Datum newDatum = new Datum(Utils.getText(node), type, node, event.getTreeNode());
 						newDatum.features = computeFeatures(sentence, type, node, event);
-						if(printFeatures) System.out.println(Utils.getText(node) + ":" + newDatum.features);
+						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
 						newData.add(newDatum);
 				}
 			}
 		}
-		if(printDebug) System.out.println("\n------------------------------------------------");
+		if(printDebug) LogInfo.logs("\n------------------------------------------------");
 	}
 
 	return newData;

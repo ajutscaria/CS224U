@@ -11,6 +11,7 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import fig.basic.LogInfo;
 import edu.stanford.nlp.util.StringUtils;
 
 public class EventExtendedFeatureFactory extends FeatureExtractor {
@@ -18,7 +19,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
 	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
-	    //System.out.println("Current node's text - " + getText(event));
+	    //LogInfo.logs("Current node's text - " + getText(event));
 		
 		List<String> features = new ArrayList<String>();
 		String currentWord = event.value();
@@ -61,7 +62,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		
 		//Nominalization did not give much improvement
 		/*if(nominalizations.contains(leaves.get(0).value())) {
-			//System.out.println("Adding nominalization - " + leaves.get(0));
+			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			//features.add("nominalization");
 		}*/
 		features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
@@ -83,20 +84,20 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		List<Datum> newData = new ArrayList<Datum>();
 		
 		for (Example ex : data) {
-			if(printDebug || printAnnotations) System.out.println("\n-------------------- " + ex.id + "---------------------");
+			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 				IdentityHashSet<Tree> eventNodes = Utils.getEventNodesFromSentence(sentence);
-				if(printDebug) System.out.println(sentence);
+				if(printDebug) LogInfo.logs(sentence);
 				if(printAnnotations) {
-					System.out.println("---Events--");
+					LogInfo.logs("---Events--");
 					for(EventMention event: sentence.get(EventMentionsAnnotation.class))
-						System.out.println(event.getValue());
-					//System.out.println("---Entities--");
+						LogInfo.logs(event.getValue());
+					//LogInfo.logs("---Entities--");
 					//for(EntityMention entity: sentence.get(EntityMentionsAnnotation.class))
-						//System.out.println(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
+						//LogInfo.logs(entity.getTreeNode() + ":" + entity.getTreeNode().getSpan());
 				}
 				//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
-					//if(printDebug) System.out.println("-------Event - " + event.getTreeNode()+ "--------");
+					//if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
 								!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
@@ -110,15 +111,15 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 						if (eventNodes.contains(node)){
 							type = "E";
 						}
-						//if(printDebug) System.out.println(type + " : " + node + ":" + node.getSpan());
+						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
 						Datum newDatum = new Datum(Utils.getText(node), type, node, node);
 						newDatum.features = computeFeatures(sentence, type, node);
-						if(printFeatures) System.out.println(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
+						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 						newData.add(newDatum);
 					//}
 				}
 			}
-			if(printDebug) System.out.println("\n------------------------------------------------");
+			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
 	
 		return newData;

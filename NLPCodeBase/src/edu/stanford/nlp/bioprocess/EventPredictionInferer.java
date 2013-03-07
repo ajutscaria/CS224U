@@ -7,6 +7,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import fig.basic.LogInfo;
 
 public class EventPredictionInferer extends Inferer {
 	boolean printDebugInformation = true;
@@ -39,13 +40,13 @@ public class EventPredictionInferer extends Inferer {
 		EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example ex:testData) {
 			if(printDebugInformation)
-				System.out.println(String.format("==================EXAMPLE %s======================",ex.id));
+				LogInfo.logs(String.format("==================EXAMPLE %s======================",ex.id));
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				if(printDebugInformation) {
-					System.out.println(sentence);
+					LogInfo.logs(sentence);
 					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
-					System.out.println(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
+					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 				}
 
 				List<Datum> testDataWithLabel = new ArrayList<Datum>();
@@ -59,16 +60,16 @@ public class EventPredictionInferer extends Inferer {
 				predicted.addAll(testDataWithLabel);
 				
 				if(printDebugInformation) {
-					System.out.println("\n---------GOLD EVENTS-------------------------");
+					LogInfo.logs("\n---------GOLD EVENTS-------------------------");
 					for(Datum d:testDataWithLabel) 
 						if(d.label.equals("E"))
-							System.out.println(d.eventNode + ":" + d.label);
+							LogInfo.logs(d.eventNode + ":" + d.label);
 					
-					System.out.println("---------PREDICTIONS-------------------------");
+					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
 						if(d.guessLabel.equals("E") || d.label.equals("E"))
-							System.out.println(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-					System.out.println("------------------------------------------\n");
+							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+					LogInfo.logs("------------------------------------------\n");
 				}
 			}
 		}

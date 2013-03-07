@@ -21,6 +21,7 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations.TreeAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.logging.Redwood;
+import fig.basic.LogInfo;
 
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class Sample {
     
     // read some text in the text variable
     String text = "The virus entered the cell. Then, it attacked the nucleus in New York";
-    System.out.println("HELLOO");
+    LogInfo.logs("HELLOO");
     // create an empty Annotation just with the given text
     Annotation document = new Annotation(text);
     
@@ -46,7 +47,7 @@ public class Sample {
  // these are all the sentences in this document
     // a CoreMap is essentially a Map that uses class objects as keys and has values with custom types
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
-    System.out.println("SDF"+sentences);
+    LogInfo.logs("SDF"+sentences);
     for(CoreMap sentence: sentences) {
       // traversing the words in the current sentence
       // a CoreLabel is a CoreMap with additional token-specific methods

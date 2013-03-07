@@ -24,6 +24,7 @@ import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
+import fig.basic.LogInfo;
 
 public class BioProcessFormatReader extends GenericDataSetReader {
   protected static final String TEXT_EXTENSION = ".txt";
@@ -53,7 +54,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       }
     };
     for(String file:folder.list(textFilter)){
-      System.out.println(file);
+      LogInfo.logs(file);
       
       String rawText = IOUtils.slurpFile(new File(path + file));
       Example example = new Example();
@@ -66,7 +67,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       examples.add(example);
       //break;
     }
-    //System.out.println("Number of static events - " + StaticEventCount);
+    //LogInfo.logs("Number of static events - " + StaticEventCount);
     return examples;
   }
   
@@ -112,7 +113,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             
             if(type.equals(EVENT_TYPE) || type.equals(STATIC_ENTITY_TYPE)) {
               m = new EventMention(desc, sentence, span);
-              //System.out.println("\t\t\t\t" + line);
+              //LogInfo.logs("\t\t\t\t" + line);
               Tree eventRoot = Utils.getEventNode(sentence, (EventMention)m);
               IndexedWord head = Utils.findDependencyNode(sentence, eventRoot);
               Utils.findDepthInDependencyTree(sentence, eventRoot);
@@ -120,7 +121,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
               m.setTreeNode(eventRoot);
             }
             else {
-              //System.out.println(line);
+              //LogInfo.logs(line);
               m = new EntityMention(desc, sentence, span);
               Tree entityRoot = Utils.getEntityNode(sentence, (EntityMention)m);
               m.setTreeNode(entityRoot);
@@ -128,7 +129,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
               IndexedWord head = Utils.findDependencyNode(sentence, entityRoot);
               m.setHeadInDependencyTree(head);
               m.setHeadTokenSpan(Utils.findEntityHeadWord((EntityMention)m));
-              //System.out.println(m.getHeadToken().originalText());
+              //LogInfo.logs(m.getHeadToken().originalText());
             }
             mentions.put(desc, m);
             break;

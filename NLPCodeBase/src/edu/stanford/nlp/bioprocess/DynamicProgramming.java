@@ -20,15 +20,15 @@ public class DynamicProgramming {
 		nodeDatumMap = new IdentityHashMap<Tree, Datum>();
 		for (Datum d : data) {
 			nodeDatumMap.put(d.entityNode, d);
-			//System.out.println(d.node+":"+d.guessLabel+":"+d.getProbability());
+			//LogInfo.logs(d.node+":"+d.guessLabel+":"+d.getProbability());
 		}
 //		for (Tree node : syntacticParse.preOrderNodeList()) {
-//			System.out.println(node.toString()+":"+this.tokenMap.get(node));
+//			LogInfo.logs(node.toString()+":"+this.tokenMap.get(node));
 //		}
 		//calculateLabels();
 		//addTreeNodeAnnotations(this.syntacticParse, sentence.get(TokensAnnotation.class));
 //		for (Tree node : syntacticParse.preOrderNodeList()) {
-//			System.out.println(node.toString()+":"+this.tokenMap.get(node));
+//			LogInfo.logs(node.toString()+":"+this.tokenMap.get(node));
 //		}
 	}
 	
@@ -70,7 +70,7 @@ public class DynamicProgramming {
 				targetNodePair.setSecond("O");
 				nodeDatumMap.get(node).guessLabel = "O";
 			} else {
-				//System.out.println("\n\n-------------------------Predicted Entity: "+node+":" +node.getSpan());
+				//LogInfo.logs("\n\n-------------------------Predicted Entity: "+node+":" +node.getSpan());
 				targetNodePair.setFirst(nodeE);
 				nodeDatumMap.get(node).setProbability(nodeE);
 				targetNodePair.setSecond("E");
@@ -79,13 +79,13 @@ public class DynamicProgramming {
 					if (child.isLeaf() || child.equals(node)) {
 						continue;
 					}
-					//System.out.println("Resetting " + child + " to O");
+					//LogInfo.logs("Resetting " + child + " to O");
 					this.tokenMap.get(child).setSecond("O");
 					nodeDatumMap.get(child).guessLabel = "O";
 				}
 				//for(String n:nodeDatumMap.keySet())
-				//	System.out.println(n + ":" + node.getSpan() +":"+ nodeDatumMap.get(n).guessLabel );
-				//System.out.println("============================================================\n\n");
+				//	LogInfo.logs(n + ":" + node.getSpan() +":"+ nodeDatumMap.get(n).guessLabel );
+				//LogInfo.logs("============================================================\n\n");
 			}
 		}
 		
