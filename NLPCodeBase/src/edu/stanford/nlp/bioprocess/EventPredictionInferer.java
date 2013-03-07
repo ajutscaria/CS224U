@@ -39,8 +39,8 @@ public class EventPredictionInferer extends Inferer {
 		List<Datum> predicted = new ArrayList<Datum>(); 
 		EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example ex:testData) {
-			if(printDebugInformation)
-				LogInfo.logs(String.format("==================EXAMPLE %s======================",ex.id));
+			LogInfo.begin_track("Example %s",ex.id);
+
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				if(printDebugInformation) {
@@ -72,6 +72,7 @@ public class EventPredictionInferer extends Inferer {
 					LogInfo.logs("------------------------------------------\n");
 				}
 			}
+			LogInfo.end_track();
 		}
 		return predicted;
 	}

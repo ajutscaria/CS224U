@@ -16,7 +16,8 @@ public class EntityPredictionInferer extends Inferer {
 		List<Datum> predicted = new ArrayList<Datum>();
 		EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
-			LogInfo.logs(String.format("==================EXAMPLE %s======================", example.id));
+			LogInfo.begin_track("Example %s",example.id);
+			
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
@@ -55,6 +56,7 @@ public class EntityPredictionInferer extends Inferer {
 					LogInfo.logs("------------------------------------------\n");
 				}
 			}
+			LogInfo.end_track();
 		}
 		return predicted;
 	}
@@ -63,7 +65,7 @@ public class EntityPredictionInferer extends Inferer {
 		List<Datum> predicted = new ArrayList<Datum>();
 		EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
-			LogInfo.logs(String.format("==================EXAMPLE %s======================",ex.id));
+			LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				List<Datum> test = ff.setFeaturesTest(sentence);
@@ -114,6 +116,8 @@ public class EntityPredictionInferer extends Inferer {
 					LogInfo.logs("------------------------------------------\n");
 				}
 			}
+			LogInfo.end_track();
+
 		}
 		return predicted;
 	}

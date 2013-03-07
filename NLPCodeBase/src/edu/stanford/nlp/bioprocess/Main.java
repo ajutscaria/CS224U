@@ -69,7 +69,6 @@ public class Main implements Runnable {
 				break;
 			}
 			else {
-				LogInfo.logs("Iteration: "+i);
 				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
 				List<Datum> predicted;
 				Triple<Double, Double, Double> triple;
