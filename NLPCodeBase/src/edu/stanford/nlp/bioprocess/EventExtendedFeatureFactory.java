@@ -4,18 +4,23 @@ import java.util.*;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.graph.Graph;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
+import edu.stanford.nlp.trees.semgraph.SemanticGraph;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import fig.basic.LogInfo;
 import edu.stanford.nlp.util.StringUtils;
 
 public class EventExtendedFeatureFactory extends FeatureExtractor {
-	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	boolean printDebug = false, printAnnotations = false, printFeatures = true;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
 	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
@@ -25,15 +30,36 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		String currentWord = event.value();
 		List<Tree> leaves = event.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
 		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+		IndexedWord word = Utils.findDependencyNode(sentence, event);
+		Tree parent = event.parent(root);
+		
+		String parentCFGRule = parent.value() + "->";
+		for(Tree n:parent.getChildrenAsList()) {
+			parentCFGRule += n.value() + "|";
+		}
+		parentCFGRule = parentCFGRule.trim();
 		
 		features.add("POS="+currentWord);
 		features.add("lemma="+token.lemma());
-		features.add("word=" + leaves.get(0));
+		features.add("word="+token.originalText());
+		features.add("POSword=" + currentWord+","+leaves.get(0));
 		features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
 		features.add("POSlemma=" + currentWord+","+token.lemma());
-		features.add("path=" + Trees.pathFromRoot(event, root));
+		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
+		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		
+		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
+			features.add("depedgein="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
+		}
+		
+		//for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
+		//	features.add("depedgeout="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
+			//System.out.println(e.getRelation());
+			//System.out.println(e.getSource().toString());
+		//}
 		
 		//Trying to look at entities to improve prediction
 		String shortestPath = "";
@@ -42,22 +68,21 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			if(Utils.isNodesRelated(sentence, m.getTreeNode(), event)) {
 				numRelatedEntities++;
 				List<String> nodesInPath = Trees.pathNodeToNode(event, m.getTreeNode(), root);
+				if(nodesInPath.contains("S") || nodesInPath.contains("SBAR"))
+					
 				if(pathLength > nodesInPath.size()) {
 					shortestPath = StringUtils.join(nodesInPath, ",");
 				}
-				System.out.println(shortestPath);
+				//features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));
+				//System.out.println(shortestPath);
 			}
 		}
+
 		
-		if(token.index() > 0) {
-			features.add("POStokenbefore=" + currentWord + "," + tokens.get(token.index()-1).originalText());
-			features.add("tokenbefore=" + tokens.get(token.index()-1).originalText());
-		}
-		
-		features.add("numrelatedentities" + (numRelatedEntities > 1));
+		//features.add("numrelatedentities=" + (numRelatedEntities ));
 		if(pathLength<Integer.MAX_VALUE) {
-			features.add("splpath=" + shortestPath);
-			features.add("splpathlength=" + pathLength);
+		//	features.add("splpath=" + shortestPath);
+		//	features.add("splpathlength=" + pathLength);
 		}
 		
 		//Nominalization did not give much improvement
@@ -65,11 +90,11 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			//features.add("nominalization");
 		}*/
-		features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
+		//features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
 		//Cannot use this feature when looking at all tree nodes as candidates
-			//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
+		//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
 		//Doesn't seem to work as expected even though the event triggers are mostly close to root in dependency tree.
-		features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
+		//features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
 		
 		String classString = "class=" + tokenClass + ",";
 		List<String> updatedFeatures = new ArrayList<String>();
