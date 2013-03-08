@@ -36,7 +36,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
   protected static final String TYPE_NEXT_EVENT = "next-event", TYPE_RESULT = "result", TYPE_AGENT = "agent", TYPE_ORIGIN = "origin",
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
       TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity",
-      TYPE_TIME = "time", TYPE_RAW_MATERIAL = "raw-material";
+      TYPE_TIME = "time", TYPE_RAW_MATERIAL = "raw-material", TYPE_CAUSE ="cause";
   
   //static int StaticEventCount =0;
  
@@ -156,20 +156,20 @@ public class BioProcessFormatReader extends GenericDataSetReader {
               String[] keyValue = parameter.split(":");
               switch(keyValue[0]) {
                 case TYPE_AGENT:
-                  event.addArgument(mentions.get(keyValue[1]), RelationType.Agent);
-                  break;
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Agent);
+                    break;
                 case TYPE_ORIGIN:
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Origin);
                     break;
                 case TYPE_DESTINATION:
-                  event.addArgument(mentions.get(keyValue[1]), RelationType.Destination);
-                  break;
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Destination);
+                    break;
                 case TYPE_LOCATION:
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Location);
                     break;
                 case TYPE_RESULT:
-                  event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
-                  break;
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
+                    break;
                 case TYPE_RAW_MATERIAL:
                     event.addArgument(mentions.get(keyValue[1]), RelationType.RawMaterial);
                     break;
@@ -180,27 +180,30 @@ public class BioProcessFormatReader extends GenericDataSetReader {
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Time);
                     break;
                 case TYPE_COTEMPORAL_EVENT:
-                  event.addArgument(mentions.get(keyValue[1]), RelationType.CotemporalEvent);
-                  ((EventMention)mentions.get(keyValue[1])).addArgument(event, RelationType.CotemporalEvent);
-                  break;
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.CotemporalEvent);
+                    ((EventMention)mentions.get(keyValue[1])).addArgument(event, RelationType.CotemporalEvent);
+                    break;
                 case TYPE_NEXT_EVENT:
-                  event.addArgument(mentions.get(keyValue[1]), RelationType.NextEvent);
-                  break;
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.NextEvent);
+                    break;
                 case TYPE_SAME_EVENT:
-                  event.addArgument(mentions.get(keyValue[1]), RelationType.SameEvent);
-                  break;
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.SameEvent);
+                    break;
+                case TYPE_CAUSE:
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Cause);
+                    break;
                 case TYPE_SUPER_EVENT:
-                  event.addArgument(mentions.get(keyValue[1]), RelationType.SuperEvent);
-                  break;
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.SuperEvent);
+                    break;
                 case TYPE_ENABLES:
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Enables);
                     break;
                 default:
-                  if(keyValue[0].startsWith(TYPE_RESULT))
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
-                  else if(keyValue[0].startsWith(TYPE_LOCATION))
-                  	event.addArgument(mentions.get(keyValue[1]), RelationType.Location);
-                  else if(keyValue[0].startsWith(TYPE_DESTINATION))
+                    if(keyValue[0].startsWith(TYPE_RESULT))
+                        event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
+                    else if(keyValue[0].startsWith(TYPE_LOCATION))
+                  	    event.addArgument(mentions.get(keyValue[1]), RelationType.Location);
+                    else if(keyValue[0].startsWith(TYPE_DESTINATION))
                     	event.addArgument(mentions.get(keyValue[1]), RelationType.Destination);
               }
             }

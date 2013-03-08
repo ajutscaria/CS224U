@@ -27,6 +27,7 @@ public enum EventType {
     NextEvent,
     SameEvent,
     SuperEvent,
+    Cause,
     Enables,
     Time,
     NONE
