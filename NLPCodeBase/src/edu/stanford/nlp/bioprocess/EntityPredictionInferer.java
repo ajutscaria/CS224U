@@ -3,6 +3,7 @@ package edu.stanford.nlp.bioprocess;
 import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Set;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
@@ -16,6 +17,15 @@ import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
 	private boolean printDebugInformation = true;
+	List<Datum> prediction = null;
+	
+	public EntityPredictionInferer() {
+		
+	}
+	
+	public EntityPredictionInferer(List<Datum> prediction){
+		this.prediction = prediction;
+	}
 
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>();
@@ -24,12 +34,17 @@ public class EntityPredictionInferer extends Inferer {
 			LogInfo.begin_track("Example %s",example.id);
 			
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
-				List<Datum> test = ff.setFeaturesTest(sentence, Utils.getEventNodesFromSentence(sentence).keySet());
-				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
-					LogInfo.logs("------------------Event " + event.getValue()+"--------------");
+				Set<Tree> eventNodes = null;
+				if(prediction == null)
+					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
+				else
+					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
+				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
+				for(Tree event:eventNodes) {
+					LogInfo.logs("------------------Event " + Utils.getText(event)+"--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
-						if(d.eventNode == event.getTreeNode()) {
+						if(d.eventNode == event) {
 							testDataEvent.add(d);
 						}
 					List<Datum> testDataWithLabel = new ArrayList<Datum>();
@@ -79,13 +94,18 @@ public class EntityPredictionInferer extends Inferer {
 					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
 					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 				}
-				List<Datum> test = ff.setFeaturesTest(sentence, Utils.getEventNodesFromSentence(sentence).keySet());
+				Set<Tree> eventNodes = null;
+				if(prediction == null)
+					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
+				else
+					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
+				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
 				
-				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
-					LogInfo.logs("------------------Event: " + event.getValue()+"--------------");
+				for(Tree event:eventNodes) {
+					LogInfo.logs("------------------Event: " + Utils.getText(event)+"--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
-						if(d.eventNode == event.getTreeNode()) {
+						if(d.eventNode == event) {
 							//LogInfo.logs(d.entityNode);
 							testDataEvent.add(d);
 						}

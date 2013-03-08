@@ -164,7 +164,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 							type = "E";
 						}
 						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
-						Datum newDatum = new Datum(Utils.getText(node), type, node, node);
+						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, node);
 						newDatum.features = computeFeatures(sentence, type, node);
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 						newData.add(newDatum);
@@ -204,7 +204,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 						type = "E";
 					}
 					
-					Datum newDatum = new Datum(Utils.getText(node), type, node, node);
+					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, node);
 					newDatum.features = computeFeatures(sentence, possibleLabel, node);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;

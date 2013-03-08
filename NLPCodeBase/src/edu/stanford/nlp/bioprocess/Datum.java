@@ -4,9 +4,10 @@ import java.util.List;
 
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.CoreMap;
 
 public class Datum {
-
+  CoreMap sentence;
   public final String word;
   public final String label;
   FeatureVector features;
@@ -23,7 +24,8 @@ public class Datum {
   IndexedWord entityHead, eventHead;
   double probEntity;
   
-  public Datum(String word, String label, Tree entityNode, Tree eventNode) {
+  public Datum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
+	this.sentence = sentence;
     this.word = word;
     this.label = label;
     this.entityNode = entityNode;

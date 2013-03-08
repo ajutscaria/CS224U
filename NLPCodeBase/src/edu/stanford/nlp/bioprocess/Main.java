@@ -29,7 +29,7 @@ public class Main implements Runnable {
 		boolean evaluateTrain = true, evaluateBaseline = false, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
-		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
+		boolean useSmallSample = false, useOneLoop = true, refreshDataFile = false;
 		//useSmallSample = true;
 		//useOneLoop = true;
 		//refreshDataFile = true;
@@ -167,11 +167,14 @@ public class Main implements Runnable {
 		IterativeOptimizer opt = new IterativeOptimizer();
 		BioprocessDataset dataset = loadDataSet(folders, false, false);
 		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
-			opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
+			Triple<Double, Double, Double> triple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
+			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 		}
+		printScores("Dev", precisionDev, recallDev, f1Dev);
 	}
 	
 	private BioprocessDataset loadDataSet(HashMap<String, String> groups, boolean useSmallSample, boolean refreshDataFile) {

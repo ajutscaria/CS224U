@@ -608,4 +608,12 @@ public static List<Example> readFile(String fileName) {
     	//LogInfo.logs(nominalization);
     	return nominalization;
     }
+
+	public static Set<Tree> getEventNodesForSentenceFromDatum(List<Datum> prediction, CoreMap sentence) {
+		IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+		for(Datum d:prediction)
+			if(d.guessLabel.equals("E") && d.sentence.equals(sentence))
+				set.add(d.eventNode);
+		return set;
+	}
 }

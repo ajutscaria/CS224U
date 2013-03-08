@@ -96,7 +96,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 	//						type = "E";
 	//					}
 						
-						Datum newDatum = new Datum(Utils.getText(node), type, node, event.getTreeNode());
+						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, event.getTreeNode());
 						newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
 						newData.add(newDatum);
@@ -136,7 +136,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 						type = "E";
 					}
 					
-					Datum newDatum = new Datum(Utils.getText(node), type, node, eventNode);
+					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, eventNode);
 					newDatum.features = computeFeatures(sentence, possibleLabel, node, eventNode);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;
