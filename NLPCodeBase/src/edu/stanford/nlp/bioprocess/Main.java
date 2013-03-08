@@ -175,8 +175,15 @@ public class Main implements Runnable {
 			new Main().runPrediction(folders, new EntityFeatureFactory(), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
 		if(mode.equals("event"))
 			new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
-		if(mode.equals("em"))
+		if(mode.equals("emgold"))
 			new Main().runPrediction(folders, new EventExtendedFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+		if(mode.equals("io"))
+			new Main().runIterativeOptimization(folders);
 		LogInfo.end_track();
+	}
+
+	private void runIterativeOptimization(HashMap<String, String> folders) {
+		IterativeOptimizer opt = new IterativeOptimizer();
+		
 	}
 }
