@@ -1,7 +1,6 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -34,41 +33,22 @@ public class Main implements Runnable {
 		//useSmallSample = true;
 		//useOneLoop = true;
 		//refreshDataFile = true;
-		String examplesFileName = "data.bpa";
-		BioprocessDataset dataset = new BioprocessDataset(groups);
-		CrossValidationSplit split = null;
 
-
-		if(!useSmallSample) {
-			File f = new File(examplesFileName);
-			if(f.exists() && !refreshDataFile) {
-				LogInfo.begin_track("Quick data read");
-				dataset.allExamples.put("train", Utils.readFile(examplesFileName));
-				LogInfo.end_track();
-			}
-			else {
-				dataset.read("train");
-				Utils.writeFile(dataset.examples("train"), examplesFileName);
-			}
-			split = new CrossValidationSplit((ArrayList<Example>) dataset.examples("train"), NumCrossValidation);
+		BioprocessDataset dataset = loadDataSet(groups, useSmallSample, refreshDataFile);
+		
+		if(useSmallSample) {
+			Params param = learner.learn(dataset.examples("sample"), featureFactory);
+			List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
+			Triple<Double, Double, Double> triple = Scorer.score(predicted);
+			LogInfo.logs("Precision : " + triple.first);
+			LogInfo.logs("Recall    : " + triple.second);
+			LogInfo.logs("F1 score  : " + triple.third);
 		}
-		else{
-			dataset.read("sample");
-		}
-			
-		LogInfo.begin_track("Cross validation");
-		for(int i = 1; i <= NumCrossValidation; i++) {
-			LogInfo.begin_track("Iteration " + i);
-			if(useSmallSample) {
-				Params param = learner.learn(dataset.examples("sample"), featureFactory);
-				List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
-				Triple<Double, Double, Double> triple = Scorer.score(predicted);
-				LogInfo.logs("Precision : " + triple.first);
-				LogInfo.logs("Recall    : " + triple.second);
-				LogInfo.logs("F1 score  : " + triple.third);
-				break;
-			}
-			else {
+		else {
+			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+			LogInfo.begin_track("Cross validation");
+			for(int i = 1; i <= NumCrossValidation; i++) {
+				LogInfo.begin_track("Iteration " + i);
 				LogInfo.begin_track("Train");
 				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
 				LogInfo.end_track();
@@ -97,33 +77,33 @@ public class Main implements Runnable {
 					LogInfo.end_track();
 				}
 				LogInfo.end_track();
-
+	
+				if(useOneLoop)
+					break;
+				LogInfo.end_track();
 			}
-			if(useOneLoop)
-				break;
+			LogInfo.end_track();
+			
+			LogInfo.begin_track("Evaluation");
+			if(!useSmallSample) {
+				if(evaluateTrain) {
+					LogInfo.begin_track("Training");
+					printScores("Train", precisionTrain, recallTrain, f1Train);
+					LogInfo.end_track();
+				}
+				if(evaluateBaseline) {
+					LogInfo.begin_track("Basline");
+					printScores("Baseline", precisionBaseline, recallBaseline, f1Baseline);
+					LogInfo.end_track();
+				}
+				if(evaluateDev) {
+					LogInfo.begin_track("dev");
+					printScores("Dev", precisionDev, recallDev, f1Dev);
+					LogInfo.end_track();
+				}
+			}
 			LogInfo.end_track();
 		}
-		LogInfo.end_track();
-		
-		LogInfo.begin_track("Evaluation");
-		if(!useSmallSample) {
-			if(evaluateTrain) {
-				LogInfo.begin_track("Training");
-				printScores("Train", precisionTrain, recallTrain, f1Train);
-				LogInfo.end_track();
-			}
-			if(evaluateBaseline) {
-				LogInfo.begin_track("Basline");
-				printScores("Baseline", precisionBaseline, recallBaseline, f1Baseline);
-				LogInfo.end_track();
-			}
-			if(evaluateDev) {
-				LogInfo.begin_track("dev");
-				printScores("Dev", precisionDev, recallDev, f1Dev);
-				LogInfo.end_track();
-			}
-		}
-		LogInfo.end_track();
 	}
 
 	public void printScores(String category, double[] precision, double[] recall, double[] f1) {
@@ -183,7 +163,36 @@ public class Main implements Runnable {
 	}
 
 	private void runIterativeOptimization(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
 		IterativeOptimizer opt = new IterativeOptimizer();
-		
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
+			opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
+			LogInfo.end_track();
+		}
+	}
+	
+	private BioprocessDataset loadDataSet(HashMap<String, String> groups, boolean useSmallSample, boolean refreshDataFile) {
+		String examplesFileName = "data.bpa";
+		BioprocessDataset dataset = new BioprocessDataset(groups);
+
+		if(!useSmallSample) {
+			File f = new File(examplesFileName);
+			if(f.exists() && !refreshDataFile) {
+				LogInfo.begin_track("Quick data read");
+				dataset.allExamples.put("train", Utils.readFile(examplesFileName));
+				LogInfo.end_track();
+			}
+			else {
+				dataset.read("train");
+				Utils.writeFile(dataset.examples("train"), examplesFileName);
+			}
+		}
+		else{
+			dataset.read("sample");
+		}
+		return dataset;
 	}
 }

@@ -17,18 +17,18 @@ import fig.basic.LogInfo;
 public class EntityFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 
-    public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  EventMention eventMention) {
-	    Tree event = eventMention.getTreeNode();
+    public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
+	    //Tree event = eventMention.getTreeNode();
 		List<String> features = new ArrayList<String>();
 	
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-		boolean dependencyExists = Utils.isNodesRelated(sentence, entity, eventMention);
+		boolean dependencyExists = Utils.isNodesRelated(sentence, entity, event);
 		
 		features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
 		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
 		features.add("PathEntToEvt=" + Trees.pathNodeToNode(event, entity, root));
 		features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));
-		features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, eventMention)));
+		features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));
 		
 		//features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 		//features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);
@@ -97,7 +97,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 	//					}
 						
 						Datum newDatum = new Datum(Utils.getText(node), type, node, event.getTreeNode());
-						newDatum.features = computeFeatures(sentence, type, node, event);
+						newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
 						newData.add(newDatum);
 				}
@@ -110,7 +110,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
     }
     
     
-    public List<Datum> setFeaturesTest(CoreMap sentence) {
+    public List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<Datum> newData = new ArrayList<Datum>();
@@ -124,7 +124,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 
 
     	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
-		for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
+		for(Tree eventNode: predictedEvents) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT"))
@@ -132,12 +132,12 @@ public class EntityFeatureFactory extends FeatureExtractor {
 					
 					String type = "O";
 					
-					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE) {
+					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) {
 						type = "E";
 					}
 					
-					Datum newDatum = new Datum(Utils.getText(node), type, node, event.getTreeNode());
-					newDatum.features = computeFeatures(sentence, possibleLabel, node, event);
+					Datum newDatum = new Datum(Utils.getText(node), type, node, eventNode);
+					newDatum.features = computeFeatures(sentence, possibleLabel, node, eventNode);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;
 				}

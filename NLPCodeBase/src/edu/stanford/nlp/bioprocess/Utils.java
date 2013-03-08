@@ -452,6 +452,19 @@ public static List<Example> readFile(String fileName) {
 	return RelationType.NONE;
   }
   
+  public static RelationType getArgumentMentionRelation(CoreMap sentence, Tree event, Tree entityNode) {
+	  for(EventMention eventMention:sentence.get(EventMentionsAnnotation.class)) {
+		if(eventMention.getTreeNode() == event) {
+			for (ArgumentRelation argRel : eventMention.getArguments()) {
+				if (argRel.mention.getTreeNode() == entityNode) {
+					return argRel.type;
+				}
+			}
+		 }
+	  }
+	  return RelationType.NONE;
+  }
+  
   public static String getPathString(List<String> path) {
 	  return StringUtils.join(path, " ");
   }
