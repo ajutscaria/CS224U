@@ -36,7 +36,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
   protected static final String TYPE_NEXT_EVENT = "next-event", TYPE_RESULT = "result", TYPE_AGENT = "agent", TYPE_ORIGIN = "origin",
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
       TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity",
-      TYPE_TIME = "time";
+      TYPE_TIME = "time", TYPE_RAW_MATERIAL = "raw-material";
   
   //static int StaticEventCount =0;
  
@@ -170,6 +170,9 @@ public class BioProcessFormatReader extends GenericDataSetReader {
                 case TYPE_RESULT:
                   event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
                   break;
+                case TYPE_RAW_MATERIAL:
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.RawMaterial);
+                    break;
                 case TYPE_THEME:
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Theme);
                     break;

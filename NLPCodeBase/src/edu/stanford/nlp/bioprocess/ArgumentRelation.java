@@ -19,6 +19,7 @@ public enum EventType {
     Location,
     Destination,
     Result,
+    RawMaterial,
     Theme,
     SameEntity,
     StaticEvent,
