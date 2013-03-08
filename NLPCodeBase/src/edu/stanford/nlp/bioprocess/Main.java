@@ -69,24 +69,34 @@ public class Main implements Runnable {
 				break;
 			}
 			else {
+				LogInfo.begin_track("Train");
 				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
+				LogInfo.end_track();
 				List<Datum> predicted;
 				Triple<Double, Double, Double> triple;
-				if(evaluateTrain) {
+				LogInfo.begin_track("Inference");
+				if(evaluateTrain) {	
+					LogInfo.begin_track("Train");
 					predicted = inferer.Infer(split.GetTrainExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionTrain[i-1] = triple.first; recallTrain[i-1] = triple.second; f1Train[i-1] = triple.third;
+					LogInfo.end_track();
 				}
 				if(evaluateBaseline) {
+					LogInfo.begin_track("baseline");
 					predicted = inferer.BaselineInfer(split.GetTestExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
+					LogInfo.end_track();
 				}
 				if(evaluateDev) {
+					LogInfo.begin_track("Dev");
 					predicted = inferer.Infer(split.GetTestExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+					LogInfo.end_track();
 				}
+				LogInfo.end_track();
 
 			}
 			if(useOneLoop)
