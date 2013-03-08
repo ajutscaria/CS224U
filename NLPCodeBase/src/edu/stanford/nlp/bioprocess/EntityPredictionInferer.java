@@ -7,11 +7,15 @@ import java.util.List;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.trees.TreeCoreAnnotations;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
+	private boolean printDebugInformation = true;
+
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
@@ -67,11 +71,17 @@ public class EntityPredictionInferer extends Inferer {
 		for(Example ex:testData) {
 			LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
+			
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
+				if(printDebugInformation ) {
+					LogInfo.logs(sentence);
+					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
+					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
+				}
 				List<Datum> test = ff.setFeaturesTest(sentence);
 				
 				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
-					LogInfo.logs("------------------Event " + event.getValue()+"--------------");
+					LogInfo.logs("------------------Event: " + event.getValue()+"--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
 						if(d.eventNode == event.getTreeNode()) {
