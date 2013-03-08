@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IdentityHashSet;
 import fig.basic.LogInfo;
 
 public class EventPredictionInferer extends Inferer {
@@ -17,7 +19,7 @@ public class EventPredictionInferer extends Inferer {
 		//EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
-				List<Datum> test = ff.setFeaturesTest(sentence);
+				List<Datum> test = ff.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence));
 				List<Datum> testDataWithLabel = new ArrayList<Datum>();
 
 				for (int i = 0; i < test.size(); i += parameters.getLabelIndex().size()) {
@@ -42,7 +44,7 @@ public class EventPredictionInferer extends Inferer {
 			LogInfo.begin_track("Example %s",ex.id);
 
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
-				List<Datum> test = ff.setFeaturesTest(sentence);
+				List<Datum> test = ff.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence));
 				if(printDebugInformation) {
 					LogInfo.logs(sentence);
 					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());

@@ -10,6 +10,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
@@ -23,7 +24,7 @@ public class EntityPredictionInferer extends Inferer {
 			LogInfo.begin_track("Example %s",example.id);
 			
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
-				List<Datum> test = ff.setFeaturesTest(sentence);
+				List<Datum> test = ff.setFeaturesTest(sentence, Utils.getEventNodesFromSentence(sentence).keySet());
 				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
 					LogInfo.logs("------------------Event " + event.getValue()+"--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
@@ -78,7 +79,7 @@ public class EntityPredictionInferer extends Inferer {
 					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
 					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 				}
-				List<Datum> test = ff.setFeaturesTest(sentence);
+				List<Datum> test = ff.setFeaturesTest(sentence, Utils.getEventNodesFromSentence(sentence).keySet());
 				
 				for(EventMention event:sentence.get(EventMentionsAnnotation.class)) {
 					LogInfo.logs("------------------Event: " + event.getValue()+"--------------");

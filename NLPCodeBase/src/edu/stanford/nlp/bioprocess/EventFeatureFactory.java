@@ -122,7 +122,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		return newData;
     }
     
-    public List<Datum> setFeaturesTest(CoreMap sentence) {
+    public List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<Datum> newData = new ArrayList<Datum>();
