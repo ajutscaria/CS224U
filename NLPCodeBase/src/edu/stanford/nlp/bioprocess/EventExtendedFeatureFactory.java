@@ -152,7 +152,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 					//if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-								!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+								!(node.value().equals("NN") || node.value().equals("NNS") || node.value().equals("JJ") || node.value().startsWith("VB")))
 							continue;
 						
 						String type = "O";
@@ -195,7 +195,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-							!(node.value().equals("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+							!(node.value().equals("NN") || node.value().equals("NNS") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
 					String type = "O";
