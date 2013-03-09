@@ -26,10 +26,10 @@ public class Main implements Runnable {
 				precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
 
 		//Flags to indicate if evaluation of model should be run on training set, baseline and dev-test set.
-		boolean evaluateTrain = true, evaluateBaseline = false, evaluateDev = true;
+		boolean evaluateTrain = true, evaluateBaseline = true, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
-		boolean useSmallSample = false, useOneLoop = true, refreshDataFile = false;
+		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
 		//useSmallSample = true;
 		//useOneLoop = true;
 		//refreshDataFile = true;
@@ -173,6 +173,7 @@ public class Main implements Runnable {
 			Triple<Double, Double, Double> triple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
+			//break;
 		}
 		printScores("Dev", precisionDev, recallDev, f1Dev);
 	}

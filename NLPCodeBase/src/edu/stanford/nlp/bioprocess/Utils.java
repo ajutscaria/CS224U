@@ -616,4 +616,12 @@ public static List<Example> readFile(String fileName) {
 				set.add(d.eventNode);
 		return set;
 	}
+
+	public static Set<Tree> getEntityNodesForSentenceFromDatum(List<Datum> prediction, CoreMap sentence) {
+		IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+		for(Datum d:prediction)
+			if(d.guessLabel.equals("E") && d.sentence.equals(sentence))
+				set.add(d.entityNode);
+		return set;
+	}
 }

@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.trees.Tree;
@@ -12,7 +13,16 @@ import edu.stanford.nlp.util.IdentityHashSet;
 import fig.basic.LogInfo;
 
 public class EventPredictionInferer extends Inferer {
-	boolean printDebugInformation = true;
+	boolean printDebugInformation = false;
+	List<Datum> prediction = null;
+	
+	public EventPredictionInferer() {
+		
+	}
+	
+	public EventPredictionInferer(List<Datum> predictions) {
+		prediction = predictions;
+	}
 	
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>(); 
@@ -44,7 +54,13 @@ public class EventPredictionInferer extends Inferer {
 			LogInfo.begin_track("Example %s",ex.id);
 
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
-				List<Datum> test = ff.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence));
+				Set<Tree> entityNodes = null;
+				if(prediction == null)
+					entityNodes = Utils.getEntityNodesFromSentence(sentence);
+				else
+					entityNodes = Utils.getEntityNodesForSentenceFromDatum(prediction, sentence);
+				
+				List<Datum> test = ff.setFeaturesTest(sentence, entityNodes);
 				if(printDebugInformation) {
 					LogInfo.logs(sentence);
 					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());

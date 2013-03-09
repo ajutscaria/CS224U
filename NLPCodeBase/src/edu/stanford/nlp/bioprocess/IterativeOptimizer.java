@@ -3,6 +3,7 @@ package edu.stanford.nlp.bioprocess;
 import java.util.List;
 
 import edu.stanford.nlp.util.Triple;
+import fig.basic.LogInfo;
 
 public class IterativeOptimizer {
 	public Triple<Double, Double, Double> optimize(List<Example> train, List<Example> test) {
@@ -13,13 +14,30 @@ public class IterativeOptimizer {
 		List<Datum> predicted = inferer.Infer(test, param, eventFeatureFactory);
 		Triple<Double, Double, Double> triple = Scorer.score(predicted);
 		
+		LogInfo.logs("Basic trigger prediction - " + triple);
+		
 		Learner entityLearner = new EntityPredictionLearner();
 		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
-		Inferer entityInferer = new EntityPredictionInferer(predicted);
-		Params entityParams = entityLearner.learn(train, entityFeatureFactory);
-		List<Datum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
-		Triple<Double, Double, Double> entityTriple = Scorer.score(test, predictedEntities);
-
+		
+		Triple<Double, Double, Double> entityTriple = null;
+		for(int i = 0; i <3; i++) {
+			Inferer entityInferer = new EntityPredictionInferer(predicted);
+			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
+			List<Datum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+			entityTriple = Scorer.scoreEntities(test, predictedEntities);
+			
+			LogInfo.logs("Entity prediction - " + entityTriple);
+			
+			inferer = new EventPredictionInferer(predictedEntities);
+			eventFeatureFactory = new EventExtendedFeatureFactory();
+			param = eventLearner.learn(train, eventFeatureFactory);
+			predicted = inferer.Infer(test, param, eventFeatureFactory);
+			triple = Scorer.scoreEvents(test, predicted);
+			
+			LogInfo.logs("Trigger prediction - " + triple);
+			//break;
+		}
+		
 		return entityTriple;
 	}
 }

@@ -16,15 +16,15 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
-	private boolean printDebugInformation = true;
+	private boolean printDebugInformation = false;
 	List<Datum> prediction = null;
 	
 	public EntityPredictionInferer() {
 		
 	}
 	
-	public EntityPredictionInferer(List<Datum> prediction){
-		this.prediction = prediction;
+	public EntityPredictionInferer(List<Datum> predictions){
+		this.prediction = predictions;
 	}
 
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {

@@ -2,8 +2,11 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
+import com.sun.corba.se.spi.ior.IdentifiableContainerBase;
+
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
@@ -34,8 +37,37 @@ public class Scorer {
     
     return new Triple<Double, Double, Double>(precision, recall, f);
   }
+  
+  public static Triple<Double, Double, Double> scoreEvents(List<Example> test, List<Datum> predictedEvents) {
+	  
+	  IdentityHashSet<Tree> actual = findActualEvents(test), predicted = findPredictedEvents(predictedEvents);
+		int tp = 0, fp = 0, fn = 0;
+		for(Tree p:actual) {
+			if(predicted.contains(p)) {
+				tp++;
+				//LogInfo.logs("Correct - " + p.first + ":" + p.second);
+			}
+			else {
+				fn++;
+				//LogInfo.logs("Not predicted - " + p.first + ":" + p.second);
+			}
+		}
+		for(Tree p:predicted) {
+			if(!actual.contains(p)) {
+				fp++;
+				//LogInfo.logs("Extra - " + p.first + ":" + p.second);
+			}
+		}
+		
+		LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+		
+		 double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+		    double f= 2 * precision * recall / (precision + recall);
+		    
+		    return new Triple<Double, Double, Double>(precision, recall, f);
+	  }
 
-  public static Triple<Double, Double, Double> score(List<Example> test, List<Datum> predictedEntities) {
+  public static Triple<Double, Double, Double> scoreEntities(List<Example> test, List<Datum> predictedEntities) {
 	IdentityHashMap<Pair<Tree, Tree>, Integer> actual = findActualEventEntityPairs(test), predicted = findPredictedEventEntityPairs(predictedEntities);
 	int tp = 0, fp = 0, fn = 0;
 	for(Pair<Tree, Tree> p:actual.keySet()) {
@@ -96,5 +128,25 @@ public class Scorer {
 	  }
 	  //LogInfo.end_track();
 	  return map;
+  }
+  
+  public static IdentityHashSet<Tree> findPredictedEvents(List<Datum> predicted) {
+	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+	  for(Datum d:predicted) {
+		 if(d.guessLabel.equals("E"))
+			 set.add(d.eventNode);
+	  }
+	  return set;
+  }
+  
+  public static IdentityHashSet<Tree> findActualEvents(List<Example> test){
+	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+	  for(Example ex:test) {
+		  for(EventMention em:ex.gold.get(EventMentionsAnnotation.class)) {
+			  set.add(em.getTreeNode());
+		  }
+	  }
+	  
+	  return set;
   }
 }
