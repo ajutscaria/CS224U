@@ -153,6 +153,8 @@ public class Main implements Runnable {
 		
 		if(mode.equals("entity")) 
 			new Main().runPrediction(folders, new EntityFeatureFactory(), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
+		if(mode.equals("entitystandalone"))
+			new Main().runEntityStandalonePrediction(folders);
 		if(mode.equals("event"))
 			new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
 		if(mode.equals("emgold"))
@@ -160,6 +162,22 @@ public class Main implements Runnable {
 		if(mode.equals("io"))
 			new Main().runIterativeOptimization(folders);
 		LogInfo.end_track();
+	}
+
+	private void runEntityStandalonePrediction(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
+		IterativeOptimizer opt = new IterativeOptimizer();
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
+			Triple<Double, Double, Double> triple = opt.predictEntity(split.GetTrainExamples(i), split.GetTestExamples(i));
+			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+			LogInfo.end_track();
+			//break;
+		}
+		printScores("Dev", precisionDev, recallDev, f1Dev);
 	}
 
 	private void runIterativeOptimization(HashMap<String, String> folders) {

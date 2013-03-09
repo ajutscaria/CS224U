@@ -4,6 +4,7 @@ import java.util.*;
 
 import com.sun.corba.se.spi.ior.IdentifiableContainerBase;
 
+import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.IdentityHashSet;
@@ -147,6 +148,54 @@ public class Scorer {
 		  }
 	  }
 	  
+	  return set;
+  }
+
+  public static Triple<Double, Double, Double> scoreStandaloneEntities(List<Example> test, List<Datum> predictedEntities) {
+	  IdentityHashSet<Tree> actual = findActualEvents(test), predicted = findPredictedEvents(predictedEntities);
+		int tp = 0, fp = 0, fn = 0;
+		for(Tree p:actual) {
+			if(predicted.contains(p)) {
+				tp++;
+				//LogInfo.logs("Correct - " + p.first + ":" + p.second);
+			}
+			else {
+				fn++;
+				//LogInfo.logs("Not predicted - " + p.first + ":" + p.second);
+			}
+		}
+		for(Tree p:predicted) {
+			if(!actual.contains(p)) {
+				fp++;
+				//LogInfo.logs("Extra - " + p.first + ":" + p.second);
+			}
+		}
+		
+		LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+		
+		 double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+		    double f= 2 * precision * recall / (precision + recall);
+		    
+		    return new Triple<Double, Double, Double>(precision, recall, f);
+	  }
+  
+  public static IdentityHashSet<Tree> findActualEntities(List<Example> test) {
+	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+	  for(Example ex:test) {
+		  for(EntityMention em:ex.gold.get(EntityMentionsAnnotation.class)) {
+			  set.add(em.getTreeNode());
+		  }
+	  }
+	  
+	  return set;
+  }
+  
+  public static IdentityHashSet<Tree> findPredictedEntities(List<Datum> predicted) {
+	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+	  for(Datum d:predicted) {
+		 if(d.guessLabel.equals("E"))
+			 set.add(d.eventNode);
+	  }
 	  return set;
   }
 }
