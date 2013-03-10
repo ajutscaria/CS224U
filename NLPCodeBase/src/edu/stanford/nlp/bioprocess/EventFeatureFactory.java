@@ -34,6 +34,11 @@ public class EventFeatureFactory extends FeatureExtractor {
 		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
 		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+		int currentTokenIndex = event.getSpan().getSource();
+		
+		//if (currentTokenIndex < tokens.size()-1){
+			//System.out.println(String.format("current word is %s, next word is %s",token.originalText(), tokens.get(event.getSpan().getSource()+1).originalText()));
+		//}
 		IndexedWord word = Utils.findDependencyNode(sentence, event);
 		Tree parent = event.parent(root);
 		IntPair eventSpan = event.getSpan();
@@ -45,6 +50,9 @@ public class EventFeatureFactory extends FeatureExtractor {
 		parentCFGRule = parentCFGRule.trim();
 		
 		features.add("POS="+currentWord);
+		/*if (Utils.findDepthInDependencyTree(sentence, event)==0)
+			features.add("root=true,POS="+currentWord);
+		*/
 		features.add("lemma="+token.lemma());
 		features.add("word="+token.originalText());
 		features.add("POSword=" + currentWord+","+leaves.get(0));
@@ -59,9 +67,20 @@ public class EventFeatureFactory extends FeatureExtractor {
 		
 		//Nominalization did not give much improvement
 		/*if(nominalizations.contains(leaves.get(0).value())) {
-			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
-			//features.add("nominalization");
+			LogInfo.logs("Adding nominalization - " + leaves.get(0));
+			features.add("nominalization");
 		}*/
+		/*
+		if(nominalizations.contains(leaves.get(0).value())) {
+			LogInfo.logs("Adding nominalization - " + leaves.get(0));
+			if (currentTokenIndex < tokens.size()-1 && tokens.get(currentTokenIndex+1).originalText().trim().equals("of")){
+				features.add("nominalizationWithNextWordOf");
+				LogInfo.logs("next word is of - " + leaves.get(0));
+			}
+			else
+				features.add("nominalizationWithoutNextWordOf");
+		}
+		*/
 		//features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
 		//Cannot use this feature when looking at all tree nodes as candidates
 			//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
