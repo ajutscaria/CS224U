@@ -54,15 +54,17 @@ public class EventFeatureFactory extends FeatureExtractor {
 			features.add("root=true,POS="+currentWord);
 		*/
 		features.add("lemma="+token.lemma());
-		features.add("word="+token.originalText());
+		//features.add("word="+token.originalText());
 		features.add("POSword=" + currentWord+","+leaves.get(0));
-		features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
+		features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
 		features.add("POSlemma=" + currentWord+","+token.lemma());
 		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
 		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
 			features.add("depedgein="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
+			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
+			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 		}
 		
 		//Nominalization did not give much improvement
@@ -116,7 +118,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 					//if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-								!(node.value().equals("NN") || node.value().equals("NNS") || node.value().equals("JJ") || node.value().startsWith("VB")))
+								!(node.value().startsWith("NN")|| node.value().equals("JJ") || node.value().startsWith("VB")))
 							continue;
 						
 						String type = "O";//EventType.NONE.toString();
@@ -159,7 +161,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-							!(node.value().equals("NN") || node.value().equals("NNS") || node.value().equals("JJ") || node.value().startsWith("VB")))
+							!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
 					String type = "O";//EventType.NONE.toString();
