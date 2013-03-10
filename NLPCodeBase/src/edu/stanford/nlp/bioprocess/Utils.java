@@ -572,7 +572,7 @@ public static List<Example> readFile(String fileName) {
     	return b.toString().trim();
     }
     
-    /*public static Set<String> getNominalizedVerbs() {
+    public static Set<String> getNominalizedVerbsLong() {
     	Set<String> nominalization = new HashSet<String>();
     	try {
 			BufferedReader reader = new BufferedReader(new FileReader("derivation.txt"));
@@ -592,7 +592,7 @@ public static List<Example> readFile(String fileName) {
 		}
     	//LogInfo.logs(nominalization);
     	return nominalization;
-    }*/
+    }
     
     public static Set<String> getNominalizedVerbs() {
     	Set<String> nominalization = new HashSet<String>();
