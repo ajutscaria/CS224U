@@ -2,11 +2,12 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.List;
 
+import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 
 public class IterativeOptimizer {
-	public Triple<Double, Double, Double> optimize(List<Example> train, List<Example> test) {
+	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> optimize(List<Example> train, List<Example> test) {
 		Learner eventLearner = new EventPredictionLearner();
 		FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
 		Inferer inferer = new EventPredictionInferer();
@@ -19,14 +20,21 @@ public class IterativeOptimizer {
 		Learner entityLearner = new EntityPredictionLearner();
 		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
 		
+		Inferer entityInferer = new EntityStandaloneInferer();
+		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory();
+		Params entityStandaloneParams = entityLearner.learn(train, entityStandaloneFeatureFactory);
+		List<Datum> predictedStandaloneEntities = entityInferer.Infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
+		
 		Triple<Double, Double, Double> entityTriple = null;
-		for(int i = 0; i <3; i++) {
-			Inferer entityInferer = new EntityPredictionInferer(predicted);
+		for(int i = 0; i < 1; i++) {
+			entityInferer = new EntityPredictionInferer(predicted);
 			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
 			List<Datum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
 			entityTriple = Scorer.scoreEntities(test, predictedEntities);
 			
 			LogInfo.logs("Entity prediction - " + entityTriple);
+			
+			predictedEntities.addAll(predictedStandaloneEntities);
 			
 			inferer = new EventPredictionInferer(predictedEntities);
 			eventFeatureFactory = new EventExtendedFeatureFactory();
@@ -38,7 +46,14 @@ public class IterativeOptimizer {
 			//break;
 		}
 		
-		return entityTriple;
+		entityInferer = new EntityPredictionInferer(predicted);
+		Params entityParams = entityLearner.learn(train, entityFeatureFactory);
+		List<Datum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+		entityTriple = Scorer.scoreEntities(test, predictedEntities);
+		
+		LogInfo.logs("Entity prediction - " + entityTriple);
+		
+		return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(triple, entityTriple);
 	}
 	
 	public Triple<Double, Double, Double> predictEntity(List<Example> train, List<Example> test) {
@@ -47,15 +62,14 @@ public class IterativeOptimizer {
 		FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory();
 		
 		Triple<Double, Double, Double> entityTriple = null;
-		for(int i = 0; i <3; i++) {
-			Inferer entityInferer = new EntityStandaloneInferer();
-			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
-			List<Datum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
-			entityTriple = Scorer.scoreStandaloneEntities(test, predictedEntities);
-			
-			LogInfo.logs("Entity prediction - " + entityTriple);
-			//break;
-		}
+
+		Inferer entityInferer = new EntityStandaloneInferer();
+		Params entityStandaloneParams = entityLearner.learn(train, entityFeatureFactory);
+		List<Datum> predictedEntities = entityInferer.Infer(test, entityStandaloneParams, entityFeatureFactory);
+		entityTriple = Scorer.scoreStandaloneEntities(test, predictedEntities);
+		
+		LogInfo.logs("Entity prediction - " + entityTriple);
+		//break;
 		
 		return entityTriple;
 	}

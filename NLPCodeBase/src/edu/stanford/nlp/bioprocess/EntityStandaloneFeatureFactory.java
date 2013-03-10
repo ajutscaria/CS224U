@@ -9,26 +9,54 @@ import java.util.Set;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
+import edu.stanford.nlp.trees.semgraph.SemanticGraph;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 
-	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	boolean printDebug = true, printAnnotations = false, printFeatures = false;
 
     public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
+    	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		List<String> features = new ArrayList<String>();
-	
-		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+		IndexedWord word = Utils.findDependencyNode(sentence, entity);
+		Tree parent = entity.parent(root);
+		String currentWord = entity.value();
+		CoreLabel token = Utils.findCoreLabelFromTree(sentence, entity);
+		List<Tree> leaves = entity.getLeaves();
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+		String parentCFGRule = parent.value() + "->";
+		for(Tree n:parent.getChildrenAsList()) {
+			parentCFGRule += n.value() + " ";
+		}
+		parentCFGRule = parentCFGRule.trim();
 		
-		features.add("PathEntToRoot="+Trees.pathNodeToNode(entity, root, root));
+		//features.add("POS="+currentWord);
+		features.add("lemma="+token.lemma());
+		features.add("word="+token.originalText().toLowerCase());
+		//features.add("firstword=" + leaves.get(0));
+		//features.add("lastword=" + leaves.get(leaves.size()-1));
+		//features.add("POSparentPOS="+currentWord + "," + entity.parent(root).value());
+		//features.add("POSlemma=" + currentWord+","+token.lemma());
+		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, entity, root), ",").replace("up-ROOT,down-ROOT,", ""));
+		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		
+		//for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
+		//	features.add("depedgein="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
+		//}
 		
 		
 		//This feature did not work surprisingly. Maybe because the path from ancestor to event might lead to a lot of different variations.
@@ -86,7 +114,7 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 					
 					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, null);
 					newDatum.features = computeFeatures(sentence, type, node, null);
-					if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
+					if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 					newData.add(newDatum);
 				}
 			

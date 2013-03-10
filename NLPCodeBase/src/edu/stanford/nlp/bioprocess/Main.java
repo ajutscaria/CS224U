@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
@@ -188,8 +189,8 @@ public class Main implements Runnable {
 		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
-			Triple<Double, Double, Double> triple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
-			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> triple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
+			precisionDev[i-1] = triple.first.first; recallDev[i-1] = triple.first.second; f1Dev[i-1] = triple.first.third;
 			LogInfo.end_track();
 			//break;
 		}

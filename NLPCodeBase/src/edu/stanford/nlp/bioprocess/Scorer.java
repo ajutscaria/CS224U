@@ -152,7 +152,7 @@ public class Scorer {
   }
 
   public static Triple<Double, Double, Double> scoreStandaloneEntities(List<Example> test, List<Datum> predictedEntities) {
-	  IdentityHashSet<Tree> actual = findActualEvents(test), predicted = findPredictedEvents(predictedEntities);
+	  IdentityHashSet<Tree> actual = findActualEntities(test), predicted = findPredictedEntities(predictedEntities);
 		int tp = 0, fp = 0, fn = 0;
 		for(Tree p:actual) {
 			if(predicted.contains(p)) {
@@ -194,7 +194,7 @@ public class Scorer {
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
 	  for(Datum d:predicted) {
 		 if(d.guessLabel.equals("E"))
-			 set.add(d.eventNode);
+			 set.add(d.entityNode);
 	  }
 	  return set;
   }
