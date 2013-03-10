@@ -8,6 +8,7 @@ import fig.basic.LogInfo;
 
 public class IterativeOptimizer {
 	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> optimize(List<Example> train, List<Example> test) {
+		LogInfo.begin_track("Basiccc trigger prediction");
 		Learner eventLearner = new EventPredictionLearner();
 		FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
 		Inferer inferer = new EventPredictionInferer();
@@ -15,7 +16,8 @@ public class IterativeOptimizer {
 		List<Datum> predicted = inferer.Infer(test, param, eventFeatureFactory);
 		Triple<Double, Double, Double> triple = Scorer.score(predicted);
 		
-		LogInfo.logs("Basic trigger prediction - " + triple);
+		LogInfo.logs("Score: Basic trigger prediction - " + triple);
+		LogInfo.end_track();
 		
 		Learner entityLearner = new EntityPredictionLearner();
 		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
@@ -27,22 +29,26 @@ public class IterativeOptimizer {
 		
 		Triple<Double, Double, Double> entityTriple = null;
 		for(int i = 0; i < 1; i++) {
+			LogInfo.begin_track("Entity prediction");
 			entityInferer = new EntityPredictionInferer(predicted);
 			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
 			List<Datum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
 			entityTriple = Scorer.scoreEntities(test, predictedEntities);
 			
-			LogInfo.logs("Entity prediction - " + entityTriple);
+			LogInfo.logs("Score: Entity prediction - " + entityTriple);
+			LogInfo.end_track();
 			
 			predictedEntities.addAll(predictedStandaloneEntities);
 			
+			LogInfo.begin_track("Extended trigger prediction");
 			inferer = new EventPredictionInferer(predictedEntities);
 			eventFeatureFactory = new EventExtendedFeatureFactory();
 			param = eventLearner.learn(train, eventFeatureFactory);
 			predicted = inferer.Infer(test, param, eventFeatureFactory);
 			triple = Scorer.scoreEvents(test, predicted);
 			
-			LogInfo.logs("Trigger prediction - " + triple);
+			LogInfo.logs("Score: Extended trigger prediction - " + triple);
+			LogInfo.end_track();
 			//break;
 		}
 		

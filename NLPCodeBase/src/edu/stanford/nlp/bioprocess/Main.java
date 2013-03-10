@@ -27,7 +27,7 @@ public class Main implements Runnable {
 				precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
 
 		//Flags to indicate if evaluation of model should be run on training set, baseline and dev-test set.
-		boolean evaluateTrain = true, evaluateBaseline = true, evaluateDev = true;
+		boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
 		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
@@ -93,7 +93,7 @@ public class Main implements Runnable {
 					LogInfo.end_track();
 				}
 				if(evaluateBaseline) {
-					LogInfo.begin_track("Basline");
+					LogInfo.begin_track("Baseline");
 					printScores("Baseline", precisionBaseline, recallBaseline, f1Baseline);
 					LogInfo.end_track();
 				}
@@ -152,18 +152,30 @@ public class Main implements Runnable {
 		folders.put("sample", sampleDirectory);
 
 		
-		if(mode.equals("entity")) 
+		if(mode.equals("entity")) {
+			LogInfo.logs("Running entity prediction from GOLD events");
 			new Main().runPrediction(folders, new EntityFeatureFactory(), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
-		if(mode.equals("entitystandalone"))
+		}
+		if(mode.equals("entitystandalone")) {
+			LogInfo.logs("Running entity standalone");
 			new Main().runEntityStandalonePrediction(folders);
-		if(mode.equals("event"))
+		}
+		if(mode.equals("event")) {
+			LogInfo.logs("Running event prediction");
 			new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
-		if(mode.equals("emgold"))
+		}
+		if(mode.equals("emgold")) {
+			LogInfo.logs("Running IO with GOLD entities");
 			new Main().runPrediction(folders, new EventExtendedFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
-		if(mode.equals("io"))
+		}
+		if(mode.equals("io")) {
+			LogInfo.logs("Running iterative optimization");
 			new Main().runIterativeOptimization(folders);
-		if(mode.equals("srl"))
+		}
+		if(mode.equals("srl")) {
+			LogInfo.logs("Running SRL");
 			new Main().runSRLPrediction(folders, new SRLFeatureFactory(), new SRLPredictionLearner(), new SRLPredictionInferer(), new Scorer());
+		}
 		LogInfo.end_track();
 	}
 
@@ -219,15 +231,18 @@ public class Main implements Runnable {
 		IterativeOptimizer opt = new IterativeOptimizer();
 		BioprocessDataset dataset = loadDataSet(folders, false, false);
 		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
-		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+		double[] precisionTrigger = new double[NumCrossValidation], recallTrigger = new double[NumCrossValidation], f1Trigger = new double[NumCrossValidation];
+		double[] precisionEntity = new double[NumCrossValidation], recallEntity = new double[NumCrossValidation], f1Entity = new double[NumCrossValidation];
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
 			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> triple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
-			precisionDev[i-1] = triple.first.first; recallDev[i-1] = triple.first.second; f1Dev[i-1] = triple.first.third;
+			precisionTrigger[i-1] = triple.first.first; recallTrigger[i-1] = triple.first.second; f1Trigger[i-1] = triple.first.third;
+			precisionEntity[i-1] = triple.second.first; recallEntity[i-1] = triple.second.second; f1Entity[i-1] = triple.second.third;
 			LogInfo.end_track();
 			//break;
 		}
-		printScores("Dev", precisionDev, recallDev, f1Dev);
+		printScores("Dev Trigger", precisionTrigger, recallTrigger, f1Trigger);
+		printScores("Dev Entity", precisionEntity, recallEntity, f1Entity);
 	}
 	
 	private BioprocessDataset loadDataSet(HashMap<String, String> groups, boolean useSmallSample, boolean refreshDataFile) {

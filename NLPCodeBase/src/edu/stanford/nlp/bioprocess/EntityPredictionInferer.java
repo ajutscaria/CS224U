@@ -41,7 +41,8 @@ public class EntityPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
 				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
 				for(Tree event:eventNodes) {
-					LogInfo.logs("------------------Event " + Utils.getText(event)+"--------------");
+					LogInfo.logs("------------------Event " + Utils.getText(event)+ 
+								"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
 						if(d.eventNode == event) {
@@ -102,7 +103,8 @@ public class EntityPredictionInferer extends Inferer {
 				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
 				
 				for(Tree event:eventNodes) {
-					LogInfo.logs("------------------Event: " + Utils.getText(event)+"--------------");
+					LogInfo.logs("------------------Event " + Utils.getText(event)+ 
+							"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]--------------");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
 						if(d.eventNode == event) {

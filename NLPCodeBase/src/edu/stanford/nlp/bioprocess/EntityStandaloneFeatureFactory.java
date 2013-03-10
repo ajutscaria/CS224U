@@ -26,7 +26,7 @@ import fig.basic.LogInfo;
 
 public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 
-	boolean printDebug = true, printAnnotations = false, printFeatures = false;
+	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 
     public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
