@@ -40,4 +40,23 @@ public class IterativeOptimizer {
 		
 		return entityTriple;
 	}
+	
+	public Triple<Double, Double, Double> predictEntity(List<Example> train, List<Example> test) {
+		
+		Learner entityLearner = new EntityPredictionLearner();
+		FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory();
+		
+		Triple<Double, Double, Double> entityTriple = null;
+		for(int i = 0; i <3; i++) {
+			Inferer entityInferer = new EntityStandaloneInferer();
+			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
+			List<Datum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+			entityTriple = Scorer.scoreStandaloneEntities(test, predictedEntities);
+			
+			LogInfo.logs("Entity prediction - " + entityTriple);
+			//break;
+		}
+		
+		return entityTriple;
+	}
 }
