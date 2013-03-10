@@ -49,17 +49,17 @@ public class EventFeatureFactory extends FeatureExtractor {
 		}
 		parentCFGRule = parentCFGRule.trim();
 		
-		features.add("POS="+currentWord);
+		//features.add("POS="+currentWord);
 		/*if (Utils.findDepthInDependencyTree(sentence, event)==0)
 			features.add("root=true,POS="+currentWord);
 		*/
 		features.add("lemma="+token.lemma());
 		//features.add("word="+token.originalText());
-		features.add("POSword=" + currentWord+","+leaves.get(0));
-		features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
-		features.add("POSlemma=" + currentWord+","+token.lemma());
-		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
-		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		//features.add("POSword=" + currentWord+","+leaves.get(0));
+		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
+		//features.add("POSlemma=" + currentWord+","+token.lemma());
+		//features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
+		//features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
 			features.add("depedgein="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
