@@ -159,7 +159,40 @@ public class Main implements Runnable {
 			new Main().runPrediction(folders, new EventExtendedFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
 		if(mode.equals("io"))
 			new Main().runIterativeOptimization(folders);
+		if(mode.equals("srl"))
+			new Main().runSRLPrediction(folders, new SRLFeatureFactory(), new SRLPredictionLearner(), new SRLPredictionInferer(), new Scorer());
 		LogInfo.end_track();
+	}
+
+	private void runSRLPrediction(HashMap<String, String> folders,
+			SRLFeatureFactory featureFactory,
+			SRLPredictionLearner learner,
+			SRLPredictionInferer inferer, Scorer scorer) {
+		int NumCrossValidation = 10;
+		boolean small = false;
+		BioprocessDataset dataset = loadDataSet(folders, small, false);
+		if (small) {
+			Params param = learner.learn(dataset.examples("sample"), featureFactory);
+			List<Datum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, featureFactory);
+			Triple<Double, Double, Double> triple = Scorer.scoreSRL(dataset.examples("sample"), predicted);
+			LogInfo.logs("Precision : " + triple.first);
+			LogInfo.logs("Recall    : " + triple.second);
+			LogInfo.logs("F1 score  : " + triple.third);
+		}
+		else {
+			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+			double[] precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
+			for(int i = 1; i <= NumCrossValidation; i++) {
+				LogInfo.begin_track("Iteration " + i);
+				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
+				List<Datum> predicted = inferer.BaselineInfer(split.GetTestExamples(i), param, featureFactory);
+				Triple<Double, Double, Double> triple = Scorer.scoreSRL(split.GetTestExamples(i), predicted);
+				precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
+				LogInfo.end_track();
+				//break;
+			}
+			printScores("Dev", precisionBaseline, recallBaseline, f1Baseline);
+		}
 	}
 
 	private void runIterativeOptimization(HashMap<String, String> folders) {

@@ -443,20 +443,22 @@ public static List<Example> readFile(String fileName) {
 	return false;
   }
 
+  
   public static RelationType getArgumentMentionRelation(EventMention event, Tree entityNode) {
 	for (ArgumentRelation argRel : event.getArguments()) {
-		if (argRel.mention.getTreeNode() == entityNode) {
+		if (argRel.mention.getTreeNode() == entityNode && ArgumentRelation.getSemanticRoles().contains(argRel.type.toString())) {
 			return argRel.type;
 		}
 	}
 	return RelationType.NONE;
   }
+ 
   
   public static RelationType getArgumentMentionRelation(CoreMap sentence, Tree event, Tree entityNode) {
 	  for(EventMention eventMention:sentence.get(EventMentionsAnnotation.class)) {
 		if(eventMention.getTreeNode() == event) {
 			for (ArgumentRelation argRel : eventMention.getArguments()) {
-				if (argRel.mention.getTreeNode() == entityNode) {
+				if (argRel.mention.getTreeNode() == entityNode && ArgumentRelation.getSemanticRoles().contains(argRel.type.toString())) {
 					return argRel.type;
 				}
 			}
@@ -464,6 +466,7 @@ public static List<Example> readFile(String fileName) {
 	  }
 	  return RelationType.NONE;
   }
+  
   
   public static String getPathString(List<String> path) {
 	  return StringUtils.join(path, " ");

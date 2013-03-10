@@ -1,6 +1,8 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ArgumentRelation implements Serializable {
   /**
@@ -14,13 +16,14 @@ public enum EventType {
 	  NONE
   }
   public enum RelationType {
-	  Origin,
+	Origin,
     Agent,
     Location,
     Destination,
     Result,
     RawMaterial,
     Theme,
+    Time,
     SameEntity,
     StaticEvent,
     CotemporalEvent,
@@ -29,7 +32,6 @@ public enum EventType {
     SuperEvent,
     Cause,
     Enables,
-    Time,
     NONE
   }
   ArgumentMention mention;
@@ -38,5 +40,21 @@ public enum EventType {
   public ArgumentRelation(ArgumentMention mention, RelationType type) {
     this.mention = mention;
     this.type = type;
+  }
+  
+  public static List<String> getSemanticRoles() {
+	  List<String> srlList = new ArrayList<String>();
+	  
+	  srlList.add(RelationType.Origin.toString());
+	  srlList.add(RelationType.Agent.toString());
+	  srlList.add(RelationType.Location.toString());
+	  srlList.add(RelationType.Destination.toString());
+	  srlList.add(RelationType.Result.toString());
+	  srlList.add(RelationType.RawMaterial.toString());
+	  srlList.add(RelationType.Theme.toString());
+	  srlList.add(RelationType.Time.toString());
+	  srlList.add(RelationType.NONE.toString());
+
+	  return srlList;  
   }
 }
