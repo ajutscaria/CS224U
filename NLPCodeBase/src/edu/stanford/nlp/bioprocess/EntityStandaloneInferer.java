@@ -14,7 +14,7 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityStandaloneInferer extends Inferer{
-	private boolean printDebugInformation = false;
+	private boolean printDebugInformation = true;
 	
 	@Override
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters,

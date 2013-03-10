@@ -16,7 +16,7 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
-	private boolean printDebugInformation = false;
+	private boolean printDebugInformation = true;
 	List<Datum> prediction = null;
 	
 	public EntityPredictionInferer() {

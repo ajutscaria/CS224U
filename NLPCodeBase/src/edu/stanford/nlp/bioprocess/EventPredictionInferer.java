@@ -13,7 +13,7 @@ import edu.stanford.nlp.util.IdentityHashSet;
 import fig.basic.LogInfo;
 
 public class EventPredictionInferer extends Inferer {
-	boolean printDebugInformation = false;
+	boolean printDebugInformation = true;
 	List<Datum> prediction = null;
 	
 	public EventPredictionInferer() {
