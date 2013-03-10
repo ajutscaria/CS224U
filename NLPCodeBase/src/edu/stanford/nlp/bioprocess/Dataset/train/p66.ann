@@ -3,21 +3,15 @@ E1	Event:T1 agent:T14 location:T15 cotemporal:E2
 T2	Event 36 41	enter
 E2	Event:T2 theme:T16 agent:T14 next-event:E3 location:T34
 T3	Event 113 118	enter
-E3	Event:T3 agent:T17 theme:T18 causes:E4
+E3	Event:T3 agent:T17 theme:T18 causes:E4 location:T32
 T4	Event 149 157	changing
-E4	Event:T4 agent:T17 theme:T19 cotemporal:E5 next-event:E6
+E4	Event:T4 agent:T17 theme:T19 causes:E5
 T5	Event 202 207	spins
 E5	Event:T5 agent:T20 location:T21 same-event:E9
-T6	Event 241 264	makes one complete turn
-E6	Event:T6 agent:T22 next-event:E7
-T7	Event 272 279	leaving
-E7	Event:T7 agent:T22 theme:T23 next-event:E8
-T8	Event 294 301	passing
-E8	Event:T8 agent:T22 location:T24 destination:T25
 T9	Event 377 385	Spinning
 E9	Event:T9 agent:T26 causes:E10
 T11	Event 425 429	spin
-E10	Event:T11 agent:T27 same-event:E11 cotemporal:E15
+E10	Event:T11 agent:T27 same-event:E11
 T10	Event 541 548	Turning
 E11	Event:T10 agent:T28 causes:E12
 T12	Event 560 569	activates
@@ -28,32 +22,19 @@ T14	Entity 0 7	H+ ions
 T15	Entity 16 35	down their gradient
 T16	Entity 42 56	a half channel
 T17	Entity 105 112	H+ ions
-T18	Entity 119 147	binding sites within a rotor
+T18	Entity 119 132	binding sites
 T19	Entity 158 183	the shape of each subunit
 T20	Entity 192 201	the rotor
 T21	Entity 215 227	the membrane
-T22	Entity 229 240	Each H+ ion
-T23	Entity 280 289	the rotor
-T24	Entity 310 345	a second half channel in the stator
-T25	Entity 351 375	the mitochondrial matrix
 T26	Entity 389 398	the rotor
 T27	Entity 406 421	an internal rod
 T28	Entity 552 559	the rod
 T29	Entity 570 585	catalytic sites
 T30	Entity 615 618	ATP
 T31	Entity 624 635	ADP and P_i
-T32	Event 76 87	is anchored
-E14	Event:T32 location:T33 theme:T34
-T33	Entity 88 103	in the membrane
-T34	Entity 62 68	stator
+T34	Entity 60 68	a stator
 *	same-entity T14 T17
-T35	Entity 444 447	rod
-*	same-entity T27 T35 T38 T28
-T36	Event 448 455	extends
-E15	Event:T36 agent:T35 location:T37
-T37	Entity 478 482	knob
-T38	Entity 489 491	it
-T39	Event 499 517	is held stationary
-E16	Event:T39 theme:T37 agent:T40
-T40	Entity 521 539	part of the stator
-T41	Entity 586 597	in the knob
+*	same-entity T27 T28
+T41	Entity 589 597	the knob
+T32	Entity 140 147	a rotor
+*	same-entity T20 T32 T26

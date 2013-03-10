@@ -2,59 +2,44 @@ T1	Event 0 11	Recognition
 E1	Event:T1 theme:T2 agent:T3
 T2	Entity 15 31	protein antigens
 T3	Entity 35 42	T cells
-T4	Entity 57 87	pathogen or part of a pathogen
+T4	Entity 55 87	a pathogen or part of a pathogen
 T5	Event 95 102	infects
-E2	Event:T5 super-event:E1 agent:T4 cotemporal:E3
-T6	Event 106 117	is taken in
-E3	Event:T6 theme:T4 super-event:E1 agent:T7 next-event:E4
-T7	Entity 123 132	host cell
+E2	Event:T5 super-event:E1 agent:T4 cotemporal:E3 theme:T7
+T6	Event 109 117	taken in
+E3	Event:T6 theme:T4 agent:T7 next-event:E4
+T7	Entity 121 132	a host cell
 T8	Event 192 198	cleave
-E4	Event:T8 agent:T9 theme:T10 result:T12 next-event:E5
+E4	Event:T8 agent:T9 theme:T10 result:T12 next-event:E5 location:T11
 T9	Entity 172 191	enzymes in the cell
-T10	Entity 203 210	antigen
-T11	Entity 161 170	host cell
+T10	Entity 199 210	the antigen
+T11	Entity 157 170	the host cell
 *	same-entity T7 T11
 *	same-entity T2 T10
 T12	Entity 216 232	smaller peptides
 T13	Entity 234 246	Each peptide
-T14	Entity 258 274	antigen fragment
+T14	Entity 255 274	an antigen fragment
 T15	Event 281 286	binds
 E5	Event:T15 agent:T14 theme:T16 location:T17 next-event:E6
-T16	Entity 293 305	MHC molecule
-T17	Entity 306 321	inside the cell
-*	same-entity T12 T13 T14 T19 T35
-T18	Entity 339 351	MHC molecule
+T16	Entity 290 305	an MHC molecule
+T17	Entity 313 321	the cell
+*	same-entity T12 T13 T14 T19 T35 T40
+T18	Entity 335 351	the MHC molecule
 T19	Entity 356 378	bound antigen fragment
-*	same-entity T16 T18
+*	same-entity T16 T18 T41
 T20	Event 323 331	Movement
 E6	Event:T20 agent:T18 agent2:T19 destination:T21 origin:T17 causes:E7
-T21	Entity 379 398	to the cell surface
-T22	Event 399 409	results in
-E7	Event:T22 result:T23 cotemporal:E8
-T23	Entity 410 430	antigen presentation
-T24	Entity 436 507	display of the antigen fragment in an exposed groove of the MHC protein
-*	same-entity T23 T24 T25
-T25	Entity 548 568	antigen presentation
-T26	Entity 509 522	Figure 43.12b
-T27	Event 523 528	shows
-E8	Event:T27 agent:T26 theme:T25 cotemporal:E9
-T28	Event 576 586	advertises
-E9	Event:T28 agent:T25 theme:T29 cotemporal:E10
-T29	Entity 591 595	fact
-T30	Entity 603 612	host cell
-T31	Event 613 621	contains
-E10	Event:T31 agent:T30 theme:T32 cotemporal:E11
-T32	Entity 624 641	foreign substance
-T33	Entity 650 654	cell
+T21	Entity 382 398	the cell surface
+T22	Event 410 430	antigen presentation
+E7	Event:T22 same-event:E11
+T33	Entity 646 654	the cell
 T34	Event 655 665	displaying
-E11	Event:T34 agent:T33 theme:T35 cotemporal:E12
-*	same-entity T33 T30
-T35	Entity 669 685	antigen fragment
+E11	Event:T34 agent:T33 theme:T35 next-event:E12
+T35	Entity 666 685	an antigen fragment
 T36	Event 686 696	encounters
-E12	Event:T36 agent:T33 theme:T37 enables:E13
-T37	Entity 699 732	T cell with the right specificity
-T38	Entity 738 768	antigen receptor on the T cell
-T39	Event 773 780	bind to
+E12	Event:T36 agent:T33 theme:T37 next-event:E13
+T37	Entity 697 732	a T cell with the right specificity
+T38	Entity 734 768	the antigen receptor on the T cell
+T39	Event 773 777	bind
 E13	Event:T39 agent:T38 theme:T40 theme2:T41
-T40	Entity 790 806	antigen fragment
-T41	Entity 815 827	MHC molecule
+T40	Entity 786 806	the antigen fragment
+T41	Entity 811 827	the MHC molecule

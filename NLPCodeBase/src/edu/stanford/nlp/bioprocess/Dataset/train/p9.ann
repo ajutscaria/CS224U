@@ -1,9 +1,9 @@
 T1	Event 21 33	deactivating
-E1	Event:T1 agent:T2 next-event:E2 raw-material:T3 next-event2:E5
+E1	Event:T1 agent:T2 raw-material:T3 next-event2:E5
 T2	Entity 0 11	Methicillin
 T3	Entity 34 43	a protein
 T5	Event 65 75	synthesize
-E2	Event:T5 theme:T6 agent:T9
+E2	Event:T5 theme:T6 agent:T9 next-event:E1
 T6	Entity 76 92	their cell walls
 T9	Entity 49 57	bacteria
 T12	Entity 218 234	some individuals

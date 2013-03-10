@@ -1,22 +1,15 @@
-T1	Entity 4 20	rearranged genes
+T1	Entity 0 20	The rearranged genes
 T2	Event 25 36	transcribed
-E1	Event:T2 theme:T1 next-event:E2 result:T3
-T3	Entity 46 57	transcripts
-T4	Event 62 87	processed for translation
-E2	Event:T4 theme:T3 same-event:E3
+E1	Event:T2 next-event:E2 result:T3 raw-material:T1
+T3	Entity 42 57	the transcripts
+T4	Event 62 71	processed
+E2	Event:T4 theme:T3 next-event:E8
 T5	Event 99 110	translation
 E3	Event:T5 next-event:E4
-T6	Entity 116 127	light chain
+T6	Entity 112 127	the light chain
 T7	Entity 132 143	heavy chain
 T8	Event 144 152	assemble
-E4	Event:T8 agent:T7 agent2:T6 causes:E5 cotemporal:E6
-T9	Event 163 170	forming
-E5	Event:T9 agent:T7 agent2:T6 result:T10
-T10	Entity 174 190	antigen receptor
-T11	Event 233 243	rearranged
-E6	Event:T11 theme:T12 theme2:T13 causes:E7
-T12	Entity 211 220	Each pair
-T13	Entity 244 266	heavy and light chains
-T14	Entity 280 310	different antigen-binding site
-T15	Event 267 274	results
-E7	Event:T15 result:T14
+E4	Event:T8 agent:T7 agent2:T6 result:T9
+T16	Event 76 87	translation
+E8	Event:T16 same-event:E3
+T9	Entity 171 190	an antigen receptor
