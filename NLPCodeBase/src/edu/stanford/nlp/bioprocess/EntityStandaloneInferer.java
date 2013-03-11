@@ -51,6 +51,7 @@ public class EntityStandaloneInferer extends Inferer{
 					testDataWithLabel.add(testDataEvent.get(i));
 				}
 				
+				
 				MaxEntModel viterbi = new MaxEntModel(parameters.getLabelIndex(), parameters.getFeatureIndex(), parameters.getWeights());
 				viterbi.decodeForEntity(testDataWithLabel, testDataEvent);
 				
@@ -67,6 +68,16 @@ public class EntityStandaloneInferer extends Inferer{
 				DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
 				dynamicProgrammer.calculateLabels();
 				
+				
+				//My own inferer
+				/*for(Datum d:testDataWithLabel) {
+					if(d.entityNode.value().equals("NP") && !hasNPchild(d.entityNode)){
+						d.guessLabel = "E";
+					}
+					else {
+						d.guessLabel = "O";
+					}
+				}*/
 				predicted.addAll(testDataWithLabel);
 				
 				LogInfo.logs(sentence);
@@ -87,5 +98,13 @@ public class EntityStandaloneInferer extends Inferer{
 			LogInfo.end_track();
 		}
 		return predicted;
+	}
+	
+	boolean hasNPchild(Tree node) {
+		for(Tree child:node.getChildrenAsList()) {
+			if(child.value().equals("NP"))
+				return true;
+		}
+		return false;
 	}
 }

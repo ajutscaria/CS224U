@@ -72,7 +72,6 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			features.add("nominalization");
 		}
-		
 		//for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
 		//	features.add("depedgeout="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
 			//System.out.println(e.getRelation());

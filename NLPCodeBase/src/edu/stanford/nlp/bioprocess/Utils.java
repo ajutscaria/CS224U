@@ -31,9 +31,11 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.IntPair;
+import edu.stanford.nlp.util.IntTuple;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
@@ -491,7 +493,7 @@ public static List<Example> readFile(String fileName) {
 		if(node == null)
 			return null;
 		Tree head = node.headPreTerminal(new CollinsHeadFinder());
-		//LogInfo.logs(node + ":" + head + ":" + head.getSpan());
+		//LogInfo.logs("Finding head - " + node + ":" + head + ":" + head.getSpan());
 		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
 	      //LogInfo.logs(word.value() + "--" + word.index());
@@ -501,12 +503,14 @@ public static List<Example> readFile(String fileName) {
 	      }
 	    }
 	    //In case head span was not found, return the word in next span. For instance event 'in order' in p27.txt
-	    for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
+	    if(node.getSpan().getTarget()-node.getSpan().getSource() > 0) {
+	    	for(IndexedWord word : graph.getAllNodesByWordPattern(".*")) {
 		      if(word.index() - 1 == head.getSpan().getSource() + 1 && word.index() - 1 == head.getSpan().getTarget() + 1) {
 			        //LogInfo.logs("Found - " + word.value());
 			        return word;
 		      }
 		    }
+	    }
 	    return null;
 	}
 	
@@ -540,6 +544,26 @@ public static List<Example> readFile(String fileName) {
 		//LogInfo.logs(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
 		
 		return false;
+	}
+	
+	public static String getDependencyPath(CoreMap sentence, Tree entity, Tree event) {
+		//word as head token.
+		if(entity == null || entity.value().equals("S") || entity.value().equals("SBAR"))
+			return "";
+		IndexedWord entityIndexWord = findDependencyNode(sentence, entity);
+		//In case of punctuation marks, there is no head found.
+		StringBuilder buf = new StringBuilder();
+		if(entityIndexWord != null) {
+			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			//LogInfo.logs("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			IndexedWord word = findDependencyNode(sentence, event);
+			if(word == null) return "";
+			if(graph.getShortestDirectedPathEdges(word, entityIndexWord) != null)
+				return graph.getShortestDirectedPathEdges(word, entityIndexWord).toString();
+		}
+		//LogInfo.logs(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		
+		return buf.toString();
 	}
 	
 	public static boolean isNodesRelated(CoreMap sentence, Tree entity, EventMention event) {

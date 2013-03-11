@@ -30,7 +30,7 @@ public class Main implements Runnable {
 		boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
-		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
+		boolean useSmallSample = true, useOneLoop = false, refreshDataFile = false;
 		//useSmallSample = true;
 		//useOneLoop = true;
 		//refreshDataFile = true;

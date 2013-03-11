@@ -44,19 +44,18 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 		}
 		parentCFGRule = parentCFGRule.trim();
 		
-		//features.add("POS="+currentWord);
-		features.add("lemma="+token.lemma());
-		features.add("word="+token.originalText().toLowerCase());
 		//features.add("firstword=" + leaves.get(0));
 		//features.add("lastword=" + leaves.get(leaves.size()-1));
-		//features.add("POSparentPOS="+currentWord + "," + entity.parent(root).value());
-		//features.add("POSlemma=" + currentWord+","+token.lemma());
+		features.add("lemma="+token.lemma());
+		features.add("word="+token.originalText().toLowerCase());
+		features.add("POS=" + currentWord);
+		features.add("POSParentPOS=" + currentWord+","+parent.value());
 		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, entity, root), ",").replace("up-ROOT,down-ROOT,", ""));
 		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
-		//for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
-		//	features.add("depedgein="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
-		//}
+		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
+			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
+		}
 		
 		
 		//This feature did not work surprisingly. Maybe because the path from ancestor to event might lead to a lot of different variations.
