@@ -151,28 +151,31 @@ public class Main implements Runnable {
 		folders.put("train", trainDirectory);
 		folders.put("sample", sampleDirectory);
 
-		
 		if(mode.equals("entity")) {
+			LogInfo.logs("Running entity prediction");
+			new Main().runEntityPrediction(folders);
+		}
+		else if(mode.equals("entitygold")) {
 			LogInfo.logs("Running entity prediction from GOLD events");
 			new Main().runPrediction(folders, new EntityFeatureFactory(), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
 		}
-		if(mode.equals("entitystandalone")) {
+		else if(mode.equals("entitystandalone")) {
 			LogInfo.logs("Running entity standalone");
 			new Main().runEntityStandalonePrediction(folders);
 		}
-		if(mode.equals("event")) {
+		else if(mode.equals("event")) {
 			LogInfo.logs("Running event prediction");
 			new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
 		}
-		if(mode.equals("emgold")) {
+		else if(mode.equals("iogold")) {
 			LogInfo.logs("Running IO with GOLD entities");
 			new Main().runPrediction(folders, new EventExtendedFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
 		}
-		if(mode.equals("io")) {
+		else if(mode.equals("io")) {
 			LogInfo.logs("Running iterative optimization");
 			new Main().runIterativeOptimization(folders);
 		}
-		if(mode.equals("srl")) {
+		else if(mode.equals("srl")) {
 			LogInfo.logs("Running SRL");
 			new Main().runSRLPrediction(folders, new SRLFeatureFactory(), new SRLPredictionLearner(), new SRLPredictionInferer(), new Scorer());
 		}
@@ -222,6 +225,33 @@ public class Main implements Runnable {
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 			//break;
+		}
+		printScores("Dev", precisionDev, recallDev, f1Dev);
+	}
+	
+	private void runEntityPrediction(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+
+		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
+			
+			Learner eventLearner = new EventPredictionLearner();
+			FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
+			Inferer eventInferer = new EventPredictionInferer();
+			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
+			List<Datum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			
+			Learner entityLearner = new EntityPredictionLearner();
+			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
+			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
+			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
+			List<Datum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
+			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+			LogInfo.end_track();
 		}
 		printScores("Dev", precisionDev, recallDev, f1Dev);
 	}

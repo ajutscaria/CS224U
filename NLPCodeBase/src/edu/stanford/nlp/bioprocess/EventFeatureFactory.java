@@ -53,16 +53,17 @@ public class EventFeatureFactory extends FeatureExtractor {
 		/*if (Utils.findDepthInDependencyTree(sentence, event)==0)
 			features.add("root=true,POS="+currentWord);
 		*/
-		features.add("lemma="+token.lemma());
+		features.add("lemma="+token.lemma().toLowerCase());
 		//??features.add("word="+token.originalText());
 		//features.add("POSword=" + currentWord+","+leaves.get(0));
 		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
-		//features.add("POSlemma=" + currentWord+","+token.lemma());
+		features.add("POS=" + currentWord+","+token.lemma());
+		//features.add("ParentPOS=" + parent.value());
 		//features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
 		//?features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
-			features.add("depedgein="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
+			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
 			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 		}
@@ -74,9 +75,10 @@ public class EventFeatureFactory extends FeatureExtractor {
 		}*/
 		//Nominalization did not give much improvement
 		if(nominalizations.contains(leaves.get(0).value())) {
-			LogInfo.logs("Adding nominalization - " + leaves.get(0));
+			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			features.add("nominalization");
 		}
+		
 		/*
 		if(nominalizations.contains(leaves.get(0).value())) {
 			LogInfo.logs("Adding nominalization - " + leaves.get(0));

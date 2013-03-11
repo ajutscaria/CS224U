@@ -47,17 +47,30 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		}
 		parentCFGRule = parentCFGRule.trim();
 		
-		features.add("POS="+currentWord);
-		features.add("lemma="+token.lemma());
-		features.add("word="+token.originalText());
-		features.add("POSword=" + currentWord+","+leaves.get(0));
-		features.add("POSparentPOS="+currentWord + "," + event.parent(root).value());
-		features.add("POSlemma=" + currentWord+","+token.lemma());
-		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
-		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		features.add("lemma="+token.lemma().toLowerCase());
+		//??features.add("word="+token.originalText());
+		//features.add("POSword=" + currentWord+","+leaves.get(0));
+		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
+		features.add("POS=" + currentWord+","+token.lemma());
+		//features.add("ParentPOS=" + parent.value());
+		//features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
+		//?features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
-			features.add("depEdgeIn="+ e.getRelation() + "," + e.getSource().toString().split("-")[1]);
+			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
+			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
+			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
+		}
+		/*
+		for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
+			features.add("depedgein="+ e.getRelation() + "," + e.getTarget().toString().split("-")[1]);//need to deal with mult children same tag?
+			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
+			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
+		}*/
+		//Nominalization did not give much improvement
+		if(nominalizations.contains(leaves.get(0).value())) {
+			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
+			features.add("nominalization");
 		}
 		
 		//for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
