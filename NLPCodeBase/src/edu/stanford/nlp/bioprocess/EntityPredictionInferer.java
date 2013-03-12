@@ -41,8 +41,8 @@ public class EntityPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
 				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
 				for(Tree event:eventNodes) {
-					LogInfo.logs("------------------Event " + Utils.getText(event)+ 
-								"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]--------------");
+					LogInfo.logs("******************Event " + Utils.getText(event)+ 
+								"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
 						if(d.eventNode == event) {
@@ -103,8 +103,8 @@ public class EntityPredictionInferer extends Inferer {
 				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
 				
 				for(Tree event:eventNodes) {
-					LogInfo.logs("------------------Event " + Utils.getText(event)+ 
-							"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]--------------");
+					LogInfo.logs("******************Event " + Utils.getText(event)+ 
+							"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
 					List<Datum> testDataEvent = new ArrayList<Datum>();
 					for(Datum d:test)
 						if(d.eventNode == event) {
@@ -148,6 +148,15 @@ public class EntityPredictionInferer extends Inferer {
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
 					LogInfo.logs("------------------------------------------\n");
 				}
+				for(EventMention ev:sentence.get(EventMentionsAnnotation.class))
+					if(!eventNodes.contains(ev.getTreeNode())){
+						LogInfo.logs("||||||||||||||||||||||Event " +ev.getTreeNode()+ "[Missed]||||||||||||||");
+						LogInfo.logs("\n---------Missed entities-------------------------");
+						for(ArgumentRelation m:ev.getArguments())
+							if(ArgumentRelation.getSemanticRoles().contains(m.type))
+								LogInfo.logs(m.mention.getTreeNode());
+						LogInfo.logs("------------------------------------------\n");
+					}
 			}
 			LogInfo.end_track();
 

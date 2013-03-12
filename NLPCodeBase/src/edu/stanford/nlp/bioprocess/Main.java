@@ -30,7 +30,7 @@ public class Main implements Runnable {
 		boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
-		boolean useSmallSample = true, useOneLoop = false, refreshDataFile = false;
+		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
 		//useSmallSample = true;
 		//useOneLoop = true;
 		//refreshDataFile = true;
@@ -115,10 +115,10 @@ public class Main implements Runnable {
 	}
 
 	public String printScore(String scoreType, double[] scores) {
-		StringBuilder ret = new StringBuilder(String.format("%-15s: ", scoreType));
+		StringBuilder ret = new StringBuilder(String.format("%s ", scoreType));
 		for(double s:scores)
 			ret.append(String.format("%.3f ", s));
-		ret.append(String.format(" Average : %.3f", getAverage(scores)));
+		ret.append(String.format("%.3f", getAverage(scores)));
 		return ret.toString();
 	}
 
@@ -163,13 +163,17 @@ public class Main implements Runnable {
 			LogInfo.logs("Running entity standalone");
 			new Main().runEntityStandalonePrediction(folders);
 		}
-		else if(mode.equals("event")) {
+		else if(mode.equals("eventstandalone")) {
 			LogInfo.logs("Running event prediction");
 			new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
 		}
-		else if(mode.equals("iogold")) {
-			LogInfo.logs("Running IO with GOLD entities");
+		else if(mode.equals("eventgold")) {
+			LogInfo.logs("Running event prediction with GOLD entities");
 			new Main().runPrediction(folders, new EventExtendedFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+		}
+		else if(mode.equals("event")) {
+			LogInfo.logs("Running event prediction");
+			new Main().runEventPrediction(folders);
 		}
 		else if(mode.equals("io")) {
 			LogInfo.logs("Running iterative optimization");
@@ -249,7 +253,37 @@ public class Main implements Runnable {
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			List<Datum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			
 			Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
+			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+			LogInfo.end_track();
+		}
+		printScores("Dev", precisionDev, recallDev, f1Dev);
+	}
+	
+	private void runEventPrediction(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+
+		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
+			
+			Learner entityLearner = new EntityPredictionLearner();
+			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory();
+			Inferer entityInferer = new EntityStandaloneInferer();
+			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
+			List<Datum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
+			
+			Learner eventLearner = new EventPredictionLearner();
+			FeatureExtractor eventFeatureFactory = new EventExtendedFeatureFactory();
+			Inferer eventInferer = new EventPredictionInferer(predictedEntities);
+			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
+			List<Datum> eventPredicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			
+			
+			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 		}

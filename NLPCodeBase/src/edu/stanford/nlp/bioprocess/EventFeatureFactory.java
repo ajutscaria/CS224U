@@ -54,10 +54,12 @@ public class EventFeatureFactory extends FeatureExtractor {
 			features.add("root=true,POS="+currentWord);
 		*/
 		features.add("lemma="+token.lemma().toLowerCase());
-		//??features.add("word="+token.originalText());
+		features.add("word="+token.originalText());
 		//features.add("POSword=" + currentWord+","+leaves.get(0));
 		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
-		features.add("POS=" + currentWord+","+token.lemma());
+		//features.add("POSlemma=" + currentWord+","+token.lemma());
+		//if(currentWord.startsWith("VB"))
+		//	features.add("verb");
 		//features.add("ParentPOS=" + parent.value());
 		//features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
 		//?features.add("POSparentrule=" + currentWord+","+parentCFGRule);
@@ -74,11 +76,19 @@ public class EventFeatureFactory extends FeatureExtractor {
 			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 		}*/
 		//Nominalization did not give much improvement
-		if(nominalizations.contains(leaves.get(0).value())) {
+		if(nominalizations.contains(token.value())) {
 			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			features.add("nominalization");
 		}
 		
+		/*String consecutiveTypes = "";
+		if(currentTokenIndex > 0)
+			consecutiveTypes += tokens.get(currentTokenIndex-1).get(PartOfSpeechAnnotation.class);
+		consecutiveTypes += currentWord;
+		if(currentTokenIndex < tokens.size() - 1)
+			consecutiveTypes += tokens.get(currentTokenIndex+1).get(PartOfSpeechAnnotation.class);
+		features.add("consecutivetypes="+consecutiveTypes);
+		*/
 		/*
 		if(nominalizations.contains(leaves.get(0).value())) {
 			LogInfo.logs("Adding nominalization - " + leaves.get(0));

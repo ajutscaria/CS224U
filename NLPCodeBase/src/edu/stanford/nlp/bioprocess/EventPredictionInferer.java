@@ -86,7 +86,7 @@ public class EventPredictionInferer extends Inferer {
 					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
 						if(d.guessLabel.equals("E") || d.label.equals("E"))
-							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.eventNode, d.eventNode.getSpan(), d.label, d.guessLabel));
 					LogInfo.logs("------------------------------------------\n");
 				}
 			}

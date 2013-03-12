@@ -27,6 +27,7 @@ import fig.basic.LogInfo;
 public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	Set<String> nominalizations = Utils.getNominalizedVerbs();
 
     public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
@@ -46,16 +47,17 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 		
 		//features.add("firstword=" + leaves.get(0));
 		//features.add("lastword=" + leaves.get(leaves.size()-1));
-		features.add("lemma="+token.lemma());
-		features.add("word="+token.originalText().toLowerCase());
-		features.add("POS=" + currentWord);
-		features.add("POSParentPOS=" + currentWord+","+parent.value());
+		//features.add("lemma="+token.lemma());
+		//features.add("word="+token.originalText().toLowerCase());
+		//features.add("checkifentity="+checkIfEntity(sentence, entity));
+		//features.add("POS=" + currentWord);
+		//features.add("POSParentPOS=" + currentWord+","+parent.value());
 		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, entity, root), ",").replace("up-ROOT,down-ROOT,", ""));
-		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		//features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
-		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
-			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
-		}
+		//for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
+		//	features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
+		//}
 		
 		
 		//This feature did not work surprisingly. Maybe because the path from ancestor to event might lead to a lot of different variations.
@@ -158,5 +160,16 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 	    }
 
     	return newData;
+    }    
+    
+    private boolean checkIfEntity(CoreMap sentence, Tree node) {
+    	IndexedWord word = Utils.findDependencyNode(sentence, node);
+    	SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+    	for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
+    		String POSParent = e.getSource().toString().split("-")[1], parent = e.getSource().toString().split("-")[0];
+    		if(POSParent.startsWith("VB") || nominalizations.contains(parent))
+    			return true;
+    	}
+    	return false;
     }
 }
