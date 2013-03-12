@@ -7,6 +7,7 @@ import java.util.Set;
 
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
@@ -81,9 +82,13 @@ public class EntityStandaloneInferer extends Inferer{
 						//0.358, 0.953, 0.520
 						//if(d.entityNode.value().equals("NP")) {
 						//0.501, 0.718, 0.588
-						if(d.entityNode.value().equals("NP") && !nominalizations.contains(Utils.findCoreLabelFromTree(sentence, d.entityNode).originalText()) 
-								&& d.entityNode.getLeaves().size() < 7 && checkIfEntity(sentence, d.entityNode)
-								&& !d.entityNode.getLeaves().get(0).value().equals("Figure")) {
+						if(d.entityNode.value().equals("NP") 
+								&& !nominalizations.contains(Utils.findCoreLabelFromTree(sentence, d.entityNode).originalText()) 
+								&& d.entityNode.getLeaves().size() < 8 
+								&& checkIfEntity(sentence, d.entityNode)
+								&& !d.entityNode.getLeaves().get(0).value().equals("Figure")
+								&& !root.getLeaves().get(0).value().equals("-LRB-")
+								&& !Utils.getText(d.entityNode).contains(" and ")) {
 							d.guessLabel = "E";
 						}
 						else {
@@ -93,7 +98,6 @@ public class EntityStandaloneInferer extends Inferer{
 				}
 				predicted.addAll(testDataWithLabel);
 				
-				LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
 				LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
@@ -119,6 +123,14 @@ public class EntityStandaloneInferer extends Inferer{
 				continue;
 			if(child.value().equals("NP"))
 				return true;
+		}
+		return false;
+	}
+	
+	private boolean checkContainsNominalizations(CoreMap sentence, Tree node) {
+		for(int i = node.getSpan().getSource(); i <= node.getSpan().getTarget();i++) {
+			if(nominalizations.contains(sentence.get(TokensAnnotation.class).get(i).originalText()))
+					return true;
 		}
 		return false;
 	}
