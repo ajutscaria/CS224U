@@ -28,7 +28,7 @@ public class IterativeOptimizer {
 		List<Datum> predictedStandaloneEntities = entityInferer.Infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
 		
 		Triple<Double, Double, Double> entityTriple = null;
-		for(int i = 0; i < 5; i++) {
+		for(int i = 0; i < 1; i++) {
 			LogInfo.begin_track("Entity prediction");
 			entityInferer = new EntityPredictionInferer(predicted);
 			Params entityParams = entityLearner.learn(train, entityFeatureFactory);

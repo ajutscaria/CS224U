@@ -140,7 +140,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		//	features.add("verb");
 		//features.add("ParentPOS=" + parent.value());
 		//features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
-		//?features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		//features.add("parentrule=" + parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
 			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
@@ -192,17 +192,17 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 				}
 			}
 	
-			//if(closestEntitySpanAfter > Integer.MAX_VALUE)
-			//	features.add("closestEntitySpanAfter=" + closestEntitySpanAfter);
+			if(closestEntitySpanAfter > Integer.MAX_VALUE)
+				features.add("closestEntitySpanAfter=" + closestEntitySpanAfter);
 			
-			//if(closestEntitySpanBefore > Integer.MAX_VALUE)
-			//	features.add("closestEntitySpanBefore" + closestEntitySpanBefore);
+			if(closestEntitySpanBefore > Integer.MAX_VALUE)
+				features.add("closestEntitySpanBefore" + closestEntitySpanBefore);
 			//Quite good
 			//features.add("numrelatedentities=" + (numRelatedEntities ));
 			//not so great
 			if(pathLength<Integer.MAX_VALUE) {
-				//features.add("splpath=" + shortestPath);
-				//features.add("splpathlength=" + pathLength);
+				features.add("splpath=" + shortestPath);
+				features.add("splpathlength=" + pathLength);
 			}
 		}
 		

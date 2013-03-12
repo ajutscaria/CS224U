@@ -81,7 +81,9 @@ public class EntityStandaloneInferer extends Inferer{
 						//0.358, 0.953, 0.520
 						//if(d.entityNode.value().equals("NP")) {
 						//0.501, 0.718, 0.588
-						if(d.entityNode.value().equals("NP") && d.entityNode.getLeaves().size() < 7 && checkIfEntity(sentence, d.entityNode)) {
+						if(d.entityNode.value().equals("NP") && !nominalizations.contains(Utils.findCoreLabelFromTree(sentence, d.entityNode).originalText()) 
+								&& d.entityNode.getLeaves().size() < 7 && checkIfEntity(sentence, d.entityNode)
+								&& !d.entityNode.getLeaves().get(0).value().equals("Figure")) {
 							d.guessLabel = "E";
 						}
 						else {
@@ -126,7 +128,7 @@ public class EntityStandaloneInferer extends Inferer{
     	SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
     	for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
     		String POSParent = e.getSource().toString().split("-")[1], parent = e.getSource().toString().split("-")[0];
-    		if(POSParent.startsWith("VB"))// || nominalizations.contains(parent))
+    		if(POSParent.startsWith("VB") || nominalizations.contains(parent))
     			return true;
     	}
     	return false;
