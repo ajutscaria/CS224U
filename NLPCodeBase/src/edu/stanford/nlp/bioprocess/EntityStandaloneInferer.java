@@ -5,7 +5,9 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.trees.Tree;
@@ -51,7 +53,8 @@ public class EntityStandaloneInferer extends Inferer{
 
 				List<Datum> testDataWithLabel = new ArrayList<Datum>();
 
-				for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
+				//for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
+				for (int i = 0; i < testDataEvent.size(); i += 2) {
 					testDataWithLabel.add(testDataEvent.get(i));
 				}
 				
@@ -77,17 +80,23 @@ public class EntityStandaloneInferer extends Inferer{
 				else {
 					for(Datum d:testDataWithLabel) {
 						Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+						
+						CoreLabel label = Utils.findCoreLabelFromTree(sentence, d.entityNode);
+						LogInfo.logs(d.word + ":" +label.originalText());
 						//0.442, 0.774, 0.562
 						//if(d.entityNode.value().equals("NP") && checkIfEntity(sentence, d.entityNode)) {
 						//0.358, 0.953, 0.520
 						//if(d.entityNode.value().equals("NP")) {
 						//0.501, 0.718, 0.588
 						if(d.entityNode.value().equals("NP") 
-								&& !nominalizations.contains(Utils.findCoreLabelFromTree(sentence, d.entityNode).originalText()) 
+								&& !nominalizations.contains(label.originalText()) 
 								&& d.entityNode.getLeaves().size() < 8 
 								&& checkIfEntity(sentence, d.entityNode)
 								&& !d.entityNode.getLeaves().get(0).value().equals("Figure")
 								&& !root.getLeaves().get(0).value().equals("-LRB-")
+								&& !(d.entityNode.getLeaves().size() == 1 && (label.get(PartOfSpeechAnnotation.class).equals("CD") || label.equals("this")))
+								&& !Utils.getText(d.entityNode).contains(" in a ")
+								&& !Utils.getText(d.entityNode).contains(" result")
 								&& !Utils.getText(d.entityNode).contains(" and ")) {
 							d.guessLabel = "E";
 						}

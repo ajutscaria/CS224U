@@ -75,12 +75,12 @@ public class EventFeatureFactory extends FeatureExtractor {
 			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 		}*/
-		//Nominalization did not give much improvement
+
 		if(nominalizations.contains(token.value())) {
 			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			features.add("nominalization");
 		}
-		
+		//features.add("bias");
 		/*String consecutiveTypes = "";
 		if(currentTokenIndex > 0)
 			consecutiveTypes += tokens.get(currentTokenIndex-1).get(PartOfSpeechAnnotation.class);

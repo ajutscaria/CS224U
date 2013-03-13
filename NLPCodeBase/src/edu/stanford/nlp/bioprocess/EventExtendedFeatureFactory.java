@@ -159,6 +159,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			features.add("nominalization");
 		}
 		
+		IdentityHashSet<IndexedWord> uniqueHeads = new IdentityHashSet<IndexedWord>();
 		//Trying to look at entities to improve prediction
 		if(addEntityFeatures) {
 			String shortestPath = "";
@@ -167,7 +168,9 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			for(Tree entityNode:entityNodes) {
 				if(entityNode==null)
 					continue;
-				if(Utils.isNodesRelated(sentence, entityNode, event)) {
+				IndexedWord entityIndexWord = Utils.findDependencyNode(sentence, entityNode);
+				if(Utils.isNodesRelated(sentence, entityNode, event) && !uniqueHeads.contains(entityIndexWord)) {
+					uniqueHeads.add(entityIndexWord);
 					numRelatedEntities++;
 				}
 				
@@ -198,7 +201,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			if(closestEntitySpanBefore > Integer.MAX_VALUE)
 				features.add("closestEntitySpanBefore" + closestEntitySpanBefore);
 			//Quite good
-			//features.add("numrelatedentities=" + (numRelatedEntities ));
+			//features.add("numrelatedentities=" + (uniqueHeads.size() ));
 			//not so great
 			if(pathLength<Integer.MAX_VALUE) {
 				features.add("splpath=" + shortestPath);
