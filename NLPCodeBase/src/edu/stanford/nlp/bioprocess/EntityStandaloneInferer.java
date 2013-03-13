@@ -16,6 +16,7 @@ import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
@@ -78,11 +79,12 @@ public class EntityStandaloneInferer extends Inferer{
 				
 				//My own inferer
 				else {
+					IdentityHashSet<Tree> entities = new IdentityHashSet<Tree>();
 					for(Datum d:testDataWithLabel) {
 						Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 						
 						CoreLabel label = Utils.findCoreLabelFromTree(sentence, d.entityNode);
-						LogInfo.logs(d.word + ":" +label.originalText());
+						//LogInfo.logs(d.word + ":" +label.originalText());
 						//0.442, 0.774, 0.562
 						//if(d.entityNode.value().equals("NP") && checkIfEntity(sentence, d.entityNode)) {
 						//0.358, 0.953, 0.520
@@ -94,11 +96,23 @@ public class EntityStandaloneInferer extends Inferer{
 								&& checkIfEntity(sentence, d.entityNode)
 								&& !d.entityNode.getLeaves().get(0).value().equals("Figure")
 								&& !root.getLeaves().get(0).value().equals("-LRB-")
-								&& !(d.entityNode.getLeaves().size() == 1 && (label.get(PartOfSpeechAnnotation.class).equals("CD") || label.equals("this")))
-								&& !Utils.getText(d.entityNode).contains(" in a ")
-								&& !Utils.getText(d.entityNode).contains(" result")
-								&& !Utils.getText(d.entityNode).contains(" and ")) {
-							d.guessLabel = "E";
+								//&& !(d.entityNode.getLeaves().size() == 1 && (label.get(PartOfSpeechAnnotation.class).equals("CD") || label.equals("this")))
+								//&& !Utils.getText(d.entityNode).contains(" in a ")
+								//&& !Utils.getText(d.entityNode).contains(" result")
+								//&& !Utils.getText(d.entityNode).contains(" and ")
+								) 
+						{
+							boolean noParentPresent = true;
+							//for(Tree entityNodesEarlier:entities)
+							//	if(entityNodesEarlier.dominates(d.entityNode))
+							//		noParentPresent = false;
+							if(noParentPresent) {
+								//entities.add(d.entityNode);
+								d.guessLabel = "E";
+							}
+							//else {
+							//	d.guessLabel = "O";
+							//}
 						}
 						else {
 							d.guessLabel = "O";
