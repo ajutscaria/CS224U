@@ -19,7 +19,8 @@ public class SRLPredictionLearner extends Learner {
 	dataset = ds;
 	// add the features
 	List<Datum> data = ff.setFeaturesTrain(dataset);
-	LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);
+	LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data, true);
+	
 	double[] initial = new double[obj.domainDimension()];
 
 	QNMinimizer minimizer = new QNMinimizer(15);
@@ -27,6 +28,7 @@ public class SRLPredictionLearner extends Learner {
 	
 	double[][] weightsAll = new double[ArgumentRelation.getSemanticRoles().size()][obj.featureIndex.size()];
 	
+	System.out.println(obj.labelIndex.toString());
 	for (String srl : ArgumentRelation.getSemanticRoles()) {
 		boolean addedLabel = false;
 		if (!Utils.stringObjectContains(obj.labelIndex.indexes.keySet(), srl)) {

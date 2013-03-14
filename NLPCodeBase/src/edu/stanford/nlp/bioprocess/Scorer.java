@@ -131,8 +131,8 @@ public class Scorer {
 	  IdentityHashMap<Pair<Tree, Tree>, String> map = new IdentityHashMap<Pair<Tree, Tree>, String> ();
 	  //LogInfo.begin_track("Gold event-entity relation");
 	  for(Datum d:predicted) {
-		 if(!d.guessLabel.equals(RelationType.NONE.toString()))
-			 map.put(new Pair<Tree,Tree>(d.eventNode, d.entityNode), d.guessLabel);
+		 if(!d.guessRole.equals(RelationType.NONE.toString()))
+			 map.put(new Pair<Tree,Tree>(d.eventNode, d.entityNode), d.guessRole);
 	  }
 	  //LogInfo.end_track();
 	  return map;

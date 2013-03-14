@@ -2,6 +2,8 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.*;
 
+import edu.stanford.nlp.util.StringUtils;
+
 public class MaxEntModel {
 
 	private final Index labelIndex;
@@ -49,9 +51,11 @@ public class MaxEntModel {
 				probSRL[i] = Math.exp(scores[i])/denominator;
 			}
 			
-			data.get(position).guessLabel = labelIndex.get(bestLabelIndex).toString();
-			data.get(position).setProbability(Math.exp(maximum) / denominator);
-			data.get(position).setProbabilitySRL(probSRL);
+			data.get(position).setProbabilitySRL(probSRL); 
+			int bestRoleIndex = data.get(position).getBestRoleIndex();
+			data.get(position).guessRole = labelIndex.get(bestLabelIndex).toString();
+//			data.get(position).setProbability(Math.exp(maximum) / denominator);
+			
 		}
 	}
 

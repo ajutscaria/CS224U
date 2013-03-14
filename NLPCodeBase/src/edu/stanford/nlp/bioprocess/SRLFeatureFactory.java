@@ -13,11 +13,12 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class SRLFeatureFactory extends FeatureExtractor {
-	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	boolean printDebug = false, printAnnotations = false, printFeatures = true;
 	HashMap<String, Integer> relCount = new HashMap<String, Integer>();
 	Index labelIndex;
 	
@@ -25,6 +26,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 	}
 	
 	public SRLFeatureFactory(Index labelIndex) {
+		System.out.println("LabelIndex: "+labelIndex);
 		this.labelIndex = labelIndex;
 	}
 
@@ -80,7 +82,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
-				//IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+				IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 				if(printDebug){
 					LogInfo.logs(sentence);
 					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
@@ -105,26 +107,26 @@ public class SRLFeatureFactory extends FeatureExtractor {
 						if(node.isLeaf()||node.value().equals("ROOT"))
 							continue;
 						
-						String type = Utils.getArgumentMentionRelation(event, node).toString();
+						String role = Utils.getArgumentMentionRelation(event, node).toString();
 						
-						if (relCount.containsKey(type)) {
-							relCount.put(type, relCount.get(type)+1);
+						if (relCount.containsKey(role)) {
+							relCount.put(role, relCount.get(role)+1);
 						} else {
-							relCount.put(type, 1);
+							relCount.put(role, 1);
 						}
 						
-//						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
-//							type = "E";
-//						}
+						String type = "O";
+						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
+							type = "E";
+						}
 						
 						if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
-	//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
-	//						type = "E";
-	//					}
+						if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
+							type = "E";
+						}
 						
-						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, event.getTreeNode());
-						newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
-						//System.out.println(Utils.getText(node) + ":" + newDatum.features.features.toString());
+						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, event.getTreeNode(), role);
+						newDatum.features = computeFeatures(sentence, role, node, event.getTreeNode());
 						if(printFeatures) {
 							LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 						}
@@ -143,7 +145,8 @@ public class SRLFeatureFactory extends FeatureExtractor {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<Datum> newData = new ArrayList<Datum>();
-    	
+    	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+
 		for(Tree eventNode: predictedEvents) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				for (int i=0; i<this.labelIndex.size(); i++) {
@@ -151,9 +154,14 @@ public class SRLFeatureFactory extends FeatureExtractor {
 					if(node.isLeaf() || node.value().equals("ROOT"))
 						continue;
 					
-					String type = Utils.getArgumentMentionRelation(sentence, eventNode, node).toString();
+					String type = "O";
+					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) {
+						type = "E";
+					}
 					
-					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, eventNode);
+					String role = Utils.getArgumentMentionRelation(sentence, eventNode, node).toString();
+					
+					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, eventNode, role);
 					newDatum.features = computeFeatures(sentence, possibleLabel, node, eventNode);
 					newData.add(newDatum);
 				}

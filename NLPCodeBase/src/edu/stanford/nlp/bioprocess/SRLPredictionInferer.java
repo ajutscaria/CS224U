@@ -59,10 +59,10 @@ public class SRLPredictionInferer extends Inferer {
 					
 					for(Datum d:testDataWithLabel) {
 						if((d.entityNode.value().equals("NP") /*|| d.entityNode.value().startsWith("NN")*/) && Utils.isNodesRelated(sentence, d.entityNode, event)) {
-							d.guessLabel = popularRelation;
+							d.guessRole = popularRelation;
 						}
 						else
-							d.guessLabel = RelationType.NONE.toString();
+							d.guessRole = RelationType.NONE.toString();
 					}
 					predicted.addAll(testDataWithLabel);
 					
@@ -71,14 +71,14 @@ public class SRLPredictionInferer extends Inferer {
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
 					for(Datum d:testDataWithLabel) 
-						if(!d.label.equals(RelationType.NONE.toString()))
-							LogInfo.logs(d.entityNode + ":" + d.label);
+						if(!d.role.equals(RelationType.NONE.toString()))
+							LogInfo.logs(d.entityNode + ":" + d.role);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
 					{
-						if(!(d.guessLabel.equals(RelationType.NONE.toString()) && d.label.equals(RelationType.NONE.toString()))) {
-							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+						if(!(d.guessRole.equals(RelationType.NONE.toString()) && d.role.equals(RelationType.NONE.toString()))) {
+							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.role, d.guessRole));
 						}
 					}
 					LogInfo.logs("------------------------------------------\n");
@@ -131,7 +131,7 @@ public class SRLPredictionInferer extends Inferer {
 						if (Utils.subsumesEvent(d.entityNode, sentence)) {
 							map.put(d.entityNode, new Pair<Double, String>(0.0, RelationType.NONE.toString()));
 						} else {
-							map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+							map.put(d.entityNode, new Pair<Double, String>(d.getBestRoleProbability(), d.guessRole));
 						}
 					}
 					
@@ -142,14 +142,14 @@ public class SRLPredictionInferer extends Inferer {
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
 					for(Datum d:testDataWithLabel) 
-						if(!d.label.equals(RelationType.NONE.toString()))
-							LogInfo.logs(d.entityNode + ":" + d.label);
+						if(!d.role.equals(RelationType.NONE.toString()))
+							LogInfo.logs(d.entityNode + ":" + d.role);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
 					{
-						if(!(d.guessLabel.equals(RelationType.NONE.toString()) && d.label.equals(RelationType.NONE.toString()))) {
-							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+						if(!(d.guessRole.equals(RelationType.NONE.toString()) && d.role.equals(RelationType.NONE.toString()))) {
+							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.role, d.guessRole));
 						}
 					}
 					LogInfo.logs("------------------------------------------\n");

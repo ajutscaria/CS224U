@@ -8,16 +8,26 @@ public class LogConditionalObjectiveFunction {
   private List<Datum> data;
   public final Index featureIndex = new Index();
   public final Index labelIndex = new Index();
+  public boolean srl = false;
   
   public LogConditionalObjectiveFunction(List<Datum> data) {
-    this.data = data;
+    initialize(data, false);
+  }
+  
+  public LogConditionalObjectiveFunction(List<Datum> data, boolean srl) {
+	    this.srl = srl;
+	    initialize(data, srl);
+  }
+  
+  private void initialize(List<Datum> data, boolean srl) {
+	  this.data = data;
 
-    for (Datum datum : data) {
-      labelIndex.add(datum.label);
-      for (Object f : datum.features.getFeatures()) {
-        featureIndex.add(f);
-      }
-    }
+	    for (Datum datum : data) {
+	      labelIndex.add(srl?datum.role:datum.label);
+	      for (Object f : datum.features.getFeatures()) {
+	        featureIndex.add(f);
+	      }
+	    }
   }
 
   public int domainDimension() {
@@ -67,6 +77,7 @@ public class LogConditionalObjectiveFunction {
     double[][] weights = to2D(x);
 
     for (Datum datum : data) {
+      String label = srl?datum.role:datum.label;
       double[] scores = new double[labelIndex.size()];
       for (Object feature : datum.getFeatures()) {
         int f = featureIndex.indexOf(feature);
@@ -83,11 +94,11 @@ public class LogConditionalObjectiveFunction {
         for (Object feature : datum.getFeatures()) {
           int f = featureIndex.indexOf(feature);
           derivative[i][f] += prob;
-          if (i == labelIndex.indexOf(datum.label)) {
+          if (i == labelIndex.indexOf(label)) {
             derivative[i][f]--;
           }
         }
-        if (i == labelIndex.indexOf(datum.label)) {
+        if (i == labelIndex.indexOf(label)) {
           value -= Math.log(prob);
         }
       }
