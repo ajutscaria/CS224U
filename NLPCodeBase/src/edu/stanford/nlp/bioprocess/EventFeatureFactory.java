@@ -80,7 +80,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
 			features.add("nominalization");
 		}
-		//features.add("bias");
+		
 		/*String consecutiveTypes = "";
 		if(currentTokenIndex > 0)
 			consecutiveTypes += tokens.get(currentTokenIndex-1).get(PartOfSpeechAnnotation.class);
@@ -110,7 +110,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		List<String> updatedFeatures = new ArrayList<String>();
 		for(String feature:features)
 			updatedFeatures.add(classString + feature);
-	
+		updatedFeatures.add("bias");
 		FeatureVector fv = new FeatureVector(updatedFeatures);
 		return fv;
     }

@@ -179,6 +179,8 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 				if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
 					features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
 				
+				//features.add("deppath=" + Utils.getDependencyPath(sentence, entityNode, event));
+				
 				if(pathLength > nodesInPath.size()) {
 					shortestPath = StringUtils.join(nodesInPath, ",");
 				}
