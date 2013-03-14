@@ -141,7 +141,8 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 
 
     	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
-		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class).preOrderNodeList()) {
+			//LogInfo.logs("node " + node);
 			for (String possibleLabel : labels) {
 				if(node.isLeaf() || node.value().equals("ROOT"))
 					continue;

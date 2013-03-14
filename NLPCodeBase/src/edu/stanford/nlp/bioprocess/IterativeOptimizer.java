@@ -70,8 +70,8 @@ public class IterativeOptimizer {
 		Triple<Double, Double, Double> entityTriple = null;
 
 		Inferer entityInferer = new EntityStandaloneInferer();
-		Params entityStandaloneParams = entityLearner.learn(train, entityFeatureFactory);
-		List<Datum> predictedEntities = entityInferer.Infer(test, entityStandaloneParams, entityFeatureFactory);
+		//Params entityStandaloneParams = entityLearner.learn(train, entityFeatureFactory);
+		List<Datum> predictedEntities = entityInferer.Infer(test, null, entityFeatureFactory);
 		entityTriple = Scorer.scoreStandaloneEntities(test, predictedEntities);
 		
 		LogInfo.logs("Entity prediction - " + entityTriple);
