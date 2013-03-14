@@ -6,16 +6,18 @@ import java.util.*;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
 import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class SRLFeatureFactory extends FeatureExtractor {
-	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	boolean printDebug = false, printAnnotations = false, printFeatures = true;
 	HashMap<String, Integer> relCount = new HashMap<String, Integer>();
 
     public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
@@ -25,11 +27,18 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		boolean dependencyExists = Utils.isNodesRelated(sentence, entity, event);
 		
-		features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
-		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
-		features.add("PathEntToEvt=" + Trees.pathNodeToNode(event, entity, root));
-		features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));
-		features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));
+		CoreLabel token = Utils.findCoreLabelFromTree(sentence, entity);
+		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+		
+		//features.add("PrevWordPOS="+tokens.get(token.index()-1).get(PartOfSpeechAnnotation.class));
+		features.add("EntityEvent="+Utils.getText(entity)+","+Utils.getText(event));
+		//System.out.println("Adding "+entity.getLeaves()+"-"+event.getLeaves());
+
+//		features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
+//		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
+//		features.add("PathEntToEvt=" + Trees.pathNodeToNode(event, entity, root));
+//		features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));
+//		features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));
 		
 		//features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 		//features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);
@@ -98,6 +107,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 //						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 //							type = "E";
 //						}
+						
 						if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
 	//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
 	//						type = "E";
@@ -105,7 +115,10 @@ public class SRLFeatureFactory extends FeatureExtractor {
 						
 						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, event.getTreeNode());
 						newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
-						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
+						//System.out.println(Utils.getText(node) + ":" + newDatum.features.features.toString());
+						if(printFeatures) {
+							LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
+						}
 						newData.add(newDatum);
 				}
 			}
@@ -122,12 +135,6 @@ public class SRLFeatureFactory extends FeatureExtractor {
     	// true label info
     	List<Datum> newData = new ArrayList<Datum>();
     	List<String> labels = ArgumentRelation.getSemanticRoles();
-    	Map<String, Integer> labelIndex = new HashMap<String, Integer>(); 
-    	
-    	int k = 0;
-    	for (String srl : labels) {
-    		labelIndex.put(srl, k++);
-    	}
 
 		for(Tree eventNode: predictedEvents) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {

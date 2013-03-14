@@ -191,11 +191,11 @@ public class Main implements Runnable {
 			SRLPredictionLearner learner,
 			SRLPredictionInferer inferer, Scorer scorer) {
 		int NumCrossValidation = 10;
-		boolean small = false;
+		boolean small = true;
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
 		if (small) {
 			Params param = learner.learn(dataset.examples("sample"), featureFactory);
-			List<Datum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, featureFactory);
+			List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
 			Triple<Double, Double, Double> triple = Scorer.scoreSRL(dataset.examples("sample"), predicted);
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);
@@ -207,7 +207,7 @@ public class Main implements Runnable {
 			for(int i = 1; i <= NumCrossValidation; i++) {
 				LogInfo.begin_track("Iteration " + i);
 				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
-				List<Datum> predicted = inferer.BaselineInfer(split.GetTestExamples(i), param, featureFactory);
+				List<Datum> predicted = inferer.Infer(split.GetTestExamples(i), param, featureFactory);
 				Triple<Double, Double, Double> triple = Scorer.scoreSRL(split.GetTestExamples(i), predicted);
 				precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
 				LogInfo.end_track();

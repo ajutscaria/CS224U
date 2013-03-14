@@ -33,7 +33,6 @@ public class SRLPredictionInferer extends Inferer {
 	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<Datum> predicted = new ArrayList<Datum>();
 		String popularRelation = ((SRLFeatureFactory)ff).getMostCommonRelationType();
-		System.out.println(popularRelation);
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
 			LogInfo.begin_track("Example %s",example.id);
@@ -124,35 +123,35 @@ public class SRLPredictionInferer extends Inferer {
 						testDataWithLabel.add(testDataEvent.get(i));
 					}
 					MaxEntModel viterbi = new MaxEntModel(parameters.getLabelIndex(), parameters.getFeatureIndex(), parameters.getWeights());
-					viterbi.decodeForEntity(testDataWithLabel, testDataEvent);
+					viterbi.decodeForSRL(testDataWithLabel, testDataEvent);
 					
 					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
 	
 					for(Datum d:testDataWithLabel) {
 						if (Utils.subsumesEvent(d.entityNode, sentence)) {
-							map.put(d.entityNode, new Pair<Double, String>(0.0, "O"));
+							map.put(d.entityNode, new Pair<Double, String>(0.0, RelationType.NONE.toString()));
 						} else {
 							map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
 						}
 					}
 					
-					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
-					dynamicProgrammer.calculateLabels();
+//					DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataWithLabel);
+//					dynamicProgrammerSRL.calculateLabels();
 					
 					predicted.addAll(testDataWithLabel);
 					
-					LogInfo.logs(sentence);
-					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
-					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
 					for(Datum d:testDataWithLabel) 
-						if(d.label.equals("E"))
+						if(!d.label.equals(RelationType.NONE.toString()))
 							LogInfo.logs(d.entityNode + ":" + d.label);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(Datum d:testDataWithLabel)
-						if(d.guessLabel.equals("E") || d.label.equals("E"))
+					{
+						if(!(d.guessLabel.equals(RelationType.NONE.toString()) && d.label.equals(RelationType.NONE.toString()))) {
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+						}
+					}
 					LogInfo.logs("------------------------------------------\n");
 				}
 			}
