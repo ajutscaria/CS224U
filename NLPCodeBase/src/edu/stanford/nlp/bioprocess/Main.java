@@ -27,7 +27,7 @@ public class Main implements Runnable {
 				precisionBaseline = new double[NumCrossValidation], recallBaseline = new double[NumCrossValidation], f1Baseline = new double[NumCrossValidation];
 
 		//Flags to indicate if evaluation of model should be run on training set, baseline and dev-test set.
-		boolean evaluateTrain = true, evaluateBaseline = false, evaluateDev = true;
+		boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
 		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
@@ -181,20 +181,22 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("srl")) {
 			LogInfo.logs("Running SRL");
-			new Main().runSRLPrediction(folders, new SRLFeatureFactory(), new SRLPredictionLearner(), new SRLPredictionInferer(), new Scorer());
+			new Main().runSRLPrediction(folders);
 		}
 		LogInfo.end_track();
 	}
 
-	private void runSRLPrediction(HashMap<String, String> folders,
-			SRLFeatureFactory featureFactory,
-			SRLPredictionLearner learner,
-			SRLPredictionInferer inferer, Scorer scorer) {
+	private void runSRLPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
 		boolean small = true;
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
+		SRLFeatureFactory featureFactory = new SRLFeatureFactory();
+		SRLPredictionLearner learner = new SRLPredictionLearner();
+		SRLPredictionInferer inferer = new SRLPredictionInferer(); 
+		Scorer scorer = new Scorer();
 		if (small) {
 			Params param = learner.learn(dataset.examples("sample"), featureFactory);
+			featureFactory = new SRLFeatureFactory(param.labelIndex);
 			List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
 			Triple<Double, Double, Double> triple = Scorer.scoreSRL(dataset.examples("sample"), predicted);
 			LogInfo.logs("Precision : " + triple.first);

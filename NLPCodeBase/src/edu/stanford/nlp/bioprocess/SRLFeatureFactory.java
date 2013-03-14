@@ -19,6 +19,14 @@ import fig.basic.LogInfo;
 public class SRLFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = true;
 	HashMap<String, Integer> relCount = new HashMap<String, Integer>();
+	Index labelIndex;
+	
+	public SRLFeatureFactory() {
+	}
+	
+	public SRLFeatureFactory(Index labelIndex) {
+		this.labelIndex = labelIndex;
+	}
 
     public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
@@ -134,11 +142,11 @@ public class SRLFeatureFactory extends FeatureExtractor {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<Datum> newData = new ArrayList<Datum>();
-    	List<String> labels = ArgumentRelation.getSemanticRoles();
-
+    	
 		for(Tree eventNode: predictedEvents) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-				for (String possibleLabel : labels) {
+				for (int i=0; i<this.labelIndex.size(); i++) {
+					String possibleLabel = (String) this.labelIndex.get(i);
 					if(node.isLeaf() || node.value().equals("ROOT"))
 						continue;
 					
