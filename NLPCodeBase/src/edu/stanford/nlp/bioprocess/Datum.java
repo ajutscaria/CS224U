@@ -23,6 +23,7 @@ public class Datum {
   Tree entityNode, eventNode;
   IndexedWord entityHead, eventHead;
   double probEntity;
+  double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
   
   public Datum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
 	this.sentence = sentence;
@@ -40,4 +41,12 @@ public class Datum {
 	  return probEntity;
   }
  
+  public void setProbabilitySRL(double[] probSRL) {
+	  this.probSRL = probSRL;
+	  System.out.println(this.entityNode+":"+this.eventNode);
+	  for (int i = 0; i<probSRL.length; i++) {
+		  System.out.print(probSRL[i]+" ");
+	  }
+	  System.out.println();
+  }
 }

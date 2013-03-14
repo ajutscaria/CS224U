@@ -651,4 +651,13 @@ public static List<Example> readFile(String fileName) {
 				set.add(d.entityNode);
 		return set;
 	}
+
+	public static boolean stringObjectContains(Set<Object> keySet, String srl) {
+		for (Object key : keySet) {
+			if (((String)key).equals(srl)) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
