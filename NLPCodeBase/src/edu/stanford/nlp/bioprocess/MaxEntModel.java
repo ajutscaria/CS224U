@@ -30,13 +30,14 @@ public class MaxEntModel {
 	public void decodeForSRL(List<Datum> data, List<Datum> dataWithMultiplePrevLabels) {
 		// for each position in data
 		double[] scores = new double[ArgumentRelation.getSemanticRoles().size()];
-		double maximum = -1.0;
 		int bestLabelIndex = -1;
-		double denominator = 0.0;
+		
 		for (int position = 0; position< data.size(); position++) {
+			double denominator = 0.0;
+			double maximum = Double.NEGATIVE_INFINITY;
 			for (int i=0; i<scores.length; i++) {
 				scores[i] = computeScore(dataWithMultiplePrevLabels.get(position * labelIndex.size() + i).features, i);
-				if (scores[i] > maximum) {
+				if (scores[i] >= maximum) {
 					maximum = scores[i];
 					bestLabelIndex = i;
 				}
@@ -44,7 +45,7 @@ public class MaxEntModel {
 			}
 
 			double[] probSRL = new double[labelIndex.size()];
-			for (int i=0; i<labelIndex.size(); i++) {
+			for (int i=1; i<labelIndex.size(); i++) {
 				probSRL[i] = Math.exp(scores[i])/denominator;
 			}
 			

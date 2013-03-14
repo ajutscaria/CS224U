@@ -17,7 +17,7 @@ import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class SRLFeatureFactory extends FeatureExtractor {
-	boolean printDebug = false, printAnnotations = false, printFeatures = true;
+	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	HashMap<String, Integer> relCount = new HashMap<String, Integer>();
 	Index labelIndex;
 	
@@ -39,6 +39,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
 		
 		//features.add("PrevWordPOS="+tokens.get(token.index()-1).get(PartOfSpeechAnnotation.class));
+		//features.add("PrevWord="+tokens.get(token.index()-1));
 		features.add("EntityEvent="+Utils.getText(entity)+","+Utils.getText(event));
 		//System.out.println("Adding "+entity.getLeaves()+"-"+event.getLeaves());
 
