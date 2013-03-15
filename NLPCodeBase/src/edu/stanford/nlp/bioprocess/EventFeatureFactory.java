@@ -23,6 +23,8 @@ import fig.basic.LogInfo;
 public class EventFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
+	HashMap<String, String> verbForms = Utils.getVerbForms();
+	List<String> SelectedAdvMods = Arrays.asList(new String[]{"first, then, next, after, later, subsequent, before, previously"});
    
 	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
 	    //LogInfo.logs("Current node's text - " + getText(event));
@@ -53,8 +55,17 @@ public class EventFeatureFactory extends FeatureExtractor {
 		/*if (Utils.findDepthInDependencyTree(sentence, event)==0)
 			features.add("root=true,POS="+currentWord);
 		*/
-		features.add("lemma="+token.lemma().toLowerCase());
-		features.add("word="+token.originalText());
+		String text = token.originalText();
+		if(verbForms.containsKey(text)) {
+			features.add("lemma="+verbForms.get(text));
+			features.add("word="+verbForms.get(text));
+			//features.add("word="+token.originalText());
+		}
+		else {
+			features.add("lemma="+token.lemma().toLowerCase());
+			features.add("word="+token.originalText());
+		}
+		
 		//features.add("POSword=" + currentWord+","+leaves.get(0));
 		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
 		//features.add("POSlemma=" + currentWord+","+token.lemma());
@@ -69,12 +80,15 @@ public class EventFeatureFactory extends FeatureExtractor {
 			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 		}
-		/*
+		
 		for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
-			features.add("depedgein="+ e.getRelation() + "," + e.getTarget().toString().split("-")[1]);//need to deal with mult children same tag?
+			if(e.getRelation().toString().equals("advmod") && (currentWord.startsWith("VB") || nominalizations.contains(text)))
+				features.add("advmod:" + e.getTarget());
+				//LogInfo.logs("TIMEE : " + e.getRelation() + ":" + e.getTarget());
+			//features.add("depedgein="+ e.getRelation() + "," + e.getTarget().toString().split("-")[1]);//need to deal with mult children same tag?
 			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
-		}*/
+		}
 
 		if(nominalizations.contains(token.value())) {
 			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
@@ -110,7 +124,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		List<String> updatedFeatures = new ArrayList<String>();
 		for(String feature:features)
 			updatedFeatures.add(classString + feature);
-		updatedFeatures.add("bias");
+		//updatedFeatures.add("bias");
 		FeatureVector fv = new FeatureVector(updatedFeatures);
 		return fv;
     }
