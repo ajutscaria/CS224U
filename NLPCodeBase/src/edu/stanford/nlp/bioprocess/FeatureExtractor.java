@@ -8,6 +8,6 @@ import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 
 public abstract class FeatureExtractor {
-	public abstract List<Datum> setFeaturesTrain(List<Example> data);
-	public abstract List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedNodes);
+	public abstract List<BioDatum> setFeaturesTrain(List<Example> data);
+	public abstract List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedNodes);
 }

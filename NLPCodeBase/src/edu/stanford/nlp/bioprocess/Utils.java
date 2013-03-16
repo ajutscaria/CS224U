@@ -39,6 +39,7 @@ import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCP
 import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.IntTuple;
 import edu.stanford.nlp.util.Pair;
@@ -663,17 +664,17 @@ public static List<Example> readFile(String fileName) {
     	return nominalization;
     }
 
-	public static Set<Tree> getEventNodesForSentenceFromDatum(List<Datum> prediction, CoreMap sentence) {
+	public static Set<Tree> getEventNodesForSentenceFromDatum(List<BioDatum> prediction, CoreMap sentence) {
 		IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
-		for(Datum d:prediction)
+		for(BioDatum d:prediction)
 			if(d.guessLabel.equals("E") && d.sentence.equals(sentence))
 				set.add(d.eventNode);
 		return set;
 	}
 
-	public static Set<Tree> getEntityNodesForSentenceFromDatum(List<Datum> prediction, CoreMap sentence) {
+	public static Set<Tree> getEntityNodesForSentenceFromDatum(List<BioDatum> prediction, CoreMap sentence) {
 		IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
-		for(Datum d:prediction)
+		for(BioDatum d:prediction)
 			if(d.guessLabel.equals("E") && d.sentence.equals(sentence))
 				set.add(d.entityNode);
 		return set;
@@ -688,7 +689,7 @@ public static List<Example> readFile(String fileName) {
 		return false;
 	}
 	
-	public static List<Pair<String, Double>> rankRoleProbs(double[] probs, Index labelIndex) {
+	public static List<Pair<String, Double>> rankRoleProbs(double[] probs, Index<String> labelIndex) {
 		List<Pair<String, Double>> roleProbPairList = new ArrayList<Pair<String, Double>>();
 		for (int i=0; i<probs.length; i++) {
 			roleProbPairList.add(new Pair<String, Double>((String) labelIndex.get(i), probs[i]));

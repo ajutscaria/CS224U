@@ -6,6 +6,9 @@ import java.util.List;
 import java.util.Set;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.classify.LinearClassifier;
+import edu.stanford.nlp.ling.BasicDatum;
+import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
@@ -17,18 +20,18 @@ import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
 	private boolean printDebugInformation = true;
-	List<Datum> prediction = null;
+	List<BioDatum> prediction = null;
 	
 	public EntityPredictionInferer() {
 		
 	}
 	
-	public EntityPredictionInferer(List<Datum> predictions){
+	public EntityPredictionInferer(List<BioDatum> predictions){
 		this.prediction = predictions;
 	}
 
-	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
-		List<Datum> predicted = new ArrayList<Datum>();
+	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
 			LogInfo.begin_track("Example %s",example.id);
@@ -39,22 +42,22 @@ public class EntityPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
 				else
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
-				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
+				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes);
 				for(Tree event:eventNodes) {
 					LogInfo.logs("******************Event " + Utils.getText(event)+ 
 								"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
-					List<Datum> testDataEvent = new ArrayList<Datum>();
-					for(Datum d:test)
+					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
+					for(BioDatum d:test)
 						if(d.eventNode == event) {
 							testDataEvent.add(d);
 						}
-					List<Datum> testDataWithLabel = new ArrayList<Datum>();
+					List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
 	
 					for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
 						testDataWithLabel.add(testDataEvent.get(i));
 					}
 					
-					for(Datum d:testDataWithLabel) {
+					for(BioDatum d:testDataWithLabel) {
 						if(d.entityNode.value().equals("NP") && Utils.isNodesRelated(sentence, d.entityNode, event))
 							d.guessLabel = "E";
 						else
@@ -66,12 +69,12 @@ public class EntityPredictionInferer extends Inferer {
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(Datum d:testDataWithLabel) 
+					for(BioDatum d:testDataWithLabel) 
 						if(d.label.equals("E"))
 							LogInfo.logs(d.entityNode + ":" + d.label);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(Datum d:testDataWithLabel)
+					for(BioDatum d:testDataWithLabel)
 						if(d.guessLabel.equals("E") || d.label.equals("E"))
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
 					LogInfo.logs("------------------------------------------\n");
@@ -82,8 +85,8 @@ public class EntityPredictionInferer extends Inferer {
 		return predicted;
 	}
 	
-	public List<Datum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
-		List<Datum> predicted = new ArrayList<Datum>();
+	public List<BioDatum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
 			LogInfo.begin_track("Example %s",ex.id);
@@ -100,28 +103,30 @@ public class EntityPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
 				else
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
-				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
+				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes);
 				
 				for(Tree event:eventNodes) {
 					LogInfo.logs("******************Event " + Utils.getText(event)+ 
 							"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
-					List<Datum> testDataEvent = new ArrayList<Datum>();
-					for(Datum d:test)
+					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
+					for(BioDatum d:test)
 						if(d.eventNode == event) {
 							//LogInfo.logs(d.entityNode);
 							testDataEvent.add(d);
 						}
-					List<Datum> testDataWithLabel = new ArrayList<Datum>();
-	
-					for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
-						testDataWithLabel.add(testDataEvent.get(i));
+					LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+					
+					for(BioDatum d:testDataEvent) {
+						Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+						d.setPredictedLabel(classifier.classOf(newDatum));
+						double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+						d.setProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+						//LogInfo.logs(d.word + ":" + d.predictedLabel() + ":" + d.getProbability());
 					}
-					MaxEntModel viterbi = new MaxEntModel(parameters.getLabelIndex(), parameters.getFeatureIndex(), parameters.getWeights());
-					viterbi.decodeForEntity(testDataWithLabel, testDataEvent);
 					
 					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
 	
-					for(Datum d:testDataWithLabel) {
+					for(BioDatum d:testDataEvent) {
 						if (Utils.subsumesEvent(d.entityNode, sentence)) {
 							map.put(d.entityNode, new Pair<Double, String>(0.0, "O"));
 						} else {
@@ -129,21 +134,21 @@ public class EntityPredictionInferer extends Inferer {
 						}
 					}
 					
-					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
+					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataEvent);
 					dynamicProgrammer.calculateLabels();
 					
-					predicted.addAll(testDataWithLabel);
+					predicted.addAll(testDataEvent);
 					
 					LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(Datum d:testDataWithLabel) 
+					for(BioDatum d:testDataEvent) 
 						if(d.label.equals("E"))
 							LogInfo.logs(d.entityNode + ":" + d.label);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(Datum d:testDataWithLabel)
+					for(BioDatum d:testDataEvent)
 						if(d.guessLabel.equals("E") || d.label.equals("E"))
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
 					LogInfo.logs("------------------------------------------\n");
@@ -159,7 +164,6 @@ public class EntityPredictionInferer extends Inferer {
 					}
 			}
 			LogInfo.end_track();
-
 		}
 		return predicted;
 	}

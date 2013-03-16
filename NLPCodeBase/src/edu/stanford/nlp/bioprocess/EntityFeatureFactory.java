@@ -17,7 +17,7 @@ import fig.basic.LogInfo;
 public class EntityFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 
-    public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
+    public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
 		List<String> features = new ArrayList<String>();
 	
@@ -48,17 +48,13 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		//features.add("EvtPOSDepRel=" + event.preTerminalYield().get(0).value() + ","  + dependencyExists);
 		//Not a good feature too.
 		//features.add("EntPOSEvtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
-		String classString = "class=" + tokenClass + ",";
-		List<String> updatedFeatures = new ArrayList<String>();
-		for(String feature:features)
-			updatedFeatures.add(classString + feature);
 	
-		FeatureVector fv = new FeatureVector(updatedFeatures);
+		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }
 
-    public List<Datum> setFeaturesTrain(List<Example> data) {
-    	List<Datum> newData = new ArrayList<Datum>();
+    public List<BioDatum> setFeaturesTrain(List<Example> data) {
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
 	
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
@@ -98,8 +94,8 @@ public class EntityFeatureFactory extends FeatureExtractor {
 	//						type = "E";
 	//					}
 						
-						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, event.getTreeNode(), Utils.getArgumentMentionRelation(event, node).toString());
-						newDatum.features = computeFeatures(sentence, type, node, event.getTreeNode());
+						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, event.getTreeNode(), Utils.getArgumentMentionRelation(event, node).toString());
+						newDatum.features = computeFeatures(sentence, node, event.getTreeNode());
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
 						newData.add(newDatum);
 				}
@@ -112,10 +108,10 @@ public class EntityFeatureFactory extends FeatureExtractor {
     }
     
     
-    public List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
-    	List<Datum> newData = new ArrayList<Datum>();
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
     	List<String> labels = new ArrayList<String>();
     	Map<String, Integer> labelIndex = new HashMap<String, Integer>();
 
@@ -128,21 +124,16 @@ public class EntityFeatureFactory extends FeatureExtractor {
     	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 		for(Tree eventNode: predictedEvents) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-				for (String possibleLabel : labels) {
+				//for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT"))
 						continue;
+					String type = (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) ? "E" : "O";
 					
-					String type = "O";
-					
-					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) {
-						type = "E";
-					}
-					
-					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, eventNode, Utils.getArgumentMentionRelation(sentence, eventNode, node).toString());
-					newDatum.features = computeFeatures(sentence, possibleLabel, node, eventNode);
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, eventNode, Utils.getArgumentMentionRelation(sentence, eventNode, node).toString());
+					newDatum.features = computeFeatures(sentence, node, eventNode);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;
-				}
+				//}
 		    }
 		}
     	return newData;

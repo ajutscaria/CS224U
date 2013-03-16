@@ -14,18 +14,19 @@ import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class SRLFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = true;
 	HashMap<String, Integer> relCount = new HashMap<String, Integer>();
-	Index labelIndex;
+	Index<String> labelIndex;
 	
 	public SRLFeatureFactory() {
 	}
 	
-	public SRLFeatureFactory(Index labelIndex) {
+	public SRLFeatureFactory(Index<String> labelIndex) {
 		System.out.println("LabelIndex: "+labelIndex);
 		this.labelIndex = labelIndex;
 	}
@@ -76,8 +77,8 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		return fv;
     }
 
-    public List<Datum> setFeaturesTrain(List<Example> data) {
-    	List<Datum> newData = new ArrayList<Datum>();
+    public List<BioDatum> setFeaturesTrain(List<Example> data) {
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
 	
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
@@ -125,7 +126,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 							type = "E";
 						}
 						
-						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, event.getTreeNode(), role);
+						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, event.getTreeNode(), role);
 						newDatum.features = computeFeatures(sentence, role, node, event.getTreeNode());
 						if(printFeatures) {
 							LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
@@ -141,10 +142,10 @@ public class SRLFeatureFactory extends FeatureExtractor {
     }
     
     
-    public List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
-    	List<Datum> newData = new ArrayList<Datum>();
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
     	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 
 		for(Tree eventNode: predictedEvents) {
@@ -161,7 +162,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 					
 					String role = Utils.getArgumentMentionRelation(sentence, eventNode, node).toString();
 					
-					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, eventNode, role);
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, eventNode, role);
 					newDatum.features = computeFeatures(sentence, possibleLabel, node, eventNode);
 					newData.add(newDatum);
 				}

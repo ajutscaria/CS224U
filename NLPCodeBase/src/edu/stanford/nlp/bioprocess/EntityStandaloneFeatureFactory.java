@@ -75,8 +75,8 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 		return fv;
     }
 
-    public List<Datum> setFeaturesTrain(List<Example> data) {
-    	List<Datum> newData = new ArrayList<Datum>();
+    public List<BioDatum> setFeaturesTrain(List<Example> data) {
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
 	
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
@@ -113,7 +113,7 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 //						type = "E";
 //					}
 					
-					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, null);
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null);
 					newDatum.features = computeFeatures(sentence, type, node, null);
 					if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 					newData.add(newDatum);
@@ -127,10 +127,10 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
     }
     
     
-    public List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
-    	List<Datum> newData = new ArrayList<Datum>();
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
     	List<String> labels = new ArrayList<String>();
     	Map<String, Integer> labelIndex = new HashMap<String, Integer>();
 
@@ -153,7 +153,7 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 					type = "E";
 				}
 				
-				Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, null);
+				BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null);
 				newDatum.features = computeFeatures(sentence, possibleLabel, node, null);
 				newData.add(newDatum);
 				//prevLabel = newDatum.label;

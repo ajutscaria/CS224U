@@ -1,8 +1,10 @@
 package edu.stanford.nlp.bioprocess;
 
+import edu.stanford.nlp.util.Index;
+
 public class Params {
   double[][] weights;
-  Index featureIndex, labelIndex;
+  Index<String> featureIndex, labelIndex;
   int numUpdates;
   
   public Params() {
@@ -16,19 +18,19 @@ public class Params {
     weights = wt;
   }
   
-  public Index getFeatureIndex() {
+  public Index<String> getFeatureIndex() {
 	return featureIndex;
   }
 
-  public void setFeatureIndex(Index featureIndex) {
+  public void setFeatureIndex(Index<String> featureIndex) {
 	this.featureIndex = featureIndex;
   }
 
-  public Index getLabelIndex() {
+  public Index<String> getLabelIndex() {
 	return labelIndex;
   }
 
-  public void setLabelIndex(Index labelIndex) {
+  public void setLabelIndex(Index<String> labelIndex) {
 	this.labelIndex = labelIndex;
   }
 

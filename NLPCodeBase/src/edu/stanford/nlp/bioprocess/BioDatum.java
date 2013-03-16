@@ -1,15 +1,15 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
 
-public class Datum {
+public class BioDatum {
   CoreMap sentence;
   public final String word;
   public final String label;
@@ -34,7 +34,7 @@ public class Datum {
   double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
   List<Pair<String, Double>> rankedRoleProbs = new ArrayList<Pair<String, Double>>();
   
-  public Datum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
+  public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
 	this.sentence = sentence;
     this.word = word;
     this.label = label;
@@ -43,7 +43,7 @@ public class Datum {
     this.role = null;
   }
   
-  public Datum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode, String role) {
+  public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode, String role) {
 		this.sentence = sentence;
 	    this.word = word;
 	    this.label = label;
@@ -52,6 +52,18 @@ public class Datum {
 	    this.role = role;
   }
   
+  public void setPredictedLabel(String predictedLabel) {
+	this.guessLabel = predictedLabel;	
+  }
+  
+  public String label() {
+	return label;
+  }
+  
+  public String predictedLabel() {
+	return this.guessLabel;
+  }
+
   public void setProbability(double prob) {
 	  probEntity = prob;
   }
@@ -60,7 +72,7 @@ public class Datum {
 	  return probEntity;
   }
  
-  public void setProbabilitySRL(double[] probSRL, Index labelIndex) {
+  public void setProbabilitySRL(double[] probSRL, Index<String> labelIndex) {
 	  this.probSRL = probSRL;
 	  this.rankedRoleProbs = Utils.rankRoleProbs(probSRL, labelIndex);
   }
@@ -73,12 +85,11 @@ public class Datum {
 	  return this.probSRL;
   }
   
-public double getBestRoleProbability() {
+  public double getBestRoleProbability() {
 	return bestRoleProbability;
-}
+  }
 
-public String getBestRole() {
+  public String getBestRole() {
 	return this.rankedRoleProbs.get(0).first;
-}
-
+  }
 }

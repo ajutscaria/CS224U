@@ -11,14 +11,14 @@ import edu.stanford.nlp.util.Pair;
 public class DynamicProgramming {
 	Tree syntacticParse;
 	IdentityHashMap<Tree, Pair<Double, String>> tokenMap;
-	IdentityHashMap<Tree, Datum> nodeDatumMap;
+	IdentityHashMap<Tree, BioDatum> nodeDatumMap;
 	
-	public DynamicProgramming(CoreMap sentence, IdentityHashMap<Tree, Pair<Double, String>> tokenMap, List<Datum> data) {
+	public DynamicProgramming(CoreMap sentence, IdentityHashMap<Tree, Pair<Double, String>> tokenMap, List<BioDatum> data) {
 		this.syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		
 		this.tokenMap = tokenMap;
-		nodeDatumMap = new IdentityHashMap<Tree, Datum>();
-		for (Datum d : data) {
+		nodeDatumMap = new IdentityHashMap<Tree, BioDatum>();
+		for (BioDatum d : data) {
 			nodeDatumMap.put(d.entityNode, d);
 			//LogInfo.logs(d.node+":"+d.guessLabel+":"+d.getProbability());
 		}

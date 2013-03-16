@@ -7,9 +7,12 @@ import java.util.Set;
 
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.ling.BasicDatum;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
@@ -20,18 +23,18 @@ import fig.basic.LogInfo;
 
 public class SRLPredictionInferer extends Inferer {
 	private boolean printDebugInformation = false;
-	List<Datum> prediction = null;
+	List<BioDatum> prediction = null;
 	
 	public SRLPredictionInferer() {
 		
 	}
 	
-	public SRLPredictionInferer(List<Datum> predictions){
+	public SRLPredictionInferer(List<BioDatum> predictions){
 		this.prediction = predictions;
 	}
 
-	public List<Datum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
-		List<Datum> predicted = new ArrayList<Datum>();
+	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		String popularRelation = ((SRLFeatureFactory)ff).getMostCommonRelationType();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
@@ -43,21 +46,21 @@ public class SRLPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
 				else
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
-				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
+				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes);
 				for(Tree event:eventNodes) {
 					LogInfo.logs("------------------Event " + Utils.getText(event)+"--------------");
-					List<Datum> testDataEvent = new ArrayList<Datum>();
-					for(Datum d:test)
+					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
+					for(BioDatum d:test)
 						if(d.eventNode == event) {
 							testDataEvent.add(d);
 						}
-					List<Datum> testDataWithLabel = new ArrayList<Datum>();
+					List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
 	
 					for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
 						testDataWithLabel.add(testDataEvent.get(i));
 					}
 					
-					for(Datum d:testDataWithLabel) {
+					for(BioDatum d:testDataWithLabel) {
 						if((d.entityNode.value().equals("NP") /*|| d.entityNode.value().startsWith("NN")*/) && Utils.isNodesRelated(sentence, d.entityNode, event)) {
 							d.guessRole = popularRelation;
 						}
@@ -70,12 +73,12 @@ public class SRLPredictionInferer extends Inferer {
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(Datum d:testDataWithLabel) 
+					for(BioDatum d:testDataWithLabel) 
 						if(!d.role.equals(RelationType.NONE.toString()))
 							LogInfo.logs(d.entityNode + ":" + d.role);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(Datum d:testDataWithLabel)
+					for(BioDatum d:testDataWithLabel)
 					{
 						if(!(d.guessRole.equals(RelationType.NONE.toString()) && d.role.equals(RelationType.NONE.toString()))) {
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.role, d.guessRole));
@@ -89,8 +92,8 @@ public class SRLPredictionInferer extends Inferer {
 		return predicted;
 	}
 	
-	public List<Datum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
-		List<Datum> predicted = new ArrayList<Datum>();
+	public List<BioDatum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
 			LogInfo.begin_track("Example %s",ex.id);
@@ -107,27 +110,31 @@ public class SRLPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
 				else
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
-				List<Datum> test = ff.setFeaturesTest(sentence, eventNodes);
+				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes);
 				
 				for(Tree event:eventNodes) {
 					LogInfo.logs("------------------Event: " + Utils.getText(event)+"--------------");
-					List<Datum> testDataEvent = new ArrayList<Datum>();
-					for(Datum d:test)
+					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
+					for(BioDatum d:test)
 						if(d.eventNode == event) {
 							//LogInfo.logs(d.entityNode);
 							testDataEvent.add(d);
 						}
-					List<Datum> testDataWithLabel = new ArrayList<Datum>();
-	
-					for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
-						testDataWithLabel.add(testDataEvent.get(i));
-					}
-					MaxEntModel viterbi = new MaxEntModel(parameters.getLabelIndex(), parameters.getFeatureIndex(), parameters.getWeights());
-					viterbi.decodeForSRL(testDataWithLabel, testDataEvent);
+					List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
 					
+					LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+					
+					for(BioDatum d:testDataEvent) {
+						Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+						d.setPredictedLabel(classifier.classOf(newDatum));
+						double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+						d.setProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+						//LogInfo.logs(d.word + ":" + d.predictedLabel() + ":" + d.getProbability());
+					}
+	
 					IdentityHashMap<Tree, List<Pair<String, Double>>> map = new IdentityHashMap<Tree, List<Pair<String, Double>>>();
 	
-					for(Datum d:testDataWithLabel) {
+					for(BioDatum d:testDataWithLabel) {
 						if (Utils.subsumesEvent(d.entityNode, sentence)) {
 							List<Pair<String, Double>> blankList = new ArrayList<Pair<String, Double>>();
 							for (int i=0; i<parameters.getLabelIndex().size(); i++) {
@@ -143,18 +150,18 @@ public class SRLPredictionInferer extends Inferer {
 						}
 					}
 					
-					DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataWithLabel, parameters.getLabelIndex());
-					dynamicProgrammerSRL.calculateLabels();
+					//DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataWithLabel, parameters.getLabelIndex());
+					//dynamicProgrammerSRL.calculateLabels();
 					
 					predicted.addAll(testDataWithLabel);
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(Datum d:testDataWithLabel) 
+					for(BioDatum d:testDataWithLabel) 
 						if(!d.role.equals(RelationType.NONE.toString()))
 							LogInfo.logs(d.entityNode + ":" + d.role);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(Datum d:testDataWithLabel)
+					for(BioDatum d:testDataWithLabel)
 					{
 						if(!(d.guessRole.equals(RelationType.NONE.toString()) && d.role.equals(RelationType.NONE.toString()))) {
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.role, d.guessRole));

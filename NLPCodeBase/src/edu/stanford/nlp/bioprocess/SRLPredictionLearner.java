@@ -2,6 +2,13 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.List;
 
+import edu.stanford.nlp.classify.Dataset;
+import edu.stanford.nlp.classify.GeneralDataset;
+import edu.stanford.nlp.classify.LinearClassifier;
+import edu.stanford.nlp.classify.LinearClassifierFactory;
+import edu.stanford.nlp.ling.BasicDatum;
+import fig.basic.LogInfo;
+
 
 /***
  * Class that does the learning
@@ -16,9 +23,26 @@ public class SRLPredictionLearner extends Learner {
    * @return Parameters learnt.
    */
   public Params learn(List<Example> ds, FeatureExtractor ff) {
+	  
+		List<BioDatum> data = ff.setFeaturesTrain(dataset);
+		
+		GeneralDataset<String, String> dd = new Dataset<String, String>();
+		for(BioDatum d:data) {
+			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.label()));
+		}
+		
+		LinearClassifierFactory<String, String> lcFactory = new LinearClassifierFactory<String, String>();
+		LinearClassifier<String,String> classifier = lcFactory.trainClassifier(dd);	
+		
+		LogInfo.logs(classifier.weightsAsMapOfCounters());
+		parameters.setWeights(classifier.weights());
+		parameters.setFeatureIndex(dd.featureIndex);
+		parameters.setLabelIndex(dd.labelIndex);
+	    return parameters;
+	    /*
 	dataset = ds;
 	// add the features
-	List<Datum> data = ff.setFeaturesTrain(dataset);
+	List<BioDatum> data = ff.setFeaturesTrain(dataset);
 	LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data, true);
 	
 	double[] initial = new double[obj.domainDimension()];
@@ -46,8 +70,9 @@ public class SRLPredictionLearner extends Learner {
 	}
 	
 	parameters.setWeights(weightsAll);
-	parameters.setFeatureIndex(obj.featureIndex);
-	parameters.setLabelIndex(obj.labelIndex);
+	//parameters.setFeatureIndex(obj.featureIndex);
+	//parameters.setLabelIndex(obj.labelIndex);
     return parameters;
+    */
   }
 }

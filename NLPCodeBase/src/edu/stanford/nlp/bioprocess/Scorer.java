@@ -6,6 +6,7 @@ import java.util.*;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.classify.GeneralDataset;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
@@ -13,8 +14,8 @@ import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 
 public class Scorer {
-
-  public static Triple<Double, Double, Double> score(List<Datum> data) {
+/*
+  public static Triple<Double, Double, Double> score(List<edu.stanford.nlp.bioprocess.Datum> data) {
     int tp = 0, fp = 0, fn = 0;
 
     for (Datum d:data) {
@@ -37,9 +38,34 @@ public class Scorer {
     //LogInfo.logs("F1 = "+f);
     
     return new Triple<Double, Double, Double>(precision, recall, f);
-  }
+  }*/
   
-  public static Triple<Double, Double, Double> scoreEvents(List<Example> test, List<Datum> predictedEvents) {
+  public static Triple<Double, Double, Double> score(List<BioDatum> dataset) {
+	    int tp = 0, fp = 0, fn = 0;
+
+	    for (BioDatum d:dataset) {
+	    	if(d.label().equals("E")) {
+	    		if(d.predictedLabel().equals("E"))
+	    			tp++;
+	    		else
+	    			fn++;
+	    	}
+	    	if(d.label().equals("O")) {
+	    		if(d.predictedLabel().equals("E"))
+	    			fp++;
+	    	}
+	    }
+	    double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+	    double f= 2 * precision * recall / (precision + recall);
+	    
+	    //LogInfo.logs("precision = "+precision);
+	    //LogInfo.logs("recall = "+recall);
+	    //LogInfo.logs("F1 = "+f);
+	    
+	    return new Triple<Double, Double, Double>(precision, recall, f);
+	  }
+  
+  public static Triple<Double, Double, Double> scoreEvents(List<Example> test, List<BioDatum> predictedEvents) {
 	  
 	  IdentityHashSet<Tree> actual = findActualEvents(test), predicted = findPredictedEvents(predictedEvents);
 		int tp = 0, fp = 0, fn = 0;
@@ -68,7 +94,7 @@ public class Scorer {
 		    return new Triple<Double, Double, Double>(precision, recall, f);
 	  }
 
-  public static Triple<Double, Double, Double> scoreEntities(List<Example> test, List<Datum> predictedEntities) {
+  public static Triple<Double, Double, Double> scoreEntities(List<Example> test, List<BioDatum> predictedEntities) {
 	IdentityHashMap<Pair<Tree, Tree>, Integer> actual = findActualEventEntityPairs(test), predicted = findPredictedEventEntityPairs(predictedEntities);
 	int tp = 0, fp = 0, fn = 0;
 	for(Pair<Tree, Tree> p:actual.keySet()) {
@@ -96,7 +122,7 @@ public class Scorer {
 	    return new Triple<Double, Double, Double>(precision, recall, f);
   }
   
-  public static Triple<Double, Double, Double> scoreSRL(List<Example> test, List<Datum> predictedEntities) {
+  public static Triple<Double, Double, Double> scoreSRL(List<Example> test, List<BioDatum> predictedEntities) {
 		IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEntityRelationPairs(test), predicted = findPredictedEventEntityRelationPairs(predictedEntities);
 		int tp = 0, fp = 0, fn = 0;
 		for(Pair<Tree, Tree> p : actual.keySet()) {
@@ -127,10 +153,10 @@ public class Scorer {
 	  }
   
   private static IdentityHashMap<Pair<Tree, Tree>, String> findPredictedEventEntityRelationPairs(
-		List<Datum> predicted) {
+		List<BioDatum> predicted) {
 	  IdentityHashMap<Pair<Tree, Tree>, String> map = new IdentityHashMap<Pair<Tree, Tree>, String> ();
 	  //LogInfo.begin_track("Gold event-entity relation");
-	  for(Datum d:predicted) {
+	  for(BioDatum d:predicted) {
 		 if(!d.guessRole.equals(RelationType.NONE.toString()))
 			 map.put(new Pair<Tree,Tree>(d.eventNode, d.entityNode), d.guessRole);
 	  }
@@ -187,10 +213,10 @@ public static boolean checkContainment(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree>
 	  return map;
   }
   
-  public static IdentityHashMap<Pair<Tree, Tree>, Integer> findPredictedEventEntityPairs(List<Datum> predicted) {
+  public static IdentityHashMap<Pair<Tree, Tree>, Integer> findPredictedEventEntityPairs(List<BioDatum> predicted) {
 	  IdentityHashMap<Pair<Tree, Tree>, Integer> map = new IdentityHashMap<Pair<Tree, Tree>, Integer> ();
 	  //LogInfo.begin_track("Gold event-entity");
-	  for(Datum d:predicted) {
+	  for(BioDatum d:predicted) {
 		 if(d.guessLabel.equals("E"))
 			 map.put(new Pair<Tree,Tree>(d.eventNode, d.entityNode), 1);
 	  }
@@ -198,9 +224,9 @@ public static boolean checkContainment(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree>
 	  return map;
   }
   
-  public static IdentityHashSet<Tree> findPredictedEvents(List<Datum> predicted) {
+  public static IdentityHashSet<Tree> findPredictedEvents(List<BioDatum> predicted) {
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
-	  for(Datum d:predicted) {
+	  for(BioDatum d:predicted) {
 		 if(d.guessLabel.equals("E"))
 			 set.add(d.eventNode);
 	  }
@@ -218,7 +244,7 @@ public static boolean checkContainment(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree>
 	  return set;
   }
 
-  public static Triple<Double, Double, Double> scoreStandaloneEntities(List<Example> test, List<Datum> predictedEntities) {
+  public static Triple<Double, Double, Double> scoreStandaloneEntities(List<Example> test, List<BioDatum> predictedEntities) {
 	  IdentityHashSet<Tree> actual = findActualEntities(test), predicted = findPredictedEntities(predictedEntities);
 		int tp = 0, fp = 0, fn = 0;
 		for(Tree p:actual) {
@@ -257,9 +283,9 @@ public static boolean checkContainment(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree>
 	  return set;
   }
   
-  public static IdentityHashSet<Tree> findPredictedEntities(List<Datum> predicted) {
+  public static IdentityHashSet<Tree> findPredictedEntities(List<BioDatum> predicted) {
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
-	  for(Datum d:predicted) {
+	  for(BioDatum d:predicted) {
 		 if(d.guessLabel.equals("E"))
 			 set.add(d.entityNode);
 	  }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import edu.stanford.nlp.classify.GeneralDataset;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 import edu.stanford.nlp.util.Triple;
@@ -39,7 +40,7 @@ public class Main implements Runnable {
 		
 		if(useSmallSample) {
 			Params param = learner.learn(dataset.examples("sample"), featureFactory);
-			List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
+			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
 			Triple<Double, Double, Double> triple = Scorer.score(predicted);
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);
@@ -53,7 +54,7 @@ public class Main implements Runnable {
 				LogInfo.begin_track("Train");
 				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
 				LogInfo.end_track();
-				List<Datum> predicted;
+				List<BioDatum> predicted;
 				Triple<Double, Double, Double> triple;
 				LogInfo.begin_track("Inference");
 				if(evaluateTrain) {	
@@ -165,7 +166,7 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("eventstandalone")) {
 			LogInfo.logs("Running event prediction");
-			new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+			new Main().runEventStandalonePrediction(folders);
 		}
 		else if(mode.equals("eventgold")) {
 			LogInfo.logs("Running event prediction with GOLD entities");
@@ -196,9 +197,9 @@ public class Main implements Runnable {
 		Scorer scorer = new Scorer();
 		if (small) {
 			Params param = learner.learn(dataset.examples("sample"), featureFactory);
-			featureFactory = new SRLFeatureFactory(param.labelIndex);
-			List<Datum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
-			Triple<Double, Double, Double> triple = Scorer.scoreSRL(dataset.examples("sample"), predicted);
+			//featureFactory = new SRLFeatureFactory(param.labelIndex);
+			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
+			Triple<Double, Double, Double> triple = Scorer.score(predicted);
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);
 			LogInfo.logs("F1 score  : " + triple.third);
@@ -209,9 +210,9 @@ public class Main implements Runnable {
 			for(int i = 1; i <= NumCrossValidation; i++) {
 				LogInfo.begin_track("Iteration " + i);
 				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
-				featureFactory = new SRLFeatureFactory(param.labelIndex);
-				List<Datum> predicted = inferer.Infer(split.GetTestExamples(i), param, featureFactory);
-				Triple<Double, Double, Double> triple = Scorer.scoreSRL(split.GetTestExamples(i), predicted);
+				//featureFactory = new SRLFeatureFactory(param.labelIndex);
+				List<BioDatum> predicted = inferer.Infer(split.GetTestExamples(i), param, featureFactory);
+				Triple<Double, Double, Double> triple = Scorer.score(predicted);
 				precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
 				LogInfo.end_track();
 				//break;
@@ -228,8 +229,16 @@ public class Main implements Runnable {
 		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
-			Triple<Double, Double, Double> triple = opt.predictEntity(split.GetTrainExamples(i), split.GetTestExamples(i));
-			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+			
+			Learner entityLearner = new EntityPredictionLearner();
+			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory();
+
+			Inferer entityInferer = new EntityStandaloneInferer();
+			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
+			Triple<Double, Double, Double> entityTriple = Scorer.score(predictedEntities);
+
+			precisionDev[i-1] = entityTriple.first; recallDev[i-1] = entityTriple.second; f1Dev[i-1] = entityTriple.third;
 			LogInfo.end_track();
 			//break;
 		}
@@ -249,17 +258,38 @@ public class Main implements Runnable {
 			FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
 			Inferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-			List<Datum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			List<BioDatum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 			
 			Learner entityLearner = new EntityPredictionLearner();
 			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			
-			List<Datum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
-			//List<Datum> entityPredicted = entityInferer.BaselineInfer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			List<BioDatum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			Triple<Double, Double, Double> triple = Scorer.score(entityPredicted);
+			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+			LogInfo.end_track();
+		}
+		printScores("Dev", precisionDev, recallDev, f1Dev);
+	}
+	
+	private void runEventStandalonePrediction(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+
+		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
 			
-			Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
+			EventPredictionLearner eventLearner = new EventPredictionLearner();
+			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
+			EventPredictionInferer eventInferer = new EventPredictionInferer();
+			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
+			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			
+			
+			Triple<Double, Double, Double> triple = Scorer.score(result);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 		}
@@ -279,13 +309,13 @@ public class Main implements Runnable {
 			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory();
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
-			List<Datum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
 			
 			Learner eventLearner = new EventPredictionLearner();
 			FeatureExtractor eventFeatureFactory = new EventExtendedFeatureFactory();
 			Inferer eventInferer = new EventPredictionInferer(predictedEntities);
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-			List<Datum> eventPredicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			List<BioDatum> eventPredicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 			
 			
 			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);

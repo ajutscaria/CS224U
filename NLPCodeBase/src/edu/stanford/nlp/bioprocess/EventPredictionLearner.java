@@ -2,6 +2,11 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.List;
 
+import edu.stanford.nlp.classify.Dataset;
+import edu.stanford.nlp.classify.GeneralDataset;
+import edu.stanford.nlp.classify.LinearClassifier;
+import edu.stanford.nlp.classify.LinearClassifierFactory;
+import edu.stanford.nlp.ling.BasicDatum;
 import fig.basic.LogInfo;
 
 /***
@@ -14,21 +19,38 @@ public class EventPredictionLearner extends Learner {
 	
 	@Override
 	public Params learn(List<Example> dataset, FeatureExtractor ff) {
-		// add the features
-		List<Datum> data = ff.setFeaturesTrain(dataset);
-		LogConditionalObjectiveFunction obj = new LogConditionalObjectiveFunction(data);
-		double[] initial = new double[obj.domainDimension()];
-
-		QNMinimizer minimizer = new QNMinimizer(15);
-		double[][] weights = obj.to2D(minimizer.minimize(obj, 1e-4, initial, -1, null));
-		parameters.setWeights(weights);
-		parameters.setFeatureIndex(obj.featureIndex);
-		parameters.setLabelIndex(obj.labelIndex);
+		List<BioDatum> data = ff.setFeaturesTrain(dataset);
 		
-		//for(int i = 0; i<obj.featureIndex.size(); i++) {
-		//	LogInfo.logs(obj.featureIndex.get(i) + ":" + weights[0][i] + "," + weights[1][i]);
-		//}
+		GeneralDataset<String, String> dd = new Dataset<String, String>();
+		for(BioDatum d:data) {
+			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.label()));
+		}
 		
+		LinearClassifierFactory<String, String> lcFactory = new LinearClassifierFactory<String, String>();
+		LinearClassifier<String,String> classifier = lcFactory.trainClassifier(dd);	
+		
+		LogInfo.logs(classifier.weightsAsMapOfCounters());
+		parameters.setWeights(classifier.weights());
+		parameters.setFeatureIndex(dd.featureIndex);
+		parameters.setLabelIndex(dd.labelIndex);
 	    return parameters;
 	}
+	/*
+	public Params learn(List<Example> dataset, EventFeatureFactory ff) {
+		List<BioDatum> data = ff.setFeaturesTrain(dataset);
+		
+		GeneralDataset<String, String> dd = new Dataset<String, String>();
+		for(BioDatum d:data) {
+			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.label()));
+		}
+		
+		LinearClassifierFactory<String, String> lcFactory = new LinearClassifierFactory<String, String>();
+		LinearClassifier<String,String> classifier = lcFactory.trainClassifier(dd);	
+		
+		LogInfo.logs(classifier.weightsAsMapOfCounters());
+		parameters.setWeights(classifier.weights());
+		parameters.setFeatureIndex(dd.featureIndex);
+		parameters.setLabelIndex(dd.labelIndex);
+	    return parameters;
+	}*/
 }

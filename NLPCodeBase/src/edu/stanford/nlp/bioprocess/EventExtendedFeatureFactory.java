@@ -27,12 +27,12 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 	boolean addEntityFeatures = true;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
    
-	public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event) {
-	    return computeFeatures(sentence, tokenClass, event, Utils.getEntityNodesFromSentence(sentence));
+	public FeatureVector computeFeatures(CoreMap sentence, Tree event) {
+	    return computeFeatures(sentence, event, Utils.getEntityNodesFromSentence(sentence));
     }
 
-    public List<Datum> setFeaturesTrain(List<Example> data) {
-		List<Datum> newData = new ArrayList<Datum>();
+    public List<BioDatum> setFeaturesTrain(List<Example> data) {
+		List<BioDatum> newData = new ArrayList<BioDatum>();
 		
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
@@ -54,17 +54,10 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 								!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 							continue;
 						
-						String type = "O";
-						
-						//if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
-							//type = "E";
-						//}
-						if (eventNodes.keySet().contains(node)){
-							type = "E";
-						}
+						String type = eventNodes.keySet().contains(node) ? "E" : "O";
 						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
-						Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, node);
-						newDatum.features = computeFeatures(sentence, type, node);
+						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node);
+						newDatum.features = computeFeatures(sentence, node);
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 						newData.add(newDatum);
 					//}
@@ -76,10 +69,10 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		return newData;
     }
     
-    public List<Datum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
-    	List<Datum> newData = new ArrayList<Datum>();
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
     	List<String> labels = new ArrayList<String>();
     	Map<String, Integer> labelIndex = new HashMap<String, Integer>();
 
@@ -92,28 +85,24 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
     	IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
 		//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-				for (String possibleLabel : labels) {
+				//for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
 							!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
-					String type = "O";
+					String type = eventNodes.keySet().contains(node) ? "E" : "O";
 					
-					if (eventNodes.keySet().contains(node)) {
-						type = "E";
-					}
-					
-					Datum newDatum = new Datum(sentence, Utils.getText(node), type, node, node);
-					newDatum.features = computeFeatures(sentence, possibleLabel, node, selectedEntities);
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node);
+					newDatum.features = computeFeatures(sentence, node, selectedEntities);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;
-				}
+				//}
 		    //}
 		}
     	return newData;
     }
     
-    public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree event, Set<Tree> entityNodes) {
+    public FeatureVector computeFeatures(CoreMap sentence, Tree event, Set<Tree> entityNodes) {
 		List<String> features = new ArrayList<String>();
 		String currentWord = event.value();
 		List<Tree> leaves = event.getLeaves();
@@ -222,12 +211,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		//Doesn't seem to work as expected even though the event triggers are mostly close to root in dependency tree.
 		//features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
 		
-		String classString = "class=" + tokenClass + ",";
-		List<String> updatedFeatures = new ArrayList<String>();
-		for(String feature:features)
-			updatedFeatures.add(classString + feature);
-	
-		FeatureVector fv = new FeatureVector(updatedFeatures);
+		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }   
     
