@@ -1,0 +1,12 @@
+
+Most of the work in the area of event and entity extraction can be analyzed by different perspectives:
+
+\begin{itemize}
+
+\item \xhdr{Coverage and domain} Most of the prevoius work dealt only with a subset of the four tasks listed as the project goals and dealt with very specific domains. For instance, \citeauthor{toutanova} deals with argument extraction and semantic role labeling assuming that the trigger words are provided. While \citeauthor{bjorne} solves the problem of event and argument extraction almost completely, their event categories and arguments are closely tied to the BIONLP task and hence, would not generalize to event extraction from domain-independent text.
+
+\item \xhdr{Parsing scheme: Constitueney vs Dependecy parse} Some of the previous work relied on the constituency parse structure of sentences, while others used the dependency parse structure. For instance \citeauthor{toutanova} approaches semantic role labeling as a joint task of argument identification and labeling on the parse tree of the sentence. \citeauthor{bjorne} and \citeauthor{mcclosky} focus more on the dependency parse structure of the sentence.
+
+\item \xhdr{Modeling: Graph vs Tree} The work of \citeauthor{bjorne} and \citeauthor{mcclosky} are based on graphs and deal with edge prediction, while \citeauthor{toutanova} uses tree structure with classification of nodes as an entity or not.
+
+\end{itemize}

@@ -9,8 +9,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.Comparator;
+
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -630,6 +632,28 @@ public static List<Example> readFile(String fileName) {
 				if(!line.startsWith("(NOM :ORTH "))
 					continue;
 				nominalization.add(line.replace("(NOM :ORTH ", "").replace("\"", ""));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	//LogInfo.logs(nominalization);
+    	return nominalization;
+    }
+    
+    public static HashMap<String, String> getVerbForms() {
+    	HashMap<String, String> nominalization = new HashMap<String, String>();
+    	try {
+			BufferedReader reader = new BufferedReader(new FileReader("derivation.txt"));
+			String line;
+			while((line = reader.readLine()) != null){
+				String[] splits = line.split("\t");
+				if(splits[1].equals("n") && splits[3].equals("v")) {
+					nominalization.put(splits[0].trim(), splits[2].trim());
+				}
+				else if(splits[3].equals("n") && splits[1].equals("v")) {
+					nominalization.put(splits[2].trim(), splits[0].trim());
+				}
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
