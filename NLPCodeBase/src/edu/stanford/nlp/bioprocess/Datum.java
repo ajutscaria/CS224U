@@ -1,10 +1,13 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.Pair;
 
 public class Datum {
   CoreMap sentence;
@@ -29,6 +32,7 @@ public class Datum {
   IndexedWord entityHead, eventHead;
   double probEntity;
   double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
+  List<Pair<String, Double>> rankedRoleProbs = new ArrayList<Pair<String, Double>>();
   
   public Datum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
 	this.sentence = sentence;
@@ -56,31 +60,25 @@ public class Datum {
 	  return probEntity;
   }
  
-  public void setProbabilitySRL(double[] probSRL) {
+  public void setProbabilitySRL(double[] probSRL, Index labelIndex) {
 	  this.probSRL = probSRL;
-	  double maximum = Double.NEGATIVE_INFINITY;
-	  bestRoleIndex = -1;
-	  for (int i=0; i<this.probSRL.length; i++) {
-		  System.out.print(this.probSRL[i]+" ");
-		  if (this.probSRL[i] >= maximum) {
-			  maximum = this.probSRL[i];
-			  bestRoleIndex = i;
-		  }
-	  }
-	  bestRoleProbability = maximum;
-	  System.out.println(bestRoleIndex);
+	  this.rankedRoleProbs = Utils.rankRoleProbs(probSRL, labelIndex);
+  }
+  
+  public List<Pair<String, Double>> getRankedRoles() {
+	  return this.rankedRoleProbs;
   }
 
+  public double[] getProbabilitySRL() {
+	  return this.probSRL;
+  }
+  
 public double getBestRoleProbability() {
 	return bestRoleProbability;
 }
-  
-public int getBestRoleIndex() {
-	return bestRoleIndex;
-}
 
 public String getBestRole() {
-	// TODO Auto-generated method stub
-	return null;
+	return this.rankedRoleProbs.get(0).first;
 }
+
 }

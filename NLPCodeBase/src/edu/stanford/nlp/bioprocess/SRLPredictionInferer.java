@@ -125,18 +125,26 @@ public class SRLPredictionInferer extends Inferer {
 					MaxEntModel viterbi = new MaxEntModel(parameters.getLabelIndex(), parameters.getFeatureIndex(), parameters.getWeights());
 					viterbi.decodeForSRL(testDataWithLabel, testDataEvent);
 					
-					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
+					IdentityHashMap<Tree, List<Pair<String, Double>>> map = new IdentityHashMap<Tree, List<Pair<String, Double>>>();
 	
 					for(Datum d:testDataWithLabel) {
 						if (Utils.subsumesEvent(d.entityNode, sentence)) {
-							map.put(d.entityNode, new Pair<Double, String>(0.0, RelationType.NONE.toString()));
+							List<Pair<String, Double>> blankList = new ArrayList<Pair<String, Double>>();
+							for (int i=0; i<parameters.getLabelIndex().size(); i++) {
+								if (i == 0) {
+									blankList.add(new Pair<String, Double>((String)parameters.getLabelIndex().get(i), 1.0));
+								} else {
+									blankList.add(new Pair<String, Double>((String)parameters.getLabelIndex().get(i), 0.0));
+								}
+							}
+							map.put(d.entityNode, blankList);
 						} else {
-							map.put(d.entityNode, new Pair<Double, String>(d.getBestRoleProbability(), d.guessRole));
+							map.put(d.entityNode, d.getRankedRoles());
 						}
 					}
 					
-//					DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataWithLabel);
-//					dynamicProgrammerSRL.calculateLabels();
+					DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataWithLabel, parameters.getLabelIndex());
+					dynamicProgrammerSRL.calculateLabels();
 					
 					predicted.addAll(testDataWithLabel);
 					

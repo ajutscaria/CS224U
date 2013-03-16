@@ -9,6 +9,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
@@ -660,4 +663,15 @@ public static List<Example> readFile(String fileName) {
 		}
 		return false;
 	}
+	
+	public static List<Pair<String, Double>> rankRoleProbs(double[] probs, Index labelIndex) {
+		List<Pair<String, Double>> roleProbPairList = new ArrayList<Pair<String, Double>>();
+		for (int i=0; i<probs.length; i++) {
+			roleProbPairList.add(new Pair<String, Double>((String) labelIndex.get(i), probs[i]));
+		}
+		Collections.sort(roleProbPairList, new PairComparatorByDouble());
+		return roleProbPairList;
+	}
 }
+
+
