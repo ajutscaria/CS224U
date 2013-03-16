@@ -14,7 +14,6 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
@@ -51,30 +50,25 @@ public class EntityPredictionInferer extends Inferer {
 						if(d.eventNode == event) {
 							testDataEvent.add(d);
 						}
-					List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
-	
-					for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
-						testDataWithLabel.add(testDataEvent.get(i));
-					}
 					
-					for(BioDatum d:testDataWithLabel) {
+					for(BioDatum d:testDataEvent) {
 						if(d.entityNode.value().equals("NP") && Utils.isNodesRelated(sentence, d.entityNode, event))
 							d.guessLabel = "E";
 						else
 							d.guessLabel = "O";
 					}
-					predicted.addAll(testDataWithLabel);
+					predicted.addAll(testDataEvent);
 					
 					LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(BioDatum d:testDataWithLabel) 
+					for(BioDatum d:testDataEvent) 
 						if(d.label.equals("E"))
 							LogInfo.logs(d.entityNode + ":" + d.label);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(BioDatum d:testDataWithLabel)
+					for(BioDatum d:testDataEvent)
 						if(d.guessLabel.equals("E") || d.label.equals("E"))
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
 					LogInfo.logs("------------------------------------------\n");

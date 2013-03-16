@@ -6,19 +6,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
-import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
-import edu.stanford.nlp.trees.semgraph.SemanticGraph;
-import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
-import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.StringUtils;
@@ -33,12 +27,12 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 	    //Tree event = eventMention.getTreeNode();
     	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		List<String> features = new ArrayList<String>();
-		IndexedWord word = Utils.findDependencyNode(sentence, entity);
+		//IndexedWord word = Utils.findDependencyNode(sentence, entity);
 		Tree parent = entity.parent(root);
 		String currentWord = entity.value();
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, entity);
 		List<Tree> leaves = entity.getLeaves();
-		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+		//SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		String parentCFGRule = parent.value() + "->";
 		for(Tree n:parent.getChildrenAsList()) {
 			parentCFGRule += n.value() + " ";
@@ -162,7 +156,7 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 
     	return newData;
     }    
-    
+    /*
     private boolean checkIfEntity(CoreMap sentence, Tree node) {
     	IndexedWord word = Utils.findDependencyNode(sentence, node);
     	SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
@@ -172,5 +166,5 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
     			return true;
     	}
     	return false;
-    }
+    }*/
 }

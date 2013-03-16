@@ -5,7 +5,10 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.nlp.classify.LinearClassifier;
+import edu.stanford.nlp.ling.BasicDatum;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
@@ -15,7 +18,6 @@ import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
@@ -50,36 +52,29 @@ public class EntityStandaloneInferer extends Inferer{
 				List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
 				for(BioDatum d:test)
 					testDataEvent.add(d);
-
-				List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
-
-				//for (int i = 0; i < testDataEvent.size(); i += parameters.getLabelIndex().size()) {
-				for (int i = 0; i < testDataEvent.size(); i += 2) {
-					testDataWithLabel.add(testDataEvent.get(i));
-				}
 				
 				if(!useRule) {
-					//MaxEntModel viterbi = new MaxEntModel(parameters.getLabelIndex(), parameters.getFeatureIndex(), parameters.getWeights());
-					//viterbi.decodeForEntity(testDataWithLabel, testDataEvent);
 					
 					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
 	
-					for(BioDatum d:testDataWithLabel) {
-						if (Utils.subsumesEvent(d.entityNode, sentence)) {
-							map.put(d.entityNode, new Pair<Double, String>(0.0, "O"));
-						} else {
-							map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
-						}
+					LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+					
+					for(BioDatum d:testDataEvent) {
+						Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+						d.setPredictedLabel(classifier.classOf(newDatum));
+						double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+						d.setProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+						//LogInfo.logs(d.word + ":" + d.predictedLabel() + ":" + d.getProbability());
 					}
 					
-					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataWithLabel);
+					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataEvent);
 					dynamicProgrammer.calculateLabels();
 				}
 				
 				//My own inferer
 				else {
-					IdentityHashSet<Tree> entities = new IdentityHashSet<Tree>();
-					for(BioDatum d:testDataWithLabel) {
+					//IdentityHashSet<Tree> entities = new IdentityHashSet<Tree>();
+					for(BioDatum d:testDataEvent) {
 						Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 						
 						CoreLabel label = Utils.findCoreLabelFromTree(sentence, d.entityNode);
@@ -118,17 +113,17 @@ public class EntityStandaloneInferer extends Inferer{
 						}
 					}
 				}
-				predicted.addAll(testDataWithLabel);
+				predicted.addAll(testDataEvent);
 				
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					
 				LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-				for(BioDatum d:testDataWithLabel) 
+				for(BioDatum d:testDataEvent) 
 					if(d.label.equals("E"))
 						LogInfo.logs(d.entityNode + ":" + d.label);
 				
 				LogInfo.logs("---------PREDICTIONS-------------------------");
-				for(BioDatum d:testDataWithLabel)
+				for(BioDatum d:testDataEvent)
 					if(d.guessLabel.equals("E") || d.label.equals("E"))
 						LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
 				LogInfo.logs("------------------------------------------\n");
