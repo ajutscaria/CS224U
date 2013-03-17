@@ -1,0 +1,10 @@
+This is BibTeX, Version 0.99dThe top-level auxiliary file: FinalPaper.aux
+The style file: acl.bst
+I couldn't open database file acl2013.bib
+---line 12 of file FinalPaper.aux
+ : \bibdata{acl2013
+ :                 }
+I'm skipping whatever remains of this command
+I found no \citation commands---while reading file FinalPaper.aux
+I found no database files---while reading file FinalPaper.aux
+(There were 3 error messages)
