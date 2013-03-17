@@ -1,11 +1,12 @@
 Most of the work in the area of event and entity extraction can be categorized using different criteria:
 
-\begin{itemize}
+Should probably have something related to the approach. Ex. templates, narrative event chains, token labeling etc.
 
-\item {\bf Coverage and domain} Most of the prevoius work dealt only with a subset of the four tasks listed as the project goals and dealt with very specific domains. For instance, Chambers 2008 talks about event identification and temporal ordering using narrative event chains.Toutanova deals with argument extraction and semantic role labeling assuming that the trigger words are provided. While Bjorne solves the problem of event and argument extraction almost completely, their event categories and arguments are closely tied to the BIONLP task and hence, would not generalize to event extraction from domain-independent text. Chambers 2009 addresses the areas of all event identification, argument extraction and semantic role labeling using an unsupervised approach.
+\subsection {Coverage and domain} 
+Most of the prevoius work dealt only with a subset of the four tasks listed as the project goals and dealt with very specific domains. For instance, Chambers 2008 talks about event identification and temporal ordering using narrative event chains.Toutanova deals with argument extraction and semantic role labeling assuming that the trigger words are provided. While Bjorne solves the problem of event and argument extraction almost completely, their event categories and arguments are closely tied to the BIONLP task and hence, would not generalize to event extraction from domain-independent text. Chambers 2009 addresses the areas of all event identification, argument extraction and semantic role labeling using an unsupervised approach addressing narrative event chains in further detail. One can also see in this paper how two tasks can contribute to the improvement of each other, in this case the argument extraction and semantic role labeling.
 
-\item {\bf Parsing scheme: Constitueney vs Dependecy parse} Some of the previous work relied on the constituency parse structure of sentences, while others used the dependency parse structure. For instance Toutanova approaches semantic role labeling as a joint task of argument identification and labeling on the parse tree of the sentence. Bjorne and McClosky focus more on the dependency parse structure of the sentence.
+\subsection {Parsing scheme: Constitueney vs Dependecy parse}
+Some of the previous work relied on the constituency parse structure of sentences, while others used the dependency parse structure. For instance Toutanova approaches semantic role labeling as a joint task of argument identification and labeling on the parse tree of the sentence. Bjorne and McClosky focus more on the dependency parse structure of the sentence.
 
-\item {\bf Modeling: Graph vs Tree} The work of Bjorne and McClosky are based on graphs and deal with edge prediction, while Toutanova uses tree structure with classification of nodes as an entity or not.
-
-\end{itemize}
+\subsection {Modeling: Graph vs Tree} 
+The work of Bjorne and McClosky are based on graphs and deal with edge prediction, while Toutanova uses tree structure with classification of nodes as an entity or not.
