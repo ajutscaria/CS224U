@@ -78,7 +78,7 @@ public class EventPredictionInferer extends Inferer {
 
 				if(printDebugInformation) {
 					LogInfo.logs("\n---------GOLD EVENTS-------------------------");
-					for(EventMention m:ex.gold.get(EventMentionsAnnotation.class)) 
+					for(EventMention m:sentence.get(EventMentionsAnnotation.class)) 
 							LogInfo.logs(m.getTreeNode());
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");

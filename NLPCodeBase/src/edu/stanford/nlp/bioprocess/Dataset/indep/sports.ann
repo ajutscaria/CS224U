@@ -1,0 +1,20 @@
+T1	Entity 0 21	Freezing temperatures
+T2	Entity 26 43	a dusting of snow
+Sunday?
+T3	Event 68 72	slow
+E1	Event:T3 ?
+T4	Entity 73 87	Wilson Kipsang
+T5	Event 93 101	ran away
+E2	Event:T5 ?
+T6	Entity 107 130	a pack of elite runners
+T7	Event 134 137	win
+E3	Event:T7 ?
+T8	Entity 138 170	the 13.1-mile New York City Half
+T9	Event 188 198	road race
+E4	Event:T9 ?
+T10	Entity 201 209	the city
+T11	Entity 216 231	Hurricane Sandy ?
+T12	Event 243 255	cancellation
+E5 Event:T12 ?
+T13	Entity 263 271	marathon ?
+November?

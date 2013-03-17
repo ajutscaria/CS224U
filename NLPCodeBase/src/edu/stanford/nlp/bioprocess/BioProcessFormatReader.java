@@ -61,6 +61,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       example.data = rawText;
       example.id = file.replace(TEXT_EXTENSION, "");
       example.gold = createAnnotation(path + file);
+      
       example.prediction = example.gold.copy();
       example.prediction.set(EntityMentionsAnnotation.class, new ArrayList<EntityMention>());
       example.prediction.set(EventMentionsAnnotation.class, new ArrayList<EventMention>());
@@ -116,7 +117,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
               //LogInfo.logs("\t\t\t\t" + line);
               Tree eventRoot = Utils.getEventNode(sentence, (EventMention)m);
               IndexedWord head = Utils.findDependencyNode(sentence, eventRoot);
-              Utils.findDepthInDependencyTree(sentence, eventRoot);
+              //Utils.findDepthInDependencyTree(sentence, eventRoot);
               m.setHeadInDependencyTree(head);
               m.setTreeNode(eventRoot);
             }
