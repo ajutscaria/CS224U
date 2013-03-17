@@ -13,11 +13,12 @@ import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
+import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.trees.semgraph.SemanticGraph;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.IntPair;
+import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class EventFeatureFactory extends FeatureExtractor {
@@ -31,7 +32,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		
 		List<String> features = new ArrayList<String>();
 		String currentWord = event.value();
-		List<Tree> leaves = event.getLeaves();
+		//List<Tree> leaves = event.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
@@ -43,7 +44,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		//}
 		IndexedWord word = Utils.findDependencyNode(sentence, event);
 		Tree parent = event.parent(root);
-		IntPair eventSpan = event.getSpan();
+		//IntPair eventSpan = event.getSpan();
 		
 		String parentCFGRule = parent.value() + "->";
 		for(Tree n:parent.getChildrenAsList()) {
@@ -68,12 +69,12 @@ public class EventFeatureFactory extends FeatureExtractor {
 		
 		//features.add("POSword=" + currentWord+","+leaves.get(0));
 		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
-		//features.add("POSlemma=" + currentWord+","+token.lemma());
+		features.add("POSlemma=" + currentWord+","+token.lemma());
 		//if(currentWord.startsWith("VB"))
 		//	features.add("verb");
-		//features.add("ParentPOS=" + parent.value());
-		//features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
-		//?features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+		features.add("ParentPOS=" + parent.value());
+		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
+		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
 			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
@@ -95,14 +96,14 @@ public class EventFeatureFactory extends FeatureExtractor {
 			features.add("nominalization");
 		}
 		
-		/*String consecutiveTypes = "";
+		String consecutiveTypes = "";
 		if(currentTokenIndex > 0)
 			consecutiveTypes += tokens.get(currentTokenIndex-1).get(PartOfSpeechAnnotation.class);
 		consecutiveTypes += currentWord;
 		if(currentTokenIndex < tokens.size() - 1)
 			consecutiveTypes += tokens.get(currentTokenIndex+1).get(PartOfSpeechAnnotation.class);
 		features.add("consecutivetypes="+consecutiveTypes);
-		*/
+		
 		/*
 		if(nominalizations.contains(leaves.get(0).value())) {
 			LogInfo.logs("Adding nominalization - " + leaves.get(0));
@@ -124,7 +125,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		//List<String> updatedFeatures = new ArrayList<String>();
 		//for(String feature:features)
 		//	updatedFeatures.add(classString + feature);
-		//updatedFeatures.add("bias");
+		features.add("bias");
 		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }
@@ -144,7 +145,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 				}
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-							!(node.value().startsWith("NN")|| node.value().equals("JJ") || node.value().startsWith("VB")))
+							!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
 					String type = eventNodes.keySet().contains(node) ? "E" : "O";
@@ -167,7 +168,7 @@ public class EventFeatureFactory extends FeatureExtractor {
     	IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
 		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 			if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-					!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+					!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 				continue;
 			
 			String type = eventNodes.keySet().contains(node) ? "E" : "O";

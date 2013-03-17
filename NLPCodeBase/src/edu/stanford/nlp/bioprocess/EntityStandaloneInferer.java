@@ -22,7 +22,7 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityStandaloneInferer extends Inferer{
-	private boolean printDebugInformation = true, useRule = true;
+	private boolean printDebugInformation = true, useRule = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 	@Override
 	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters,
@@ -54,9 +54,6 @@ public class EntityStandaloneInferer extends Inferer{
 					testDataEvent.add(d);
 				
 				if(!useRule) {
-					
-					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
-	
 					LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 					
 					for(BioDatum d:testDataEvent) {
@@ -65,6 +62,14 @@ public class EntityStandaloneInferer extends Inferer{
 						double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
 						d.setProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
 						//LogInfo.logs(d.word + ":" + d.predictedLabel() + ":" + d.getProbability());
+					}
+					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
+					for(BioDatum d:testDataEvent) {
+						if (Utils.subsumesEvent(d.entityNode, sentence)) {
+							map.put(d.entityNode, new Pair<Double, String>(0.0, "O"));
+						} else {
+							map.put(d.entityNode, new Pair<Double, String>(d.getProbability(), d.guessLabel));
+						}
 					}
 					
 					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataEvent);

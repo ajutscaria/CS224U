@@ -33,7 +33,7 @@ public class IterativeOptimizer {
 			entityInferer = new EntityPredictionInferer(predicted);
 			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
 			List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
-			entityTriple = Scorer.score(predictedEntities);
+			entityTriple = Scorer.scoreEntities(test, predictedEntities);
 			
 			LogInfo.logs("Score: Entity prediction - " + entityTriple);
 			LogInfo.end_track();
@@ -55,7 +55,7 @@ public class IterativeOptimizer {
 		entityInferer = new EntityPredictionInferer(predicted);
 		Params entityParams = entityLearner.learn(train, entityFeatureFactory);
 		List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
-		entityTriple = Scorer.score(predictedEntities);
+		entityTriple = Scorer.scoreEntities(test, predictedEntities);
 		
 		LogInfo.logs("Entity prediction - " + entityTriple);
 		

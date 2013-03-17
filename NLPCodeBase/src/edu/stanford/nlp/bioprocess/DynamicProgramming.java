@@ -20,22 +20,8 @@ public class DynamicProgramming {
 		nodeDatumMap = new IdentityHashMap<Tree, BioDatum>();
 		for (BioDatum d : data) {
 			nodeDatumMap.put(d.entityNode, d);
-			//LogInfo.logs(d.node+":"+d.guessLabel+":"+d.getProbability());
 		}
-//		for (Tree node : syntacticParse.preOrderNodeList()) {
-//			LogInfo.logs(node.toString()+":"+this.tokenMap.get(node));
-//		}
-		//calculateLabels();
-		//addTreeNodeAnnotations(this.syntacticParse, sentence.get(TokensAnnotation.class));
-//		for (Tree node : syntacticParse.preOrderNodeList()) {
-//			LogInfo.logs(node.toString()+":"+this.tokenMap.get(node));
-//		}
 	}
-	
-	 
-	 
-	 
-
 	
 	// Assumes the map has probs for E.
 	public void calculateLabels() {
@@ -64,13 +50,12 @@ public class DynamicProgramming {
 			nodeO = nodeO/sum;
 			nodeE = nodeE/sum;
 			
-			if (nodeO > nodeE) {// && !allchildrenE(node)) {
+			if (nodeO > nodeE) {
 				targetNodePair.setFirst(1-nodeO);
 				nodeDatumMap.get(node).setProbability(1-nodeO);
 				targetNodePair.setSecond("O");
 				nodeDatumMap.get(node).guessLabel = "O";
 			} else {
-				//LogInfo.logs("\n\n-------------------------Predicted Entity: "+node+":" +node.getSpan());
 				targetNodePair.setFirst(nodeE);
 				nodeDatumMap.get(node).setProbability(nodeE);
 				targetNodePair.setSecond("E");
@@ -79,13 +64,9 @@ public class DynamicProgramming {
 					if (child.isLeaf() || child.equals(node)) {
 						continue;
 					}
-					//LogInfo.logs("Resetting " + child + " to O");
 					this.tokenMap.get(child).setSecond("O");
 					nodeDatumMap.get(child).guessLabel = "O";
 				}
-				//for(String n:nodeDatumMap.keySet())
-				//	LogInfo.logs(n + ":" + node.getSpan() +":"+ nodeDatumMap.get(n).guessLabel );
-				//LogInfo.logs("============================================================\n\n");
 			}
 		}
 		

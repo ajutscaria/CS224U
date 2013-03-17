@@ -262,7 +262,7 @@ public class Utils {
 			  
 			  IntPair span = node.getSpan();
 			  if(span.getSource() == spanStart && span.getTarget() == spanStart && 
-					  ( (node.value().startsWith("VB") && !node.firstChild().value().equals("is")) || node.value().startsWith("NN"))) {
+					  ( (node.value().startsWith("VB") && !node.firstChild().value().equals("is") && !node.firstChild().value().equals("in")) || node.value().startsWith("NN"))) {
 				  //LogInfo.logs("Compressing " + event.getValue() + " to " + node);
 				  return node;
 			  }
@@ -292,7 +292,8 @@ public class Utils {
 		  
 		  IntPair span = node.getSpan();
 		  if(span.getSource() == entitySpan.start() && span.getTarget() == entitySpan.end()-1) {
-			  //LogInfo.logs("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
+			  if(node.headPreTerminal(new CollinsHeadFinder()).value().equals("IN"))
+				  return getSingleEventNode(sentence, event);
 			  return node.headPreTerminal(new CollinsHeadFinder());
 		  }
 		  
@@ -300,7 +301,6 @@ public class Utils {
 			  //To check for an extra determiner like "a" or "the" in front of the entity
 			  String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
 			  if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
-				  //LogInfo.logs("Matching " + event.getValue() + " with " + node.headPreTerminal(new CollinsHeadFinder()));
 				  return  node.headPreTerminal(new CollinsHeadFinder());
 			  }
 		  }

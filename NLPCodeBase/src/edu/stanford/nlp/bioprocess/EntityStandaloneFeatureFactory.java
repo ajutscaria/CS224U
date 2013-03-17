@@ -10,9 +10,13 @@ import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotatio
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
+import edu.stanford.nlp.trees.semgraph.SemanticGraph;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.StringUtils;
@@ -23,49 +27,39 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 
-    public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
+    public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
     	Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		List<String> features = new ArrayList<String>();
-		//IndexedWord word = Utils.findDependencyNode(sentence, entity);
+		IndexedWord word = Utils.findDependencyNode(sentence, entity);
 		Tree parent = entity.parent(root);
 		String currentWord = entity.value();
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, entity);
 		List<Tree> leaves = entity.getLeaves();
-		//SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		String parentCFGRule = parent.value() + "->";
 		for(Tree n:parent.getChildrenAsList()) {
 			parentCFGRule += n.value() + " ";
 		}
 		parentCFGRule = parentCFGRule.trim();
 		
-		features.add("firstword=" + leaves.get(0));
-		features.add("lastword=" + leaves.get(leaves.size()-1));
+		//features.add("firstword=" + leaves.get(0));
+		//features.add("lastword=" + leaves.get(leaves.size()-1));
+		features.add("IsNP=" + (currentWord.equals("NP")));
 		features.add("lemma="+token.lemma());
 		features.add("word="+token.originalText().toLowerCase());
-		//features.add("checkifentity="+checkIfEntity(sentence, entity));
+		features.add("checkifentity="+checkIfEntity(sentence, entity));
 		features.add("POS=" + currentWord);
-		features.add("POSParentPOS=" + currentWord+","+parent.value());
+		//features.add("POSParentPOS=" + currentWord+","+parent.value());
 		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, entity, root), ",").replace("up-ROOT,down-ROOT,", ""));
 		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
-		//for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
-		//	features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
-		//}
-		
-		
-		//This feature did not work surprisingly. Maybe because the path from ancestor to event might lead to a lot of different variations.
-		//features.add("PathAncestorToEvt="+Trees.pathNodeToNode(Trees.getLowestCommonAncestor(entity, event, root), event, root));
-		//This is a bad feature too.
-		//features.add("EvtPOSDepRel=" + event.preTerminalYield().get(0).value() + ","  + dependencyExists);
-		//Not a good feature too.
-		//features.add("EntPOSEvtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
-		String classString = "class=" + tokenClass + ",";
-		List<String> updatedFeatures = new ArrayList<String>();
-		for(String feature:features)
-			updatedFeatures.add(classString + feature);
-	
-		FeatureVector fv = new FeatureVector(updatedFeatures);
+		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
+			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
+		}
+
+		features.add("bias");
+		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }
 
@@ -97,18 +91,10 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 					if(node.isLeaf()||node.value().equals("ROOT"))
 						continue;
 					
-					String type = "O";
-					
-					if (entityNodes.contains(node)) {// || Utils.isChildOfEntity(entityNodes, node)) {
-						type = "E";
-					}
-					if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
-//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
-//						type = "E";
-//					}
+					String type = entityNodes.contains(node) ? "E" : "O";
 					
 					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null);
-					newDatum.features = computeFeatures(sentence, type, node, null);
+					newDatum.features = computeFeatures(sentence, node, null);
 					if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 					newData.add(newDatum);
 				}
@@ -136,27 +122,19 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 
     	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class).preOrderNodeList()) {
-			//LogInfo.logs("node " + node);
-			for (String possibleLabel : labels) {
-				if(node.isLeaf() || node.value().equals("ROOT"))
-					continue;
-				
-				String type = "O";
-				
-				if (entityNodes.contains(node)) {
-					type = "E";
-				}
-				
-				BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null);
-				newDatum.features = computeFeatures(sentence, possibleLabel, node, null);
-				newData.add(newDatum);
-				//prevLabel = newDatum.label;
-			}
+			if(node.isLeaf() || node.value().equals("ROOT"))
+				continue;
+			
+			String type = entityNodes.contains(node) ? "E" : "O";
+			
+			BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null);
+			newDatum.features = computeFeatures(sentence, node, null);
+			newData.add(newDatum);
 	    }
 
     	return newData;
     }    
-    /*
+
     private boolean checkIfEntity(CoreMap sentence, Tree node) {
     	IndexedWord word = Utils.findDependencyNode(sentence, node);
     	SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
@@ -166,5 +144,5 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
     			return true;
     	}
     	return false;
-    }*/
+    }
 }

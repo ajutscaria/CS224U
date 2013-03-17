@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 
 import java.util.*;
+
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
@@ -20,7 +21,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
     public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
 		List<String> features = new ArrayList<String>();
-	
+		//List<Tree> leaves = entity.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		boolean dependencyExists = Utils.isNodesRelated(sentence, entity, event);
 		
@@ -48,7 +49,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		//features.add("EvtPOSDepRel=" + event.preTerminalYield().get(0).value() + ","  + dependencyExists);
 		//Not a good feature too.
 		//features.add("EntPOSEvtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
-	
+		features.add("bias");
 		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }

@@ -31,7 +31,7 @@ public class Main implements Runnable {
 		boolean evaluateTrain = false, evaluateBaseline = false, evaluateDev = true;
 		//Flags to control sample on which test is to be run. useSmallSample runs on 2 sample files, while useOneLoop runs one fold of CV.
 		//refreshDataFile is to re-generate the bpa (bio process annotation) file
-		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = false;
+		boolean useSmallSample = false, useOneLoop = false, refreshDataFile = true;
 		//useSmallSample = true;
 		//useOneLoop = true;
 		//refreshDataFile = true;
@@ -236,7 +236,7 @@ public class Main implements Runnable {
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
-			Triple<Double, Double, Double> entityTriple = Scorer.score(predictedEntities);
+			Triple<Double, Double, Double> entityTriple = Scorer.scoreEntities(split.GetTestExamples(i), predictedEntities);
 
 			precisionDev[i-1] = entityTriple.first; recallDev[i-1] = entityTriple.second; f1Dev[i-1] = entityTriple.third;
 			LogInfo.end_track();
@@ -266,7 +266,7 @@ public class Main implements Runnable {
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			
 			List<BioDatum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
-			Triple<Double, Double, Double> triple = Scorer.score(entityPredicted);
+			Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 		}
@@ -287,9 +287,8 @@ public class Main implements Runnable {
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
 			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
-			
-			
-			Triple<Double, Double, Double> triple = Scorer.score(result);
+
+			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 		}

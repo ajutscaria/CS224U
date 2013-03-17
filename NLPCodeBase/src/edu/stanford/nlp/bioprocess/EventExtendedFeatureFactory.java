@@ -51,7 +51,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 					//if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 						if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-								!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+								!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 							continue;
 						
 						String type = eventNodes.keySet().contains(node) ? "E" : "O";
@@ -87,7 +87,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				//for (String possibleLabel : labels) {
 					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-							!(node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+							!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue;
 					
 					String type = eventNodes.keySet().contains(node) ? "E" : "O";
@@ -122,14 +122,14 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		
 		features.add("lemma="+token.lemma().toLowerCase());
 		features.add("word="+token.originalText());
-		//features.add("POSword=" + currentWord+","+leaves.get(0));
-		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
-		//features.add("POSlemma=" + currentWord+","+token.lemma());
+		features.add("POSword=" + currentWord+","+leaves.get(0));
+		features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
+		features.add("POSlemma=" + currentWord+","+token.lemma());
 		//if(currentWord.startsWith("VB"))
 		//	features.add("verb");
 		//features.add("ParentPOS=" + parent.value());
-		//features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
-		//features.add("parentrule=" + parentCFGRule);
+		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
+		features.add("parentrule=" + parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
 			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
@@ -168,7 +168,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 				if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
 					features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
 				
-				//features.add("deppath=" + Utils.getDependencyPath(sentence, entityNode, event));
+				features.add("deppath=" + Utils.getDependencyPath(sentence, entityNode, event));
 				
 				if(pathLength > nodesInPath.size()) {
 					shortestPath = StringUtils.join(nodesInPath, ",");
@@ -192,7 +192,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 			if(closestEntitySpanBefore > Integer.MAX_VALUE)
 				features.add("closestEntitySpanBefore" + closestEntitySpanBefore);
 			//Quite good
-			//features.add("numrelatedentities=" + (uniqueHeads.size() ));
+			features.add("numrelatedentities=" + (uniqueHeads.size() ));
 			//not so great
 			if(pathLength<Integer.MAX_VALUE) {
 				features.add("splpath=" + shortestPath);
@@ -210,7 +210,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
 		//Doesn't seem to work as expected even though the event triggers are mostly close to root in dependency tree.
 		//features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
-		
+		features.add("bias");
 		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }   

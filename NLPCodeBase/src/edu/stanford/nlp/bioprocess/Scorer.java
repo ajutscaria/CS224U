@@ -72,17 +72,17 @@ public class Scorer {
 		for(Tree p:actual) {
 			if(predicted.contains(p)) {
 				tp++;
-				//LogInfo.logs("Correct - " + p.first + ":" + p.second);
+				LogInfo.logs("Correct - " + p) ;
 			}
 			else {
 				fn++;
-				//LogInfo.logs("Not predicted - " + p.first + ":" + p.second);
+				LogInfo.logs("Not predicted - " + p);
 			}
 		}
 		for(Tree p:predicted) {
 			if(!actual.contains(p)) {
 				fp++;
-				//LogInfo.logs("Extra - " + p.first + ":" + p.second);
+				LogInfo.logs("Extra - " + p);
 			}
 		}
 		
@@ -236,7 +236,9 @@ public static boolean checkContainment(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree>
   public static IdentityHashSet<Tree> findActualEvents(List<Example> test){
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
 	  for(Example ex:test) {
+		  LogInfo.logs("Example " + ex.id);
 		  for(EventMention em:ex.gold.get(EventMentionsAnnotation.class)) {
+			  LogInfo.logs(em.getTreeNode() + ":" + em.getTreeNode().getSpan() + "::" + em.getSentence());
 			  set.add(em.getTreeNode());
 		  }
 	  }
