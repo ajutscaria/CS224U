@@ -1,9 +1,11 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Index;
@@ -31,7 +33,8 @@ public class BioDatum {
   Tree entityNode, eventNode;
   IndexedWord entityHead, eventHead;
   double probEntity;
-  double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
+  //double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
+  Counter<String> probSRL;
   List<Pair<String, Double>> rankedRoleProbs = new ArrayList<Pair<String, Double>>();
   
   public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
@@ -72,16 +75,17 @@ public class BioDatum {
 	  return probEntity;
   }
  
-  public void setProbabilitySRL(double[] probSRL, Index<String> labelIndex) {
+  public void setProbabilitySRL(Counter<String> probSRL, Index<String> labelIndex) {
 	  this.probSRL = probSRL;
 	  this.rankedRoleProbs = Utils.rankRoleProbs(probSRL, labelIndex);
+	  this.guessRole = this.rankedRoleProbs.get(0).first;
   }
   
   public List<Pair<String, Double>> getRankedRoles() {
 	  return this.rankedRoleProbs;
   }
 
-  public double[] getProbabilitySRL() {
+  public Counter<String> getProbabilitySRL() {
 	  return this.probSRL;
   }
   
@@ -90,6 +94,11 @@ public class BioDatum {
   }
 
   public String getBestRole() {
-	return this.rankedRoleProbs.get(0).first;
+	  return this.guessRole;
+	  //	return this.rankedRoleProbs.get(0).first;
   }
+
+public String role() {
+	return this.role;
+}
 }

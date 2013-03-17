@@ -31,6 +31,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
+import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
@@ -689,10 +690,13 @@ public static List<Example> readFile(String fileName) {
 		return false;
 	}
 	
-	public static List<Pair<String, Double>> rankRoleProbs(double[] probs, Index<String> labelIndex) {
+	public static List<Pair<String, Double>> rankRoleProbs(Counter<String> probs, Index<String> labelIndex) {
 		List<Pair<String, Double>> roleProbPairList = new ArrayList<Pair<String, Double>>();
-		for (int i=0; i<probs.length; i++) {
-			roleProbPairList.add(new Pair<String, Double>((String) labelIndex.get(i), probs[i]));
+//		for (int i=0; i<probs.length; i++) {
+//			roleProbPairList.add(new Pair<String, Double>((String) labelIndex.get(i), probs[i]));
+//		}
+		for (String role : probs.keySet()) {
+			roleProbPairList.add(new Pair<String, Double>(role, probs.getCount(role)));
 		}
 		Collections.sort(roleProbPairList, new PairComparatorByDouble());
 		return roleProbPairList;

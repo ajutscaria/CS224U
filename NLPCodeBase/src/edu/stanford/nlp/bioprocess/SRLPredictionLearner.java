@@ -22,13 +22,13 @@ public class SRLPredictionLearner extends Learner {
    * Method that will learn parameters for the model and return it.
    * @return Parameters learnt.
    */
-  public Params learn(List<Example> ds, FeatureExtractor ff) {
+  public Params learn(List<Example> dataset, FeatureExtractor ff) {
 	  
 		List<BioDatum> data = ff.setFeaturesTrain(dataset);
 		
 		GeneralDataset<String, String> dd = new Dataset<String, String>();
 		for(BioDatum d:data) {
-			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.label()));
+			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.role()));
 		}
 		
 		LinearClassifierFactory<String, String> lcFactory = new LinearClassifierFactory<String, String>();

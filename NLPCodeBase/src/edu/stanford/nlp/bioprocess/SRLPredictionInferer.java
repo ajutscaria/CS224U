@@ -13,6 +13,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.BasicDatum;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.Datum;
+import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
@@ -117,24 +118,25 @@ public class SRLPredictionInferer extends Inferer {
 					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
 					for(BioDatum d:test)
 						if(d.eventNode == event) {
-							//LogInfo.logs(d.entityNode);
 							testDataEvent.add(d);
 						}
-					List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
+					//List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
 					
 					LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 					
-					for(BioDatum d:testDataEvent) {
-						Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
-						d.setPredictedLabel(classifier.classOf(newDatum));
-						double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
-						d.setProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+					for(BioDatum d : testDataEvent) {
+						Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.role());
+						//d.setPredictedLabel(classifier.classOf(newDatum));
+						//double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+						//d.setProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+						Counter<String> probSRL = classifier.probabilityOf(newDatum);
+						d.setProbabilitySRL(probSRL, parameters.labelIndex);
 						//LogInfo.logs(d.word + ":" + d.predictedLabel() + ":" + d.getProbability());
 					}
 	
 					IdentityHashMap<Tree, List<Pair<String, Double>>> map = new IdentityHashMap<Tree, List<Pair<String, Double>>>();
 	
-					for(BioDatum d:testDataWithLabel) {
+					for(BioDatum d:testDataEvent) {
 						if (Utils.subsumesEvent(d.entityNode, sentence)) {
 							List<Pair<String, Double>> blankList = new ArrayList<Pair<String, Double>>();
 							for (int i=0; i<parameters.getLabelIndex().size(); i++) {
@@ -153,15 +155,15 @@ public class SRLPredictionInferer extends Inferer {
 					//DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataWithLabel, parameters.getLabelIndex());
 					//dynamicProgrammerSRL.calculateLabels();
 					
-					predicted.addAll(testDataWithLabel);
+					predicted.addAll(testDataEvent);
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(BioDatum d:testDataWithLabel) 
+					for(BioDatum d:testDataEvent) 
 						if(!d.role.equals(RelationType.NONE.toString()))
 							LogInfo.logs(d.entityNode + ":" + d.role);
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(BioDatum d:testDataWithLabel)
+					for(BioDatum d:testDataEvent)
 					{
 						if(!(d.guessRole.equals(RelationType.NONE.toString()) && d.role.equals(RelationType.NONE.toString()))) {
 							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.role, d.guessRole));
@@ -175,5 +177,7 @@ public class SRLPredictionInferer extends Inferer {
 		}
 		return predicted;
 	}
+	
+	
 	
 }

@@ -31,7 +31,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		this.labelIndex = labelIndex;
 	}
 
-    public FeatureVector computeFeatures(CoreMap sentence, String tokenClass, Tree entity,  Tree event) {
+    public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
 		List<String> features = new ArrayList<String>();
 	
@@ -68,12 +68,8 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		//features.add("EvtPOSDepRel=" + event.preTerminalYield().get(0).value() + ","  + dependencyExists);
 		//Not a good feature too.
 		//features.add("EntPOSEvtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
-		String classString = "class=" + tokenClass + ",";
-		List<String> updatedFeatures = new ArrayList<String>();
-		for(String feature:features)
-			updatedFeatures.add(classString + feature);
-	
-		FeatureVector fv = new FeatureVector(updatedFeatures);
+		//features.add("bias");
+		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }
 
@@ -127,7 +123,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 						}
 						
 						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, event.getTreeNode(), role);
-						newDatum.features = computeFeatures(sentence, role, node, event.getTreeNode());
+						newDatum.features = computeFeatures(sentence, node, event.getTreeNode());
 						if(printFeatures) {
 							LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 						}
@@ -150,22 +146,19 @@ public class SRLFeatureFactory extends FeatureExtractor {
 
 		for(Tree eventNode: predictedEvents) {
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-				for (int i=0; i<this.labelIndex.size(); i++) {
-					String possibleLabel = (String) this.labelIndex.get(i);
-					if(node.isLeaf() || node.value().equals("ROOT"))
-						continue;
-					
-					String type = "O";
-					if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) {
-						type = "E";
-					}
-					
-					String role = Utils.getArgumentMentionRelation(sentence, eventNode, node).toString();
-					
-					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, eventNode, role);
-					newDatum.features = computeFeatures(sentence, possibleLabel, node, eventNode);
-					newData.add(newDatum);
+				if(node.isLeaf() || node.value().equals("ROOT"))
+					continue;
+				
+				String type = "O";
+				if (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) {
+					type = "E";
 				}
+				
+				String role = Utils.getArgumentMentionRelation(sentence, eventNode, node).toString();
+				
+				BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, eventNode, role);
+				newDatum.features = computeFeatures(sentence, node, eventNode);
+				newData.add(newDatum);
 		    }
 		}
     	return newData;
