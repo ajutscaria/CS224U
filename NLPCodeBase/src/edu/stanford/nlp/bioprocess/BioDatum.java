@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.stanford.nlp.ling.IndexedWord;
@@ -36,6 +37,7 @@ public class BioDatum {
   //double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
   Counter<String> probSRL;
   List<Pair<String, Double>> rankedRoleProbs = new ArrayList<Pair<String, Double>>();
+  HashMap<String, Double> rankMap = new HashMap<String, Double>();
   
   public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
 	this.sentence = sentence;
@@ -78,7 +80,14 @@ public class BioDatum {
   public void setProbabilitySRL(Counter<String> probSRL, Index<String> labelIndex) {
 	  this.probSRL = probSRL;
 	  this.rankedRoleProbs = Utils.rankRoleProbs(probSRL, labelIndex);
+	  for (int i=0; i<this.rankedRoleProbs.size(); i++) {
+		  this.rankMap.put(this.rankedRoleProbs.get(i).first, this.rankedRoleProbs.get(i).second);
+	  }
 	  this.guessRole = this.rankedRoleProbs.get(0).first;
+  }
+  
+  public double getRoleProb(String role) {
+	  return this.rankMap.get(role);
   }
   
   public List<Pair<String, Double>> getRankedRoles() {

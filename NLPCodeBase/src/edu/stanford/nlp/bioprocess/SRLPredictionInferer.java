@@ -152,7 +152,7 @@ public class SRLPredictionInferer extends Inferer {
 						}
 					}
 					
-					//DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataWithLabel, parameters.getLabelIndex());
+					DynamicProgrammingSRL dynamicProgrammerSRL = new DynamicProgrammingSRL(sentence, map, testDataEvent, parameters.getLabelIndex());
 					//dynamicProgrammerSRL.calculateLabels();
 					
 					predicted.addAll(testDataEvent);

@@ -189,7 +189,7 @@ public class Main implements Runnable {
 
 	private void runSRLPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		boolean small = false;
+		boolean small = true;
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
 		SRLFeatureFactory featureFactory = new SRLFeatureFactory();
 		SRLPredictionLearner learner = new SRLPredictionLearner();
