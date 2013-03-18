@@ -1,1 +1,30 @@
-This section talks about results
+
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
+%%%%%%%%%% NB: I changed the meaning of the sign!!!!!
+\hline
+Baseline& 0.47 & 0.72&0.57\\
+MaxEnt-Train& 0.86 & 0.71&  0.77 \\
+MaxEnt-CV&0.71&0.67&0.69\\
+\hline
+\end{tabular}
+\caption{Event trigger prediction}
+\label{table:eventprediction}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
+%%%%%%%%%% NB: I changed the meaning of the sign!!!!!
+\hline
+Baseline&0.52&0.70&0.59\\
+MaxEnt-Train&0.81&0.66&0.72\\
+MaxEnt-CV&0.69&0.60&0.64\\
+\hline
+\end{tabular}
+\caption{Entity prediction for event triggers}
+\label{table:entityprediction}
+\end{table}
