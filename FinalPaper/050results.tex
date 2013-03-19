@@ -1,1 +1,52 @@
-This section talks about results
+
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
+\hline
+Baseline& 0.421 & 0.703 &0.525\\
+MaxEnt\_Basic& 0.766 & 0.644&  0.691 \\
+MaxEnt\_IO&0.748&0.672&0.703\\
+\hline
+\end{tabular}
+\caption{Event trigger prediction}
+\label{table:eventprediction}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
+\hline
+MaxEnt\_Oracle&0.719&0.561&0.629\\
+Baseline&0.482&0.536&0.504\\
+MaxEnt\_Basic&0.606&0.437&0.505\\
+MaxEnt\_IO&0.578&0.481&0.523\\
+\hline
+\end{tabular}
+\caption{Entity prediction for event triggers (Oracle)}
+\label{table:entityprediction}
+\end{table}
+
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
+\hline
+Baseline&0.&0.&0.\\
+MaxEnt\_Oracle&0.&0.&0.\\
+MaxEnt\_Basic&0.&0.&0.\\
+MaxEnt\_IO&0.&0.&0.\\
+\hline
+\end{tabular}
+\caption{Semantic role labeling}
+\label{table:srlprediction}
+\end{table}
+
+The results for event prediction tasks are presented in Table~\ref{table:eventprediction}. The baseline model that predicted every verb as an event trigger performed quite well giving an F1 score of 0.565. The basic MaxEnt model that predicts if a pre-terminal node is an event trigger gave an F1 score of 0.691. Once we used the iterative optimization algorithm, after 1 iteration, the F1 score converged to 0.703. This clearly indicates that knowldge of entities can help improve the prediction of event triggers.
+
+The results for argument prediction are presented in Table~\ref{table:entityprediction}. An oracle model we built that assumed all the gold event triggers to be known gave an F1 score of 0.629. The baseline model intuitively captures the relation between event triggers and its arguments as it gave an F1 score of 0.505 in comparison to the simplicity of the approach. The basic version of the MaxEnt model gave very close results as the baseline model. The dynamic programming approach gave us a boost of 0.04 (0.60 to 0.64) in F1 score. The score got boosted to 0.523 after we implemented the iterative optimization algorithm.
+
+The results for semantic role labeling are presented in Table~\ref{table:srlprediction}. 
+
+TODO - Fill the section for SRL

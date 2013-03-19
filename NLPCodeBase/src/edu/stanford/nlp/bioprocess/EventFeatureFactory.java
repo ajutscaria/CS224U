@@ -77,7 +77,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
 		
 		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
-			features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
+			//features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
 			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 		}

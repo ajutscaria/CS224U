@@ -152,8 +152,7 @@ public class EntityPredictionInferer extends Inferer {
 						LogInfo.logs("||||||||||||||||||||||Event " +ev.getTreeNode()+ "[Missed]||||||||||||||");
 						LogInfo.logs("\n---------Missed entities-------------------------");
 						for(ArgumentRelation m:ev.getArguments())
-							if(ArgumentRelation.getSemanticRoles().contains(m.type))
-								LogInfo.logs(m.mention.getTreeNode());
+							LogInfo.logs(m.mention.getTreeNode());
 						LogInfo.logs("------------------------------------------\n");
 					}
 			}
