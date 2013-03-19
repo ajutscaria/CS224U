@@ -95,7 +95,7 @@ public class DynamicProgrammingSRL {
 //						}
 					}
 				}
-				Collections.sort(withParentallPerms, new PairComparatorByDoubleHashMap());
+				//Collections.sort(withParentallPerms, new PairComparatorByDoubleHashMap());
 
 				for (int printer = 0; printer < withParentallPerms.size(); printer++) {
 					for (Tree iter : withParentallPerms.get(printer).first.keySet()) {
