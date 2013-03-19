@@ -33,18 +33,13 @@ public class EventPredictionInferer extends Inferer {
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
 				List<BioDatum> test = ff.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence));
-				List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
-
-				for (int i = 0; i < test.size(); i += parameters.getLabelIndex().size()) {
-					testDataWithLabel.add(test.get(i));
-				}
 				
-				for(BioDatum d:testDataWithLabel)
+				for(BioDatum d:test)
 					if(d.entityNode.isPreTerminal() && d.entityNode.value().startsWith("VB"))
 						d.guessLabel = "E";
 					else
 						d.guessLabel = "O";
-				predicted.addAll(testDataWithLabel);
+				predicted.addAll(test);
 			}
 		}
 		return predicted;

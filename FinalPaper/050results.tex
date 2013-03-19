@@ -3,11 +3,10 @@
 \centering
 \begin{tabular}{|l||c|c|c|} \hline
 &\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
-%%%%%%%%%% NB: I changed the meaning of the sign!!!!!
 \hline
-Baseline& 0.47 & 0.72&0.57\\
-MaxEnt-Train& 0.86 & 0.71&  0.77 \\
-MaxEnt-CV&0.71&0.67&0.69\\
+Baseline& 0.421 & 0.703 &0.525\\
+MaxEnt\_Basic& 0.766 & 0.644&  0.691 \\
+MaxEnt\_IO&0.747&0.668&0.699\\
 \hline
 \end{tabular}
 \caption{Event trigger prediction}
@@ -18,17 +17,36 @@ MaxEnt-CV&0.71&0.67&0.69\\
 \centering
 \begin{tabular}{|l||c|c|c|} \hline
 &\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
-%%%%%%%%%% NB: I changed the meaning of the sign!!!!!
 \hline
-Baseline&0.52&0.70&0.59\\
-MaxEnt-Train&0.81&0.66&0.72\\
-MaxEnt-CV&0.69&0.60&0.64\\
+MaxEnt\_Oracle&0.719&0.561&0.629\\
+Baseline&0.482&0.536&0.504\\
+MaxEnt\_Basic&0.606&0.437&0.505\\
+MaxEnt\_IO&0.577&0.477&0.519\\
 \hline
 \end{tabular}
-\caption{Entity prediction for event triggers}
+\caption{Entity prediction for event triggers (Oracle)}
 \label{table:entityprediction}
 \end{table}
 
-The results for event prediction task are presented in Table~\ref{table:eventprediction}. Baseline for event - This model performed quite well giving an F1 score of 0.565, considering that it was a very naive approach. 
+\begin{table}
+\centering
+\begin{tabular}{|l||c|c|c|} \hline
+&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
+\hline
+Baseline&0.&0.&0.\\
+MaxEnt\_Oracle&0.&0.&0.\\
+MaxEnt\_Basic&0.&0.&0.\\
+MaxEnt\_IO&0.&0.&0.\\
+\hline
+\end{tabular}
+\caption{Semantic role labeling}
+\label{table:srlprediction}
+\end{table}
 
-The results are presented in Table~\ref{table:entityprediction}. The baseline model intuitively captures the relation between event triggers and its arguments as is evident from the F1 score of 0.593 achieved using a relatively simple approach. Results after using DP - The dynamic programming approach gave us a boost of 0.04 (0.60 to 0.64) in F1 score. 
+The results for event prediction tasks are presented in Table~\ref{table:eventprediction}. The baseline model that predicted every verb as an event trigger performed quite well giving an F1 score of 0.565.
+
+TODO - Talk about the results for event and entity prediction.
+
+The results for argument prediction are presented in Table~\ref{table:entityprediction}. The baseline model intuitively captures the relation between event triggers and its arguments as is evident from the F1 score of 0.593 achieved using a relatively simple approach. Results after using DP - The dynamic programming approach gave us a boost of 0.04 (0.60 to 0.64) in F1 score. 
+
+The results for semantic role labeling are presented in Table~\ref{table:srlprediction}. The baseline model predicts the most frequent semantic role as the role of an entity.

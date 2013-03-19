@@ -266,6 +266,7 @@ public class Main implements Runnable {
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			
 			List<BioDatum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			//List<BioDatum> entityPredicted = entityInferer.BaselineInfer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
 			Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
@@ -287,6 +288,7 @@ public class Main implements Runnable {
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
 			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			//List<BioDatum> result = eventInferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 
 			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
