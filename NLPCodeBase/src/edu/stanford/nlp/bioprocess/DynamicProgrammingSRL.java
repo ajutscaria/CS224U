@@ -38,7 +38,7 @@ public class DynamicProgrammingSRL {
 		for (Tree t : this.syntacticParse.postOrderNodeList()) {
 //			if (!t.isLeaf() && !t.isPreTerminal() && !t.value().equals("ROOT")) {
 			if (t.isPrePreTerminal()) {
-				System.out.println("--------------------"+t.pennString()+"----------------------------");
+				System.out.println("--------------------"+t.toString()+"----------------------------");
 				IdentityHashMap<Tree, String> allottedRoles = new IdentityHashMap<Tree, String>();
 				List<Pair<IdentityHashMap<Tree, String>, Double>> withParentallPerms = new ArrayList<Pair<IdentityHashMap<Tree, String>, Double>>();
 				List<Pair<IdentityHashMap<Tree, String>, Double>> allPerms = new ArrayList<Pair<IdentityHashMap<Tree, String>, Double>>();
@@ -95,7 +95,7 @@ public class DynamicProgrammingSRL {
 //						}
 					}
 				}
-				//Collections.sort(withParentallPerms, new PairComparatorByDoubleHashMap());
+				Collections.sort(withParentallPerms, new PairComparatorByDoubleHashMap());
 
 				for (int printer = 0; printer < withParentallPerms.size(); printer++) {
 					for (Tree iter : withParentallPerms.get(printer).first.keySet()) {
@@ -103,8 +103,93 @@ public class DynamicProgrammingSRL {
 					}
 					System.out.println("Prob-parent: "+withParentallPerms.get(printer).second);
 				}
-				System.out.println("--------------------"+t.pennString()+"---------------------------");
+				System.out.println("--------------------"+t.toString()+"---------------------------");
+				nodeRanks.put(t, withParentallPerms.subList(0, 1));
 //				break;
+			} else if (!t.isLeaf() && !t.isPreTerminal() && !t.value().equals("ROOT")) {
+				//Tree t is an internal node but not prepreterminal
+				System.out.println("--------------------"+t.toString()+"ACCUMULATED----------------------------");
+				IdentityHashMap<Tree, String> allottedRoles = new IdentityHashMap<Tree, String>();
+				List<Pair<IdentityHashMap<Tree, String>, Double>> withParentallPerms = new ArrayList<Pair<IdentityHashMap<Tree, String>, Double>>();
+				List<Pair<IdentityHashMap<Tree, String>, Double>> allPerms = new ArrayList<Pair<IdentityHashMap<Tree, String>, Double>>();
+				for (Tree tempChild : t.getChildrenAsList()) {
+					List<Pair<IdentityHashMap<Tree, String>, Double>> ranks = this.nodeRanks.get(tempChild);
+					System.out.println(tempChild.toString());
+					if (ranks!=null) {
+						for (int cntr=0; cntr<ranks.size(); cntr++) {
+							for (Tree iter : ranks.get(cntr).first.keySet()) {
+								System.out.print(iter.getLeaves()+":"+ranks.get(cntr).first.get(iter)+"---->");
+							}
+							System.out.println("Prob-parent: "+ranks.get(cntr).second);
+						}
+					} else {
+						System.out.println("Null ranks");
+					}
+				}
+				genPermutationsInternal(t.getChildrenAsList(), 0, allottedRoles, allPerms, 1.0);
+				for (int i=0; i<allPerms.size(); i++) {
+					Pair<IdentityHashMap<Tree, String>, Double> permPair = allPerms.get(i);
+					boolean allNone = true;
+					for (Tree child : permPair.first.keySet()) {
+						if (!permPair.first.get(child).equals("NONE")) {
+							allNone = false;
+						}
+						System.out.print(child.getLeaves()+":"+permPair.first.get(child)+"---->");
+					}
+					System.out.println("Prob: "+permPair.second);
+					if (allNone) {
+						System.out.println("THIS IS ALL NONE");
+						double withParentProb = permPair.second;
+						String parentRole = null;
+						if (nodeDatumMap.get(t) == null) {
+							System.out.println("Empty nodeDatumMap");
+						}
+						for (int cntr=0; cntr < nodeDatumMap.get(t).rankedRoleProbs.size(); cntr++) {
+							withParentProb = permPair.second * nodeDatumMap.get(t).rankedRoleProbs.get(cntr).second;
+							parentRole = nodeDatumMap.get(t).rankedRoleProbs.get(cntr).first;
+							permPair.first.put(t, parentRole);
+							permPair.second = withParentProb;
+							Pair<IdentityHashMap<Tree, String>, Double> permElem = new Pair<IdentityHashMap<Tree, String>, Double>();
+							permElem.first = (IdentityHashMap<Tree, String>) permPair.first.clone();
+							permElem.second = permPair.second;
+							withParentallPerms.add(permElem);
+						}
+//						for (int printer = 0; printer < withParentallPerms.size(); printer++) {
+//							for (Tree iter : withParentallPerms.get(printer).first.keySet()) {
+//								System.out.print(iter.getLeaves()+":"+withParentallPerms.get(printer).first.get(iter)+"---->");
+//							}
+//							System.out.println("Prob-"+parentRole+": "+withParentallPerms.get(printer).second);
+//						}
+					} else {
+						double withParentProb = permPair.second;
+						String parentRole = null;
+						withParentProb = permPair.second * nodeDatumMap.get(t).rankedRoleProbs.get(0).second;
+						parentRole = "NONE";
+						permPair.first.put(t, parentRole);
+						permPair.second = withParentProb;
+						Pair<IdentityHashMap<Tree, String>, Double> permElem = new Pair<IdentityHashMap<Tree, String>, Double>();
+						permElem.first = (IdentityHashMap<Tree, String>) permPair.first.clone();
+						permElem.second = permPair.second;
+						withParentallPerms.add(permElem);
+//						for (int printer = 0; printer < withParentallPerms.size(); printer++) {
+//							for (Tree iter : withParentallPerms.get(printer).first.keySet()) {
+//								System.out.print(iter.getLeaves()+":"+withParentallPerms.get(printer).first.get(iter)+"---->");
+//							}
+//							System.out.println("Prob-"+parentRole+": "+withParentallPerms.get(printer).second);
+//						}
+					}
+				}
+				Collections.sort(withParentallPerms, new PairComparatorByDoubleHashMap());
+
+				for (int printer = 0; printer < withParentallPerms.size(); printer++) {
+					for (Tree iter : withParentallPerms.get(printer).first.keySet()) {
+						System.out.print(iter.getLeaves()+":"+withParentallPerms.get(printer).first.get(iter)+"---->");
+					}
+					System.out.println("Prob-parent: "+withParentallPerms.get(printer).second);
+				}
+				System.out.println("--------------------"+t.toString()+"---------------------------");
+				nodeRanks.put(t, withParentallPerms.subList(0, 1));
+				//break;
 			}
 		}
 	}
@@ -136,28 +221,54 @@ public class DynamicProgrammingSRL {
 		}
 	}
 	
-	public void genPermutationsInternal(List<Tree> children, int k, IdentityHashMap<Tree, String> allottedRoles, List<Pair<IdentityHashMap<Tree, String>, Double>> allPerms) {
+	public void genPermutationsInternal(List<Tree> children, int k, IdentityHashMap<Tree, String> allottedRoles, List<Pair<IdentityHashMap<Tree, String>, Double>> allPerms, double prob) {
 		if ( k != children.size() ) {
 			Tree child = children.get(k);
-//			System.out.println("Looking for: "+child.pennString());
-			BioDatum childDatum = nodeDatumMap.get(child);
-			for (int i=0; i<childDatum.rankedRoleProbs.size(); i++) {
-				String role = childDatum.rankedRoleProbs.get(i).first;
-				allottedRoles.put(child, role);
-//				System.out.println("Recursive k: "+k);
-				genPermutationsInternal(children, ++k, allottedRoles, allPerms);
-				k--;
+			System.out.println("\nChild: "+child.toString());
+			List<Pair<IdentityHashMap<Tree, String>, Double>> childPerms = this.nodeRanks.get(child);
+			if (childPerms != null) {
+				for (int i=0; i<childPerms.size(); i++) {
+//					String role = childDatum.rankedRoleProbs.get(i).first;
+					System.out.println();
+					System.out.println("Allotted Roles");
+					for (Tree temp : allottedRoles.keySet()) {
+						System.out.print(temp.toString()+":"+allottedRoles.get(temp)+"--");
+					}
+					System.out.println("\nMerging Roles");
+					for (Tree temp : childPerms.get(i).first.keySet()) {
+						System.out.print(temp.toString()+":"+childPerms.get(i).first.get(temp)+"--");
+					}
+					Utils.mergeMaps(allottedRoles, childPerms.get(i).first);
+					//System.out.println("Recursive k: "+k);
+					genPermutationsInternal(children, ++k, allottedRoles, allPerms, prob*childPerms.get(i).second);
+					k--;
+				}
+			} else {
+				Tree child1 = children.get(k);
+	//				System.out.println("Looking for: "+child.pennString());
+				BioDatum childDatum = nodeDatumMap.get(child1);
+				for (int i=0; i<childDatum.rankedRoleProbs.size(); i++) {
+					String role = childDatum.rankedRoleProbs.get(i).first;
+					allottedRoles.put(child1, role);
+					//System.out.println("Recursive pre terminal k: "+k);
+					genPermutationsInternal(children, ++k, allottedRoles, allPerms, prob*childDatum.getRoleProb(role));
+					k--;
+				}
 			}
 		} else {
-			double prob = 1.0;
-			for (Tree t : allottedRoles.keySet()) {
-//				System.out.println(t.getLeaves().toString()+":"+allottedRoles.get(t));
-//				for (int i=0; i<nodeDatumMap.get(t).rankedRoleProbs.size(); i++) {
-//					System.out.println(nodeDatumMap.get(t).rankedRoleProbs.get(i).first+":"+nodeDatumMap.get(t).rankedRoleProbs.get(i).second);
-//				}
-				prob *= nodeDatumMap.get(t).getRoleProb(allottedRoles.get(t));
-			}
+//			double prob = 1.0;
+//			for (Tree t : allottedRoles.keySet()) {
+////				System.out.println(t.getLeaves().toString()+":"+allottedRoles.get(t));
+////				for (int i=0; i<nodeDatumMap.get(t).rankedRoleProbs.size(); i++) {
+////					System.out.println(nodeDatumMap.get(t).rankedRoleProbs.get(i).first+":"+nodeDatumMap.get(t).rankedRoleProbs.get(i).second);
+////				}
+//				prob *= nodeDatumMap.get(t).getRoleProb(allottedRoles.get(t));
+//			}
 //			System.out.println("Prob: "+prob);
+			System.out.println("\nAdded : ");
+			for (Tree printer : allottedRoles.keySet()) {
+				System.out.print(printer.toString()+":"+allottedRoles.get(printer)+"--");
+			}
 			allPerms.add(new Pair<IdentityHashMap<Tree, String>, Double>((IdentityHashMap<Tree, String>) allottedRoles.clone(), prob));
 		}
 	}

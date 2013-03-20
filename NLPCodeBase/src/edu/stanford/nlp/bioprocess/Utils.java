@@ -701,6 +701,16 @@ public static List<Example> readFile(String fileName) {
 		Collections.sort(roleProbPairList, new PairComparatorByDouble());
 		return roleProbPairList;
 	}
+
+	public static void mergeMaps(IdentityHashMap<Tree, String> bigMap, IdentityHashMap<Tree, String> smallMap) {
+		for (Tree t : smallMap.keySet()) {
+//			if (bigMap.containsKey(t)) {
+//				System.out.println("SCREAMING !!!");
+//			} else {
+				bigMap.put(t, smallMap.get(t));
+//			}
+		}
+	}
 }
 
 
