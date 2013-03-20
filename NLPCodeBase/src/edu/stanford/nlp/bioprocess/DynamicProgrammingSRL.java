@@ -61,10 +61,12 @@ public class DynamicProgrammingSRL {
 							System.out.println("Empty nodeDatumMap");
 						}
 						for (int cntr=0; cntr < nodeDatumMap.get(t).rankedRoleProbs.size(); cntr++) {
+							
 							withParentProb = permPair.second * nodeDatumMap.get(t).rankedRoleProbs.get(cntr).second;
 							parentRole = nodeDatumMap.get(t).rankedRoleProbs.get(cntr).first;
 							permPair.first.put(t, parentRole);
 							permPair.second = withParentProb;
+							System.out.println("Parent: "+parentRole+":"+withParentProb);
 							Pair<IdentityHashMap<Tree, String>, Double> permElem = new Pair<IdentityHashMap<Tree, String>, Double>();
 							permElem.first = (IdentityHashMap<Tree, String>) permPair.first.clone();
 							permElem.second = permPair.second;
@@ -79,10 +81,11 @@ public class DynamicProgrammingSRL {
 					} else {
 						double withParentProb = permPair.second;
 						String parentRole = null;
-						withParentProb = permPair.second * nodeDatumMap.get(t).rankedRoleProbs.get(0).second;
+						withParentProb = permPair.second * nodeDatumMap.get(t).getRoleProb("NONE");
 						parentRole = "NONE";
 						permPair.first.put(t, parentRole);
 						permPair.second = withParentProb;
+						System.out.println("Parent: "+parentRole+":"+withParentProb);
 						Pair<IdentityHashMap<Tree, String>, Double> permElem = new Pair<IdentityHashMap<Tree, String>, Double>();
 						permElem.first = (IdentityHashMap<Tree, String>) permPair.first.clone();
 						permElem.second = permPair.second;
@@ -104,7 +107,7 @@ public class DynamicProgrammingSRL {
 					System.out.println("Prob-parent: "+withParentallPerms.get(printer).second);
 				}
 				System.out.println("--------------------"+t.toString()+"---------------------------");
-				nodeRanks.put(t, withParentallPerms.subList(0, 1));
+				nodeRanks.put(t, withParentallPerms.subList(0, 2));
 //				break;
 			} else if (!t.isLeaf() && !t.isPreTerminal() && !t.value().equals("ROOT")) {
 				//Tree t is an internal node but not prepreterminal
@@ -149,6 +152,7 @@ public class DynamicProgrammingSRL {
 							parentRole = nodeDatumMap.get(t).rankedRoleProbs.get(cntr).first;
 							permPair.first.put(t, parentRole);
 							permPair.second = withParentProb;
+							System.out.println("Parent: "+parentRole+":"+withParentProb);
 							Pair<IdentityHashMap<Tree, String>, Double> permElem = new Pair<IdentityHashMap<Tree, String>, Double>();
 							permElem.first = (IdentityHashMap<Tree, String>) permPair.first.clone();
 							permElem.second = permPair.second;
@@ -167,6 +171,7 @@ public class DynamicProgrammingSRL {
 						parentRole = "NONE";
 						permPair.first.put(t, parentRole);
 						permPair.second = withParentProb;
+						System.out.println("Parent: "+parentRole+":"+withParentProb);
 						Pair<IdentityHashMap<Tree, String>, Double> permElem = new Pair<IdentityHashMap<Tree, String>, Double>();
 						permElem.first = (IdentityHashMap<Tree, String>) permPair.first.clone();
 						permElem.second = permPair.second;
@@ -188,8 +193,8 @@ public class DynamicProgrammingSRL {
 					System.out.println("Prob-parent: "+withParentallPerms.get(printer).second);
 				}
 				System.out.println("--------------------"+t.toString()+"---------------------------");
-				nodeRanks.put(t, withParentallPerms.subList(0, 1));
-				//break;
+				nodeRanks.put(t, withParentallPerms.subList(0, 2));
+				break;
 			}
 		}
 	}
