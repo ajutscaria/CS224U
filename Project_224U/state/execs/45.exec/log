@@ -1,0 +1,337 @@
+main() {
+  Execution directory: state/execs/45.exec
+  main {
+    Running SRL
+    Reading data {
+      p1.txt
+    } [1.7s, cum. 21s]
+    After gametes fuse and form a diploid zygote , meiosis occurs without a multicellular diploid offspring developing .:class=NONE,EntityEvent=After gametes fuse and form a diploid zygote , meiosis occurs without a multicellular diploid offspring developing .,fuse
+    After gametes fuse and form a diploid zygote:class=NONE,EntityEvent=After gametes fuse and form a diploid zygote,fuse
+    After:class=NONE,EntityEvent=After,fuse
+    gametes fuse and form a diploid zygote:class=NONE,EntityEvent=gametes fuse and form a diploid zygote,fuse
+    gametes fuse:class=NONE,EntityEvent=gametes fuse,fuse
+    gametes:class=Agent,EntityEvent=gametes,fuse
+    fuse:class=NONE,EntityEvent=fuse,fuse
+    and:class=NONE,EntityEvent=and,fuse
+    form a diploid zygote:class=NONE,EntityEvent=form a diploid zygote,fuse
+    form a diploid zygote:class=NONE,EntityEvent=form a diploid zygote,fuse
+    form:class=NONE,EntityEvent=form,fuse
+    a diploid zygote:class=NONE,EntityEvent=a diploid zygote,fuse
+    a:class=NONE,EntityEvent=a,fuse
+    diploid:class=NONE,EntityEvent=diploid,fuse
+    zygote:class=NONE,EntityEvent=zygote,fuse
+    ,:class=NONE,EntityEvent=,,fuse
+    meiosis:class=NONE,EntityEvent=meiosis,fuse
+    meiosis:class=NONE,EntityEvent=meiosis,fuse
+    occurs without a multicellular diploid offspring developing:class=NONE,EntityEvent=occurs without a multicellular diploid offspring developing,fuse
+    occurs:class=NONE,EntityEvent=occurs,fuse
+    without a multicellular diploid offspring developing:class=NONE,EntityEvent=without a multicellular diploid offspring developing,fuse
+    without:class=NONE,EntityEvent=without,fuse
+    a multicellular diploid offspring developing:class=NONE,EntityEvent=a multicellular diploid offspring developing,fuse
+    a multicellular diploid offspring:class=NONE,EntityEvent=a multicellular diploid offspring,fuse
+    a:class=NONE,EntityEvent=a,fuse
+    multicellular:class=NONE,EntityEvent=multicellular,fuse
+    diploid:class=NONE,EntityEvent=diploid,fuse
+    offspring:class=NONE,EntityEvent=offspring,fuse
+    developing:class=NONE,EntityEvent=developing,fuse
+    developing:class=NONE,EntityEvent=developing,fuse
+    .:class=NONE,EntityEvent=.,fuse
+    After gametes fuse and form a diploid zygote , meiosis occurs without a multicellular diploid offspring developing .:class=NONE,EntityEvent=After gametes fuse and form a diploid zygote , meiosis occurs without a multicellular diploid offspring developing .,form
+    After gametes fuse and form a diploid zygote:class=NONE,EntityEvent=After gametes fuse and form a diploid zygote,form
+    After:class=NONE,EntityEvent=After,form
+    gametes fuse and form a diploid zygote:class=NONE,EntityEvent=gametes fuse and form a diploid zygote,form
+    gametes fuse:class=NONE,EntityEvent=gametes fuse,form
+    gametes:class=Agent,EntityEvent=gametes,form
+    fuse:class=NONE,EntityEvent=fuse,form
+    and:class=NONE,EntityEvent=and,form
+    form a diploid zygote:class=NONE,EntityEvent=form a diploid zygote,form
+    form a diploid zygote:class=NONE,EntityEvent=form a diploid zygote,form
+    form:class=NONE,EntityEvent=form,form
+    a diploid zygote:class=Result,EntityEvent=a diploid zygote,form
+    a:class=NONE,EntityEvent=a,form
+    diploid:class=NONE,EntityEvent=diploid,form
+    zygote:class=NONE,EntityEvent=zygote,form
+    ,:class=NONE,EntityEvent=,,form
+    meiosis:class=NONE,EntityEvent=meiosis,form
+    meiosis:class=NONE,EntityEvent=meiosis,form
+    occurs without a multicellular diploid offspring developing:class=NONE,EntityEvent=occurs without a multicellular diploid offspring developing,form
+    occurs:class=NONE,EntityEvent=occurs,form
+    without a multicellular diploid offspring developing:class=NONE,EntityEvent=without a multicellular diploid offspring developing,form
+    without:class=NONE,EntityEvent=without,form
+    a multicellular diploid offspring developing:class=NONE,EntityEvent=a multicellular diploid offspring developing,form
+    a multicellular diploid offspring:class=NONE,EntityEvent=a multicellular diploid offspring,form
+    a:class=NONE,EntityEvent=a,form
+    multicellular:class=NONE,EntityEvent=multicellular,form
+    diploid:class=NONE,EntityEvent=diploid,form
+    offspring:class=NONE,EntityEvent=offspring,form
+    developing:class=NONE,EntityEvent=developing,form
+    developing:class=NONE,EntityEvent=developing,form
+    .:class=NONE,EntityEvent=.,form
+    After gametes fuse and form a diploid zygote , meiosis occurs without a multicellular diploid offspring developing .:class=NONE,EntityEvent=After gametes fuse and form a diploid zygote , meiosis occurs without a multicellular diploid offspring developing .,meiosis
+    After gametes fuse and form a diploid zygote:class=NONE,EntityEvent=After gametes fuse and form a diploid zygote,meiosis
+    After:class=NONE,EntityEvent=After,meiosis
+    gametes fuse and form a diploid zygote:class=NONE,EntityEvent=gametes fuse and form a diploid zygote,meiosis
+    gametes fuse:class=NONE,EntityEvent=gametes fuse,meiosis
+    gametes:class=NONE,EntityEvent=gametes,meiosis
+    fuse:class=NONE,EntityEvent=fuse,meiosis
+    and:class=NONE,EntityEvent=and,meiosis
+    form a diploid zygote:class=NONE,EntityEvent=form a diploid zygote,meiosis
+    form a diploid zygote:class=NONE,EntityEvent=form a diploid zygote,meiosis
+    form:class=NONE,EntityEvent=form,meiosis
+    a diploid zygote:class=NONE,EntityEvent=a diploid zygote,meiosis
+    a:class=NONE,EntityEvent=a,meiosis
+    diploid:class=NONE,EntityEvent=diploid,meiosis
+    zygote:class=NONE,EntityEvent=zygote,meiosis
+    ,:class=NONE,EntityEvent=,,meiosis
+    meiosis:class=NONE,EntityEvent=meiosis,meiosis
+    meiosis:class=NONE,EntityEvent=meiosis,meiosis
+    occurs without a multicellular diploid offspring developing:class=NONE,EntityEvent=occurs without a multicellular diploid offspring developing,meiosis
+    occurs:class=NONE,EntityEvent=occurs,meiosis
+    without a multicellular diploid offspring developing:class=NONE,EntityEvent=without a multicellular diploid offspring developing,meiosis
+    without:class=NONE,EntityEvent=without,meiosis
+    a multicellular diploid offspring developing:class=NONE,EntityEvent=a multicellular diploid offspring developing,meiosis
+    a multicellular diploid offspring:class=NONE,EntityEvent=a multicellular diploid offspring,meiosis
+    a:class=NONE,EntityEvent=a,meiosis
+    multicellular:class=NONE,EntityEvent=multicellular,meiosis
+    diploid:class=NONE,EntityEvent=diploid,meiosis
+    offspring:class=NONE,EntityEvent=offspring,meiosis
+    developing:class=NONE,EntityEvent=developing,meiosis
+    developing:class=NONE,EntityEvent=developing,meiosis
+    .:class=NONE,EntityEvent=.,meiosis
+    Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism .:class=NONE,EntityEvent=Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism .,Meiosis
+    Meiosis:class=NONE,EntityEvent=Meiosis,Meiosis
+    Meiosis:class=NONE,EntityEvent=Meiosis,Meiosis
+    produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    produces:class=NONE,EntityEvent=produces,Meiosis
+    not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    not:class=NONE,EntityEvent=not,Meiosis
+    gametes:class=NONE,EntityEvent=gametes,Meiosis
+    gametes:class=NONE,EntityEvent=gametes,Meiosis
+    but:class=NONE,EntityEvent=but,Meiosis
+    haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    haploid cells:class=Result,EntityEvent=haploid cells,Meiosis
+    haploid:class=NONE,EntityEvent=haploid,Meiosis
+    cells:class=NONE,EntityEvent=cells,Meiosis
+    that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    that:class=NONE,EntityEvent=that,Meiosis
+    that:class=NONE,EntityEvent=that,Meiosis
+    then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    then:class=NONE,EntityEvent=then,Meiosis
+    then:class=NONE,EntityEvent=then,Meiosis
+    divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    divide by mitosis:class=NONE,EntityEvent=divide by mitosis,Meiosis
+    divide:class=NONE,EntityEvent=divide,Meiosis
+    by mitosis:class=NONE,EntityEvent=by mitosis,Meiosis
+    by:class=NONE,EntityEvent=by,Meiosis
+    mitosis:class=NONE,EntityEvent=mitosis,Meiosis
+    mitosis:class=NONE,EntityEvent=mitosis,Meiosis
+    and:class=NONE,EntityEvent=and,Meiosis
+    give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=give rise to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    give:class=NONE,EntityEvent=give,Meiosis
+    rise:class=NONE,EntityEvent=rise,Meiosis
+    rise:class=NONE,EntityEvent=rise,Meiosis
+    to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=to either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    to:class=NONE,EntityEvent=to,Meiosis
+    either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=either unicellular descendants or a haploid multicellular adult organism,Meiosis
+    either:class=NONE,EntityEvent=either,Meiosis
+    unicellular descendants:class=NONE,EntityEvent=unicellular descendants,Meiosis
+    unicellular:class=NONE,EntityEvent=unicellular,Meiosis
+    descendants:class=NONE,EntityEvent=descendants,Meiosis
+    or:class=NONE,EntityEvent=or,Meiosis
+    a haploid multicellular adult organism:class=NONE,EntityEvent=a haploid multicellular adult organism,Meiosis
+    a:class=NONE,EntityEvent=a,Meiosis
+    haploid:class=NONE,EntityEvent=haploid,Meiosis
+    multicellular:class=NONE,EntityEvent=multicellular,Meiosis
+    adult:class=NONE,EntityEvent=adult,Meiosis
+    organism:class=NONE,EntityEvent=organism,Meiosis
+    .:class=NONE,EntityEvent=.,Meiosis
+    Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism .:class=NONE,EntityEvent=Meiosis produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism .,divide
+    Meiosis:class=NONE,EntityEvent=Meiosis,divide
+    Meiosis:class=NONE,EntityEvent=Meiosis,divide
+    produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=produces not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,divide
+    produces:class=NONE,EntityEvent=produces,divide
+    not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=not gametes but haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,divide
+    not:class=NONE,EntityEvent=not,divide
+    gametes:class=NONE,EntityEvent=gametes,divide
+    gametes:class=NONE,EntityEvent=gametes,divide
+    but:class=NONE,EntityEvent=but,divide
+    haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=haploid cells that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,divide
+    haploid cells:class=Agent,EntityEvent=haploid cells,divide
+    haploid:class=NONE,EntityEvent=haploid,divide
+    cells:class=NONE,EntityEvent=cells,divide
+    that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=that then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,divide
+    that:class=NONE,EntityEvent=that,divide
+    that:class=NONE,EntityEvent=that,divide
+    then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=then divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,divide
+    then:class=NONE,EntityEvent=then,divide
+    then:class=NONE,EntityEvent=then,divide
+    divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=divide by mitosis and give rise to either unicellular descendants or a haploid multicellular adult organism,divide
+    divide by mitosis:class=NONE,EntityEvent=divide by mitosis,divide
+    divide:class=NONE,EntityEvent=divide,divide
+    by mitosis:class=NONE,EntityEvent=by mitosis,divide
+    by:class=NONE,EntityEvent=by,divide
+    mitosis:class=NONE,EntityEvent=mitosis,divide
+    mitosis:class=NONE,EntityEvent=mitosis,divide
+    and:class=NONE,EntityEvent=and,divide
+    give rise to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=give rise to either unicellular descendants or a haploid multicellular adult organism,divide
+    give:class=NONE,EntityEvent=give,divide
+    rise:class=NONE,EntityEvent=rise,divide
+    rise:class=NONE,EntityEvent=rise,divide
+    to either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=to either unicellular descendants or a haploid multicellular adult organism,divide
+    to:class=NONE,EntityEvent=to,divide
+    either unicellular descendants or a haploid multicellular adult organism:class=NONE,EntityEvent=either unicellular descendants or a haploid multicellular adult organism,divide
+    either:class=NONE,EntityEvent=either,divide
+    unicellular descendants:class=Result,EntityEvent=unicellular descendants,divide
+    unicellular:class=NONE,EntityEvent=unicellular,divide
+    descendants:class=NONE,EntityEvent=descendants,divide
+    or:class=NONE,EntityEvent=or,divide
+    a haploid multicellular adult organism:class=Result,EntityEvent=a haploid multicellular adult organism,divide
+    a:class=NONE,EntityEvent=a,divide
+    haploid:class=NONE,EntityEvent=haploid,divide
+    multicellular:class=NONE,EntityEvent=multicellular,divide
+    adult:class=NONE,EntityEvent=adult,divide
+    organism:class=NONE,EntityEvent=organism,divide
+    .:class=NONE,EntityEvent=.,divide
+    Subsequently , the haploid organism carries out further mitoses , producing the cells that develop into gametes .:class=NONE,EntityEvent=Subsequently , the haploid organism carries out further mitoses , producing the cells that develop into gametes .,mitoses
+    Subsequently:class=NONE,EntityEvent=Subsequently,mitoses
+    Subsequently:class=NONE,EntityEvent=Subsequently,mitoses
+    ,:class=NONE,EntityEvent=,,mitoses
+    the haploid organism carries out further:class=NONE,EntityEvent=the haploid organism carries out further,mitoses
+    the haploid organism:class=Agent,EntityEvent=the haploid organism,mitoses
+    the:class=NONE,EntityEvent=the,mitoses
+    haploid:class=NONE,EntityEvent=haploid,mitoses
+    organism:class=NONE,EntityEvent=organism,mitoses
+    carries out further:class=NONE,EntityEvent=carries out further,mitoses
+    carries out further:class=NONE,EntityEvent=carries out further,mitoses
+    carries out further:class=NONE,EntityEvent=carries out further,mitoses
+    carries:class=NONE,EntityEvent=carries,mitoses
+    out:class=NONE,EntityEvent=out,mitoses
+    out:class=NONE,EntityEvent=out,mitoses
+    further:class=NONE,EntityEvent=further,mitoses
+    further:class=NONE,EntityEvent=further,mitoses
+    mitoses , producing the cells that develop into gametes:class=NONE,EntityEvent=mitoses , producing the cells that develop into gametes,mitoses
+    mitoses:class=NONE,EntityEvent=mitoses,mitoses
+    ,:class=NONE,EntityEvent=,,mitoses
+    producing the cells that develop into gametes:class=NONE,EntityEvent=producing the cells that develop into gametes,mitoses
+    producing the cells that develop into gametes:class=NONE,EntityEvent=producing the cells that develop into gametes,mitoses
+    producing:class=NONE,EntityEvent=producing,mitoses
+    the cells that develop into gametes:class=NONE,EntityEvent=the cells that develop into gametes,mitoses
+    the cells:class=Result,EntityEvent=the cells,mitoses
+    the:class=NONE,EntityEvent=the,mitoses
+    cells:class=NONE,EntityEvent=cells,mitoses
+    that develop into gametes:class=NONE,EntityEvent=that develop into gametes,mitoses
+    that:class=NONE,EntityEvent=that,mitoses
+    that:class=NONE,EntityEvent=that,mitoses
+    develop into gametes:class=NONE,EntityEvent=develop into gametes,mitoses
+    develop into gametes:class=NONE,EntityEvent=develop into gametes,mitoses
+    develop:class=NONE,EntityEvent=develop,mitoses
+    into gametes:class=NONE,EntityEvent=into gametes,mitoses
+    into:class=NONE,EntityEvent=into,mitoses
+    gametes:class=NONE,EntityEvent=gametes,mitoses
+    gametes:class=NONE,EntityEvent=gametes,mitoses
+    .:class=NONE,EntityEvent=.,mitoses
+    Subsequently , the haploid organism carries out further mitoses , producing the cells that develop into gametes .:class=NONE,EntityEvent=Subsequently , the haploid organism carries out further mitoses , producing the cells that develop into gametes .,develop
+    Subsequently:class=NONE,EntityEvent=Subsequently,develop
+    Subsequently:class=NONE,EntityEvent=Subsequently,develop
+    ,:class=NONE,EntityEvent=,,develop
+    the haploid organism carries out further:class=NONE,EntityEvent=the haploid organism carries out further,develop
+    the haploid organism:class=NONE,EntityEvent=the haploid organism,develop
+    the:class=NONE,EntityEvent=the,develop
+    haploid:class=NONE,EntityEvent=haploid,develop
+    organism:class=NONE,EntityEvent=organism,develop
+    carries out further:class=NONE,EntityEvent=carries out further,develop
+    carries out further:class=NONE,EntityEvent=carries out further,develop
+    carries out further:class=NONE,EntityEvent=carries out further,develop
+    carries:class=NONE,EntityEvent=carries,develop
+    out:class=NONE,EntityEvent=out,develop
+    out:class=NONE,EntityEvent=out,develop
+    further:class=NONE,EntityEvent=further,develop
+    further:class=NONE,EntityEvent=further,develop
+    mitoses , producing the cells that develop into gametes:class=NONE,EntityEvent=mitoses , producing the cells that develop into gametes,develop
+    mitoses:class=NONE,EntityEvent=mitoses,develop
+    ,:class=NONE,EntityEvent=,,develop
+    producing the cells that develop into gametes:class=NONE,EntityEvent=producing the cells that develop into gametes,develop
+    producing the cells that develop into gametes:class=NONE,EntityEvent=producing the cells that develop into gametes,develop
+    producing:class=NONE,EntityEvent=producing,develop
+    the cells that develop into gametes:class=NONE,EntityEvent=the cells that develop into gametes,develop
+    the cells:class=Agent,EntityEvent=the cells,develop
+    the:class=NONE,EntityEvent=the,develop
+    cells:class=NONE,EntityEvent=cells,develop
+    that develop into gametes:class=NONE,EntityEvent=that develop into gametes,develop
+    that:class=NONE,EntityEvent=that,develop
+    that:class=NONE,EntityEvent=that,develop
+    develop into gametes:class=NONE,EntityEvent=develop into gametes,develop
+    develop into gametes:class=NONE,EntityEvent=develop into gametes,develop
+    develop:class=NONE,EntityEvent=develop,develop
+    into gametes:class=NONE,EntityEvent=into gametes,develop
+    into:class=NONE,EntityEvent=into,develop
+    gametes:class=Result,EntityEvent=gametes,develop
+    gametes:class=NONE,EntityEvent=gametes,develop
+    .:class=NONE,EntityEvent=.,develop
+    Example p1 {
+      ------------------Event: form--------------
+      
+      ---------GOLD ENTITIES-------------------------
+      (NNS gametes):Agent
+      (NP (DT a) (JJ diploid) (NN zygote)):Result
+      ---------PREDICTIONS-------------------------
+      gametes                        [1 1], Gold:  Agent Predicted: Agent
+      a diploid zygote               [5 7], Gold:  Result Predicted: Result
+      ------------------------------------------
+      ------------------Event: meiosis--------------
+      
+      ---------GOLD ENTITIES-------------------------
+      ---------PREDICTIONS-------------------------
+      ------------------------------------------
+      ------------------Event: fuse--------------
+      
+      ---------GOLD ENTITIES-------------------------
+      (NNS gametes):Agent
+      ---------PREDICTIONS-------------------------
+      gametes                        [1 1], Gold:  Agent Predicted: Agent
+      ------------------------------------------
+      ------------------Event: Meiosis--------------
+      
+      ---------GOLD ENTITIES-------------------------
+      (NP (JJ haploid) (NNS cells)):Result
+      ---------PREDICTIONS-------------------------
+      haploid cells                  [5 6], Gold:  Result Predicted: Result
+      ------------------------------------------
+      ------------------Event: divide--------------
+      
+      ---------GOLD ENTITIES-------------------------
+      (NP (JJ haploid) (NNS cells)):Agent
+      (NP (JJ unicellular) (NNS descendants)):Result
+      (NP (DT a) (JJ haploid) (JJ multicellular) (JJ adult) (NN organism)):Result
+      ---------PREDICTIONS-------------------------
+      haploid cells                  [5 6], Gold:  Agent Predicted: Agent
+      unicellular descendants        [17 18], Gold:  Result Predicted: Result
+      a haploid multicellular adult organism [20 24], Gold:  Result Predicted: Result
+      ------------------------------------------
+      ------------------Event: mitoses--------------
+      
+      ---------GOLD ENTITIES-------------------------
+      (NP (DT the) (JJ haploid) (NN organism)):Agent
+      (NP (DT the) (NNS cells)):Result
+      ---------PREDICTIONS-------------------------
+      the haploid organism           [2 4], Gold:  Agent Predicted: Agent
+      the cells                      [11 12], Gold:  Result Predicted: Result
+      ------------------------------------------
+      ------------------Event: develop--------------
+      
+      ---------GOLD ENTITIES-------------------------
+      (NP (DT the) (NNS cells)):Agent
+      (NP (NNS gametes)):Result
+      ---------PREDICTIONS-------------------------
+      the cells                      [11 12], Gold:  Agent Predicted: Agent
+      gametes                        [16 16], Gold:  Result Predicted: Result
+      gametes                        [16 16], Gold:  NONE Predicted: Result
+      ------------------------------------------
+    }
+    tp fn fp 11:0:1
+    Precision : 0.9166666666666666
+    Recall    : 1.0
+    F1 score  : 0.9565217391304348
+  } [22s, cum. 22s]
+  Execution directory: state/execs/45.exec
+} [22s]

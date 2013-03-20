@@ -1,0 +1,31 @@
+T1	Entity 24 41	an RNA transcript
+T4	Event 107 113	copied
+E2	Event:T4 result:T5 agent:T6 next-event:E3 raw-material:T1
+T5	Entity 119 138	double-stranded RNA
+T6	Entity 142 156	a yeast enzyme
+T7	Event 166 175	processed
+E3	Event:T7 result:T8 raw-material:T5 next-event:E4
+T8	Entity 181 187	siRNAs
+T9	Entity 189 201	These siRNAs
+*	same-entity T8 T9
+T10	Event 202 211	associate
+E4	Event:T10 agent:T9 theme:T11 causes:E6
+T11	Entity 217 238	a complex of proteins
+T14	Event 314 323	targeting
+E6	Event:T14 theme:T15 location:T16 next-event:E7 agent:T9
+T15	Entity 324 335	the complex
+T16	Entity 344 408	RNA transcripts being made from the centromeric sequences of DNA
+T17	Entity 422 445	proteins in the complex
+T18	Event 446 453	recruit
+E7	Event:T18 agent:T17 theme:T19 next-event:E9
+T19	Entity 454 461	enzymes
+T21	Entity 505 565	the highly condensed heterochromatin found at the centromere
+T22	Event 467 473	modify
+E9	Event:T22 agent:T19 theme:T23 result:T21
+T23	Entity 474 487	the chromatin
+T24	Entity 497 499	it
+*	same-entity T23 T24
+T2	Event 42 50	produced
+E1	Event:T2 result:T1 raw-material:T3 location:T12 next-event:E2
+T3	Entity 56 59	DNA
+T12	Entity 63 103	the centromeric region of the chromosome

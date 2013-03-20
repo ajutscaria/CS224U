@@ -1,0 +1,19 @@
+Main.propertyFile	src/edu/stanford/nlp/bioprocess/bioprocess.properties
+Main.mode	srl
+exec.monitor	true
+exec.execDir	
+exec.execPoolDir	state/execs
+exec.overwriteExecDir	false
+exec.printOptionsAndExit	false
+exec.miscOptions	
+exec.addToView	
+exec.charEncoding	
+exec.jarFiles	
+exec.startMainTrack	true
+log.maxIndLevel	10
+log.msPerLine	0
+log.file	state/execs/26.exec/log
+log.stdout	true
+log.note	
+log.forcePrint	false
+log.maxPrintErrors	10000

@@ -1,0 +1,19 @@
+T1	Event 44 57	crossing over
+E1	Event:T1 cotemporal:E2 causes:E3 location:T10
+T2	Event 79 87	cohesion
+E2	Event:T2 causes:E3 location:T10 theme:T12
+T3	Event 118 127	formation
+E3	Event:T3 result:T4 next-event:E4
+T4	Entity 131 140	a chiasma
+T5	Entity 142 151	Chiasmata
+*	same-entity T4 T5
+T6	Event 152 156	hold
+E4	Event:T6 agent:T5 cotemporal:E5 theme:T11
+T7	Event 190 195	forms
+E5	Event:T7 agent:T8 super-event:E6
+T8	Entity 178 189	the spindle
+T9	Event 210 226	meiotic division
+E6	Event:T9 
+T10	Entity 88 102	along the arms
+T11	Entity 157 165	homologs
+T12	Entity 62 78	sister chromatid
