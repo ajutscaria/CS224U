@@ -144,12 +144,13 @@ public class Main implements Runnable {
 		LogInfo.begin_track("main");
 		Properties props = StringUtils.propFileToProperties(propertyFile);
 		String trainDirectory = props.getProperty("train.dir"), testDirectory = props.getProperty("test.dir"),
-				sampleDirectory = props.getProperty("sample.dir");
+				sampleDirectory = props.getProperty("sample.dir"), indepDirectory = props.getProperty("indep.dir");
 
 		HashMap<String, String> folders = new HashMap<String, String>();
 		folders.put("test", testDirectory);
 		folders.put("train", trainDirectory);
 		folders.put("sample", sampleDirectory);
+		folders.put("indep", indepDirectory);
 
 		if(mode.equals("entity")) {
 			LogInfo.logs("Running entity prediction");
@@ -238,7 +239,7 @@ public class Main implements Runnable {
 	
 	private void runEntityPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		BioprocessDataset dataset = loadDataSet(folders, false, true);
 
 		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 		if(!runTest) {
@@ -271,7 +272,7 @@ public class Main implements Runnable {
 			FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
 			Inferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(dataset.examples("train"), eventFeatureFactory);
-			List<Datum> predicted = eventInferer.Infer(dataset.examples("test"), eventParam, eventFeatureFactory);
+			List<Datum> predicted = eventInferer.Infer(dataset.examples("indep"), eventParam, eventFeatureFactory);
 			
 			Learner entityLearner = new EntityPredictionLearner();
 			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
@@ -279,9 +280,9 @@ public class Main implements Runnable {
 			//EntityPredictionInferer entityInferer = new EntityPredictionInferer();
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			
-			List<Datum> entityPredicted = entityInferer.Infer(dataset.examples("test"), entityParam, entityFeatureFactory);
+			List<Datum> entityPredicted = entityInferer.Infer(dataset.examples("indep"), entityParam, entityFeatureFactory);
 			//List<Datum> entityPredicted = entityInferer.BaselineInfer(dataset.examples("test"), entityParam, entityFeatureFactory);
-			Triple<Double, Double, Double> triple = Scorer.scoreEntities(dataset.examples("test"), entityPredicted);
+			Triple<Double, Double, Double> triple = Scorer.scoreEntities(dataset.examples("indep"), entityPredicted);
 			LogInfo.logs(triple);
 		}
 	}
@@ -300,8 +301,8 @@ public class Main implements Runnable {
 				EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
 				EventPredictionInferer eventInferer = new EventPredictionInferer();
 				Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-				//List<Datum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
-				List<Datum> result = eventInferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+				List<Datum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+				//List<Datum> result = eventInferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 	
 				Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
 				precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
@@ -314,10 +315,10 @@ public class Main implements Runnable {
 			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(dataset.examples("train"), eventFeatureFactory);
-			//List<Datum> result = eventInferer.Infer(dataset.examples("test"), eventParam, eventFeatureFactory);
-			List<Datum> result = eventInferer.BaselineInfer(dataset.examples("test"), eventParam, eventFeatureFactory);
+			List<Datum> result = eventInferer.Infer(dataset.examples("indep"), eventParam, eventFeatureFactory);
+			//List<Datum> result = eventInferer.BaselineInfer(dataset.examples("test"), eventParam, eventFeatureFactory);
 
-			Triple<Double, Double, Double> triple = Scorer.scoreEvents(dataset.examples("test"), result);
+			Triple<Double, Double, Double> triple = Scorer.scoreEvents(dataset.examples("indep"), result);
 			LogInfo.logs(triple);
 		}
 	}
@@ -380,6 +381,7 @@ public class Main implements Runnable {
 	private BioprocessDataset loadDataSet(HashMap<String, String> groups, boolean useSmallSample, boolean refreshDataFile) {
 		String examplesFileName_train = "data_train.bpa";
 		String examplesFileName_test = "data_test.bpa";
+		String examplesFileName_indep = "data_indep.bpa";
 		BioprocessDataset dataset = new BioprocessDataset(groups);
 
 		if(!useSmallSample) {
@@ -387,14 +389,17 @@ public class Main implements Runnable {
 			if(f.exists() && !refreshDataFile) {
 				LogInfo.begin_track("Quick data read");
 				dataset.allExamples.put("train", Utils.readFile(examplesFileName_train));
-				dataset.allExamples.put("test", Utils.readFile(examplesFileName_test));
+				//dataset.allExamples.put("test", Utils.readFile(examplesFileName_test));
+				dataset.allExamples.put("indep", Utils.readFile(examplesFileName_indep));
 				LogInfo.end_track();
 			}
 			else {
 				dataset.read("train");
-				dataset.read("test");
+				//dataset.read("test");
+				dataset.read("indep");
 				Utils.writeFile(dataset.examples("train"), examplesFileName_train);
 				Utils.writeFile(dataset.examples("test"), examplesFileName_test);
+				Utils.writeFile(dataset.examples("indep"), examplesFileName_indep);
 			}
 		}
 		else{
