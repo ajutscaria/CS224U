@@ -41,24 +41,26 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		CoreLabel token = Utils.findCoreLabelFromTree(sentence, entity);
 		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
 		
-		//features.add("PrevWordPOS="+tokens.get(token.index()-1).get(PartOfSpeechAnnotation.class));
-		//features.add("PrevWord="+tokens.get(token.index()-1));
-		features.add("EntityEvent="+Utils.getText(entity)+","+Utils.getText(event));
+		features.add("PrevWordPOS="+tokens.get(token.index()-1).get(PartOfSpeechAnnotation.class));
+		features.add("PrevWord="+tokens.get(token.index()-1));
+		
+//		features.add("EntityEvent="+Utils.getText(entity)+","+Utils.getText(event));
+		
 		//System.out.println("Adding "+entity.getLeaves()+"-"+event.getLeaves());
 
-//		features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
-//		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
-//		features.add("PathEntToEvt=" + Trees.pathNodeToNode(event, entity, root));
-//		features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));
-//		features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));
+		features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
+		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
+		features.add("PathEntToEvt=" + Trees.pathNodeToNode(event, entity, root));
+		features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));
+		features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));
 		
-		//features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
-		//features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);
-		//features.add("EntPOSEntParentPOSEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
-		//features.add("EntLastWordEvtPOS="+leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
-		//features.add("PathEntToAncestor="+Trees.pathNodeToNode(entity, Trees.getLowestCommonAncestor(entity, event, root), root));
-		//features.add("PathEntToRoot="+Trees.pathNodeToNode(entity, root, root));
-		//features.add("EntParentPOSEvtPOS=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
+		features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
+		features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);
+		features.add("EntPOSEntParentPOSEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
+//		features.add("EntLastWordEvtPOS="+leaves.get(leaves.size()-1)+","+event.preTerminalYield().get(0).value());
+		features.add("PathEntToAncestor="+Trees.pathNodeToNode(entity, Trees.getLowestCommonAncestor(entity, event, root), root));
+		features.add("PathEntToRoot="+Trees.pathNodeToNode(entity, root, root));
+		features.add("EntParentPOSEvtPOS=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 		
 		
 		
@@ -74,6 +76,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
     }
 
     public List<BioDatum> setFeaturesTrain(List<Example> data) {
+    	System.out.println("In setfeatures train");
     	List<BioDatum> newData = new ArrayList<BioDatum>();
 	
 		for (Example ex : data) {
@@ -113,7 +116,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
 						}
 						
 						String type = "O";
-						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
+						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)  || Utils.isChildOfEntity(entityNodes, node)) {
 							type = "E";
 						}
 						
@@ -133,7 +136,6 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		}
 		if(printDebug) LogInfo.logs("\n------------------------------------------------");
 	}
-
 	return newData;
     }
     
@@ -165,9 +167,11 @@ public class SRLFeatureFactory extends FeatureExtractor {
     }
     
     public String getMostCommonRelationType() {
+    	System.out.println("In getMostCommon");
     	int maximum = -1;
     	String popularRelation = null;
     	for (String relType : relCount.keySet()) {
+    		System.out.println(relCount.get(relType));
     		if (relType.equals(RelationType.NONE.toString())) {
     			continue;
     		}

@@ -37,6 +37,7 @@ public class SRLPredictionInferer extends Inferer {
 	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		String popularRelation = ((SRLFeatureFactory)ff).getMostCommonRelationType();
+		System.out.println("Popular: "+popularRelation);
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
 			LogInfo.begin_track("Example %s",example.id);
@@ -62,7 +63,7 @@ public class SRLPredictionInferer extends Inferer {
 					}
 					
 					for(BioDatum d:testDataWithLabel) {
-						if((d.entityNode.value().equals("NP") /*|| d.entityNode.value().startsWith("NN")*/) && Utils.isNodesRelated(sentence, d.entityNode, event)) {
+						if((d.entityNode.value().equals("NP"))) { //|| d.entityNode.value().startsWith("NN") && Utils.isNodesRelated(sentence, d.entityNode, event)) {
 							d.guessRole = popularRelation;
 						}
 						else
@@ -75,8 +76,11 @@ public class SRLPredictionInferer extends Inferer {
 					
 					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
 					for(BioDatum d:testDataWithLabel) 
-						if(!d.role.equals(RelationType.NONE.toString()))
+						if(!d.role.equals(RelationType.NONE.toString())) {
+							System.out.println(d.entityNode + ":" + d.role);
 							LogInfo.logs(d.entityNode + ":" + d.role);
+						}
+
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(BioDatum d:testDataWithLabel)

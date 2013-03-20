@@ -24,6 +24,7 @@ public class SRLPredictionLearner extends Learner {
    */
   public Params learn(List<Example> dataset, FeatureExtractor ff) {
 	  
+	  	System.out.println("In learn ...");
 		List<BioDatum> data = ff.setFeaturesTrain(dataset);
 		
 		GeneralDataset<String, String> dd = new Dataset<String, String>();
@@ -34,7 +35,7 @@ public class SRLPredictionLearner extends Learner {
 		LinearClassifierFactory<String, String> lcFactory = new LinearClassifierFactory<String, String>();
 		LinearClassifier<String,String> classifier = lcFactory.trainClassifier(dd);	
 		
-		LogInfo.logs(classifier.weightsAsMapOfCounters());
+		//LogInfo.logs(classifier.weightsAsMapOfCounters());
 		parameters.setWeights(classifier.weights());
 		parameters.setFeatureIndex(dd.featureIndex);
 		parameters.setLabelIndex(dd.labelIndex);

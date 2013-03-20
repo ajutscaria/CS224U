@@ -188,7 +188,7 @@ public class Main implements Runnable {
 
 	private void runSRLPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		boolean small = true;
+		boolean small = false;
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
 		SRLFeatureFactory featureFactory = new SRLFeatureFactory();
 		SRLPredictionLearner learner = new SRLPredictionLearner();
@@ -214,7 +214,7 @@ public class Main implements Runnable {
 				Triple<Double, Double, Double> triple = Scorer.scoreSRL(split.GetTestExamples(i), predicted);
 				precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
 				LogInfo.end_track();
-				//break;
+				break;
 			}
 			printScores("Dev", precisionBaseline, recallBaseline, f1Baseline);
 		}

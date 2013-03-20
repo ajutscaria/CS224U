@@ -42,7 +42,9 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		
 		//features.add("PrevWordPOS="+tokens.get(token.index()-1).get(PartOfSpeechAnnotation.class));
 		//features.add("PrevWord="+tokens.get(token.index()-1));
+		
 		features.add("EntityEvent="+Utils.getText(entity)+","+Utils.getText(event));
+		
 		//System.out.println("Adding "+entity.getLeaves()+"-"+event.getLeaves());
 
 //		features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
