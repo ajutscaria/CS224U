@@ -1,9 +1,11 @@
 In section, we analyze the results in detail and perform error analysis.
 
 \subsection{Event trigger prediction}
-Most of the event triggers are verbs which makes it easy to achieve F1 scores of around 0.6 without many features. But, including features to classify nominalized verbs that are event triggers is a hard task. Especially because there is no single source of word nominalizations that is perfect. Some are very general and include a lot of words that are not exactly word triggers because of which precision is affected, while others have very few and doesn't improve recall much.
+{\bf Verb Nominalizations -} Most of the event triggers are verbs which makes it easy to achieve F1 scores of around 0.6 without many features. But, including features to classify nominalized verbs that are event triggers is a hard task. Especially because there is no single source of word nominalizations that is perfect. Some are very general and include a lot of words that are not exactly word triggers because of which precision is affected, while others have very few and doesn't improve recall much. After including the features for word nominalizations, the model now identifies event triggers like 'effect', 'change', 'impact', 'degradation', 'concentration' etc. as event triggers. At the same time, there are many instances when nouns get tagged as event triggers even when they were not event triggers
 
+{\bf }On looking at the errors 
 
+{\bf Lexical vs Non-lexical featuers.} On looking at the errors 
 TODO - IO - what all does it fix? Lexical vs non-lexical features?
 
 \subsection{Entity prediction}
