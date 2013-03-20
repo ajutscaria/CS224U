@@ -1,21 +1,23 @@
-In section, we analyze the results in detail and perform error analysis.
+In section, we analyze the results in detail and perform error analysis. First we talk about the general points and later we talk about each tasks in detail
+
+{\bf Lexical vs Non-lexical featuers-} Using lexical features helps to capture words or phrases that are repeating. At the same time, using features based on the POS tags and path in the parse tree or dependency tree helps us to identify structural traits. Since our training data was limited, using lexical features alone wasn't really helpful because most of the words and phrases were non-repeating. At the same time, adding many features based on path resulted in high precision but low recall. So, we've adopted a mix of both lexical and non-lexical features.
+
+{\bf Annotation errors-} There were many instances when we thought the annotations were not correct. For example, events like 'transposition' and 'duplication' were not marked as a triggers in some sentences, maybe, because those were not important events according to the annotator. Also, while marking phrases that constitute an entity, there were many instances when multiple annotations were possible. This raises an import concern with all manually annotated corpora - that choices of annotations are subjective.
+
+{\bf Parser errors-} Since many of the features that we used are based on the parses generated for a sentence, any mistakes by the parser would automatically result in misclassifications of event and entities. A typical example is problems arising due to PP attachment of phrases that were marked as entities.
 
 \subsection{Event trigger prediction}
-{\bf Verb Nominalizations -} Most of the event triggers are verbs which makes it easy to achieve F1 scores of around 0.6 without many features. But, including features to classify nominalized verbs that are event triggers is a hard task. Especially because there is no single source of word nominalizations that is perfect. Some are very general and include a lot of words that are not exactly word triggers because of which precision is affected, while others have very few and doesn't improve recall much. After including the features for word nominalizations, the model now identifies event triggers like 'effect', 'change', 'impact', 'degradation', 'concentration' etc. as event triggers. At the same time, there are many instances when nouns get tagged as event triggers even when they were not event triggers
+{\bf Verb Nominalizations-} Most of the event triggers are verbs which makes it easy to achieve F1 scores of around 0.6 without many features. But, including features to classify nominalized verbs that are event triggers is a hard task. Especially because there is no single source of word nominalizations that is perfect. We tried NomLex and NomBank, which are collections of nominalizations. NomLex proved useful and the classification accuracy improved by around 2-3\%. But, since NomLex was not an extensive dictionary, some nominalizations were still misclassified. Using WordNet derivations helped us to counter this and to improve the performance by another 2\%. After including the features for word nominalizations, the model now identifies event triggers like 'effect', 'change', 'impact', 'degradation', 'concentration' etc. as event triggers. At the same time, there are many instances when nouns get tagged as event triggers even when they were not event triggers, for instance 'damage' was tagged as trigger from the phrase 'strand containing the damage'. Also, more complex nominalizations like 'synthesis', 'bronchitis' etc. were missed.
 
-{\bf }On looking at the errors 
+{\bf Iterative Optimization-} The iterative optimization algorithm we developed was quite efficient in correcting some of the mistakes made by the basic trigger prediction algorithm. As an example, in the sentence, {\em The original cell produces a copy of its chromosome and surrounds it with a tough multilayered structure, forming the endospore.}, 'copy' was predicted as an event trigger, possibly because of strong lexical features. But, this gets corrected with the iterative algorithm as it does not have any child entities in the dependency tree. Similarly, in the sentence, {\em Each gene on one homolog is aligned precisely with the corresponding gene on the other homolog.}, 'aligned' was not initially predicted as an event trigger, but the iterative algorithm predicts it as a trigger.
 
-{\bf Lexical vs Non-lexical featuers.} On looking at the errors 
-TODO - IO - what all does it fix? Lexical vs non-lexical features?
+We feel that including word clustering features that cluster together words that are semantically close would help us solve the problems arising with sparsity of labeled data.
 
 \subsection{Entity prediction}
+The task of argument prediction is a much harder task as evident from the lower F1 scores, mainly because of two reasons. Firstly, entities that are arguments to event triggers are phrases and marking boundaries of entities are subjective. We partly overcame this difficulty by modeling entities as parse tree nodes and devising a dynamic program for enforcing non overlapping constraints. The dynamic programming approach gave us a boost of around 4\% in F1 score. Secondly, since we are now scoring event-entity combinations, identifying correct triggers to connect the entity to is a hard problem, especially in the cases when an entity is shared between two triggers or when the entities and trigger words are far apart in the sentence. We tried to overcome this by introducing features based on dependency parse structure of sentences as well.
 
-We saw that the task of argument prediction is much harder because of the lower F1 score mainly because of two reasons. Firstly, non-overlapping which we fixed. Word boundaries subjective. Sharing of triggers and we score event-entity combinations.
-
-The dynamic programming approach gave us a boost of 0.04 (0.60 to 0.64) in F1 score. 
-
-TODO- IO - what all does it fix?
-
-Lexical vs non-lexical features
+TODO - Why does IO reduce precision?
 
 \subsection{Semantic role labeling}
+
+TODO - Finish this section
