@@ -1,0 +1,32 @@
+T1	Event 24 30	remove
+E1	Event:T1 agent:T3 theme:T2 next-event:E2 cotemporal:E3
+T2	Entity 31 74	eggs from a female of the recipient species
+T3	Entity 13 17	they
+T4	Entity 89 93	them
+*	same-entity T4 T2
+T5	Event 79 88	fertilize
+E2	Event:T5 theme:T4 agent:T3 location:T6 cotemporal:E3
+T6	Entity 94 102	in vitro
+T7	Event 125 131	cloned
+E3	Event:T7 theme:T9 agent:T8 next-event:E4
+T8	Entity 115 119	they
+*	same-entity T3 T8 T10
+T9	Entity 132 172	the desired gene from the donor organism
+T10	Entity 174 178	They
+T11	Event 184 190	inject
+E4	Event:T11 theme:T12 location:T13 agent:T10 next-event:E5
+T12	Entity 191 205	the cloned DNA
+T13	Entity 220 253	the nuclei of the fertilized eggs
+T14	Entity 255 272	Some of the cells
+T15	Event 273 282	integrate
+E5	Event:T15 agent:T14 theme:T16 destination:T17 enables:E6
+T16	Entity 283 313	the foreign DNA, the transgene
+T17	Entity 320 333	their genomes
+T18	Event 350 357	express
+E6	Event:T18 theme:T19 agent:T14 next-event:E7
+T19	Entity 358 374	the foreign gene
+T20	Entity 376 398	The engineered embryos
+T21	Event 419 428	implanted
+E7	Event:T21 theme:T20 location:T22
+T22	Entity 432 450	a surrogate mother
+*	same-entity T19 T16

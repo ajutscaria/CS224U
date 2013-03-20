@@ -1,0 +1,19 @@
+T1	Event 45 51	passed
+E1	Event:T1 theme:T2 location:T3 location2:T4 next-event:E2
+T2	Entity 28 41	visible light
+T3	Entity 60 72	the specimen
+T4	Entity 90 102	glass lenses
+T5	Event 115 129	refract (bend)
+E2	Event:T5 agent:T6 theme:T7 next-event:E3
+T6	Entity 104 114	The lenses
+T7	Entity 130 139	the light
+T8	Entity 159 184	the image of the specimen
+T9	Event 188 197	magnified
+E3	Event:T9 theme:T8 cotemporal:E4
+T10	Entity 201 203	it
+T11	Entity 222 229	the eye
+T12	Entity 238 246	a camera
+T13	Event 207 216	projected
+E4	Event:T13 theme:T10 destination:T11 destination2:T12
+*	same-entity T6 T4
+*	same-entity T10 T8

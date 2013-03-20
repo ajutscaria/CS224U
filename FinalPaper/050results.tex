@@ -1,55 +1,57 @@
-
-\begin{table}
+\begin{table*}[ht]
 \centering
-\begin{tabular}{|l||c|c|c|} \hline
-&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
-\hline
-Baseline& 0. & 0. &0.\\
-MaxEnt\_Basic& 0. & 0.&  0. \\
-MaxEnt\_IO&0.&0.&0.\\
-MaxEnt\_IO\_Gen&&&\\
+\begin{tabular}{|l||c|c|c||c|c|c||} \hline
+& \multicolumn{3}{|c||}{\textbf{Train}} & \multicolumn{3}{|c||}{\textbf{Test}}\\ \hline
+&\textbf{P} & \textbf{R} & \textbf{F1} &\textbf{P} & \textbf{R} & \textbf{F1}\\ \hline
+Baseline&0.426 & 0.664 &0.517&0.396 & 0.644 &0.491\\
+MaxEnt\_Basic& 0.704 & 0.667&  0.681&0.656 & 0.606 &0.630 \\
+MaxEnt\_IO&0.740&0.692&0.712&0.676 & 0.619 &0.646\\
+MaxEnt\_IO\_Gen&0. & 0. &0.&0. & 0. &0.\\
 \hline
 \end{tabular}
 \caption{Event trigger prediction}
 \label{table:eventprediction}
-\end{table}
+\end{table*}
 
-\begin{table}
+\begin{table*}[ht]
 \centering
-\begin{tabular}{|l||c|c|c|} \hline
-&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
-\hline
-MaxEnt\_Oracle&0.756&0.596&0.667\\
-Baseline&0.604&0.456&0.52\\
-MaxEnt\_Basic&0.&0.&0.\\
-MaxEnt\_IO&0.&0.&0.\\
-MaxEnt\_IO\_Gen&&&\\
+\begin{tabular}{|l||c|c|c||c|c|c||} \hline
+& \multicolumn{3}{|c||}{\textbf{Train}} & \multicolumn{3}{|c||}{\textbf{Test}}\\ \hline
+&\textbf{P} & \textbf{R} & \textbf{F1} &\textbf{P} & \textbf{R} & \textbf{F1}\\ \hline
+MaxEnt\_Oracle&  0.727 & 0.540 &0.618&0.754 & 0.608 &0.673\\
+Baseline&0.447 & 0.512 &0.474& 0.443 & 0.503 &0.471\\
+MaxEnt\_Basic& 0.590 & 0.431 &0.495&0.577 & 0.462 &0.513\\
+MaxEnt\_IO& 0.568 & 0.471 &0.513&0.553 & 0.494 &0.522\\
+MaxEnt\_IO\_Gen& 0. & 0. &0.&0. & 0. &0.\\
 \hline
 \end{tabular}
-\caption{Entity prediction for event triggers (Oracle)}
+\caption{Entity prediction for event triggers}
 \label{table:entityprediction}
-\end{table}
+\end{table*}
 
-\begin{table}
+\begin{table*}[ht]
 \centering
-\begin{tabular}{|l||c|c|c|} \hline
-&\textbf{Precision} & \textbf{Recall} & \textbf{F1} \\ \hline
-\hline
-Baseline&0.&0.&0.\\
-MaxEnt\_Oracle&0.&0.&0.\\
-MaxEnt\_Basic&0.&0.&0.\\
-MaxEnt\_IO&0.&0.&0.\\
-MaxEnt\_IO\_Gen&&&\\
+\begin{tabular}{|l||c|c|c||c|c|c||} \hline
+& \multicolumn{3}{|c||}{\textbf{Train}} & \multicolumn{3}{|c||}{\textbf{Test}}\\ \hline
+&\textbf{P} & \textbf{R} & \textbf{F1} &\textbf{P} & \textbf{R} & \textbf{F1}\\ \hline
+Baseline& 0. & 0. &0.&0. & 0. &0.\\
+MaxEnt\_Oracle& 0. & 0. &0.&0. & 0. &0.\\
+MaxEnt\_Basic& 0. & 0. &0.&0. & 0. &0.\\
+MaxEnt\_IO& 0. & 0. &0.&0. & 0. &0.\\
+MaxEnt\_IO\_Gen& 0. & 0. &0.&0. & 0. &0.\\
 \hline
 \end{tabular}
 \caption{Semantic role labeling}
 \label{table:srlprediction}
-\end{table}
+\end{table*}
 
-The results for event prediction tasks are presented in Table~\ref{table:eventprediction}. The baseline model that predicted every verb as an event trigger performed quite well giving an F1 score of 0.565. The basic MaxEnt model that predicts if a pre-terminal node is an event trigger gave an F1 score of 0.691. Once we used the iterative optimization algorithm, after 1 iteration, the F1 score converged to 0.703. This clearly indicates that knowldge of entities can help improve the prediction of event triggers.
+\subsection{Event trigger prediction}
+The results for event prediction tasks in train and test sets are presented in Table~\ref{table:eventprediction}. The results on train set is based on 10 fold cross validation of training data. For test result, we trained on the whole train set and then tested on the test set. As seen in the results table, the baseline model that predicted every verb as an event trigger performed quite well indicating that most of the eevnt triggers were verbs. The basic MaxEnt model for trigger prediction gave a good improvement over the baseline. The iterative optimization algorithm, after 1 iteration gave an F1 score of 0.712 and 0.646 respectively on the train and test sets and these were the best results we obtained. This clearly indicates that knowldge of entities can help improve the prediction of event triggers. We also note that the increase in F1 score is contributed by both increase in precision and recall. This is expected as we are now able to weed out words that are not event triggers as they don't have any children in the dependency tree. At the same time, we are able to predict more event triggers when we know that there are entities that are its children in the dependency tree.
 
-The results for argument prediction are presented in Table~\ref{table:entityprediction}. An oracle model we built that assumed all the gold event triggers to be known gave an F1 score of 0.629. The baseline model intuitively captures the relation between event triggers and its arguments as it gave an F1 score of 0.505 in comparison to the simplicity of the approach. The basic version of the MaxEnt model gave very close results as the baseline model. The dynamic programming approach gave us a boost of 0.04 (0.60 to 0.64) in F1 score. The score got boosted to 0.523 after we implemented the iterative optimization algorithm.
+\subsection{Entity prediction}
+The results for argument prediction are presented in Table~\ref{table:entityprediction}. The baseline model intuitively captures the relation between event triggers and its arguments as it gave an F1 score of 0.505 in comparison to the simplicity of the approach. The basic version of the MaxEnt model gave good improvements over the baseline model, but was much lesser than what we had expected. So, we ran an oracle experiment that assumed all the gold event triggers are known, which helped us to isolate the performance of the argument prediction module. The score got boosted to 0.513 and 0.522 in train and test set respectively, after we implemented the iterative optimization algorithm. Again, this was the best performing model. The improvement in F1 score is mainly because we are now able to predict event triggers better. But, it is surprising that the precision dropped after we performed iterative optimization, and the increase in F1 score was due to the large improvement in recall. We analyze this in the next section.
 
+\subsection{Semantic role labeling}
 The results for semantic role labeling are presented in Table~\ref{table:srlprediction}. 
 
 TODO - Fill the section for SRL

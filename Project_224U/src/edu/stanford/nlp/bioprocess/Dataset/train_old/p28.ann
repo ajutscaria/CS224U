@@ -1,0 +1,10 @@
+T1	Entity 0 48	The genetic instructions for a polypeptide chain
+T4	Entity 75 125	a series of nonoverlapping, three-nucleotide words
+*	same-entity T4 T1 T5
+T5	Entity 127 146	The series of words
+T6	Event 160 171	transcribed
+E2	Event:T6 theme:T5 result:T7 next-event:E3
+T7	Entity 177 249	a complementary series of nonoverlapping, three-nucleotide words in mRNA
+T8	Event 265 275	translated
+E3	Event:T8 theme:T7 result:T9
+T9	Entity 281 303	a chain of amino acids

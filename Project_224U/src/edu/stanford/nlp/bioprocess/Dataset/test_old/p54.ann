@@ -1,0 +1,31 @@
+T6	Entity 106 117	two regions
+T7	Event 145 154	associate
+E3	Event:T7 agent:T6 theme:T8 location:T9 next-event:E5 time:T1
+T8	Entity 168 178	each other
+T9	Entity 182 191	each cell
+T11	Entity 241 257	one of the genes
+T12	Entity 266 307	XIST (for X-inactive specific transcript)
+*	same-entity T12 T11
+T13	Static-Event 316 322	active
+E5	Static-Event:T13 agent:T12 location:T14 next-event2:E7
+T14	Entity 331 376	the chromosome that will become the Barr body
+T17	Entity 378 425	Multiple copies of the RNA product of this gene
+T18	Event 437 443	attach
+E7	Event:T18 agent:T17 theme:T19 next-event:E8
+T19	Entity 447 486	the X chromosome on which they are made
+T20	Event 506 514	covering
+E8	Event:T20 agent:T17 theme:T21 same-event:E1
+T21	Entity 515 517	it
+*	same-entity T19 T21 T2
+T24	Entity 534 542	this RNA
+T25	Event 572 580	initiate
+E10	Event:T25 result:T26
+T26	Entity 581 595	X inactivation
+T27	Entity 601 632	the RNA products of other genes
+T28	Event 668 676	regulate
+E11	Event:T28 theme:T29 agent:T27 next-event:E10
+T29	Entity 677 688	the process
+T1	Entity 195 234	an early stage of embryonic development
+T2	Entity 548 562	the chromosome
+T3	Event 519 530	Interaction
+E1	Event:T3 theme:T24 theme2:T2 causes:E10

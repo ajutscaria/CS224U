@@ -1,0 +1,45 @@
+T1	Event 0 11	Recognition
+E1	Event:T1 theme:T2 agent:T3
+T2	Entity 15 31	protein antigens
+T3	Entity 35 42	T cells
+T4	Entity 55 87	a pathogen or part of a pathogen
+T5	Event 95 102	infects
+E2	Event:T5 super-event:E1 agent:T4 cotemporal:E3 theme:T7
+T6	Event 109 117	taken in
+E3	Event:T6 theme:T4 agent:T7 next-event:E4
+T7	Entity 121 132	a host cell
+T8	Event 192 198	cleave
+E4	Event:T8 agent:T9 theme:T10 result:T12 next-event:E5 location:T11
+T9	Entity 172 191	enzymes in the cell
+T10	Entity 199 210	the antigen
+T11	Entity 157 170	the host cell
+*	same-entity T7 T11
+*	same-entity T2 T10
+T12	Entity 216 232	smaller peptides
+T13	Entity 234 246	Each peptide
+T14	Entity 255 274	an antigen fragment
+T15	Event 281 286	binds
+E5	Event:T15 agent:T14 theme:T16 location:T17 next-event:E6
+T16	Entity 290 305	an MHC molecule
+T17	Entity 313 321	the cell
+*	same-entity T12 T13 T14 T19 T35 T40
+T18	Entity 335 351	the MHC molecule
+T19	Entity 356 378	bound antigen fragment
+*	same-entity T16 T18 T41
+T20	Event 323 331	Movement
+E6	Event:T20 agent:T18 agent2:T19 destination:T21 origin:T17 causes:E7
+T21	Entity 382 398	the cell surface
+T22	Event 410 430	antigen presentation
+E7	Event:T22 same-event:E11
+T33	Entity 646 654	the cell
+T34	Event 655 665	displaying
+E11	Event:T34 agent:T33 theme:T35 next-event:E12
+T35	Entity 666 685	an antigen fragment
+T36	Event 686 696	encounters
+E12	Event:T36 agent:T33 theme:T37 next-event:E13
+T37	Entity 697 732	a T cell with the right specificity
+T38	Entity 734 768	the antigen receptor on the T cell
+T39	Event 773 777	bind
+E13	Event:T39 agent:T38 theme:T40 theme2:T41
+T40	Entity 786 806	the antigen fragment
+T41	Entity 811 827	the MHC molecule

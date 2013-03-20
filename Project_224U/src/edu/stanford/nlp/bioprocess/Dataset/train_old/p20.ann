@@ -1,0 +1,14 @@
+T1	Event 0 8	Analysis
+E1	Event:T1 theme:T9
+T2	Event 112 121	isolation
+E2	Event:T2 super-event:E1 next-event:E3 theme:T4
+T4	Entity 125 189	mRNAs from different developmental stages of hummingbird embryos
+T3	Event 216 221	added
+E3	Event:T3 result:T6 raw-material:T5 next-event:E4
+T5	Entity 191 212	Reverse transcriptase
+T6	Entity 235 239	cDNA
+T7	Event 252 258	serves
+E4	Event:T7 agent:T6 raw-material:T8 theme:T10
+T8	Entity 301 334	primers from the beta-globin gene
+T9	Entity 12 63	hummingbird beta-globin gene expression with RT-PCR
+T10	Entity 262 294	a template for PCR amplification

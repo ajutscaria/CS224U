@@ -1,0 +1,23 @@
+T1	Entity 0 20	These rRNA molecules
+T2	Event 25 36	transcribed
+E1	Event:T2 raw-material:T3 result:T1 next-event:E3
+T3	Entity 42 69	a single transcription unit
+T6	Entity 198 245	The many copies of this rRNA transcription unit
+T7	Event 246 250	help
+E3	Event:T7 agent:T6 theme:T8 enables:E4
+T8	Entity 251 256	cells
+T9	Event 268 272	make
+E4	Event:T9 agent:T8 result:T10
+T10	Entity 273 298	the millions of ribosomes
+T11	Entity 336 358	The primary transcript
+T12	Event 362 369	cleaved
+E5	Event:T12 theme:T11 result:T13 next-event:E6 super-event:E4
+T13	Entity 379 403	the three rRNA molecules
+T14	Event 411 418	combine
+E6	Event:T14 theme2:T16 theme3:T15 result:T17 agent:T13
+T16	Entity 424 432	proteins
+T17	Entity 478 496	ribosomal subunits
+T4	Entity 130 196	one or several clusters in the genome of a multicellular eukaryote
+T5	Event 78 86	repeated
+E2	Event:T5 next-event:E1 location:T4
+T15	Entity 437 469	one other kind of rRNA (5S rRNA)

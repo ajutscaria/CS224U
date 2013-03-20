@@ -5,6 +5,4 @@ The baseline model predicted every pre-terminal node whose part-of-speech tag st
 
 $P_{T}(T | x) = \prod_{e_{i}\in N_{pt}} P_{T}(e_{i} | x) $
 
-The features we currently have include part-of-speech tag of the word, its lemma, the part-of-speech tag of its parent, the actual word itself and the path from root to the node. On doing error analysis, we found that our classifier fails to identify nominalized verb forms as event triggers. We used NomLex and NomBank, which are collections of nominalizations, to include a feature that indicates nominalization. NomLex proved useful and the classification accuracy improved quite significantly.
-
-TODO-Describe the features in detail
+The features we started with for event trigger prediction were part-of-speech tag of the word, its lemma, the path from root to the node in parse tree and the label of the outgoing edges from the node in the dependency graph. On doing initial error analysis, we found that our classifier failed to identify all nominalized verb forms as event triggers. We used NomLex and NomBank, which are collections of nominalizations, to include a feature that indicates nominalization. NomLex proved useful and the classification accuracy improved by around 2-3\%. But, since NomLex was not an extensive dictionary, some other nominalizations were still misclassified. So, we also used WordNet derivations to replace any nominalized verbs with its actual verb form and this improved the performance by another 2\%.

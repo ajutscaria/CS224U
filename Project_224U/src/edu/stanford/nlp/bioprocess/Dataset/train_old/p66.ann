@@ -1,0 +1,40 @@
+T1	Event 8 15	flowing
+E1	Event:T1 agent:T14 location:T15 cotemporal:E2
+T2	Event 36 41	enter
+E2	Event:T2 theme:T16 agent:T14 next-event:E3 location:T34
+T3	Event 113 118	enter
+E3	Event:T3 agent:T17 theme:T18 causes:E4 location:T32
+T4	Event 149 157	changing
+E4	Event:T4 agent:T17 theme:T19 causes:E5
+T5	Event 202 207	spins
+E5	Event:T5 agent:T20 location:T21 same-event:E9
+T9	Event 377 385	Spinning
+E9	Event:T9 agent:T26 causes:E10
+T11	Event 425 429	spin
+E10	Event:T11 agent:T27 same-event:E11
+T10	Event 541 548	Turning
+E11	Event:T10 agent:T28 causes:E12
+T12	Event 560 569	activates
+E12	Event:T12 theme:T29 location:T41 causes:E13
+T13	Event 607 614	produce
+E13	Event:T13 agent:T29 result:T30 raw-material:T31
+T14	Entity 0 7	H+ ions
+T15	Entity 16 35	down their gradient
+T16	Entity 42 56	a half channel
+T17	Entity 105 112	H+ ions
+T18	Entity 119 132	binding sites
+T19	Entity 158 183	the shape of each subunit
+T20	Entity 192 201	the rotor
+T21	Entity 215 227	the membrane
+T26	Entity 389 398	the rotor
+T27	Entity 406 421	an internal rod
+T28	Entity 552 559	the rod
+T29	Entity 570 585	catalytic sites
+T30	Entity 615 618	ATP
+T31	Entity 624 635	ADP and P_i
+T34	Entity 60 68	a stator
+*	same-entity T14 T17
+*	same-entity T27 T28
+T41	Entity 589 597	the knob
+T32	Entity 140 147	a rotor
+*	same-entity T20 T32 T26

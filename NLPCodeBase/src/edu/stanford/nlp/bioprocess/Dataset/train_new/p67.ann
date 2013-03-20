@@ -1,0 +1,20 @@
+T1	Event 14 21	strikes
+E1	Event:T1 agent:T2 theme:T3 location:T4 next-event:E2
+T2	Entity 5 13	a photon
+T3	Entity 22 40	a pigment molecule
+T4	Entity 44 70	a light-harvesting complex
+T5	Event 86 92	passed
+E2	Event:T5 theme:T6 origin:T7 destination:T8 next-event:E3
+T6	Entity 72 82	the energy
+T7	Entity 98 106	molecule
+T8	Entity 110 118	molecule
+T9	Event 128 135	reaches
+E3	Event:T9 agent:T10 next-event:E4 destination:T11 origin:T3
+T10	Entity 125 127	it
+*	same-entity T10 T6
+T11	Entity 136 163	the reaction-center complex
+T12	Event 243 254	transferred
+E4	Event:T12 destination:T13 theme:T14 origin:T15
+T13	Entity 258 287	the primary electron acceptor
+T14	Entity 171 190	an excited electron
+T15	Entity 196 239	the special pair of chlorophyll a molecules

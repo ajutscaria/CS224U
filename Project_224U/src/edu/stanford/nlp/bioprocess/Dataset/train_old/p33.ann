@@ -1,0 +1,20 @@
+T1	Event 3 9	making
+E1	Event:T1 result:T16 raw-material:T17
+T2	Entity 44 61	RNA polymerase II
+T3	Event 62 73	transcribes
+E2	Event:T3 super-event:E1 theme:T4 location:T5 agent:T2 next-event:E4 theme2:T6
+T4	Entity 79 86	introns
+T5	Entity 102 109	the DNA
+T9	Entity 183 194	The introns
+T10	Event 199 206	cut out
+E4	Event:T10 theme:T9 theme2:T11 next-event:E5
+T11	Entity 212 224	the molecule
+T12	Entity 229 238	the exons
+T13	Event 239 245	joined
+E5	Event:T13 theme:T12 result:T15
+T15	Entity 264 314	an mRNA molecule with a continuous coding sequence
+T16	Entity 10 30	a primary transcript
+T17	Entity 36 42	a gene
+T6	Entity 91 96	exons
+*	same-entity T4 T9
+*	same-entity T12 T6

@@ -1,0 +1,25 @@
+T1	Entity 0 17	The original cell
+T2	Event 18 26	produces
+E1	Event:T2 agent:T1 result:T3 next-event:E2
+T3	Entity 27 51	a copy of its chromosome
+T4	Event 56 65	surrounds
+E2	Event:T4 agent:T1 theme:T5 raw-material:T6 result:T8 next-event:E4
+T5	Entity 66 68	it
+*	same-entity T5 T3
+T6	Entity 74 104	a tough multilayered structure
+T8	Entity 114 127	the endospore
+T9	Event 138 145	removed
+E4	Event:T9 theme:T10 location:T11 next-event:E5
+T10	Entity 129 134	Water
+T11	Entity 151 164	the endospore
+T12	Entity 170 184	its metabolism
+T13	Event 185 190	halts
+E5	Event:T13 agent:T12 next-event:E6
+T14	Entity 192 209	The original cell
+*	same-entity T1 T14
+T15	Event 215 220	lyses
+E6	Event:T15 agent:T14 causes:E7
+T16	Event 222 231	releasing
+E7	Event:T16 theme:T17
+T17	Entity 232 245	the endospore
+*	same-entity T11 T8
