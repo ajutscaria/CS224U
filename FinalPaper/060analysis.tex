@@ -1,7 +1,19 @@
-Error analysis for triggers
+In section, we analyze the results in detail and perform error analysis.
 
-Error analysis for entity prediction
+\subsection{Event trigger prediction}
+Most of the event triggers are verbs which makes it easy to achieve F1 scores of around 0.6 without many features. But, including features to classify nominalized verbs that are event triggers is a hard task. Especially because there is no single source of word nominalizations that is perfect. Some are very general and include a lot of words that are not exactly word triggers because of which precision is affected, while others have very few and doesn't improve recall much.
 
-IO - what all does it fix?
+
+TODO - IO - what all does it fix? Lexical vs non-lexical features?
+
+\subsection{Entity prediction}
+
+We saw that the task of argument prediction is much harder because of the lower F1 score mainly because of two reasons. Firstly, non-overlapping which we fixed. Word boundaries subjective. Sharing of triggers and we score event-entity combinations.
+
+The dynamic programming approach gave us a boost of 0.04 (0.60 to 0.64) in F1 score. 
+
+TODO- IO - what all does it fix?
 
 Lexical vs non-lexical features
+
+\subsection{Semantic role labeling}

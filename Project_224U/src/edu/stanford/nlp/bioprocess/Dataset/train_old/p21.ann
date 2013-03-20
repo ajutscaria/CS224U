@@ -1,0 +1,13 @@
+T1	Event 12 22	identified
+E1	Event:T1 agent:T3 theme:T2 next-event:E2
+T2	Entity 23 76	the location of a clone carrying the beta-globin gene
+T3	Entity 6 11	we've
+T4	Event 85 89	grow
+E2	Event:T4 agent:T6 theme:T5 location:T7 next-event:E3
+T5	Entity 90 117	some cells from that colony
+T6	Entity 78 80	we
+*	same-entity T6 T3
+T7	Entity 121 151	liquid culture in a large tank
+T8	Event 168 175	isolate
+E3	Event:T8 agent:T6 theme:T9
+T9	Entity 176 199	many copies of the gene

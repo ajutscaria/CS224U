@@ -30,9 +30,9 @@ public class EntityPredictionLearner extends Learner {
 	parameters.setFeatureIndex(obj.featureIndex);
 	parameters.setLabelIndex(obj.labelIndex);
 	
-	for(int i = 0; i<obj.featureIndex.size(); i++) {
-		LogInfo.logs(obj.featureIndex.get(i) + ":" + weights[0][i] + "," + weights[1][i]);
-	}
+	//for(int i = 0; i<obj.featureIndex.size(); i++) {
+	//	LogInfo.logs(obj.featureIndex.get(i) + ":" + weights[0][i] + "," + weights[1][i]);
+	//}
 	
     return parameters;
   }

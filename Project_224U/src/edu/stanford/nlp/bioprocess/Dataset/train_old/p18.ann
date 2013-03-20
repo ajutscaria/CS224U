@@ -1,0 +1,18 @@
+T1	Event 13 18	cycle
+E1	Event:T1 
+T2	Event 44 50	heated
+E2	Event:T2 super-event:E1 theme2:T3 causes:E5
+T3	Entity 20 40	the reaction mixture
+T4	Entity 74 89	the DNA strands
+T5	Event 115 143	annealing (hydrogen bonding)
+E3	Event:T5 theme:T6 next-event:E4
+T6	Entity 147 263	short, single-stranded DNA primers complementary to sequences on opposite strands at each end of the target sequence
+T7	Entity 274 302	a heat-stable DNA polymerase
+T8	Event 303 310	extends
+E4	Event:T8 agent:T7 theme:T9 location:T10
+T9	Entity 311 322	the primers
+T10	Entity 326 352	the 5' &rarr; 3' direction
+T11	Event 54 73	denature (separate)
+E5	Event:T11 theme:T4 next-event:E6
+T12	Event 99 105	cooled
+E6	Event:T12 enables:E3 theme:T3

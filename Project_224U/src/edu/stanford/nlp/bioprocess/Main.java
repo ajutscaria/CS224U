@@ -13,7 +13,7 @@ import fig.basic.Option;
 import fig.exec.Execution;
 
 public class Main implements Runnable {
-
+	private boolean runTest = true;
 	//public static class Options {
 		@Option(gloss="Where to read the property file from") public String propertyFile;
 		@Option(gloss="The running mode: event, entity, or em") public String mode;
@@ -165,7 +165,7 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("eventstandalone")) {
 			LogInfo.logs("Running event prediction");
-			new Main().runPrediction(folders, new EventFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+			new Main().runEventStandalonePrediction(folders);
 		}
 		else if(mode.equals("eventgold")) {
 			LogInfo.logs("Running event prediction with GOLD entities");
@@ -239,31 +239,87 @@ public class Main implements Runnable {
 	private void runEntityPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
 		BioprocessDataset dataset = loadDataSet(folders, false, false);
-		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
-		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 
-		for(int i = 1; i <= NumCrossValidation; i++) {
-			LogInfo.begin_track("Iteration " + i);
-			
+		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+		if(!runTest) {
+			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+			for(int i = 1; i <= NumCrossValidation; i++) {
+				LogInfo.begin_track("Iteration " + i);
+				
+				Learner eventLearner = new EventPredictionLearner();
+				FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
+				Inferer eventInferer = new EventPredictionInferer();
+				Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
+				List<Datum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+				
+				Learner entityLearner = new EntityPredictionLearner();
+				FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
+				Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
+				//EntityPredictionInferer entityInferer = new EntityPredictionInferer();
+				EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
+				
+				List<Datum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+				//List<Datum> entityPredicted = entityInferer.BaselineInfer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+				Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
+				precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+				LogInfo.end_track();
+			}
+			printScores("Dev", precisionDev, recallDev, f1Dev);
+		}
+		else {
 			Learner eventLearner = new EventPredictionLearner();
 			FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
 			Inferer eventInferer = new EventPredictionInferer();
-			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-			List<Datum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			Params eventParam = eventLearner.learn(dataset.examples("train"), eventFeatureFactory);
+			List<Datum> predicted = eventInferer.Infer(dataset.examples("test"), eventParam, eventFeatureFactory);
 			
 			Learner entityLearner = new EntityPredictionLearner();
 			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
-			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
+			Params entityParam = entityLearner.learn(dataset.examples("train"), entityFeatureFactory);
+			//EntityPredictionInferer entityInferer = new EntityPredictionInferer();
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			
-			List<Datum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
-			//List<Datum> entityPredicted = entityInferer.BaselineInfer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
-			
-			Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
-			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
-			LogInfo.end_track();
+			List<Datum> entityPredicted = entityInferer.Infer(dataset.examples("test"), entityParam, entityFeatureFactory);
+			//List<Datum> entityPredicted = entityInferer.BaselineInfer(dataset.examples("test"), entityParam, entityFeatureFactory);
+			Triple<Double, Double, Double> triple = Scorer.scoreEntities(dataset.examples("test"), entityPredicted);
+			LogInfo.logs(triple);
 		}
-		printScores("Dev", precisionDev, recallDev, f1Dev);
+	}
+	
+	private void runEventStandalonePrediction(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		if(!runTest) {
+			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+			double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+	
+			for(int i = 1; i <= NumCrossValidation; i++) {
+				LogInfo.begin_track("Iteration " + i);
+				
+				EventPredictionLearner eventLearner = new EventPredictionLearner();
+				EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
+				EventPredictionInferer eventInferer = new EventPredictionInferer();
+				Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
+				//List<Datum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+				List<Datum> result = eventInferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+	
+				Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
+				precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+				LogInfo.end_track();
+			}
+			printScores("Dev", precisionDev, recallDev, f1Dev);
+		}
+		else {
+			EventPredictionLearner eventLearner = new EventPredictionLearner();
+			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
+			EventPredictionInferer eventInferer = new EventPredictionInferer();
+			Params eventParam = eventLearner.learn(dataset.examples("train"), eventFeatureFactory);
+			//List<Datum> result = eventInferer.Infer(dataset.examples("test"), eventParam, eventFeatureFactory);
+			List<Datum> result = eventInferer.BaselineInfer(dataset.examples("test"), eventParam, eventFeatureFactory);
+
+			Triple<Double, Double, Double> triple = Scorer.scoreEvents(dataset.examples("test"), result);
+			LogInfo.logs(triple);
+		}
 	}
 	
 	private void runEventPrediction(HashMap<String, String> folders) {
@@ -299,6 +355,8 @@ public class Main implements Runnable {
 		int NumCrossValidation = 10;
 		IterativeOptimizer opt = new IterativeOptimizer();
 		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		
+		if(!runTest) {
 		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
 		double[] precisionTrigger = new double[NumCrossValidation], recallTrigger = new double[NumCrossValidation], f1Trigger = new double[NumCrossValidation];
 		double[] precisionEntity = new double[NumCrossValidation], recallEntity = new double[NumCrossValidation], f1Entity = new double[NumCrossValidation];
@@ -312,22 +370,31 @@ public class Main implements Runnable {
 		}
 		printScores("Dev Trigger", precisionTrigger, recallTrigger, f1Trigger);
 		printScores("Dev Entity", precisionEntity, recallEntity, f1Entity);
+		}
+		else {
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> triple = opt.optimize(dataset.examples("train"), dataset.examples("test"));
+			LogInfo.logs(triple);
+		}
 	}
 	
 	private BioprocessDataset loadDataSet(HashMap<String, String> groups, boolean useSmallSample, boolean refreshDataFile) {
-		String examplesFileName = "data.bpa";
+		String examplesFileName_train = "data_train.bpa";
+		String examplesFileName_test = "data_test.bpa";
 		BioprocessDataset dataset = new BioprocessDataset(groups);
 
 		if(!useSmallSample) {
-			File f = new File(examplesFileName);
+			File f = new File(examplesFileName_train);
 			if(f.exists() && !refreshDataFile) {
 				LogInfo.begin_track("Quick data read");
-				dataset.allExamples.put("train", Utils.readFile(examplesFileName));
+				dataset.allExamples.put("train", Utils.readFile(examplesFileName_train));
+				dataset.allExamples.put("test", Utils.readFile(examplesFileName_test));
 				LogInfo.end_track();
 			}
 			else {
 				dataset.read("train");
-				Utils.writeFile(dataset.examples("train"), examplesFileName);
+				dataset.read("test");
+				Utils.writeFile(dataset.examples("train"), examplesFileName_train);
+				Utils.writeFile(dataset.examples("test"), examplesFileName_test);
 			}
 		}
 		else{

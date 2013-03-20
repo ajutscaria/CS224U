@@ -1,0 +1,14 @@
+T1	Event 73 78	added
+E1	Event:T1 next-event:E4 raw-material:T4
+T2	Entity 6 17	the current
+T3	Event 21 31	turned off
+E2	Event:T3 next-event:E1 theme:T2
+T4	Entity 33 69	a DNA-binding dye (ethidium bromide)
+T5	Entity 80 88	This dye
+*	same-entity T4 T5
+T6	Event 127 136	revealing
+E3	Event:T6 agent:T5 theme:T9
+T7	Event 89 99	fluoresces
+E4	Event:T7 result:T8 agent:T5 causes:E3
+T8	Entity 100 104	pink
+T9	Entity 137 156	the separated bands
