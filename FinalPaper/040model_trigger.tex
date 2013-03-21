@@ -5,4 +5,4 @@ We trained a MaxEnt model on the annotated samples using several lexical, depend
 
 $P(T | x) = \prod_{e_{i}\in N_{pt}} P(e_{i} \in TRIG | x) $
 
-The features we started with for event trigger prediction were part-of-speech tag of the word, its lemma, the path from root to the node in parse tree and the label of the outgoing edges from the node in the dependency graph. In the iinitial error analysis, we found that our classifier failed to identify many nominalized verb forms as event triggers. So we used NomLex to add a feature to identify nominalization. We also used WordNet derivations to replace any nominalized verbs with its actual verb.
+The features we started with for event trigger prediction were part-of-speech tag of the word, its lemma, the path from root to the node in parse tree and the label of the outgoing edges from the node in the dependency graph. In the initial error analysis, we found that our classifier failed to identify many nominalized verb forms as event triggers. So we used NomLex to add a feature to identify nominalization. We also used WordNet derivations to replace any nominalized verbs with its actual verb.

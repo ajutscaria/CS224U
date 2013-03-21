@@ -6,10 +6,10 @@
 Baseline&0.426 & 0.664 &0.517&0.396 & 0.644 &0.491\\
 MaxEnt\_Basic& 0.704 & 0.667&  0.681&0.656 & 0.606 &0.630 \\
 MaxEnt\_IO&0.740&0.692&0.712&0.676 & 0.619 &0.646\\
-MaxEnt\_IO\_Gen&0. & 0. &0.&0. & 0. &0.\\
+MaxEnt\_IO\_Gen&- & - &-&0.792& 0.679 &0.731\\
 \hline
 \end{tabular}
-\caption{Event trigger prediction}
+\caption{Results of event trigger prediction. MaxEnt\_Basic is the basic model and MaxEnt\_IO is the model that uses iterative optimization. MaxEnt\_IO\_Gen is the performance on the general dataset.}
 \label{table:eventprediction}
 \end{table*}
 
@@ -18,14 +18,14 @@ MaxEnt\_IO\_Gen&0. & 0. &0.&0. & 0. &0.\\
 \begin{tabular}{|l||c|c|c||c|c|c||} \hline
 & \multicolumn{3}{|c||}{\textbf{Train}} & \multicolumn{3}{|c||}{\textbf{Test}}\\ \hline
 &\textbf{P} & \textbf{R} & \textbf{F1} &\textbf{P} & \textbf{R} & \textbf{F1}\\ \hline
-MaxEnt\_Oracle&  0.727 & 0.540 &0.618&0.754 & 0.608 &0.673\\
 Baseline&0.447 & 0.512 &0.474& 0.443 & 0.503 &0.471\\
+MaxEnt\_Oracle&  0.727 & 0.540 &0.618&0.754 & 0.608 &0.673\\
 MaxEnt\_Basic& 0.590 & 0.431 &0.495&0.577 & 0.462 &0.513\\
 MaxEnt\_IO& 0.568 & 0.471 &0.513&0.553 & 0.494 &0.522\\
-MaxEnt\_IO\_Gen& 0. & 0. &0.&0. & 0. &0.\\
+MaxEnt\_IO\_Gen&- & - &-&0.474& 0.4 &0.434\\
 \hline
 \end{tabular}
-\caption{Entity prediction for event triggers}
+\caption{Results of entity prediction for event triggers. MaxEnt\_Oracle takes the gold event triggers and predict their arguments. MaxEnt\_Basic is the basic model and MaxEnt\_IO is the model that uses iterative optimization. MaxEnt\_IO\_Gen is the performance on the general dataset.}
 \label{table:entityprediction}
 \end{table*}
 
@@ -34,28 +34,22 @@ MaxEnt\_IO\_Gen& 0. & 0. &0.&0. & 0. &0.\\
 \begin{tabular}{|l||c|c|c||c|c|c||} \hline
 & \multicolumn{3}{|c||}{\textbf{Train}} & \multicolumn{3}{|c||}{\textbf{Test}}\\ \hline
 &\textbf{P} & \textbf{R} & \textbf{F1} &\textbf{P} & \textbf{R} & \textbf{F1}\\ \hline
-Baseline& 0. & 0. &0.&0. & 0. &0.\\
-MaxEnt\_Oracle& 0. & 0. &0.&0. & 0. &0.\\
-MaxEnt\_Basic& 0. & 0. &0.&0. & 0. &0.\\
-MaxEnt\_IO& 0. & 0. &0.&0. & 0. &0.\\
-MaxEnt\_IO\_Gen& 0. & 0. &0.&0. & 0. &0.\\
+Baseline& 0.210 & 0.235 &0.220&0.189 & 0.211 &0.199\\
+MaxEnt\_Oracle& 0.570 & 0.232 &0.328&0.536 & 0.216 &0.315\\
+MaxEnt\_Basic& 0.523 & 0.210 &0.296&0.465 & 0.193 &0.273\\
 \hline
 \end{tabular}
-\caption{Semantic role labeling}
+\caption{Results of semantic role labeling. MaxEnt\_Oracle takes the gold event triggers and predict their arguments with semantic role. MaxEnt\_Basic is the basic model with re-ranking.}
 \label{table:srlprediction}
 \end{table*}
 
 \subsection{Event trigger prediction}
-The results for event prediction tasks in train and test sets are presented in Table~\ref{table:eventprediction}. The results on train set is based on 10 fold cross validation of training data. For test result, we trained on the whole train set and then tested on the test set. The baseline model predicted every pre-terminal node whose part-of-speech tag started with 'VB' to be an event trigger. As seen in the results table, the baseline model performed quite well, indicating that most of the eevnt triggers were verbs. The basic MaxEnt model for trigger prediction gave a good improvement over the baseline. The iterative optimization algorithm, after 1 iteration gave an F1 score of 0.712 and 0.646 respectively on the train and test sets and these were the best results we obtained. This clearly indicates that knowldge of entities can help improve the prediction of event triggers. We also note that the increase in F1 score is contributed by both increase in precision and recall. This is expected as we are now able to weed out words that are not event triggers as they don't have any children in the dependency tree. At the same time, we are able to predict more event triggers when we know that there are entities that are its children in the dependency tree.\\
-
-TODO - General dataset
+The results for event prediction tasks in train and test sets are presented in Table~\ref{table:eventprediction}. The results on train set is based on 10 fold cross validation of training data. For test result, we trained on the whole train set and then tested on the test set. The baseline model predicted every pre-terminal node whose part-of-speech tag started with 'VB' to be an event trigger. As seen in the results table, the baseline model performed quite well, indicating that most of the event triggers were verbs. The basic MaxEnt model for trigger prediction gave a good improvement over the baseline. The iterative optimization algorithm, converged after 2 iterations and gave an F1 score of 0.712 and 0.646 respectively on the train and test sets and these were the best results we obtained. This clearly indicates that knowledge of entities can help improve the prediction of event triggers. We also note that the increase in F1 score is contributed by both increase in precision and recall. This is expected as we are now able to weed out words that are not event triggers as they don't have any children in the dependency tree. At the same time, we are able to predict more event triggers when we know that there are entities that are its children in the dependency tree. We also show the results of the iterative optimization algorithm on the general dataset we built.
 
 \subsection{Entity prediction}
-The results for argument prediction are presented in Table~\ref{table:entityprediction}. We built a baseline model that predicts a node in the parse tree as an argument to an event trigger, if it is of POS tag 'NP' and if the head word of the node in the parse tree is a child of the event trigger in the dependency tree of the sentence. We used Collins head finder algorithm to identify the headword of a parse tree node. The baseline model intuitively captures the relation between event triggers and its arguments as it gave an F1 score of 0.505 considering the simplicity of the model. The basic version of the MaxEnt model gave good improvements over the baseline model, but was much lesser than what we had expected. So, we ran an oracle experiment that assumed all the gold event triggers are known, which helped us to isolate the performance of the argument prediction module. The score got boosted to 0.513 and 0.522 in train and test set respectively, after we implemented the iterative optimization algorithm. Again, this was the best performing model. The improvement in F1 score is mainly because we are now able to predict event triggers better. But, it is surprising that the precision dropped after we performed iterative optimization, and the increase in F1 score was due to the large improvement in recall. We analyze this in the next section.\\
-
-TODO - General dataset
+The results for argument prediction are presented in Table~\ref{table:entityprediction}. We built a baseline model that predicts a node in the parse tree as an argument to an event trigger if it is of POS tag 'NP' and if the head word of the node in the parse tree is a child of the event trigger in the dependency tree of the sentence. The baseline model intuitively captures the relation between event triggers and its arguments as it gave an F1 score of 0.505 considering the simplicity of the model. The basic version of the MaxEnt model gave good improvements over the baseline model, but was much lesser than what we had expected. So, we ran an oracle experiment that assumed all the gold event triggers are known, which helped us to isolate the performance of the argument prediction module. After we implemented the iterative optimization algorithm, the score got boosted to 0.513 and 0.522 in train and test set respectively. Again, this was the best performing model. The improvement in F1 score is mainly because we are now able to predict event triggers better. We also tested our entity prediction model on the general dataset and the results were lower than what we had in our actual dataset. We analyze this in the next section.
 
 \subsection{Semantic role labeling}
-The results for semantic role labeling are presented in Table~\ref{table:srlprediction}. The baseline model predicts the most frequent semantic role as the role of an entity.
+The results for semantic role labeling are presented in Table~\ref{table:srlprediction}. The baseline model for SRL builds on the baseline for entity prediction. As per the entity prediction baseline, we identify all nodes that are linked to a particular event and are of the type "NP".  For these nodes, the baseline just assigns the most common semantic role encountered in the training set as the predicted role for this node. Since our dataset is small and the number of possible semantic roles is large, the results are not extraordinary as expected. We present a more detailed analysis for this in the next section.
 
-TODO - Fill the section for SRL
+Multi-class classification without considering joint labelings for the whole tree improves over the baseline. Finally, multi class classification considering joint role assignments and non-overlapping constraints gives a marginal boost in the score again, making it the best model for this task.
