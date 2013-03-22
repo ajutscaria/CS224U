@@ -239,7 +239,7 @@ public class Main implements Runnable {
 	
 	private void runEntityPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		BioprocessDataset dataset = loadDataSet(folders, false, true);
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
 
 		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 		if(!runTest) {
@@ -373,7 +373,7 @@ public class Main implements Runnable {
 		printScores("Dev Entity", precisionEntity, recallEntity, f1Entity);
 		}
 		else {
-			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> triple = opt.optimize(dataset.examples("train"), dataset.examples("test"));
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> triple = opt.optimize(dataset.examples("train"), dataset.examples("indep"));
 			LogInfo.logs(triple);
 		}
 	}

@@ -711,6 +711,24 @@ public static List<Example> readFile(String fileName) {
 //			}
 		}
 	}
+	
+	public static HashMap<String, Integer> loadClustering() {
+		HashMap<String, Integer> map = new HashMap<String, Integer>();
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("word_cluster_clark_m_5_i_20_cl_25"));
+			String line;
+			while((line = reader.readLine()) != null){
+				String[] splits = line.trim().split(" ");
+				if(splits.length == 3)
+					map.put(splits[0].trim(), Integer.parseInt(splits[1].trim()));
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+    	return map;
+		
+	}
 }
 
 

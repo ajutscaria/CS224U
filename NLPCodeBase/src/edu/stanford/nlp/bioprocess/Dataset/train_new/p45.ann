@@ -1,9 +1,0 @@
-T1	Event 3 24	allopatric speciation
-E1	Event:T1 
-T2	Entity 77 86	gene flow
-T3	Event 90 101	interrupted
-E2	Event:T3 theme:T2 super-event:E1
-T4	Entity 107 119	a population
-T5	Event 123 130	divided
-E3	Event:T5 theme:T4 result:T6 causes:E2
-T6	Entity 136 174	geographically isolated subpopulations

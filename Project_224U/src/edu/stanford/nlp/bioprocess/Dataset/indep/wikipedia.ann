@@ -5,9 +5,9 @@ T3	Entity 46 56	Xi Jinping
 T4	Entity 60 77	the new President
 T5	Entity 82 92	Li Keqiang
 T6	Entity 96 111	the new Premier
-T7	Entity 113 134	Jorge Mario Bergoglio
+T7	Entity 113 147	Jorge Mario Bergoglio of Argentina
 T8	Event 151 158	elected
-E2	Event:T8 agent:T7
+E2	Event:T8 agent:T7 theme:T9
 T9	Entity 162 174	Pope Francis
 T10	Entity 239 245	JOGMEC
 T11	Event 246 255	announces

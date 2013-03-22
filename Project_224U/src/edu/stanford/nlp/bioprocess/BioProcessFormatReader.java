@@ -101,6 +101,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       while((line = reader.readLine())!=null) {
         String[] splits = line.split("\t");
         String desc = splits[0];
+        LogInfo.logs(line);
         switch(desc.charAt(0)) {
           case 'T':
             String[] argumentDetails = splits[1].split(" ");

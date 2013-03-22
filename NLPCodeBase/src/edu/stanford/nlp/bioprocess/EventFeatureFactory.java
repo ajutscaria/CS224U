@@ -26,6 +26,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> SelectedAdvMods = Arrays.asList(new String[]{"first, then, next, after, later, subsequent, before, previously"});
+	HashMap<String, Integer> clusters = Utils.loadClustering();
    
 	public FeatureVector computeFeatures(CoreMap sentence, Tree event) {
 	    //LogInfo.logs("Current node's text - " + getText(event));
@@ -56,17 +57,18 @@ public class EventFeatureFactory extends FeatureExtractor {
 		/*if (Utils.findDepthInDependencyTree(sentence, event)==0)
 			features.add("root=true,POS="+currentWord);
 		*/
-		String text = token.originalText();
+		String text = token.lemma().toLowerCase();
 		if(verbForms.containsKey(text)) {
 			features.add("lemma="+verbForms.get(text));
-			features.add("word="+verbForms.get(text));
-			//features.add("word="+token.originalText());
 		}
 		else {
 			features.add("lemma="+token.lemma().toLowerCase());
-			features.add("word="+token.originalText());
 		}
-		
+		if(clusters.containsKey(text)) {
+			features.add("clusterID=" + clusters.get(text));
+			//LogInfo.logs(text + ", clusterID=" + clusters.get(text));
+		}
+		features.add("word="+token.originalText());
 		//features.add("POSword=" + currentWord+","+leaves.get(0));
 		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
 		features.add("POSlemma=" + currentWord+","+token.lemma());

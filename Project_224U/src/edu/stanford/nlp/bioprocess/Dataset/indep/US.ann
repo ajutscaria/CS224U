@@ -1,31 +1,32 @@
-T1	Entity 0 42	The nation’s 11 million illegal immigrants
+T1	Entity 0 42	The nation's 11 million illegal immigrants
 T2	Event 57 61	wait
 E1	Event:T2 theme:T1 theme:T3
 T3	Entity 64 75	full decade
 T4	Entity 82 92	green card
 T5	Event 103 107	earn
-E2	Event:T5 theme:T4
+E2	Event:T5 theme:T4 theme:T6 theme:T7
 T6	Entity 108 119	citizenship
-T7	Event 173 182	finalized
-E3	Event:T7 theme:T6 
+T7	Entity 120 136	just three years
+T8	Entity 155 166	a provision
 T10	Entity 186 222	a bipartisan group of eight senators
 T11	Event 234 239	craft
 E4	Event:T11 theme:T12
 T12	Entity 240 270	an overhaul of immigration law
-T8	Event 322 326	said
-E7	Event:T8
+T24	Entity 272 321	several people with knowledge of the negotiations
+T9	Event 322 326	said
+E7	Event:T9 theme:T24
 T13	Entity 344 367	the two waiting periods
 T14	Event 374 381	provide
 E5	Event:T14 agent:T13 theme:T15
-T15	Entity 382 415	the nation’s undocumented workers
+T15	Entity 382 415	the nation's undocumented workers
 T16	Entity 421 456	a path to United States citizenship
 T17	Event 470 478	matching
 E6	Event:T17
 T18	Entity 479 498	the draft of a plan
 T19	Entity 502 517	President Obama
 T20	Event 521 526	offer
-E8	Event:T20
+E8	Event:T20 theme:T23
 T21	Event 532 545	participation
-E9	Event:T21
+E9	Event:T21 theme:T22
 T22	Entity 549 567	American democracy
 T23	Entity 571 617	millions who are living in fear of deportation

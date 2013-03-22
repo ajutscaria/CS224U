@@ -25,14 +25,26 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 		boolean dependencyExists = Utils.isNodesRelated(sentence, entity, event);
 		String depPath = Utils.getDependencyPath(sentence, entity, event);
+		Tree parent = entity.parent(root);
+		String parentCFGRule = parent.value() + "->";
+		for(Tree n:parent.getChildrenAsList()) {
+			parentCFGRule += n.value() + "|";
+		}
+		parentCFGRule = parentCFGRule.trim();
 		
-		features.add("EntPOSDepRel=" + entity.value() + ","  + dependencyExists);
+		//features.add("dep="+dependencyExists);
+		//features.add("EntCat="+entity.value());
+		//features.add("EntHead=" + entity.headTerminal(new CollinsHeadFinder()));
+		features.add("EvtLemma="+event.getLeaves().get(0).value());
+		features.add("EntCatDepRel=" + entity.value() + ","  + dependencyExists);
 		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
 		features.add("EvtToEntDepPath=" + ((depPath.equals("")||depPath.equals("[]")) ? 0 :depPath.split(",").length));
 		features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));		
 		//features.add("PathEntToEvt=" + Trees.pathNodeToNode(event, entity, root));
 		features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));
-
+		//features.add("parentrule=" + parentCFGRule);
+		//USE LEMMA everywhere.
+		//Try before/after
 		
 		//features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 		//features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);

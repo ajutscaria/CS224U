@@ -184,7 +184,54 @@ public class Main implements Runnable {
 			LogInfo.logs("Running SRL");
 			new Main().runSRLPrediction(folders);
 		}
+		else if(mode.equals("all")) {
+			LogInfo.logs("Run all");
+			new Main().runAll(folders);
+		}
 		LogInfo.end_track();
+	}
+
+	private void runAll(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
+		double[] precisionEntBasic = new double[NumCrossValidation], recallEntBasic = new double[NumCrossValidation], f1EntBasic = new double[NumCrossValidation];
+		double[] precisionEvtBasic = new double[NumCrossValidation], recallEvtBasic = new double[NumCrossValidation], f1EvtBasic = new double[NumCrossValidation];
+		double[] precisionEntIO = new double[NumCrossValidation], recallEntIO = new double[NumCrossValidation], f1EntIO = new double[NumCrossValidation];
+		double[] precisionEvtIO = new double[NumCrossValidation], recallEvtIO = new double[NumCrossValidation], f1EvtIO = new double[NumCrossValidation];
+		IterativeOptimizer opt = new IterativeOptimizer();
+		
+		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
+			
+			EventPredictionLearner eventLearner = new EventPredictionLearner();
+			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
+			EventPredictionInferer eventInferer = new EventPredictionInferer();
+			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
+			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+
+			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
+			precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
+			
+			Learner entityLearner = new EntityPredictionLearner();
+			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
+			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
+			EntityPredictionInferer entityInferer = new EntityPredictionInferer(result);
+			
+			List<BioDatum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
+			precisionEntBasic[i-1] = triple.first; recallEntBasic[i-1] = triple.second; f1EntBasic[i-1] = triple.third;
+			
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
+			precisionEvtIO[i-1] = pairTriple.first.first; recallEvtIO[i-1] = pairTriple.first.second; f1EvtIO[i-1] = pairTriple.first.third;
+			precisionEntIO[i-1] = pairTriple.second.first; recallEntIO[i-1] = pairTriple.second.second; f1EntIO[i-1] = pairTriple.second.third;
+			
+			LogInfo.end_track();
+		}
+		printScores("Event Basic", precisionEvtBasic, recallEvtBasic, f1EvtBasic);
+		printScores("Entity Basic", precisionEntBasic, recallEntBasic, f1EntBasic);
+		printScores("Event IO", precisionEvtIO, recallEvtIO, f1EvtIO);
+		printScores("Entity IO", precisionEntIO, recallEntIO, f1EntIO);
 	}
 
 	private void runSRLPrediction(HashMap<String, String> folders) {
@@ -236,7 +283,7 @@ public class Main implements Runnable {
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
-			Triple<Double, Double, Double> entityTriple = Scorer.scoreEntities(split.GetTestExamples(i), predictedEntities);
+			Triple<Double, Double, Double> entityTriple = Scorer.score(predictedEntities);
 
 			precisionDev[i-1] = entityTriple.first; recallDev[i-1] = entityTriple.second; f1Dev[i-1] = entityTriple.third;
 			LogInfo.end_track();

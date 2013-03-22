@@ -1,9 +1,0 @@
-T1	Event 22 31	duplicate
-E1	Event:T1 agent:T4 super-event:E3 next-event:E2
-T2	Event 64 71	divides
-E2	Event:T2 agent:T5 result:T6
-T3	Event 35 45	interphase
-E3	Event:T3 
-T4	Entity 6 21	the chromosomes
-T5	Entity 47 63	the diploid cell
-T6	Entity 88 115	four haploid daughter cells

@@ -1,6 +1,0 @@
-T2	Event 41 61	sympatric speciation
-E1	Event:T2 
-T4	Entity 77 86	gene flow
-T3	Event 129 136	blocked
-E2	Event:T3 causes:E1 theme:T4 origin:T1 destination:T1
-T1	Entity 99 125	the isolated subpopulation
