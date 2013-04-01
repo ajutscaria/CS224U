@@ -18,7 +18,7 @@ public class Main implements Runnable {
 	//public static class Options {
 		@Option(gloss="Where to read the property file from") public String propertyFile;
 		@Option(gloss="The running mode: event, entity, or em") public String mode;
-		@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures;
+		@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
 	//}	
 	//public static Options opts = new Options();
 
