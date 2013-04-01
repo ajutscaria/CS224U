@@ -31,6 +31,8 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 	boolean addEntityFeatures = true;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 	HashMap<String, String> verbForms = Utils.getVerbForms();
+	HashMap<String, Integer> clusters = Utils.loadClustering();
+	EventFeatureFactory basicFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
    
 	public FeatureVector computeFeatures(CoreMap sentence, Tree event) {
 	    return computeFeatures(sentence, event, Utils.getEntityNodesFromSentence(sentence));
@@ -101,79 +103,11 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
     
     public FeatureVector computeFeatures(CoreMap sentence, Tree event, Set<Tree> entityNodes) {
 		List<String> features = new ArrayList<String>();
-		String currentWord = event.value();
-		//List<Tree> leaves = event.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-		CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
-		List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
-		int currentTokenIndex = event.getSpan().getSource();
-		
-		//if (currentTokenIndex < tokens.size()-1){
-			//System.out.println(String.format("current word is %s, next word is %s",token.originalText(), tokens.get(event.getSpan().getSource()+1).originalText()));
-		//}
-		IndexedWord word = Utils.findDependencyNode(sentence, event);
-		Tree parent = event.parent(root);
 		IntPair eventSpan = event.getSpan();
-		
-		String parentCFGRule = parent.value() + "->";
-		for(Tree n:parent.getChildrenAsList()) {
-			parentCFGRule += n.value() + "|";
-		}
-		parentCFGRule = parentCFGRule.trim();
-		
-		//features.add("POS="+currentWord);
-		/*if (Utils.findDepthInDependencyTree(sentence, event)==0)
-			features.add("root=true,POS="+currentWord);
-		*/
-		String text = token.originalText();
-		if(verbForms.containsKey(text)) {
-			features.add("lemma="+verbForms.get(text));
-			features.add("word="+verbForms.get(text));
-			//features.add("word="+token.originalText());
-		}
-		else {
-			features.add("lemma="+token.lemma().toLowerCase());
-			features.add("word="+token.originalText());
-		}
-		
-		//features.add("POSword=" + currentWord+","+leaves.get(0));
-		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
-		features.add("POSlemma=" + currentWord+","+token.lemma());
-		//if(currentWord.startsWith("VB"))
-		//	features.add("verb");
-		features.add("ParentPOS=" + parent.value());
-		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
-		features.add("POSparentrule=" + currentWord+","+parentCFGRule);
-		
-		for(SemanticGraphEdge e: graph.getIncomingEdgesSorted(word)) {
-			//features.add("depedgein="+ e.getRelation());// + "," + e.getSource().toString().split("-")[1]);
-			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
-			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
-		}
-		
-		for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
-			if(e.getRelation().toString().equals("advmod") && (currentWord.startsWith("VB") || nominalizations.contains(text)))
-				features.add("advmod:" + e.getTarget());
-				//LogInfo.logs("TIMEE : " + e.getRelation() + ":" + e.getTarget());
-			//features.add("depedgein="+ e.getRelation() + "," + e.getTarget().toString().split("-")[1]);//need to deal with mult children same tag?
-			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
-			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
-		}
-
-		if(nominalizations.contains(token.value())) {
-			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
-			features.add("nominalization");
-		}
-		
-		String consecutiveTypes = "";
-		if(currentTokenIndex > 0)
-			consecutiveTypes += tokens.get(currentTokenIndex-1).get(PartOfSpeechAnnotation.class);
-		consecutiveTypes += currentWord;
-		if(currentTokenIndex < tokens.size() - 1)
-			consecutiveTypes += tokens.get(currentTokenIndex+1).get(PartOfSpeechAnnotation.class);
-		features.add("consecutivetypes="+consecutiveTypes);
-		
+				
+		FeatureVector fv = basicFeatureFactory.computeFeatures(sentence, event);
+				
 		IdentityHashSet<IndexedWord> uniqueHeads = new IdentityHashSet<IndexedWord>();
 		//Trying to look at entities to improve prediction
 		if(addEntityFeatures) {
@@ -225,19 +159,8 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 				features.add("splpathlength=" + pathLength);
 			}
 		}
-		
-		//Nominalization did not give much improvement
-		/*if(nominalizations.contains(leaves.get(0).value())) {
-			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
-			//features.add("nominalization");
-		}*/
-		//features.add("endsining=" + token.lemma() + "," + leaves.get(0).value().endsWith("ing"));
-		//Cannot use this feature when looking at all tree nodes as candidates
-		//features.add("POSparentPOSgrandparent="+currentWord + "," + event.parent(root).value() + "," + event.parent(root).parent(root).value());
-		//Doesn't seem to work as expected even though the event triggers are mostly close to root in dependency tree.
-		//features.add("POSdepdepth=" + currentWord + "," + Utils.findDepthInDependencyTree(sentence, event));
-		features.add("bias");
-		FeatureVector fv = new FeatureVector(features);
+
+		fv.add(features);
 		return fv;
     }   
 }

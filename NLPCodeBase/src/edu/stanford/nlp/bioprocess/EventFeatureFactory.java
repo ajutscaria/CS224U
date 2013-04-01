@@ -61,21 +61,38 @@ public class EventFeatureFactory extends FeatureExtractor {
 		/*if (Utils.findDepthInDependencyTree(sentence, event)==0)
 			features.add("root=true,POS="+currentWord);
 		*/
-		String text = token.lemma().toLowerCase();
-		if(verbForms.containsKey(text)) {
-			features.add("lemma="+verbForms.get(text));
+		if(useLexicalFeatures){
+			String text = token.lemma().toLowerCase();
+			if(verbForms.containsKey(text)) {
+				features.add("lemma="+verbForms.get(text));
+			}
+			else {
+				features.add("lemma="+token.lemma().toLowerCase());
+			}
+			features.add("word="+token.originalText());
+			features.add("POSlemma=" + currentWord+","+token.lemma());
+			
+			if(clusters.containsKey(text)) {
+				features.add("clusterID=" + clusters.get(text));
+				//LogInfo.logs(text + ", clusterID=" + clusters.get(text));
+			}
+			for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
+				if(e.getRelation().toString().equals("advmod") && (currentWord.startsWith("VB") || nominalizations.contains(text)))
+					features.add("advmod:" + e.getTarget());
+					//LogInfo.logs("TIMEE : " + e.getRelation() + ":" + e.getTarget());
+				//features.add("depedgein="+ e.getRelation() + "," + e.getTarget().toString().split("-")[1]);//need to deal with mult children same tag?
+				//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
+				//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
+			}
+
+			if(nominalizations.contains(token.value())) {
+				//LogInfo.logs("Adding nominalization - " + leaves.get(0));
+				features.add("nominalization");
+			}
 		}
-		else {
-			features.add("lemma="+token.lemma().toLowerCase());
-		}
-		if(clusters.containsKey(text)) {
-			features.add("clusterID=" + clusters.get(text));
-			//LogInfo.logs(text + ", clusterID=" + clusters.get(text));
-		}
-		features.add("word="+token.originalText());
 		//features.add("POSword=" + currentWord+","+leaves.get(0));
 		//features.add("POSparentPOS="+ currentWord + "," + event.parent(root).value());
-		features.add("POSlemma=" + currentWord+","+token.lemma());
+		
 		//if(currentWord.startsWith("VB"))
 		//	features.add("verb");
 		features.add("ParentPOS=" + parent.value());
@@ -88,19 +105,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
 		}
 		
-		for(SemanticGraphEdge e: graph.getOutEdgesSorted(word)) {
-			if(e.getRelation().toString().equals("advmod") && (currentWord.startsWith("VB") || nominalizations.contains(text)))
-				features.add("advmod:" + e.getTarget());
-				//LogInfo.logs("TIMEE : " + e.getRelation() + ":" + e.getTarget());
-			//features.add("depedgein="+ e.getRelation() + "," + e.getTarget().toString().split("-")[1]);//need to deal with mult children same tag?
-			//features.add("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
-			//LogInfo.logs("depedgeinword="+currentWord +"," + e.getRelation() + "," + e.getSource().toString().split("-")[0] + ","+ e.getSource().toString().split("-")[1]);
-		}
 
-		if(nominalizations.contains(token.value())) {
-			//LogInfo.logs("Adding nominalization - " + leaves.get(0));
-			features.add("nominalization");
-		}
 		
 		String consecutiveTypes = "";
 		if(currentTokenIndex > 0)

@@ -50,9 +50,11 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 		//features.add("firstword=" + leaves.get(0));
 		//features.add("lastword=" + leaves.get(leaves.size()-1));
 		//features.add("IsNP=" + (currentWord.equals("NP")));
-		features.add("lemma="+token.lemma());
-		features.add("word="+token.originalText().toLowerCase());
-		features.add("checkifentity="+checkIfEntity(sentence, entity));
+		if(useLexicalFeatures) {
+			features.add("lemma="+token.lemma());
+			features.add("word="+token.originalText().toLowerCase());
+			features.add("checkifentity="+checkIfEntity(sentence, entity));
+		}
 		//features.add("POS=" + currentWord);
 		//features.add("POSParentPOS=" + currentWord+","+parent.value());
 		features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, entity, root), ",").replace("up-ROOT,down-ROOT,", ""));

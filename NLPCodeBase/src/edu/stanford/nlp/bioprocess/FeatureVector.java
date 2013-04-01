@@ -23,7 +23,7 @@ public class FeatureVector {
   }
   
   public void add(List<String> feature) {
-	  features.addAll(features);
+	  features.addAll(feature);
   }
 
   public String getFeatureString() {
