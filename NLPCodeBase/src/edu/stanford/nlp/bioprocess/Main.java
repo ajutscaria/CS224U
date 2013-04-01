@@ -18,6 +18,7 @@ public class Main implements Runnable {
 	//public static class Options {
 		@Option(gloss="Where to read the property file from") public String propertyFile;
 		@Option(gloss="The running mode: event, entity, or em") public String mode;
+		@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures;
 	//}	
 	//public static Options opts = new Options();
 
@@ -141,7 +142,7 @@ public class Main implements Runnable {
 
 	@Override
 	public void run() {
-		
+		System.out.println(useLexicalFeatures);
 		LogInfo.begin_track("main");
 		Properties props = StringUtils.propFileToProperties(propertyFile);
 		String trainDirectory = props.getProperty("train.dir"), testDirectory = props.getProperty("test.dir"),
@@ -158,7 +159,7 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("entitygold")) {
 			LogInfo.logs("Running entity prediction from GOLD events");
-			new Main().runPrediction(folders, new EntityFeatureFactory(), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
+			new Main().runPrediction(folders, new EntityFeatureFactory(useLexicalFeatures), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
 		}
 		else if(mode.equals("entitystandalone")) {
 			LogInfo.logs("Running entity standalone");
@@ -170,7 +171,7 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("eventgold")) {
 			LogInfo.logs("Running event prediction with GOLD entities");
-			new Main().runPrediction(folders, new EventExtendedFeatureFactory(), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+			new Main().runPrediction(folders, new EventExtendedFeatureFactory(useLexicalFeatures), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
 		}
 		else if(mode.equals("event")) {
 			LogInfo.logs("Running event prediction");
@@ -205,7 +206,7 @@ public class Main implements Runnable {
 			LogInfo.begin_track("Iteration " + i);
 			
 			EventPredictionLearner eventLearner = new EventPredictionLearner();
-			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
+			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
 			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
@@ -214,7 +215,7 @@ public class Main implements Runnable {
 			precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
 			
 			Learner entityLearner = new EntityPredictionLearner();
-			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
+			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(result);
 			
@@ -222,7 +223,7 @@ public class Main implements Runnable {
 			triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 			precisionEntBasic[i-1] = triple.first; recallEntBasic[i-1] = triple.second; f1EntBasic[i-1] = triple.third;
 			
-			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i), useLexicalFeatures);
 			precisionEvtIO[i-1] = pairTriple.first.first; recallEvtIO[i-1] = pairTriple.first.second; f1EvtIO[i-1] = pairTriple.first.third;
 			precisionEntIO[i-1] = pairTriple.second.first; recallEntIO[i-1] = pairTriple.second.second; f1EntIO[i-1] = pairTriple.second.third;
 			
@@ -238,7 +239,7 @@ public class Main implements Runnable {
 		int NumCrossValidation = 10;
 		boolean small = false;
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
-		SRLFeatureFactory featureFactory = new SRLFeatureFactory();
+		SRLFeatureFactory featureFactory = new SRLFeatureFactory(useLexicalFeatures);
 		SRLPredictionLearner learner = new SRLPredictionLearner();
 		SRLPredictionInferer inferer = new SRLPredictionInferer(); 
 		Scorer scorer = new Scorer();
@@ -278,7 +279,7 @@ public class Main implements Runnable {
 			LogInfo.begin_track("Iteration " + i);
 			
 			Learner entityLearner = new EntityPredictionLearner();
-			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory();
+			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
@@ -302,13 +303,13 @@ public class Main implements Runnable {
 			LogInfo.begin_track("Iteration " + i);
 			
 			Learner eventLearner = new EventPredictionLearner();
-			FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
+			FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			Inferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
 			List<BioDatum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 			
 			Learner entityLearner = new EntityPredictionLearner();
-			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
+			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			
@@ -331,7 +332,7 @@ public class Main implements Runnable {
 			LogInfo.begin_track("Iteration " + i);
 			
 			EventPredictionLearner eventLearner = new EventPredictionLearner();
-			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory();
+			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
 			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
@@ -354,13 +355,13 @@ public class Main implements Runnable {
 			LogInfo.begin_track("Iteration " + i);
 			
 			Learner entityLearner = new EntityPredictionLearner();
-			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory();
+			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
 			
 			Learner eventLearner = new EventPredictionLearner();
-			FeatureExtractor eventFeatureFactory = new EventExtendedFeatureFactory();
+			FeatureExtractor eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
 			Inferer eventInferer = new EventPredictionInferer(predictedEntities);
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
 			List<BioDatum> eventPredicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
@@ -382,7 +383,7 @@ public class Main implements Runnable {
 		double[] precisionEntity = new double[NumCrossValidation], recallEntity = new double[NumCrossValidation], f1Entity = new double[NumCrossValidation];
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
-			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> triple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i));
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> triple = opt.optimize(split.GetTrainExamples(i), split.GetTestExamples(i), useLexicalFeatures);
 			precisionTrigger[i-1] = triple.first.first; recallTrigger[i-1] = triple.first.second; f1Trigger[i-1] = triple.first.third;
 			precisionEntity[i-1] = triple.second.first; recallEntity[i-1] = triple.second.second; f1Entity[i-1] = triple.second.third;
 			LogInfo.end_track();

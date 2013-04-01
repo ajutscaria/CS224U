@@ -3,6 +3,7 @@ As we mentioned earlier, events are represented as pre-terminal nodes in the par
 
 We trained a MaxEnt model on the annotated samples using several lexical, dependency tree based and parse tree based features. The model is local, in the sense that it predicts if a pre-terminal node is an event trigger independent of other predictions. Hence, 
 
-$P(T | x) = \prod_{e_{i}\in N_{pt}} P(e_{i} \in TRIG | x) $
+$P(T | x) = \prod_{e_{i}\in N_{pt}} P(l_{i} | x), $\\
+where $l_i$ is the labeling of $e_i$ to $TRIG$ or $NONE$ according to the mapping T.
 
 The features we started with for event trigger prediction were part-of-speech tag of the word, its lemma, the path from root to the node in parse tree and the label of the outgoing edges from the node in the dependency graph. In the initial error analysis, we found that our classifier failed to identify many nominalized verb forms as event triggers. So we used NomLex to add a feature to identify nominalization. We also used WordNet derivations to replace any nominalized verbs with its actual verb.

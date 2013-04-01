@@ -23,6 +23,10 @@ import fig.basic.LogInfo;
 import edu.stanford.nlp.util.StringUtils;
 
 public class EventExtendedFeatureFactory extends FeatureExtractor {
+	public EventExtendedFeatureFactory(boolean useLexicalFeatures) {
+		super(useLexicalFeatures);
+	}
+
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	boolean addEntityFeatures = true;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();

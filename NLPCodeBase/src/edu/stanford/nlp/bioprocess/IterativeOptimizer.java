@@ -7,10 +7,10 @@ import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 
 public class IterativeOptimizer {
-	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> optimize(List<Example> train, List<Example> test) {
+	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> optimize(List<Example> train, List<Example> test, boolean useLexicalFeatures) {
 		LogInfo.begin_track("Basiccc trigger prediction");
 		EventPredictionLearner eventLearner = new EventPredictionLearner();
-		FeatureExtractor eventFeatureFactory = new EventFeatureFactory();
+		FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 		Inferer inferer = new EventPredictionInferer();
 		Params param = eventLearner.learn(train, eventFeatureFactory);
 		List<BioDatum> predicted = inferer.Infer(test, param, eventFeatureFactory);
@@ -20,10 +20,10 @@ public class IterativeOptimizer {
 		LogInfo.end_track();
 		
 		Learner entityLearner = new EntityPredictionLearner();
-		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory();
+		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 		
 		Inferer entityInferer = new EntityStandaloneInferer();
-		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory();
+		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 		Params entityStandaloneParams = entityLearner.learn(train, entityStandaloneFeatureFactory);
 		List<BioDatum> predictedStandaloneEntities = entityInferer.Infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
 		
@@ -42,7 +42,7 @@ public class IterativeOptimizer {
 			
 			LogInfo.begin_track("Extended trigger prediction");
 			inferer = new EventPredictionInferer(predictedEntities);
-			eventFeatureFactory = new EventExtendedFeatureFactory();
+			eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
 			param = eventLearner.learn(train, eventFeatureFactory);
 			predicted = inferer.Infer(test, param, eventFeatureFactory);
 			triple = Scorer.score(predicted);

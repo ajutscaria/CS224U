@@ -23,15 +23,17 @@ public class SRLFeatureFactory extends FeatureExtractor {
 	HashMap<String, Integer> relCount = new HashMap<String, Integer>();
 	Index<String> labelIndex;
 	
-	public SRLFeatureFactory() {
-	}
-	
-	public SRLFeatureFactory(Index<String> labelIndex) {
+	public SRLFeatureFactory(Index<String> labelIndex, boolean useLexicalFeatures) {
+		super(useLexicalFeatures);
 		System.out.println("LabelIndex: "+labelIndex);
 		this.labelIndex = labelIndex;
 	}
 
-    public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
+    public SRLFeatureFactory(boolean useLexicalFeatures) {
+    	super(useLexicalFeatures);
+	}
+
+	public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
 	    //Tree event = eventMention.getTreeNode();
 		List<String> features = new ArrayList<String>();
 	

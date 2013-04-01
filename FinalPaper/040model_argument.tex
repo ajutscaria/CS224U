@@ -3,7 +3,8 @@ An entity is represented as a node in the parse tree spanning over the full text
 
 We implemented a MaxEnt based model using more features between the event triggers and the candidate nodes to classify the node as either an $ARG$ or $NONE$ if not. This is also a local model, hence we try to maximize
 
-$P(A | e, x) = \prod_{t_{i}\in N} P(t_{i} \in ARG | e, x) $
+$P(A | e, x) = \prod_{t_{i}\in N} P(l_{i} | e, x) $, \\
+where $l_i$ is the labeling of $t_i$ to $ARG$ or $NONE$ according to the mapping A.
 
 The features we use for finding event arguments are combinations of features of both event node and the candidate entity node. This includes POS tag of candidate + POS tag of event trigger, headword of candidate + POS tag of event trigger, path from the candidate to the event trigger and an indicator feature denoting whether the headword of the candidate is a child of the trigger in the dependency tree. The model assigns a probability value for each node in the parse tree to be an argument to a specific event trigger.
 

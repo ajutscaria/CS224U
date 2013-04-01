@@ -24,6 +24,10 @@ import fig.basic.LogInfo;
 
 public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 
+	public EntityStandaloneFeatureFactory(boolean useLexicalFeatures) {
+		super(useLexicalFeatures);
+	}
+
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 

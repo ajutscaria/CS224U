@@ -1,9 +1,0 @@
-T1	Event 24 37	genetic drift
-E1	Event:T1 time:T6 causes:E3 causes2:E4
-T6	Entity 45 59	the bottleneck
-T2	Event 78 82	loss
-E3	Event:T2 theme:T8 cotemporal:E4
-T3	Event 111 119	increase
-E4	Event:T3 theme:T7
-T7	Entity 123 155	the frequency of harmful alleles
-T8	Entity 86 103	genetic variation

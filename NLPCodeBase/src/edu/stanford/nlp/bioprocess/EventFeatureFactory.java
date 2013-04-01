@@ -22,6 +22,10 @@ import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
 public class EventFeatureFactory extends FeatureExtractor {
+	public EventFeatureFactory(boolean useLexicalFeatures) {
+		super(useLexicalFeatures);
+	}
+
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 	HashMap<String, String> verbForms = Utils.getVerbForms();

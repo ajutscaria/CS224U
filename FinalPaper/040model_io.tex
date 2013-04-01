@@ -9,7 +9,8 @@ One of the drawbacks of our approach to event trigger and argument prediction wa
 
 The different stages involved in the iterative optimization algorithm is depicted in Figure~\ref{fig:iosteps}. We use the event triggers predicted to predict its arguments. Now, we combine the set of entities predicted as arguments, with those predicted by the independent argument prediction model to create the set of all entities and is used in trigger prediction. This model predicts the most likely labeling $T$ that maximizes
 
-$P(T | x, A) = \prod_{e_{i}\in N_{pt}} P(e_{i}\in TRIG | x, A) $, where $TRIG$ and $A$ are as defined earlier.
+$P(T | x, A) = \prod_{e_{i}\in N_{pt}} P(l_{i} | x, A) $,\\
+ where $l_i$ is the labeling of $e_i$ to $TRIG$ or $NONE$ according to the mapping T.
 
 Once this model predicts the event triggers, we use the same model $P(A | e,x)$ to predict arguments associated with each event trigger that satisfy the non-overlapping constraint. We repeat the iterative trigger and argument prediction till there is no improvement in F1 score.
 

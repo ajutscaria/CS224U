@@ -16,6 +16,11 @@ import edu.stanford.nlp.util.IdentityHashSet;
 import fig.basic.LogInfo;
 
 public class EntityFeatureFactory extends FeatureExtractor {
+	public EntityFeatureFactory(boolean useLexicalFeatures) {
+		super(useLexicalFeatures);
+	}
+
+
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 
     public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
