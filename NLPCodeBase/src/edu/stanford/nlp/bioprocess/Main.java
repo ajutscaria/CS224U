@@ -142,7 +142,6 @@ public class Main implements Runnable {
 
 	@Override
 	public void run() {
-		System.out.println(useLexicalFeatures);
 		LogInfo.begin_track("main");
 		Properties props = StringUtils.propFileToProperties(propertyFile);
 		String trainDirectory = props.getProperty("train.dir"), testDirectory = props.getProperty("test.dir"),
@@ -155,39 +154,39 @@ public class Main implements Runnable {
 
 		if(mode.equals("entity")) {
 			LogInfo.logs("Running entity prediction");
-			new Main().runEntityPrediction(folders);
+			runEntityPrediction(folders);
 		}
 		else if(mode.equals("entitygold")) {
 			LogInfo.logs("Running entity prediction from GOLD events");
-			new Main().runPrediction(folders, new EntityFeatureFactory(useLexicalFeatures), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
+			runPrediction(folders, new EntityFeatureFactory(useLexicalFeatures), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
 		}
 		else if(mode.equals("entitystandalone")) {
 			LogInfo.logs("Running entity standalone");
-			new Main().runEntityStandalonePrediction(folders);
+			runEntityStandalonePrediction(folders);
 		}
 		else if(mode.equals("eventstandalone")) {
-			LogInfo.logs("Running event prediction");
-			new Main().runEventStandalonePrediction(folders);
+			LogInfo.logs("Running event standalone prediction");
+			runEventStandalonePrediction(folders);
 		}
 		else if(mode.equals("eventgold")) {
 			LogInfo.logs("Running event prediction with GOLD entities");
-			new Main().runPrediction(folders, new EventExtendedFeatureFactory(useLexicalFeatures), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+			runPrediction(folders, new EventExtendedFeatureFactory(useLexicalFeatures), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
 		}
 		else if(mode.equals("event")) {
 			LogInfo.logs("Running event prediction");
-			new Main().runEventPrediction(folders);
+			runEventPrediction(folders);
 		}
 		else if(mode.equals("io")) {
 			LogInfo.logs("Running iterative optimization");
-			new Main().runIterativeOptimization(folders);
+			runIterativeOptimization(folders);
 		}
 		else if(mode.equals("srl")) {
 			LogInfo.logs("Running SRL");
-			new Main().runSRLPrediction(folders);
+			runSRLPrediction(folders);
 		}
 		else if(mode.equals("all")) {
 			LogInfo.logs("Run all");
-			new Main().runAll(folders);
+			runAll(folders);
 		}
 		LogInfo.end_track();
 	}
