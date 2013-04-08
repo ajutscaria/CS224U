@@ -9,7 +9,7 @@ import fig.basic.LogInfo;
 public class IterativeOptimizer {
 	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> optimize(List<Example> train, List<Example> test, boolean useLexicalFeatures) {
 		LogInfo.begin_track("Basiccc trigger prediction");
-		EventPredictionLearner eventLearner = new EventPredictionLearner();
+		Learner eventLearner = new Learner();
 		FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 		Inferer inferer = new EventPredictionInferer();
 		Params param = eventLearner.learn(train, eventFeatureFactory);
@@ -19,7 +19,7 @@ public class IterativeOptimizer {
 		LogInfo.logs("Score: Basic trigger prediction - " + triple);
 		LogInfo.end_track();
 		
-		Learner entityLearner = new EntityPredictionLearner();
+		Learner entityLearner = new Learner();
 		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 		
 		Inferer entityInferer = new EntityStandaloneInferer();

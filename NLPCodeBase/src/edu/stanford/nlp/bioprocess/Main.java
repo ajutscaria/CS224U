@@ -158,7 +158,7 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("entitygold")) {
 			LogInfo.logs("Running entity prediction from GOLD events");
-			runPrediction(folders, new EntityFeatureFactory(useLexicalFeatures), new EntityPredictionLearner(), new EntityPredictionInferer(), new Scorer());
+			runPrediction(folders, new EntityFeatureFactory(useLexicalFeatures), new Learner(), new EntityPredictionInferer(), new Scorer());
 		}
 		else if(mode.equals("entitystandalone")) {
 			LogInfo.logs("Running entity standalone");
@@ -170,7 +170,7 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("eventgold")) {
 			LogInfo.logs("Running event prediction with GOLD entities");
-			runPrediction(folders, new EventExtendedFeatureFactory(useLexicalFeatures), new EventPredictionLearner(), new EventPredictionInferer(), new Scorer());
+			runPrediction(folders, new EventExtendedFeatureFactory(useLexicalFeatures), new Learner(), new EventPredictionInferer(), new Scorer());
 		}
 		else if(mode.equals("event")) {
 			LogInfo.logs("Running event prediction");
@@ -204,7 +204,7 @@ public class Main implements Runnable {
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
 			
-			EventPredictionLearner eventLearner = new EventPredictionLearner();
+			Learner eventLearner = new Learner();
 			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
@@ -213,7 +213,7 @@ public class Main implements Runnable {
 			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
 			precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
 			
-			Learner entityLearner = new EntityPredictionLearner();
+			Learner entityLearner = new Learner();
 			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(result);
@@ -239,7 +239,7 @@ public class Main implements Runnable {
 		boolean small = false;
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
 		SRLFeatureFactory featureFactory = new SRLFeatureFactory(useLexicalFeatures);
-		SRLPredictionLearner learner = new SRLPredictionLearner();
+		Learner learner = new Learner();
 		SRLPredictionInferer inferer = new SRLPredictionInferer(); 
 		Scorer scorer = new Scorer();
 		if (small) {
@@ -277,7 +277,7 @@ public class Main implements Runnable {
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
 			
-			Learner entityLearner = new EntityPredictionLearner();
+			Learner entityLearner = new Learner();
 			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 
 			Inferer entityInferer = new EntityStandaloneInferer();
@@ -301,13 +301,13 @@ public class Main implements Runnable {
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
 			
-			Learner eventLearner = new EventPredictionLearner();
+			Learner eventLearner = new Learner();
 			FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			Inferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
 			List<BioDatum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 			
-			Learner entityLearner = new EntityPredictionLearner();
+			Learner entityLearner = new Learner();
 			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
@@ -323,14 +323,14 @@ public class Main implements Runnable {
 	
 	private void runEventStandalonePrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		BioprocessDataset dataset = loadDataSet(folders, false, true);
+		BioprocessDataset dataset = loadDataSet(folders, false, false);
 		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
 		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
 			
-			EventPredictionLearner eventLearner = new EventPredictionLearner();
+			Learner eventLearner = new Learner();
 			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
@@ -353,13 +353,13 @@ public class Main implements Runnable {
 		for(int i = 1; i <= NumCrossValidation; i++) {
 			LogInfo.begin_track("Iteration " + i);
 			
-			Learner entityLearner = new EntityPredictionLearner();
+			Learner entityLearner = new Learner();
 			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
 			
-			Learner eventLearner = new EventPredictionLearner();
+			Learner eventLearner = new Learner();
 			FeatureExtractor eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
 			Inferer eventInferer = new EventPredictionInferer(predictedEntities);
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
@@ -404,8 +404,8 @@ public class Main implements Runnable {
 				LogInfo.end_track();
 			}
 			else {
-				dataset.read("test");
-				Utils.writeFile(dataset.examples("test"), examplesFileName);
+				dataset.read("train");
+				Utils.writeFile(dataset.examples("train"), examplesFileName);
 			}
 		}
 		else{

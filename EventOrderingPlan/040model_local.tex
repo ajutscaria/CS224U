@@ -1,5 +1,5 @@
 \subsection{Modeling local dependencies}
-Let $E$ be the set of all $n$ trigger words $\{e_1, e_2, ... e_{n}\}$ in the paragraph. The local event-event relation classifier algorithm generates a mapping R of all pairs of event triggers in $E$ to exactly one event relation type or NONE, $R : E \times E \rightarrow \{ $ {\em NextEvent, SuperEvent, CotemporalEvent, NONE}$ \}^{n (n-1)}$. Formally, our goal is to maximize the likelihood of the labeling R $P(R | E)$, given the set of triggers.
+Let $E$ be the set of all $n$ trigger words $\{e_1, e_2, ... e_{n}\}$ in the paragraph. The local event-event relation classifier algorithm generates a mapping R of all pairs of event triggers in $E$ to exactly one event relation type or NONE, $R : E \times E \rightarrow \{ $ {\em NextEvent, SuperEvent, CotemporalEvent, NONE}$ \}$. Formally, our goal is to maximize the likelihood of the labeling R $P(R | E)$, given the set of triggers.
 
 We trained a MaxEnt model on the annotated samples using several lexical, and structure based features.
 

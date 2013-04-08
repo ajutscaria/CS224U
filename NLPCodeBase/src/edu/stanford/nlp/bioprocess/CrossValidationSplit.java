@@ -22,7 +22,7 @@ public class CrossValidationSplit  {
 		//for(int i = 0; i < list.size(); i++)
 		//	randomExampleIndex.add(i);
 		//Collections.shuffle(randomExampleIndex);
-		randomExampleIndex = Arrays.asList(new Integer[]{10, 45, 15, 27, 4, 9, 24, 42, 2, 31, 32, 38, 23, 14, 47, 11, 13, 29, 36, 37, 25, 41, 18, 3, 28, 7, 46, 49, 16, 19, 17, 0, 51, 35, 8, 33, 1, 5, 30, 21, 39, 48, 44, 20, 43, 22, 12, 50, 6, 26, 34, 40});
+		randomExampleIndex = Arrays.asList(new Integer[]{103, 6, 77, 67, 73, 70, 90, 48, 44, 66, 83, 42, 22, 34, 102, 49, 97, 0, 60, 26, 55, 8, 17, 33, 45, 52, 57, 92, 56, 87, 4, 37, 18, 25, 51, 81, 105, 101, 82, 54, 11, 110, 104, 46, 47, 75, 93, 63, 62, 112, 19, 27, 21, 31, 85, 35, 1, 36, 79, 39, 106, 38, 80, 2, 74, 111, 65, 88, 9, 71, 28, 91, 100, 53, 58, 16, 99, 14, 69, 107, 23, 76, 15, 72, 98, 86, 43, 84, 78, 7, 10, 41, 50, 20, 95, 108, 96, 109, 5, 64, 12, 89, 29, 61, 13, 94, 30, 3, 68, 40, 24, 59, 32});
 		LogInfo.logs(randomExampleIndex);
 		numFoldsCV = numFolds;
 		allExamplesCV = (ArrayList<Example>)list;
