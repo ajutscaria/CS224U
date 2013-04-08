@@ -21,7 +21,7 @@ E10	Event:T10 causes:E9 agent:T26
 T11	Static-Event 126 139	complementary
 E11	Static-Event:T11 enables:E1 agent:T12 theme:T13
 T12	Entity 100 122	The signaling molecule
-T13	Entity 152 182	a specific site on the recepto
+T13	Entity 152 183	a specific site on the receptor
 T14	Entity 197 202	there
 *	same-entity T13 T14
 T15	Entity 276 298	The signaling molecule

@@ -1,7 +1,7 @@
 T1	Event 10 21	homogenized
 E1	Event:T1 theme:T2 location:T3 causes:E2
 T2	Entity 0 5	Cells
-T3	Entity 25 33	a blende
+T3	Entity 25 34	a blender
 T4	Event 38 43	break
 E2	Event:T4 theme:T5 location:T3 next-event:E3
 T5	Entity 44 48	them

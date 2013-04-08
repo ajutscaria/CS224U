@@ -6,7 +6,7 @@ T3	Event 301 308	release
 E3	Event:T3 agent:T9 raw-material:T10 theme:T11 origin:T12
 T4	Entity 26 49	the hormone epinephrine
 T5	Entity 104 135	a succession of relay molecules
-T6	Entity 147 150	cAM
+T6	Entity 147 151	cAMP
 *	same-entity T5 T6 T7
 T7	Entity 156 175	two protein kinases
 T8	Entity 201 218	The final protein

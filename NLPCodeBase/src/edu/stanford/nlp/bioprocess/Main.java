@@ -323,7 +323,7 @@ public class Main implements Runnable {
 	
 	private void runEventStandalonePrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		BioprocessDataset dataset = loadDataSet(folders, false, false);
+		BioprocessDataset dataset = loadDataSet(folders, false, true);
 		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
 		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 
@@ -404,8 +404,8 @@ public class Main implements Runnable {
 				LogInfo.end_track();
 			}
 			else {
-				dataset.read("train");
-				Utils.writeFile(dataset.examples("train"), examplesFileName);
+				dataset.read("test");
+				Utils.writeFile(dataset.examples("test"), examplesFileName);
 			}
 		}
 		else{

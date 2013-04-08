@@ -5,7 +5,7 @@ T3	Event 101 107	remove
 E1	Event:T3 agent:T1 theme:T5 theme2:T7 same-event:E2
 T4	Event 216 225	oxidizing
 E2	Event:T4 theme:T9 agent:T1 next-event:E3
-T5	Entity 108 131	a pair of hydrogen atom
+T5	Entity 108 132	a pair of hydrogen atoms
 T6	Entity 134 159	2 electrons and 2 protons
 *	same-entity T5 T6
 T7	Entity 166 179	the substrate

@@ -100,6 +100,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       RandomAccessFile reader = new RandomAccessFile(new File(fileName.replace(TEXT_EXTENSION, ANNOTATION_EXTENSION)), "r");
       String line;
       while((line = reader.readLine())!=null) {
+    	System.out.println(line);
         String[] splits = line.split("\t");
         String desc = splits[0];
         switch(desc.charAt(0)) {
@@ -190,6 +191,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             break;
           case '*':
         	  String[] params = splits[1].split(" ");
+        	  
         	  if(params[0].equals(TYPE_SAME_ENTITY)) {
         		  String entity1 = params[1], entity2 = params[2];
         		  ((EntityMention)mentions.get(entity1)).addRelation((EntityMention)mentions.get(entity2), RelationType.SameEntity);
