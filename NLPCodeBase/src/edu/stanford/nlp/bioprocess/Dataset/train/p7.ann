@@ -2,7 +2,7 @@ T1	Entity 23 33	the beetle
 T2	Event 34 39	faces
 E1	Event:T2 agent:T1 cotemporal:E2 location:T3 causes:E4
 T4	Event 60 64	blow
-E2	Event:T4 theme:T5 location:T6 agent:T3
+E2	Event:T4 theme:T5 location:T6 agent:T3 cotemporal:E3
 T5	Entity 65 68	fog
 T6	Entity 76 85	the dunes
 T7	Event 0 7	Tilting

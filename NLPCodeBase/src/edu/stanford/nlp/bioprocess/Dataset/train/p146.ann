@@ -1,0 +1,24 @@
+T1	Event 121 130	converted
+E1	Event:T1 causes:E2 theme:T6 result:T7 time:T8
+T2	Event 233 242	plummeted
+E2	Event:T2 next-event:E3 agent:T9
+T3	Event 324 332	harbored
+E3	Event:T3 cotemporal:E4 agent:T10 theme:T11
+T4	Static-Event 382 385	low
+E4	Static-Event:T4 cotemporal:E5 agent:T12 theme:T13
+T5	Event 447 454	hatched
+E5	Event:T5 cotemporal:E3 agent:T14
+T6	Entity 101 115	these prairies
+T7	Entity 134 157	farmland and other uses
+T8	Entity 165 192	the 19th and 20th centuries
+T9	Entity 194 232	the number of greater prairie chickens
+T10	Entity 269 298	only two Illinois populations
+T11	Entity 333 352	fewer than 50 birds
+T12	Entity 354 377	The few surviving birds
+*	same-entity T11 T12
+T13	Entity 386 413	levels of genetic variation
+T14	Entity 419 446	less than 50% of their eggs
+T15	Event 63 68	lived
+E6	Event:T15 agent:T16 location:T17 next-event:E1
+T16	Entity 0 57	Millions of greater prairie chickens (Tympanuchus cupido)
+T17	Entity 72 96	the prairies of Illinois

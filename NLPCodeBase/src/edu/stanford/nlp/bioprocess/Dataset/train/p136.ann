@@ -1,0 +1,16 @@
+T1	Event 26 39	transposition
+E1	Event:T1 
+T2	Event 64 69	moves
+E2	Event:T2 super-event:E1 agent:T5 origin:T6 destination:T7
+T3	Event 404 408	bend
+E3	Event:T3 causes:E4 agent:T11 agent2:T10 theme:T12
+T4	Static-Event 360 368	together
+E4	Static-Event:T4 cotemporal:E2 theme:T8 theme2:T9 agent:T10 agent2:T11
+T5	Entity 41 63	a transposable element
+T6	Entity 75 99	one site in a cell's DNA
+T7	Entity 103 126	a different target site
+T8	Entity 317 329	the original
+T9	Entity 334 347	new DNA sites
+T10	Entity 372 379	enzymes
+T11	Entity 384 398	other proteins
+T12	Entity 409 416	the DNA

@@ -1,0 +1,26 @@
+T1	Event 232 238	change
+E1	Event:T1 causes:E5 theme:T14
+T2	Event 63 73	duplicated
+E2	Event:T2 cotemporal:E3 next-event:E4 theme:T9 location:T10 result:T12
+T3	Event 96 103	deleted
+E3	Event:T3 theme:T9 location:T11
+T4	Event 160 164	code
+E4	Event:T4 causes:E1 agent:T12 result:T13
+T5	Event 272 279	augment
+E5	Event:T5 theme:T15
+T6	Event 296 306	increasing
+E6	Event:T6 super-event:E5 theme:T16
+T7	Event 322 331	enhancing
+E7	Event:T7 super-event:E5 theme:T17
+T8	Event 376 384	altering
+E8	Event:T8 super-event:E5 theme:T18
+T9	Entity 22 53	a particular exon within a gene
+T10	Entity 77 91	one chromosome
+T11	Entity 109 118	the other
+T12	Entity 120 153	The gene with the duplicated exon
+T13	Entity 169 225	a protein containing a second copy of the encoded domain
+T14	Entity 242 265	the protein's structure
+T15	Entity 280 292	its function
+T16	Entity 307 320	its stability
+T17	Entity 332 371	its ability to bind a particular ligand
+T18	Entity 385 404	some other property

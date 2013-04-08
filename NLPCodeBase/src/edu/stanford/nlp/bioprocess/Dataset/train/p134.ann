@@ -1,0 +1,26 @@
+T1	Event 203 207	scan
+E1	Event:T1 cotemporal:E2 causes:E5 agent:T6 theme:T7 result:T8 result2:T9 result3:T10
+T2	Event 387 392	looks
+E2	Event:T2 agent:T11 theme:T12
+T3	Event 528 537	collected
+E3	Event:T3 next-event:E4 theme:T13 theme2:T16
+T4	Event 566 575	cataloged
+E4	Event:T4 enables:E2 theme:T13 theme2:T17
+T5	Event 621 631	identifies
+E5	Event:T5 agent:T18 theme:T19
+T6	Entity 191 199	software
+T7	Entity 208 228	the stored sequences
+T8	Entity 233 289	transcriptional and translational start and stop signals
+T9	Entity 295 313	RNA-splicing sites
+T10	Entity 323 367	other telltale signs of protein-coding genes
+T11	Entity 369 381	The software
+*	same-entity T6 T11
+T12	Entity 397 446	certain short sequences that  specify known mRNAs
+T13	Entity 448 475	Thousands of such sequences
+T14	Entity 484 507	expressed sequence tags
+T15	Entity 512 516	ESTs
+*	same-entity T14 T15 T12
+T16	Entity 543 557	cDNA sequences
+T17	Entity 579 597	computer databases
+T18	Entity 599 620	This type of analysis
+T19	Entity 632 693	sequences that may be previously unknown protein-coding genes

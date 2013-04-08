@@ -1,0 +1,15 @@
+T1	Static-Event 210 216	higher
+E1	Static-Event:T1 causes:E2 agent:T4 theme:T5 location:T6
+T2	Event 289 294	leave
+E2	Event:T2 causes:E3 agent:T7 theme:T8
+T3	Event 426 438	accumulation
+E3	Event:T3 agent:T9 theme:T10 location:T11 time:T12
+T4	Entity 181 197	inherited traits
+T5	Entity 217 257	probability of surviving and reproducing
+T6	Entity 261 280	a given environment
+T7	Entity 163 174	Individuals
+T8	Entity 295 332	more offspring than other individuals
+T9	Entity 348 408	This unequal ability of individuals to survive and reproduce
+T10	Entity 442 458	favorable traits
+T11	Entity 462 476	the population
+T12	Entity 482 493	generations

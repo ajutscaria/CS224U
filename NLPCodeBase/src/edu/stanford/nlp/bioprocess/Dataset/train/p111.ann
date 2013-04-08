@@ -1,0 +1,21 @@
+T1	Event 57 67	duplicates
+E1	Event:T1 next-event:E2 agent:T6 result:T7
+T2	Static-Event 107 115	together
+E2	Static-Event:T2 next-event:E4 agent:T7 location:T8
+T3	Event 154 158	move
+E3	Event:T3 causes:E5 agent:T9 time:T10
+T4	Event 233 237	grow
+E4	Event:T4 causes:E3 agent:T11 origin:T12
+T5	Static-Event 342 350	opposite
+E5	Static-Event:T5 agent:T13 location:T14 time:T15
+T6	Entity 35 56	the single centrosome
+T7	Entity 77 92	two centrosomes
+T8	Entity 121 132	the nucleus
+T9	Entity 134 153	The two centrosomes
+*	same-entity T7 T9 T13
+T10	Entity 172 208	prophase and prometaphase of mitosis
+T11	Entity 212 232	spindle microtubules
+T12	Entity 247 251	them
+T13	Entity 281 300	the two centrosomes
+T14	Entity 351 367	ends of the cell
+T15	Entity 256 279	the end of prometaphase

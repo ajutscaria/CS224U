@@ -20,4 +20,4 @@ E7	Event:T18 theme:T19 location:T20
 T19	Entity 339 371	signals in the form of cytokines
 T20	Entity 389 404	both directions
 T5	Static-Event 304 310	joined
-E2	Static-Event:T5 theme:T14 cotemporal:E6
+E2	Static-Event:T5 theme:T14 cotemporal:E6 cotemporal2:E7

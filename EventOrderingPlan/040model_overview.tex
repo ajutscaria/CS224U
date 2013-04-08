@@ -1,0 +1,17 @@
+Process descriptions contain a series of events tied together by several relations. For instance, there could be a temporal ordering of events where one event can happen only after the other; or events can be cotemporal happening at the same time. In other cases, several events could have a super-event. In this section, we describe our models for used for predicting event ordering. The event triggers predicted earlier are ideally to be used in this stage. But, to start with, we will use the gold standard triggers for predicting the event ordering.
+
+We use concepts based on structured probability models (graphical models) for the task at hand. Given a paragraph of text and the event triggers present in the paragraph, the goal is to generate the event ordering and relations between each pair of events into different categories - cotemporal, next event, super event etc. or NONE and come up with a global structure of events occuring in the paragraph. The problem is modeled as an inference problem in a Markov Network. The nodes are the triggers, $e_i \in E$ and energy terms are used to indicate interactions between triggers. We model local interactions between every pair of event triggers separately from those between groups of event triggers. For the local pair wise classification, we use a MaxEnt model that use lexical and structural features. However, there may be different global constraints that need to be satisfied, for instance, each event may have only one super event and next event. These kind of global constraints require a broader document context and it helps to assimilate the local decisions.
+
+Hence, we have an undirected graphical model with a set of vertices $V = X \cup Y$. $X$ is the set of observed nodes and $x_i$ denotes the $i^{th}$ trigger in the paragraph. $Y$ is the set of unobserved nodes corresponding to the labeling for each event trigger and $y_i$ is the labeling of $x_i$. The number of triggers in the paragraph is denoted by $n$. We have two types of potentials:
+
+\begin{enumerate}
+\item {\em Event-pair Potential} associates two event triggers in a paragraph based on their local context.
+\item {\em Global Consistency Potentials} are used to ensure global consistency of assignments and are defined over entire sets of variables in the paragraph.
+\end{enumerate}
+
+The resulting MAP problem is:
+
+\begin{equation}
+MAP(\theta) = \sum_{f \in F} \theta_f(r_f)
+\end{equation}
+where $\theta_f$ are the potential functions and $\{r_f|f\subseteq\{1,2,...,n\}, f \in F\}$ is the set of their variables.

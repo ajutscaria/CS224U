@@ -1,0 +1,23 @@
+T1	Event 238 243	fuses
+E1	Event:T1 next-event:E4 agent:T8 theme:T9
+T2	Event 39 48	engulfing
+E2	Event:T2 same-event:E3 agent:T6 theme:T7
+T3	Event 103 115	phagocytosis
+E3	Event:T3 next-event:E1 result:T8
+T4	Event 275 281	digest
+E4	Event:T4 next-event:E5 agent:T10 theme:T11
+T5	Event 393 397	pass
+E5	Event:T5 agent:T12 destination:T16 result:T17
+T6	Entity 0 31	Amoebas and many other protists
+T7	Entity 49 84	smaller organisms or food particles
+T8	Entity 197 213	The food vacuole
+T9	Entity 249 259	a lysosome
+T10	Entity 267 274	enzymes
+T11	Entity 282 290	the food
+T12	Entity 315 333	Digestion products
+T13	Entity 345 358	simple sugars
+T14	Entity 360 371	amino acids
+T15	Entity 377 391	other monomers
+*	same-entity T15 T14 T13 T12
+T16	Entity 403 414	the cytosol
+T17	Entity 426 448	nutrients for the cell

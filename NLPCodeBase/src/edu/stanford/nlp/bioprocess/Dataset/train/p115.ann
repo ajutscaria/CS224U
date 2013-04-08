@@ -1,0 +1,30 @@
+T1	Event 88 98	relaxation
+E1	Event:T1 next-event:E2 agent:T9 theme:T10 location:T11
+T2	Event 155 163	inhibits
+E2	Event:T2 causes:E3 agent:T12 theme:T13 raw-material:T14 result:T15
+T3	Event 200 210	prolonging
+E3	Event:T3 causes:E5 agent:T12 theme:T16
+T5	Event 460 468	dilation
+E5	Event:T5 enables:E6 agent:T17 theme:T18
+T6	Event 502 511	increased
+E6	Event:T6 causes:E4 agent:T19 theme:T20 destination:T21
+T4	Event 537 547	optimizing
+E4	Event:T4 agent:T17 theme:T22
+T7	Entity 16 26	cyclic GMP
+T8	Entity 31 35	cGMP
+T9	Entity 45 65	a signaling molecule
+*	same-entity T8 T9 T7
+T10	Entity 102 121	smooth muscle cells
+T11	Entity 125 137	artery walls
+T12	Entity 139 149	A compound
+T13	Entity 164 178	the hydrolysis
+T14	Entity 182 186	cGMP
+T15	Entity 190 193	GMP
+T16	Entity 211 221	the signal
+T17	Entity 444 450	Viagra
+*	same-entity T12 T17 T19
+T18	Entity 472 485	blood vessels
+T19	Entity 487 489	it
+T20	Entity 512 522	blood flow
+T21	Entity 526 535	the penis
+T22	Entity 548 593	physiological conditions for penile erections

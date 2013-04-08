@@ -1,0 +1,27 @@
+T1	Event 74 82	triggers
+E1	Event:T1 causes:E2 agent:T9 theme:T10
+T2	Event 191 205	phosphorylated
+E2	Event:T2 next-event:E3 theme:T11
+T3	Event 239 245	enters
+E3	Event:T3 next-event:E4 agent:T11 destination:T12
+T4	Event 268 277	activates
+E4	Event:T4 next-event:E5 agent:T11 theme:T13
+T5	Event 353 366	transcription
+E5	Event:T5 next-event:E6 agent:T15 theme:T16 result:T17
+T6	Event 434 443	synthesis
+E6	Event:T6 agent:T17 result:T18 location:T19
+T7	Entity 0 30	The initial signaling molecule
+T8	Entity 32 49	a local regulator
+*	same-entity T7 T8 T9
+T9	Entity 57 72	a growth factor
+T10	Entity 83 108	a phosphorylation cascade
+T11	Entity 207 238	the last kinase in the sequence
+T12	Entity 246 257	the nucleus
+T13	Entity 278 303	a gene-regulating protein
+T14	Entity 305 327	a transcription factor
+*	same-entity T13 T14 T15
+T15	Entity 329 341	This protein
+T16	Entity 370 396	a specific gene (or genes)
+T17	Entity 398 416	The resulting mRNA
+T18	Entity 447 467	a particular protein
+T19	Entity 471 484	the cytoplasm

@@ -1,0 +1,22 @@
+T1	Event 147 152	scans
+E1	Event:T1 next-event:E3 agent:T6 theme:T7
+T2	Event 188 194	coated
+E2	Event:T2 next-event:E1 theme:T7 raw-material:T8
+T3	Event 230 237	excites
+E3	Event:T3 next-event:E4 agent:T9 theme:T10
+T4	Event 298 306	detected
+E4	Event:T4 next-event:E5 theme:T11 agent:T12
+T5	Event 324 334	translates
+E5	Event:T5 agent:T12 raw-material:T13 result:T14 result2:T15
+T6	Entity 129 146	The electron beam
+T7	Entity 153 178	the surface of the sample
+T8	Entity 200 219	a thin film of gold
+T9	Entity 221 229	The beam
+*	same-entity T6 T9
+T10	Entity 238 262	electrons on the surface
+T11	Entity 268 293	these secondary electrons
+*	same-entity T10 T11
+T12	Entity 310 318	a device
+T13	Entity 335 359	the pattern of electrons
+T14	Entity 365 403	an electronic signal to a video screen
+T15	Entity 419 484	an image of the specimen's surface that appears three-dimensional

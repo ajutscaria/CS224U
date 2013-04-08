@@ -1,0 +1,18 @@
+T1	Event 6 14	slippage
+E1	Event:T1 same-event:E2 time:T7
+T2	Event 72 78	shifts
+E2	Event:T2 causes:E3 causes2:E4 agent:T8 theme:T9
+T3	Event 169 176	skipped
+E3	Event:T3 causes:E5 theme:T10 agent:T11
+T4	Event 209 213	used
+E4	Event:T4 causes:E6 agent:T11 theme:T10
+T5	Event 268 275	deleted
+E5	Event:T5 theme:T12
+T6	Event 279 289	duplicated
+E6	Event:T6 theme:T12
+T7	Entity 32 47	DNA replication
+T8	Entity 59 71	the template
+T9	Entity 95 123	the new complementary strand
+T10	Entity 129 158	a part of the template strand
+T11	Entity 180 205	the replication machinery
+T12	Entity 248 264	a segment of DNA

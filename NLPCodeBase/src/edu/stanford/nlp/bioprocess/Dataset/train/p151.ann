@@ -1,0 +1,10 @@
+T1	Event 531 538	isolate
+E1	Event:T1 causes:E2
+T2	Event 83 92	formation
+E2	Event:T2 
+T3	Event 196 202	impede
+E3	Event:T3 causes:E4
+T4	Event 300 305	block
+E4	Event:T4 cotemporal:E5 causes:E1
+T5	Event 340 345	limit
+E5	Event:T5 causes:E1

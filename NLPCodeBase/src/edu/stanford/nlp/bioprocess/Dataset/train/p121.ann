@@ -1,0 +1,18 @@
+T1	Event 10 16	frozen
+E1	Event:T1 next-event:E2 theme:T6
+T2	Event 21 30	fractured
+E2	Event:T2 next-event:E3 theme:T6 agent:T7
+T3	Event 70 77	follows
+E3	Event:T3 causes:E4 agent:T8 theme:T9
+T4	Event 118 127	splitting
+E4	Event:T4 next-event:E5 agent:T8 theme:T10 result:T11
+T5	Event 202 206	goes
+E5	Event:T5 agent:T12 destination:T13
+T6	Entity 0 6	A cell
+T7	Entity 36 43	a knife
+T8	Entity 45 63	The fracture plane
+T9	Entity 78 116	the hydrophobic interior of a membrane
+T10	Entity 128 152	the phospholipid bilayer
+T11	Entity 158 178	two separated layers
+T12	Entity 180 201	Each membrane protein
+T13	Entity 219 236	one of the layers

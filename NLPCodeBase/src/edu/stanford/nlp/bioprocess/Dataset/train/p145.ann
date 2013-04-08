@@ -1,0 +1,15 @@
+T1	Event 30 38	isolated
+E1	Event:T1 causes:E2 theme:T5 origin:T6
+T2	Event 88 97	establish
+E2	Event:T2 causes:E4 agent:T7 result:T8
+T4	Event 358 363	alter
+E3	Event:T4 agent:T9 theme:T10
+T3	Event 328 333	drift
+E4	Event:T3 same-event:E3
+T5	Entity 5 22	a few individuals
+T6	Entity 44 63	a larger population
+T7	Entity 65 83	this smaller group
+*	same-entity T7 T5
+T8	Entity 98 165	a new population whose gene pool differs from the source population
+T9	Entity 344 357	chance events
+T10	Entity 364 382	allele frequencies

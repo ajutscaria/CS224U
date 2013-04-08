@@ -1,0 +1,16 @@
+T1	Event 55 65	stimulates
+E1	Event:T1 next-event:E3 agent:T5 theme:T6
+T2	Event 96 106	activating
+E2	Event:T2 causes:E1 agent:T5 theme:T7
+T3	Event 181 186	added
+E3	Event:T3 next-event:E4 theme:T9 theme2:T10
+T4	Event 264 273	breakdown
+E4	Event:T4 
+T5	Entity 43 54	epinephrine
+T6	Entity 66 84	glycogen breakdown
+T7	Entity 107 125	a cytosolic enzyme
+T8	Entity 127 149	glycogen phosphorylase
+*	same-entity T7 T8
+T9	Entity 165 176	epinephrine
+*	same-entity T5 T9
+T10	Entity 190 259	a test-tube mixture containing the enzyme and its substrate, glycogen

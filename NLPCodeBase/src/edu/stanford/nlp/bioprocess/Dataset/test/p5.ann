@@ -26,4 +26,4 @@ T18	Entity 481 496	the intestines,
 T19	Event 505 515	bronchitis
 E8	Event:T19 cotemporal:E9
 T20	Event 531 551	bacterial infections
-E9	Event:T20 
+E9	Event:T20 cotemporal:E7

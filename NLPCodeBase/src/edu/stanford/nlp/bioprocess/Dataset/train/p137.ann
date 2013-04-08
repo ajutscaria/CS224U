@@ -1,0 +1,22 @@
+T1	Event 38 42	move
+E1	Event:T1 agent:T5 agent2:T7 location:T6
+T2	Event 150 157	removes
+E2	Event:T2 causes:E1 agent:T10 theme:T11 origin:T12
+T3	Event 236 242	leaves
+E3	Event:T3 causes:E1 agent:T13 theme:T14
+T4	Event 345 352	encoded
+E4	Event:T4 next-event:E2 next-event2:E3 result:T15 agent:T16
+T5	Entity 19 30	transposons
+T6	Entity 50 58	a genome
+T7	Entity 71 89	a DNA intermediate
+T8	Entity 91 102	Transposons
+T9	Event 107 111	move
+E5	Event:T9 agent:T8 same-event:E1
+*	same-entity T5 T8 T16
+T10	Entity 115 142	a "cut-and-paste" mechanism
+T11	Entity 158 169	the element
+T12	Entity 175 192	the original site
+T13	Entity 200 228	a "copy-and-paste" mechanism
+T14	Entity 243 256	a copy behind
+T15	Entity 296 324	an enzyme called transposase
+T16	Entity 356 370	the transposon

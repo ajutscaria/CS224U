@@ -1,0 +1,21 @@
+T1	Event 116 121	falls
+E1	Event:T1 agent:T7 causes:E2
+T2	Event 143 148	bound
+E2	Event:T2 next-event:E3 theme:T8
+T3	Event 196 202	revert
+E3	Event:T3 agent:T9 result:T10 next-event:E4
+T4	Event 394 399	falls
+E4	Event:T4 causes:E5 agent:T11 theme:T12
+T5	Event 444 450	ceases
+E5	Event:T5 causes:E6 agent:T13
+T6	Event 501 507	return
+E6	Event:T6 agent:T14 result:T15
+T7	Entity 66 115	the external concentration of signaling molecules
+T8	Entity 123 138	fewer receptors
+T9	Entity 174 195	the unbound receptors
+T10	Entity 206 225	their inactive form
+T11	Entity 363 393	the number of active receptors
+T12	Entity 406 420	that threshold
+T13	Entity 422 443	the cellular response
+T14	Entity 481 500	the relay molecules
+T15	Entity 511 531	their inactive forms

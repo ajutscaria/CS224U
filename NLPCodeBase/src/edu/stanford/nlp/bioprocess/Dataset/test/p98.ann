@@ -1,0 +1,28 @@
+T1	Event 93 101	secreted
+E1	Event:T1 next-event:E2 theme:T8 agent:T9
+T2	Event 134 141	travels
+E2	Event:T2 next-event:E3 agent:T10 location:T11
+T3	Event 164 170	enters
+E3	Event:T3 destination:T12 agent:T10 origin:T9
+T4	Event 302 307	binds
+E4	Event:T4 super-event:E3 causes:E5 location:T13 agent:T14 theme:T15
+T5	Event 333 343	activating
+E5	Event:T5 next-event:E6 agent:T14 theme:T16
+T6	Event 434 440	enters
+E6	Event:T6 next-event:E7 agent:T17 destination:T18
+T7	Event 457 462	turns
+E7	Event:T7 agent:T17 theme:T19
+T8	Entity 78 89	the hormone
+T9	Entity 105 124	cells of the testes
+T10	Entity 126 128	It
+*	same-entity T8 T10
+T11	Entity 150 159	the blood
+T12	Entity 171 194	cells all over the body
+T13	Entity 277 288	these cells
+T14	Entity 290 301	the hormone
+T15	Entity 311 331	the receptor protein
+T16	Entity 344 346	it
+*	same-entity T16 T15
+T17	Entity 389 428	the active form of the receptor protein
+T18	Entity 441 452	the nucleus
+T19	Entity 466 518	specific genes that control male sex characteristics

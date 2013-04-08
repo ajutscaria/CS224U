@@ -155,64 +155,36 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             EventMention event = (EventMention)mentions.get(desc);
             for(String parameter:parameters) {
               String[] keyValue = parameter.split(":");
-              switch(keyValue[0]) {
-                case TYPE_AGENT:
+              if(keyValue[0].startsWith(TYPE_AGENT))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Agent);
-                    break;
-                case TYPE_ORIGIN:
+              if(keyValue[0].startsWith(TYPE_ORIGIN))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Origin);
-                    break;
-                case TYPE_DESTINATION:
+              if(keyValue[0].startsWith(TYPE_DESTINATION))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Destination);
-                    break;
-                case TYPE_LOCATION:
+              if(keyValue[0].startsWith(TYPE_LOCATION))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Location);
-                    break;
-                case TYPE_RESULT:
+              if(keyValue[0].startsWith(TYPE_RESULT))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
-                    break;
-                case TYPE_RAW_MATERIAL:
+              if(keyValue[0].startsWith(TYPE_RAW_MATERIAL))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.RawMaterial);
-                    break;
-                case TYPE_THEME:
+              if(keyValue[0].startsWith(TYPE_THEME))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Theme);
-                    break;
-                case TYPE_TIME:
+              if(keyValue[0].startsWith(TYPE_TIME))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Time);
-                    break;
-                case TYPE_COTEMPORAL_EVENT:
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.CotemporalEvent);
+              if(keyValue[0].startsWith(TYPE_COTEMPORAL_EVENT)) {
+            		event.addArgument(mentions.get(keyValue[1]), RelationType.CotemporalEvent);
                     ((EventMention)mentions.get(keyValue[1])).addArgument(event, RelationType.CotemporalEvent);
-                    break;
-                case TYPE_NEXT_EVENT:
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.NextEvent);
-                    break;
-                case TYPE_SAME_EVENT:
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.SameEvent);
-                    break;
-                case TYPE_CAUSE:
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.Cause);
-                    break;
-                case TYPE_SUPER_EVENT:
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.SuperEvent);
-                    break;
-                case TYPE_ENABLES:
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.Enables);
-                    break;
-                default:
-                    if(keyValue[0].startsWith(TYPE_RESULT))
-                        event.addArgument(mentions.get(keyValue[1]), RelationType.Result);
-                    else if(keyValue[0].startsWith(TYPE_LOCATION))
-                  	    event.addArgument(mentions.get(keyValue[1]), RelationType.Location);
-                    else if(keyValue[0].startsWith(TYPE_DESTINATION))
-                    	event.addArgument(mentions.get(keyValue[1]), RelationType.Destination);
-                    else if(keyValue[0].startsWith(TYPE_THEME))
-                    	event.addArgument(mentions.get(keyValue[1]), RelationType.Theme);
-                    else if(keyValue[0].startsWith(TYPE_AGENT))
-                    	event.addArgument(mentions.get(keyValue[1]), RelationType.Agent);
-                    else if(keyValue[0].startsWith(TYPE_ORIGIN))
-                    	event.addArgument(mentions.get(keyValue[1]), RelationType.Origin);
               }
+              if(keyValue[0].startsWith(TYPE_NEXT_EVENT))
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.NextEvent);
+              if(keyValue[0].startsWith(TYPE_SAME_EVENT))
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.SameEvent);
+              if(keyValue[0].startsWith(TYPE_CAUSE))
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Cause);
+              if(keyValue[0].startsWith(TYPE_SUPER_EVENT))
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.SuperEvent);
+              if(keyValue[0].startsWith(TYPE_ENABLES))
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Enables);
             }
             Utils.addAnnotation(document, event);
             break;

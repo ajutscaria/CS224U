@@ -1,0 +1,17 @@
+T1	Event 224 231	wearing
+E1	Event:T1 cotemporal:E2 agent:T5 theme:T6 result:T7
+T2	Event 323 329	eroded
+E2	Event:T2 next-event:E3 theme:T9 origin:T10
+T3	Event 349 356	carried
+E3	Event:T3 next-event:E4 theme:T9 agent:T11 destination:T12
+T4	Event 390 396	buried
+E4	Event:T4 agent:T9 theme:T13 result:T8
+T5	Entity 217 223	rivers
+T6	Entity 240 245	rocks
+T7	Entity 188 195	valleys
+T8	Entity 255 286	rocks containing marine fossils
+T9	Entity 304 313	sediments
+T10	Entity 335 343	the land
+T11	Entity 360 366	rivers
+T12	Entity 370 377	the sea
+T13	Entity 397 418	dead marine organisms

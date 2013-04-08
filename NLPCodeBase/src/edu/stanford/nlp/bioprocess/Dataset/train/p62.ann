@@ -21,7 +21,7 @@ T14	Entity 255 274	an antigen fragment
 T15	Event 281 286	binds
 E5	Event:T15 agent:T14 theme:T16 location:T17 next-event:E6
 T16	Entity 290 305	an MHC molecule
-T17	Entity 313 321	the cell
+T17	Entity 313 320	the cel
 *	same-entity T12 T13 T14 T19 T35 T40
 T18	Entity 335 351	the MHC molecule
 T19	Entity 356 378	bound antigen fragment

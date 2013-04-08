@@ -1,0 +1,33 @@
+T1	Event 105 114	replicate
+E1	Event:T1 agent:T2 location:T11 result:T13 super-event:E10 same-event:E3
+T3	Event 241 250	replicate
+E3	Event:T3 agent:T14 cotemporal:E4 same-event:E5 cotemporal2:E6
+T4	Event 263 268	moves
+E4	Event:T4 agent:T15 destination:T16 cotemporal:E6
+T5	Event 353 364	replicating
+E5	Event:T5 agent:T17 cotemporal:E6
+T6	Event 375 384	elongates
+E6	Event:T6 agent:T18 next-event:E7
+T7	Static-Event 451 473	twice its initial size
+E7	Static-Event:T7 agent:T19 next-event:E8
+T8	Event 495 502	pinches
+E8	Event:T8 agent:T20 causes:E9
+T9	Event 511 519	dividing
+E9	Event:T9 raw-material:T21 result:T22 agent:T20
+T10	Event 27 40	cell division
+E10	Event:T10 
+T2	Entity 59 94	the DNA of the bacterial chromosome
+T11	Entity 118 152	a specific place on the chromosome
+T12	Entity 164 185	origin of replication
+*	same-entity T11 T12
+T13	Entity 197 208	two origins
+T14	Entity 213 227	the chromosome
+T15	Entity 252 262	one origin
+T16	Entity 284 312	the opposite end of the cell
+T17	Entity 335 349	the chromosome
+T18	Entity 366 374	the cell
+*	same-entity T14 T17
+T19	Entity 419 432	the bacterium
+T20	Entity 475 494	its plasma membrane
+T21	Entity 520 543	the parent E. coli cell
+T22	Entity 549 567	two daughter cells

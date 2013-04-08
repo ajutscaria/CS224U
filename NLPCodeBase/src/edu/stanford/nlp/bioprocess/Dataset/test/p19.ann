@@ -2,7 +2,7 @@ T1	Event 10 31	enzymatic degradation
 E1	Event:T1 next-event:E2 theme:T17
 T2	Entity 45 92	a second DNA strand, complementary to the first
 T3	Event 97 108	synthesized
-E2	Event:T3 agent:T4 result:T5 result2:T2 next-event:E3
+E2	Event:T3 agent:T4 result:T5 result2:T2 next-event:E4
 T4	Entity 112 126	DNA polymerase
 T5	Entity 142 161	double-stranded DNA
 T6	Entity 172 196	complementary DNA (cDNA)

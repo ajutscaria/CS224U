@@ -1,0 +1,15 @@
+T1	Event 38 42	acts
+E1	Event:T1 cotemporal:E2 agent:T5 theme:T6
+T2	Event 79 85	favors
+E2	Event:T2 causes:E3 causes2:E4 agent:T5 theme:T7
+T3	Event 132 139	reduces
+E3	Event:T3 cotemporal:E4 agent:T8 theme:T9
+T4	Event 163 171	maintain
+E4	Event:T4 agent:T8 theme:T10
+T5	Entity 0 21	Stabilizing selection
+T6	Entity 51 74	both extreme phenotypes
+T7	Entity 86 107	intermediate variants
+T8	Entity 109 131	This mode of selection
+*	same-entity T5 T8
+T9	Entity 140 149	variation
+T10	Entity 172 224	the status quo for a particular phenotypic character

@@ -9,7 +9,7 @@ T9	Entity 488 507	small blood vessels
 T10	Event 532 540	symptoms
 E4	Event:T10 location:T6
 T12	Event 572 589	physical weakness
-E5	Event:T12 super-event:E4
+E5	Event:T12 super-event:E4 cotemporal:E9 cotemporal2:E10
 T13	Event 365 374	aggregate
 E6	Event:T13 agent:T14 result:T15 causes:E7
 T14	Entity 328 364	the sickle-cell hemoglobin molecules
@@ -25,7 +25,7 @@ E1	Event:T11 cotemporal:E5
 T20	Event 597 609	organ damage
 E9	Event:T20 cotemporal:E1
 T21	Event 620 629	paralysis
-E10	Event:T21 cotemporal:E9
+E10	Event:T21 cotemporal:E9 cotemporal2:E1
 T5	Static-Event 264 267	low
 E8	Static-Event:T5 theme:T19 causes:E6
 T19	Entity 208 260	the oxygen content of an affected individual's blood

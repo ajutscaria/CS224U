@@ -5,7 +5,7 @@ T5	Event 119 123	drop
 E2	Event:T5 theme:T21 causes:E12
 T9	Entity 297 312	certain alleles
 T10	Static-Event 320 335	overrepresented
-E4	Static-Event:T10 theme:T9 cotemporal:E5 causes:E3
+E4	Static-Event:T10 theme:T9 cotemporal:E5 causes:E3 cotemporal2:E6
 T11	Static-Event 371 387	underrepresented
 E5	Static-Event:T11 cotemporal:E6 theme:T13 causes:E3
 T12	Static-Event 405 411	absent

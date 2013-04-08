@@ -1,0 +1,54 @@
+T1	Event 111 115	adds
+E1	Event:T1 agent:T11 raw-material:T12 theme:T13 result:T14 same-event:E2
+T2	Event 525 530	fixes
+E2	Event:T2 agent:T15 next-event:E3 theme2:T17 raw-material:T16
+T3	Event 568 574	export
+E3	Event:T3 agent:T18 theme:T19 destination:T20 next-event:E4
+T4	Event 770 777	release
+E4	Event:T4 location:T21 agent:T22 theme:T23 next-event:E5
+T5	Event 792 805	reassimilated
+E5	Event:T5 theme:T23 destination:T24 agent:T25 agent2:T26 cotemporal:E6
+T6	Event 879 890	regenerates
+E6	Event:T6 agent:T27 result:T28 next-event:E10
+T7	Event 964 971	convert
+E7	Event:T7 agent:T31 result:T33 enables:E8 raw-material:T32
+T8	Event 1020 1028	continue
+E8	Event:T8 agent:T34
+T9	Event 1186 1199	electron flow
+E9	Event:T9 causes:E11 agent:T37
+T10	Entity 82 97	PEP carboxylase
+T11	Entity 99 110	This enzyme
+*	same-entity T10 T11
+T12	Entity 116 119	CO2
+T13	Entity 123 148	phosphoenolpyruvate (PEP)
+T14	Entity 158 194	the four-carbon product oxaloacetate
+T15	Entity 512 524	the C4 plant
+T16	Entity 531 537	carbon
+T17	Entity 543 546	CO2
+T18	Entity 548 567	the mesophyll cells
+T19	Entity 581 601	four-carbon products
+T20	Entity 651 670	bundle-sheath cells
+T21	Entity 719 742	the bundle-sheath cells
+*	same-entity T20 T21 T37
+T22	Entity 744 769	the four-carbon compounds
+*	same-entity T19 T22 T14
+T23	Entity 778 781	CO2
+T24	Entity 811 827	organic material
+T25	Entity 831 838	rubisco
+T26	Entity 843 859	the Calvin cycle
+T27	Entity 861 878	The same reaction
+T28	Entity 891 899	pyruvate
+T29	Event 910 921	transported
+E10	Event:T29 theme:T28 destination:T30 next-event:E7
+T30	Entity 925 940	mesophyll cells
+T31	Entity 949 952	ATP
+T32	Entity 972 980	pyruvate
+*	same-entity T28 T32
+T33	Entity 984 987	PEP
+T34	Entity 998 1016	the reaction cycle
+T35	Event 1124 1132	generate
+E11	Event:T35 enables:E7 result:T36
+T36	Entity 1133 1147	this extra ATP
+T37	Entity 1149 1168	bundle-sheath cells
+*	same-entity T12 T17 T23
+*	same-entity T31 T36

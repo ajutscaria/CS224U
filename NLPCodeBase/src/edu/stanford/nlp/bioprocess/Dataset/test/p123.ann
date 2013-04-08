@@ -1,0 +1,47 @@
+T1	Event 25 31	crawls
+E1	Event:T1 agent:T13 location:T14
+T2	Event 51 60	extending
+E2	Event:T2 super-event:E1 next-event:E3 same-event:E4 agent:T13 theme:T15
+T3	Event 153 159	moving
+E3	Event:T3 agent:T13 destination:T17
+T4	Event 185 191	extend
+E4	Event:T4 agent:T18
+T5	Event 195 203	assembly
+E5	Event:T5 super-event:E4 causes:E6 raw-material:T19 result:T20
+T6	Event 255 262	convert
+E6	Event:T6 next-event:E7 agent:T20 theme:T21 raw-material:T22 result:T23 location:T24
+T7	Event 378 389	attachments
+E7	Event:T7 next-event:E8 agent:T25 theme:T26
+T8	Event 415 426	interaction
+E8	Event:T8 causes:E9 theme:T27 theme2:T28 location:T29
+T9	Event 493 504	contraction
+E9	Event:T9 causes:E10 theme:T30
+T10	Event 521 530	loosening
+E10	Event:T10 next-event:E11 theme:T31
+T11	Event 564 571	pulling
+E11	Event:T11 theme:T32 destination:T33
+T12	Entity 0 6	A cell
+T13	Entity 15 24	an amoeba
+*	same-entity T13 T12
+T14	Entity 38 47	a surface
+T15	Entity 61 80	cellular extensions
+T16	Entity 88 99	pseudopodia
+*	same-entity T15 T16 T17 T18
+T17	Entity 167 171	them
+T18	Entity 173 184	Pseudopodia
+T19	Entity 207 221	actin subunits
+T20	Entity 227 249	microfilament networks
+T21	Entity 263 272	cytoplasm
+T22	Entity 278 283	a sol
+T23	Entity 287 292	a gel
+T24	Entity 300 322	these cell projections
+T25	Entity 324 365	Cell surface proteins on the pseudopodium
+T26	Entity 393 404	the "road."
+T27	Entity 430 444	microfilaments
+T28	Entity 450 456	myosin
+T29	Entity 462 485	the cell's trailing end
+T30	Entity 508 519	that region
+*	same-entity T29 T30 T32
+T31	Entity 531 559	its cell-surface attachments
+T32	Entity 572 574	it
+T33	Entity 590 605	the pseudopodia

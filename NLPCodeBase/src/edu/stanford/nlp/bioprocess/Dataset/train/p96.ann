@@ -1,0 +1,28 @@
+T1	Event 23 30	secrete
+E1	Event:T1 enables:E2 agent:T9 theme:T10
+T2	Event 79 83	bind
+E2	Event:T2 cotemporal:E3 agent:T11 theme:T12
+T3	Event 155 162	secrete
+E3	Event:T3 enables:E4 agent:T13 theme:T14
+T4	Event 177 181	bind
+E4	Event:T4 causes:E6 causes2:E5 agent:T14 theme:T15
+T6	Event 287 291	grow
+E6	Event:T6 causes:E7 agent:T17 location:T16 agent2:T18
+T5	Event 346 353	changes
+E5	Event:T5 agent:T18
+T7	Event 373 379	fusion
+E7	Event:T7 same-event:E8
+T8	Event 384 390	mating
+E8	Event:T8 agent:T19
+T9	Entity 0 22	Cells of mating type a
+T10	Entity 31 51	a signaling molecule
+T11	Entity 59 67	a factor
+*	same-entity T10 T11
+T12	Entity 87 129	specific receptor proteins on nearby cells
+T13	Entity 149 154	cells
+T14	Entity 163 169	factor
+T15	Entity 186 206	receptors on a cells
+T17	Entity 274 283	the cells
+T16	Entity 299 309	each other
+T18	Entity 245 267	the two mating factors
+T19	Entity 395 421	two cells of opposite type
