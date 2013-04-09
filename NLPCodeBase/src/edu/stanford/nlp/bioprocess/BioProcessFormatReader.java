@@ -100,7 +100,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       RandomAccessFile reader = new RandomAccessFile(new File(fileName.replace(TEXT_EXTENSION, ANNOTATION_EXTENSION)), "r");
       String line;
       while((line = reader.readLine())!=null) {
-    	System.out.println(line);
+    	//System.out.println(line);
         String[] splits = line.split("\t");
         String desc = splits[0];
         switch(desc.charAt(0)) {

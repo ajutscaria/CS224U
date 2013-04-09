@@ -188,6 +188,10 @@ public class Main implements Runnable {
 			LogInfo.logs("Run all");
 			runAll(folders);
 		}
+		else if(mode.equals("eventrelation")) {
+			LogInfo.logs("Running event relation");
+			runEventRelationsPrediction(folders);
+		}
 		LogInfo.end_track();
 	}
 
@@ -340,6 +344,30 @@ public class Main implements Runnable {
 			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
+		}
+		printScores("Dev", precisionDev, recallDev, f1Dev);
+	}
+	
+	private void runEventRelationsPrediction(HashMap<String, String> folders) {
+		int NumCrossValidation = 10;
+		BioprocessDataset dataset = loadDataSet(folders, true, false);
+		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("sample"), NumCrossValidation);
+		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+
+		for(int i = 1; i <= NumCrossValidation; i++) {
+			LogInfo.begin_track("Iteration " + i);
+			
+			Learner eventRelationLearner = new Learner();
+			EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
+			EventRelationInferer eventInferer = new EventRelationInferer();
+			Params eventParam = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
+			//List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+			List<BioDatum> result = eventInferer.BaselineInfer(dataset.examples("sample"), eventParam, eventRelationFeatureFactory);
+
+			Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(dataset.examples("sample"), result);
+			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+			LogInfo.end_track();
+			break;
 		}
 		printScores("Dev", precisionDev, recallDev, f1Dev);
 	}

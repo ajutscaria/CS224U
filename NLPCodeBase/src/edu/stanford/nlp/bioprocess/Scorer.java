@@ -123,34 +123,64 @@ public class Scorer {
   }
   
   public static Triple<Double, Double, Double> scoreSRL(List<Example> test, List<BioDatum> predictedEntities) {
-		IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEntityRelationPairs(test), predicted = findPredictedEventEntityRelationPairs(predictedEntities);
-		int tp = 0, fp = 0, fn = 0;
-		for(Pair<Tree, Tree> p : actual.keySet()) {
-			Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(predicted.keySet(),p);
-			if( pairObjPredicted != null && predicted.get(pairObjPredicted).equals(actual.get(p))) {
-				tp++;
-				//LogInfo.logs("Correct - " + p.first + ":" + p.second);
-			}
-			else {
-				fn++;
-				//LogInfo.logs("Not predicted - " + p.first + ":" + p.second);
-			}
+	IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEntityRelationPairs(test), predicted = findPredictedEventEntityRelationPairs(predictedEntities);
+	int tp = 0, fp = 0, fn = 0;
+	for(Pair<Tree, Tree> p : actual.keySet()) {
+		Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(predicted.keySet(),p);
+		if( pairObjPredicted != null && predicted.get(pairObjPredicted).equals(actual.get(p))) {
+			tp++;
+			//LogInfo.logs("Correct - " + p.first + ":" + p.second);
 		}
-		for(Pair<Tree, Tree> p:predicted.keySet()) {
-			Pair<Tree, Tree> pairObjActual = returnTreePairIfExists(actual.keySet(),p);
-			if(pairObjActual == null || !predicted.get(p).equals(actual.get(pairObjActual))) {
-				fp++;
-				//LogInfo.logs("Extra - " + p.first + ":" + p.second);
-			}
+		else {
+			fn++;
+			//LogInfo.logs("Not predicted - " + p.first + ":" + p.second);
 		}
-		
-		LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
-		
-		 double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
-		    double f= 2 * precision * recall / (precision + recall);
-		    
-		    return new Triple<Double, Double, Double>(precision, recall, f);
-	  }
+	}
+	for(Pair<Tree, Tree> p:predicted.keySet()) {
+		Pair<Tree, Tree> pairObjActual = returnTreePairIfExists(actual.keySet(),p);
+		if(pairObjActual == null || !predicted.get(p).equals(actual.get(pairObjActual))) {
+			fp++;
+			//LogInfo.logs("Extra - " + p.first + ":" + p.second);
+		}
+	}
+	
+	LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+	
+	 double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+	    double f= 2 * precision * recall / (precision + recall);
+	    
+	    return new Triple<Double, Double, Double>(precision, recall, f);
+  }
+  
+  public static Triple<Double, Double, Double> scoreEventRelations(List<Example> test, List<BioDatum> predictedEntities) {
+	IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs(test), predicted = findPredictedEventEventRelationPairs(predictedEntities);
+	int tp = 0, fp = 0, fn = 0;
+	for(Pair<Tree, Tree> p : actual.keySet()) {
+		Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(predicted.keySet(),p);
+		if( pairObjPredicted != null && predicted.get(pairObjPredicted).equals(actual.get(p))) {
+			tp++;
+			LogInfo.logs("Correct - " + p.first + ":" + p.second + "-->" + actual.get(p));
+		}
+		else {
+			fn++;
+			LogInfo.logs("Not predicted - " + p.first + ":" + p.second+ "-->" + actual.get(p));
+		}
+	}
+	for(Pair<Tree, Tree> p:predicted.keySet()) {
+		Pair<Tree, Tree> pairObjActual = returnTreePairIfExists(actual.keySet(),p);
+		if(pairObjActual == null || !predicted.get(p).equals(actual.get(pairObjActual))) {
+			fp++;
+			LogInfo.logs("Extra - " + p.first + ":" + p.second+ "-->" + actual.get(p));
+		}
+	}
+	
+	LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+	
+	 double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+	    double f= 2 * precision * recall / (precision + recall);
+	    
+	    return new Triple<Double, Double, Double>(precision, recall, f);
+  }
   
   private static IdentityHashMap<Pair<Tree, Tree>, String> findPredictedEventEntityRelationPairs(
 		List<BioDatum> predicted) {
@@ -177,6 +207,36 @@ private static IdentityHashMap<Pair<Tree, Tree>, String> findActualEventEntityRe
 				  }
 			  }
 		  }
+	  }
+	  //LogInfo.end_track();
+	  return map;
+}
+
+private static IdentityHashMap<Pair<Tree, Tree>, String> findActualEventEventRelationPairs(
+		List<Example> test) {
+	IdentityHashMap<Pair<Tree, Tree>, String> map = new IdentityHashMap<Pair<Tree, Tree>, String> ();
+	  //LogInfo.begin_track("Gold event-entity");
+	  for(Example ex:test) {
+		  for(EventMention em:ex.gold.get(EventMentionsAnnotation.class)) {
+			  for(ArgumentRelation rel:em.getArguments()) {
+				  if(rel.mention instanceof EventMention && rel.type != RelationType.NONE) {
+					  map.put(new Pair<Tree, Tree>(em.getTreeNode(), rel.mention.getTreeNode()), rel.type.toString());
+					  //LogInfo.logs(em.getTreeNode() + ":"+ rel.mention.getTreeNode());
+				  }
+			  }
+		  }
+	  }
+	  //LogInfo.end_track();
+	  return map;
+}
+
+private static IdentityHashMap<Pair<Tree, Tree>, String> findPredictedEventEventRelationPairs(
+		List<BioDatum> predicted) {
+	  IdentityHashMap<Pair<Tree, Tree>, String> map = new IdentityHashMap<Pair<Tree, Tree>, String> ();
+	  //LogInfo.begin_track("Gold event-entity relation");
+	  for(BioDatum d:predicted) {
+		 if(!d.guessLabel.equals(RelationType.NONE.toString()))
+			 map.put(new Pair<Tree,Tree>(d.eventNode, d.entityNode), d.guessLabel);
 	  }
 	  //LogInfo.end_track();
 	  return map;

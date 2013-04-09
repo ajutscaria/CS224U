@@ -143,7 +143,6 @@ public class EventFeatureFactory extends FeatureExtractor {
 
     public List<BioDatum> setFeaturesTrain(List<Example> data) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
-    	GeneralDataset<String, String> datasetGeneral = new Dataset<String, String>();
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
@@ -163,9 +162,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node);
 					newDatum.features = computeFeatures(sentence, node);
 					dataset.add(newDatum);
-					Datum<String, String> dat = new BasicDatum<String, String> (computeFeatures(sentence, node).getFeatures(),type);
 					//if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
-					datasetGeneral.add(dat);
 				}
 			}
 			if(printDebug) LogInfo.logs("\n------------------------------------------------");

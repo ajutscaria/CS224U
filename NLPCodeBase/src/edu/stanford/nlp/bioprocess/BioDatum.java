@@ -32,6 +32,7 @@ public class BioDatum {
   public int bestRoleIndex;
   public double bestRoleProbability;
   Tree entityNode, eventNode;
+  Tree event1, event2;
   IndexedWord entityHead, eventHead;
   double probEntity;
   //double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
@@ -57,7 +58,17 @@ public class BioDatum {
 	    this.role = role;
   }
   
-  public void setPredictedLabel(String predictedLabel) {
+  public BioDatum(CoreMap sentence, String word, String label,
+		EventMention event1, EventMention event2) {
+		this.sentence = sentence;
+	    this.word = word;
+	    this.label = label;
+	    this.event1 = event1.getTreeNode();
+	    this.event2 = event2.getTreeNode();
+	    this.role = null;
+}
+
+public void setPredictedLabel(String predictedLabel) {
 	this.guessLabel = predictedLabel;	
   }
   
