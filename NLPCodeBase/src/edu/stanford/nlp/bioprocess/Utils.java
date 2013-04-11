@@ -32,6 +32,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.stats.Counter;
+import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
@@ -408,7 +409,6 @@ public class Utils {
 	  return map;
   }
   
-  
   public static IdentityHashSet<Tree> getEntityNodesFromSentence(CoreMap sentence) {
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
 	  for(EntityMention entity : sentence.get(EntityMentionsAnnotation.class))
@@ -463,11 +463,11 @@ public static List<Example> readFile(String fileName) {
   }
  
   
-  public static RelationType getArgumentMentionRelation(CoreMap sentence, Tree event, Tree entityNode) {
+  public static RelationType getArgumentMentionRelation(CoreMap sentence, Tree event, Tree node) {
 	  for(EventMention eventMention:sentence.get(EventMentionsAnnotation.class)) {
 		if(eventMention.getTreeNode() == event) {
 			for (ArgumentRelation argRel : eventMention.getArguments()) {
-				if (argRel.mention.getTreeNode() == entityNode && ArgumentRelation.getSemanticRoles().contains(argRel.type.toString())) {
+				if (argRel.mention.getTreeNode() == node && ArgumentRelation.getSemanticRoles().contains(argRel.type.toString())) {
 					return argRel.type;
 				}
 			}
@@ -476,6 +476,18 @@ public static List<Example> readFile(String fileName) {
 	  return RelationType.NONE;
   }
   
+  public static RelationType getEventEventRelation(Annotation example, Tree event1, Tree event2) {
+	  for(EventMention eventMention:example.get(EventMentionsAnnotation.class)) {
+		if(eventMention.getTreeNode() == event1) {
+			for (ArgumentRelation argRel : eventMention.getArguments()) {
+				if (argRel.mention.getTreeNode() == event2 && ArgumentRelation.getEventRelations().contains(argRel.type.toString())) {
+					return argRel.type;
+				}
+			}
+		 }
+	  }
+	  return RelationType.NONE;
+  }  
   
   public static String getPathString(List<String> path) {
 	  return StringUtils.join(path, " ");
@@ -728,6 +740,32 @@ public static List<Example> readFile(String fileName) {
 		}
     	return map;
 		
+	}
+
+	public static boolean isEventNextInOrder(List<EventMention> mentions, EventMention event1, EventMention event2) {
+		int index1 = mentions.indexOf(event1), index2 = mentions.indexOf(event2);
+		if(index1 + 1 == index2)
+			return true;
+		return false;
+	}
+	
+	public static IntCounter<RelationType> findEventRelationDistribution(List<Example> examples){
+		IntCounter<RelationType> counter = new IntCounter<RelationType>();
+		for(Example example:examples) {
+			int numRelations = 0, numEvents = example.gold.get(EventMentionsAnnotation.class).size();
+			for(EventMention evt:example.gold.get(EventMentionsAnnotation.class)) {
+				for(ArgumentRelation rel:evt.getArguments()) {
+					  if(rel.mention instanceof EventMention) { 
+						  counter.incrementCount(rel.type);
+						  numRelations ++;
+					  }
+				}
+			}
+			int numNONE = numEvents * (numEvents - 1) / 2 - numRelations;
+			counter.incrementCount(RelationType.NONE, numNONE);
+		}
+		counter.setCount(RelationType.CotemporalEvent, counter.getCount(RelationType.CotemporalEvent)/2);
+		return counter;
 	}
 }
 

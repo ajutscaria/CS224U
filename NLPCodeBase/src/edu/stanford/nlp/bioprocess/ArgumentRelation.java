@@ -57,4 +57,18 @@ public enum EventType {
 
 	  return srlList;  
   }
+  
+  public static List<String> getEventRelations() {
+	  List<String> srlList = new ArrayList<String>();
+	  
+	  srlList.add(RelationType.NONE.toString());
+	  srlList.add(RelationType.CotemporalEvent.toString());
+	  srlList.add(RelationType.NextEvent.toString());
+	  srlList.add(RelationType.SameEvent.toString());
+	  srlList.add(RelationType.SuperEvent.toString());
+	  srlList.add(RelationType.Cause.toString());
+	  srlList.add(RelationType.Enables.toString());
+
+	  return srlList;  
+  }
 }

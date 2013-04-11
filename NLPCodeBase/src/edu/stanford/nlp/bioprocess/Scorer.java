@@ -152,25 +152,25 @@ public class Scorer {
 	    return new Triple<Double, Double, Double>(precision, recall, f);
   }
   
-  public static Triple<Double, Double, Double> scoreEventRelations(List<Example> test, List<BioDatum> predictedEntities) {
-	IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs(test), predicted = findPredictedEventEventRelationPairs(predictedEntities);
+  public static Triple<Double, Double, Double> scoreEventRelations(List<Example> test, List<BioDatum> predictedRelations) {
+	IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs(test), predicted = findPredictedEventEventRelationPairs(predictedRelations);
 	int tp = 0, fp = 0, fn = 0;
 	for(Pair<Tree, Tree> p : actual.keySet()) {
 		Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(predicted.keySet(),p);
 		if( pairObjPredicted != null && predicted.get(pairObjPredicted).equals(actual.get(p))) {
 			tp++;
-			LogInfo.logs("Correct - " + p.first + ":" + p.second + "-->" + actual.get(p));
+			//LogInfo.logs("Correct - " + p.first + ":" + p.second + "-->" + actual.get(p));
 		}
 		else {
 			fn++;
-			LogInfo.logs("Not predicted - " + p.first + ":" + p.second+ "-->" + actual.get(p));
+			//LogInfo.logs("Not predicted - " + p.first + ":" + p.second+ "-->" + actual.get(p));
 		}
 	}
 	for(Pair<Tree, Tree> p:predicted.keySet()) {
 		Pair<Tree, Tree> pairObjActual = returnTreePairIfExists(actual.keySet(),p);
 		if(pairObjActual == null || !predicted.get(p).equals(actual.get(pairObjActual))) {
 			fp++;
-			LogInfo.logs("Extra - " + p.first + ":" + p.second+ "-->" + actual.get(p));
+			//LogInfo.logs("Extra - " + p.first + ":" + p.second+ "-->" + predicted.get(p));
 		}
 	}
 	
@@ -236,7 +236,7 @@ private static IdentityHashMap<Pair<Tree, Tree>, String> findPredictedEventEvent
 	  //LogInfo.begin_track("Gold event-entity relation");
 	  for(BioDatum d:predicted) {
 		 if(!d.guessLabel.equals(RelationType.NONE.toString()))
-			 map.put(new Pair<Tree,Tree>(d.eventNode, d.entityNode), d.guessLabel);
+			 map.put(new Pair<Tree,Tree>(d.event1.getTreeNode(), d.event2.getTreeNode()), d.guessLabel);
 	  }
 	  //LogInfo.end_track();
 	  return map;

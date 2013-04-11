@@ -174,7 +174,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Time);
               if(keyValue[0].startsWith(TYPE_COTEMPORAL_EVENT)) {
             		event.addArgument(mentions.get(keyValue[1]), RelationType.CotemporalEvent);
-                    ((EventMention)mentions.get(keyValue[1])).addArgument(event, RelationType.CotemporalEvent);
+                    //((EventMention)mentions.get(keyValue[1])).addArgument(event, RelationType.CotemporalEvent);
               }
               if(keyValue[0].startsWith(TYPE_NEXT_EVENT))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.NextEvent);

@@ -51,4 +51,21 @@ public class Learner {
 		parameters.setLabelIndex(dd.labelIndex);
 	    return parameters;
 	}
+	
+	public Params learn(List<Example> dataset, EventRelationFeatureFactory ff) {
+		List<BioDatum> data = ff.setFeaturesTrain(dataset);
+		
+		GeneralDataset<String, String> dd = new Dataset<String, String>();
+		for(BioDatum d:data) {
+			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.label()));
+		}
+		
+		LinearClassifierFactory<String, String> lcFactory = new LinearClassifierFactory<String, String>();
+		LinearClassifier<String,String> classifier = lcFactory.trainClassifier(dd);	
+		
+		parameters.setWeights(classifier.weights());
+		parameters.setFeatureIndex(dd.featureIndex);
+		parameters.setLabelIndex(dd.labelIndex);
+	    return parameters;
+	}
 }
