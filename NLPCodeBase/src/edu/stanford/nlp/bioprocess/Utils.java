@@ -24,6 +24,8 @@ import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
+import edu.stanford.nlp.ling.CoreAnnotations.IndexAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentenceIndexAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
@@ -368,8 +370,16 @@ public class Utils {
       mentions.add(event);
       document.set(EventMentionsAnnotation.class, mentions);
     }
-    else
-      document.get(EventMentionsAnnotation.class).add(event);
+    else {
+    	int indexToInsert = 0;
+    	for(;indexToInsert < document.get(EventMentionsAnnotation.class).size(); indexToInsert++) {
+    		EventMention current = document.get(EventMentionsAnnotation.class).get(indexToInsert);
+    		if(current.getSentence().get(CharacterOffsetBeginAnnotation.class) > event.getSentence().get(CharacterOffsetBeginAnnotation.class) || 
+    				(current.getSentence().get(CharacterOffsetBeginAnnotation.class) == event.getSentence().get(CharacterOffsetBeginAnnotation.class) && current.getExtent().start() > event.getExtent().start()))
+    			break;
+    	}
+        document.get(EventMentionsAnnotation.class).add(indexToInsert, event);
+    }
     
     CoreMap sentence = event.getSentence();
     if (sentence.get(EventMentionsAnnotation.class) == null) {
@@ -477,11 +487,55 @@ public static List<Example> readFile(String fileName) {
   }
   
   public static RelationType getEventEventRelation(Annotation example, Tree event1, Tree event2) {
-	  for(EventMention eventMention:example.get(EventMentionsAnnotation.class)) {
+	  List<EventMention> list = example.get(EventMentionsAnnotation.class);
+	  for(EventMention eventMention:list) {
 		if(eventMention.getTreeNode() == event1) {
 			for (ArgumentRelation argRel : eventMention.getArguments()) {
 				if (argRel.mention.getTreeNode() == event2 && ArgumentRelation.getEventRelations().contains(argRel.type.toString())) {
-					return argRel.type;
+					//eventMention appears before argRel.mention. So, cause and enables are retained, but sub and next are rotated.
+					if(list.indexOf(eventMention) < list.indexOf(argRel.mention)) {
+						if(argRel.type == RelationType.Causes || argRel.type == RelationType.Enables || argRel.type == RelationType.CotemporalEvent ||
+								argRel.type == RelationType.SameEvent)
+							return argRel.type;
+						else if(argRel.type == RelationType.NextEvent)
+							return RelationType.PreviousEvent;
+						else if(argRel.type == RelationType.SuperEvent)
+							return RelationType.SubEvent;
+					}
+					else {
+						if(argRel.type == RelationType.NextEvent || argRel.type == RelationType.SuperEvent || argRel.type == RelationType.CotemporalEvent ||
+								argRel.type == RelationType.SameEvent)
+							return argRel.type;
+						else if(argRel.type == RelationType.Causes)
+							return RelationType.Caused;
+						else if(argRel.type == RelationType.Enables)
+							return RelationType.Enabled;
+					}
+				}
+			}
+		 }
+		else if(eventMention.getTreeNode() == event2) {
+			for (ArgumentRelation argRel : eventMention.getArguments()) {
+				if (argRel.mention.getTreeNode() == event1 && ArgumentRelation.getEventRelations().contains(argRel.type.toString())) {
+					//eventMention appears before argRel.mention. So, cause and enables are retained, but sub and next are rotated.
+					if(list.indexOf(eventMention) < list.indexOf(argRel.mention)) {
+						if(argRel.type == RelationType.Causes || argRel.type == RelationType.Enables || argRel.type == RelationType.CotemporalEvent ||
+								argRel.type == RelationType.SameEvent)
+							return argRel.type;
+						else if(argRel.type == RelationType.NextEvent)
+							return RelationType.PreviousEvent;
+						else if(argRel.type == RelationType.SuperEvent)
+							return RelationType.SubEvent;
+					}
+					else {
+						if(argRel.type == RelationType.NextEvent || argRel.type == RelationType.SuperEvent || argRel.type == RelationType.CotemporalEvent ||
+								argRel.type == RelationType.SameEvent)
+							return argRel.type;
+						else if(argRel.type == RelationType.Causes)
+							return RelationType.Caused;
+						else if(argRel.type == RelationType.Enables)
+							return RelationType.Enabled;
+					}
 				}
 			}
 		 }

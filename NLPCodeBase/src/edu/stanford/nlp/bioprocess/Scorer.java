@@ -152,6 +152,45 @@ public class Scorer {
 	    return new Triple<Double, Double, Double>(precision, recall, f);
   }
   
+  
+  public static Triple<Double, Double, Double> scoreEventRelations(List<BioDatum> predictedRelations) {
+	int tp = 0, fp = 0, fn = 0;
+	for(BioDatum d:predictedRelations) {
+		if(!d.label.equals("NONE")) {
+			if(d.label.equals(d.predictedLabel()))
+				tp++;
+			else
+				fn++;
+		}
+		else if(d.label.equals("NONE") && !d.predictedLabel().equals("NONE")) {
+			fp++;
+		}
+		if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
+			continue;
+		if(d.predictedLabel().equals(d.label)) {
+			tp++;
+		}
+		else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
+			fp++;
+		}
+		else if(!d.label().equals("NONE") && d.predictedLabel().equals("NONE")){
+			fn++;
+		}
+		else {
+			fp++;
+			fn++;
+		}
+	}
+	
+	LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+	
+	 double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+	    double f= 2 * precision * recall / (precision + recall);
+	    
+	    return new Triple<Double, Double, Double>(precision, recall, f);
+  }
+  
+  /*
   public static Triple<Double, Double, Double> scoreEventRelations(List<Example> test, List<BioDatum> predictedRelations) {
 	IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs(test), predicted = findPredictedEventEventRelationPairs(predictedRelations);
 	int tp = 0, fp = 0, fn = 0;
@@ -180,7 +219,7 @@ public class Scorer {
 	    double f= 2 * precision * recall / (precision + recall);
 	    
 	    return new Triple<Double, Double, Double>(precision, recall, f);
-  }
+  }*/
   
   private static IdentityHashMap<Pair<Tree, Tree>, String> findPredictedEventEntityRelationPairs(
 		List<BioDatum> predicted) {

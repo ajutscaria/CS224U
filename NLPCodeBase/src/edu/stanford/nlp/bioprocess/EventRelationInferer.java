@@ -40,13 +40,30 @@ public class EventRelationInferer {
 			List<BioDatum> test = ff.setFeaturesTest(example, example.gold.get(EventMentionsAnnotation.class));
 			
 			for(BioDatum d:test) {
-				System.out.println(d.event1.getTreeNode() + "-" + d.event2.getTreeNode() + "-->" + d.label);
+				//System.out.println(d.event1.getTreeNode() + "-" + d.event2.getTreeNode() + "-->" + d.label);
 				List<EventMention> mentions = example.gold.get(EventMentionsAnnotation.class);
 				if(Utils.isEventNextInOrder(mentions, d.event1, d.event2)) {
-					d.guessLabel = "NextEvent";
+					d.guessLabel = "PreviousEvent";
 				}
 				else {
 					d.guessLabel = "NONE";
+				}
+			}
+			
+			for(BioDatum d:test) {
+				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
+					continue;
+				if(d.predictedLabel().equals(d.label)) {
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Correct", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Extra", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				else if(!d.label().equals("NONE") && d.predictedLabel().equals("NONE")){
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Missed", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				else {
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));					
 				}
 			}
 			predicted.addAll(test);
@@ -66,15 +83,19 @@ public class EventRelationInferer {
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 				d.setPredictedLabel(classifier.classOf(newDatum));
-				if(d.predictedLabel().equals(d.label())) {
-					if(!d.predictedLabel().equals("NONE"))
-						LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Correct", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
+					continue;
+				if(d.predictedLabel().equals(d.label)) {
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Correct", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
 				}
-				else if(d.predictedLabel().equals("NONE")){
+				else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Extra", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				else if(!d.label().equals("NONE") && d.predictedLabel().equals("NONE")){
 					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Missed", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
 				}
 				else {
-					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Extra", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));					
 				}
 			}
 			predicted.addAll(dataset);

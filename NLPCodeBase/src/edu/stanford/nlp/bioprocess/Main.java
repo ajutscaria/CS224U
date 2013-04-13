@@ -359,8 +359,8 @@ public class Main implements Runnable {
 		
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
-			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, eventRelationFeatureFactory);
-			Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(dataset.examples("sample"), predicted);
+			List<BioDatum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, eventRelationFeatureFactory);
+			Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(predicted);
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);
 			LogInfo.logs("F1 score  : " + triple.third);
@@ -373,10 +373,10 @@ public class Main implements Runnable {
 				LogInfo.begin_track("Iteration " + i);
 				
 				Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
-				List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
-				//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+				//List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+				List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 	
-				Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(split.GetTestExamples(i), result);
+				Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(result);
 				precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 				LogInfo.end_track();
 				break;

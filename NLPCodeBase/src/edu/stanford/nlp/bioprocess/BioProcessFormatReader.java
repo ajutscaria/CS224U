@@ -156,6 +156,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             EventMention event = (EventMention)mentions.get(desc);
             for(String parameter:parameters) {
               String[] keyValue = parameter.split(":");
+              //System.out.println(keyValue[0] + "-" + keyValue[1]);
               if(keyValue[0].startsWith(TYPE_AGENT))
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Agent);
               if(keyValue[0].startsWith(TYPE_ORIGIN))
@@ -176,16 +177,21 @@ public class BioProcessFormatReader extends GenericDataSetReader {
             		event.addArgument(mentions.get(keyValue[1]), RelationType.CotemporalEvent);
                     //((EventMention)mentions.get(keyValue[1])).addArgument(event, RelationType.CotemporalEvent);
               }
-              if(keyValue[0].startsWith(TYPE_NEXT_EVENT))
+              if(keyValue[0].startsWith(TYPE_NEXT_EVENT)) {
                     event.addArgument(mentions.get(keyValue[1]), RelationType.NextEvent);
-              if(keyValue[0].startsWith(TYPE_SAME_EVENT))
+              }
+              if(keyValue[0].startsWith(TYPE_SAME_EVENT)) {
                     event.addArgument(mentions.get(keyValue[1]), RelationType.SameEvent);
-              if(keyValue[0].startsWith(TYPE_CAUSE))
-                    event.addArgument(mentions.get(keyValue[1]), RelationType.Cause);
-              if(keyValue[0].startsWith(TYPE_SUPER_EVENT))
+              }
+              if(keyValue[0].startsWith(TYPE_CAUSE)){
+                    event.addArgument(mentions.get(keyValue[1]), RelationType.Causes); 
+              }
+              if(keyValue[0].startsWith(TYPE_SUPER_EVENT)) {
                     event.addArgument(mentions.get(keyValue[1]), RelationType.SuperEvent);
-              if(keyValue[0].startsWith(TYPE_ENABLES))
+              }
+              if(keyValue[0].startsWith(TYPE_ENABLES)) {
                     event.addArgument(mentions.get(keyValue[1]), RelationType.Enables);
+              }
             }
             Utils.addAnnotation(document, event);
             break;

@@ -50,12 +50,16 @@ public class EventRelationFeatureFactory {
 				}
 			}
 			List<EventMention> list = ex.gold.get(EventMentionsAnnotation.class);
+			List<EventMention> alreadyConsidered = new ArrayList<EventMention>();
 			for(EventMention event1: list) {
+				alreadyConsidered.add(event1);
 				for(EventMention event2:list) {	
-					String type = Utils.getArgumentMentionRelation(event1, event2.getTreeNode()).toString();
-					BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
-					newDatum.features = computeFeatures(ex.prediction, event1, event2);
-					dataset.add(newDatum);
+					if(!alreadyConsidered.contains(event2)) {
+						String type = Utils.getEventEventRelation(ex.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
+						BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
+						newDatum.features = computeFeatures(ex.prediction, event1, event2);
+						dataset.add(newDatum);
+					}
 				}
 			}
 			if(printDebug) LogInfo.logs("\n------------------------------------------------");
@@ -64,10 +68,17 @@ public class EventRelationFeatureFactory {
 		return dataset;
 	}
 
+	/*
+	 * We order events in the same order as in they appear in the paragraph (This is done while the data is read in).
+	 * Now, for each unique events ei, ej, where i<j always, we store the relation in gold labels
+	 * For the relation ei R ej, we read it as ei R ej. So, 'causes' and 'enables' remains same if first event appears first in paragraph.
+	 *  But, we need to swap 'next-event', 'super-event' with 'previous-event' and 'sub-event' respectively if the first event appears first in the paragraph.
+	 */
 	public List<BioDatum> setFeaturesTest(Example example, List<EventMention> list) {
     	List<BioDatum> newData = new ArrayList<BioDatum>();
     	List<EventMention> alreadyConsidered = new ArrayList<EventMention>();
 		for(EventMention event1: list) {
+			System.out.println(Utils.getText(event1.getTreeNode()));
 			alreadyConsidered.add(event1);
 			for(EventMention event2: list) {
 				if(!alreadyConsidered.contains(event2)) {
@@ -77,7 +88,6 @@ public class EventRelationFeatureFactory {
 					newData.add(newDatum);
 				}
 		    }
-			
 		}
     	return newData;
 	}

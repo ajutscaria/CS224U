@@ -28,10 +28,14 @@ public enum EventType {
     StaticEvent,
     CotemporalEvent,
     NextEvent,
+    PreviousEvent,
     SameEvent,
     SuperEvent,
-    Cause,
+    SubEvent,
+    Causes,
+    Caused,
     Enables,
+    Enabled,
     NONE
   }
   ArgumentMention mention;
@@ -64,10 +68,14 @@ public enum EventType {
 	  srlList.add(RelationType.NONE.toString());
 	  srlList.add(RelationType.CotemporalEvent.toString());
 	  srlList.add(RelationType.NextEvent.toString());
+	  srlList.add(RelationType.PreviousEvent.toString());
 	  srlList.add(RelationType.SameEvent.toString());
 	  srlList.add(RelationType.SuperEvent.toString());
-	  srlList.add(RelationType.Cause.toString());
+	  srlList.add(RelationType.SubEvent.toString());
+	  srlList.add(RelationType.Causes.toString());
+	  srlList.add(RelationType.Caused.toString());
 	  srlList.add(RelationType.Enables.toString());
+	  srlList.add(RelationType.Enabled.toString());
 
 	  return srlList;  
   }
