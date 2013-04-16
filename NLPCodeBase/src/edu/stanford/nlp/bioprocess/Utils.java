@@ -1,9 +1,11 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -819,7 +821,6 @@ public static List<Example> readFile(String fileName) {
 			int numNONE = numEvents * (numEvents - 1) / 2 - numRelations;
 			counter.incrementCount(RelationType.NONE, numNONE);
 		}
-		counter.setCount(RelationType.CotemporalEvent, counter.getCount(RelationType.CotemporalEvent)/2);
 		return counter;
 	}
 
@@ -887,6 +888,28 @@ public static List<Example> readFile(String fileName) {
 		if(wordBefore.index() < tokens.size() - 1)
 			return tokens.get(wordBefore.index() + 1).originalText();
 		return null;
+	}
+	
+	public static void printConfusionMatrix(double[][] confusionMatrix, List<String> relations, String fileName) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+			StringBuilder builder = new StringBuilder();
+			for(String relation:relations)
+				builder.append("," + relation);
+
+			for(int i = 0; i < relations.size(); i++) {
+				builder.append("\n" + relations.get(i) );
+				for(int j = 0; j < relations.size(); j++) {
+					builder.append("," + confusionMatrix[i][j]);
+				}
+			}
+			writer.write(builder.toString());
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 	}
 }
 

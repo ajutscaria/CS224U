@@ -390,4 +390,11 @@ public static boolean checkContainment(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree>
 	  }
 	  return set;
   }
+
+  public static void updateMatrix(double[][] confusionMatrix, List<BioDatum> predicted, List<String> relations) {
+	  for(BioDatum d:predicted) {
+		 int actualIndex = relations.indexOf(d.label), predictedIndex = relations.indexOf(d.predictedLabel());
+		 confusionMatrix[actualIndex][predictedIndex] += 1;
+	  }
+  }
 }

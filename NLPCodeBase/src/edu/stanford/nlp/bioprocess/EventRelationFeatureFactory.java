@@ -55,6 +55,8 @@ public class EventRelationFeatureFactory {
 			lemma2 = verbForms.get(lemma2);
 		}
 		features.add("Lemma:" + lemma1 + "+" + lemma2);
+		
+		//Are the lemmas same?
 		features.add("eventLemmasSame:" + lemma1.equals(lemma2));
 		
 		//Number of sentences and words between two event mentions.

@@ -5,7 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.classify.GeneralDataset;
+import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 import edu.stanford.nlp.util.Triple;
@@ -356,17 +358,26 @@ public class Main implements Runnable {
 		Learner eventRelationLearner = new Learner();
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
 		EventRelationInferer inferer = new EventRelationInferer();
+		List<String> relations = ArgumentRelation.getEventRelations();
+		double[][] confusionMatrix = new double[relations.size()][relations.size()];
 		
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
 			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, eventRelationFeatureFactory);
+			//List<BioDatum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, eventRelationFeatureFactory);
 			Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(predicted);
+			Scorer.updateMatrix(confusionMatrix, predicted, relations);
+			
+			System.out.println(Utils.findEventRelationDistribution(dataset.examples("sample")));
+			Utils.printConfusionMatrix(confusionMatrix, relations, "confusion.csv");
+			
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);
 			LogInfo.logs("F1 score  : " + triple.third);
 		}
 		else {
 			LogInfo.logs(Utils.findEventRelationDistribution(dataset.examples("train")));
+			IntCounter<RelationType> counter = new IntCounter<>();
 			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
 			double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
 			for(int i = 1; i <= NumCrossValidation; i++) {
@@ -374,12 +385,18 @@ public class Main implements Runnable {
 				
 				Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 				List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+				
+				counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
 				//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 	
 				Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(result);
+				Scorer.updateMatrix(confusionMatrix, result, relations);
+				
 				precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 				LogInfo.end_track();
 			}
+			System.out.println("Total relations - " + counter);
+			Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
 			printScores("Dev", precisionDev, recallDev, f1Dev);
 		}
 	}
