@@ -26,6 +26,7 @@ import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreAnnotations.IndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentenceIndexAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
@@ -820,6 +821,72 @@ public static List<Example> readFile(String fileName) {
 		}
 		counter.setCount(RelationType.CotemporalEvent, counter.getCount(RelationType.CotemporalEvent)/2);
 		return counter;
+	}
+
+	public static List<String> findWordsInBetween(Example example,
+			EventMention event1, EventMention event2) {
+		// TODO Auto-generated method stub
+		List<String> words = new ArrayList<String>();
+		boolean beginGettingWords = false;
+		for(CoreMap sentence:example.gold.get(SentencesAnnotation.class)){
+			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+				if(node.isPreTerminal()) {
+					if(node == event1.getTreeNode()) {
+						beginGettingWords = true;
+					}
+					else if(node==event2.getTreeNode()){
+						beginGettingWords=false;
+					}
+					else if(beginGettingWords) {
+						//System.out.println(getText(node));
+						words.add(getText(node));
+					}
+				}
+			}
+		}
+		return words;
+	}
+	public static Pair<Integer, Integer> findNumberOfSentencesAndWordsBetween(Example example,
+			EventMention event1, EventMention event2) {
+		// TODO Auto-generated method stub
+		int sentenceCount = 0, wordCount = 0;
+		boolean beginGettingWords = false;
+		for(CoreMap sentence:example.gold.get(SentencesAnnotation.class)){
+			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+				if(node.isPreTerminal()) {
+					if(node == event1.getTreeNode()) {
+						beginGettingWords = true;
+					}
+					else if(node==event2.getTreeNode()){
+						beginGettingWords=false;
+					}
+					else{
+						wordCount++;
+					}
+				}
+			}
+			if(beginGettingWords)
+				sentenceCount++;
+		}
+		return new Pair<Integer, Integer>(sentenceCount, wordCount);
+	}
+
+	public static String findWordBefore(EventMention event) {
+		CoreLabel wordBefore = Utils.findCoreLabelFromTree(event.getSentence(), event.getTreeNode());
+		List<CoreLabel> tokens = event.getSentence().get(TokensAnnotation.class);
+		
+		if(wordBefore.index() >0)
+			return tokens.get(wordBefore.index() - 1).originalText();
+		return null;
+	}
+	
+	public static String findWordAfter(EventMention event) {
+		CoreLabel wordBefore = Utils.findCoreLabelFromTree(event.getSentence(), event.getTreeNode());
+		List<CoreLabel> tokens = event.getSentence().get(TokensAnnotation.class);
+		
+		if(wordBefore.index() < tokens.size() - 1)
+			return tokens.get(wordBefore.index() + 1).originalText();
+		return null;
 	}
 }
 

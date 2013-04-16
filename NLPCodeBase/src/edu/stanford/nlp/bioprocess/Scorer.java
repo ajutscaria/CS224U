@@ -7,6 +7,8 @@ import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.classify.GeneralDataset;
+import edu.stanford.nlp.stats.Counter;
+import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
@@ -154,40 +156,36 @@ public class Scorer {
   
   
   public static Triple<Double, Double, Double> scoreEventRelations(List<BioDatum> predictedRelations) {
+	IntCounter<String> truePos = new IntCounter<String>(), falsePos = new IntCounter<String>(), falseNeg = new IntCounter<String>();
 	int tp = 0, fp = 0, fn = 0;
 	for(BioDatum d:predictedRelations) {
-		if(!d.label.equals("NONE")) {
-			if(d.label.equals(d.predictedLabel()))
-				tp++;
-			else
-				fn++;
-		}
-		else if(d.label.equals("NONE") && !d.predictedLabel().equals("NONE")) {
-			fp++;
-		}
 		if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
 			continue;
 		if(d.predictedLabel().equals(d.label)) {
 			tp++;
+			truePos.incrementCount(d.label);
 		}
 		else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
 			fp++;
+			falsePos.incrementCount(d.predictedLabel());
 		}
-		else if(!d.label().equals("NONE") && d.predictedLabel().equals("NONE")){
+		else if(!d.label().equals("NONE")){
 			fn++;
+			falseNeg.incrementCount(d.label);
 		}
 		else {
-			fp++;
-			fn++;
+			System.out.println("Things still missseedd!!");
 		}
 	}
-	
+	System.out.println("True positives :" + truePos);
+	System.out.println("False positives:" + falsePos);
+	System.out.println("False negatives:" + falseNeg);
 	LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
 	
-	 double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
-	    double f= 2 * precision * recall / (precision + recall);
+	double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+	double f= 2 * precision * recall / (precision + recall);
 	    
-	    return new Triple<Double, Double, Double>(precision, recall, f);
+	return new Triple<Double, Double, Double>(precision, recall, f);
   }
   
   /*
