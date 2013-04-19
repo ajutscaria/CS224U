@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -911,6 +912,33 @@ public static List<Example> readFile(String fileName) {
 		}
 		
 	}
+	
+	public static void writeStringToFile(String content, String fileName) {
+		try {
+			BufferedWriter writer = new BufferedWriter(new FileWriter(fileName));
+			writer.write(content);
+			writer.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public static void clearFolderContent(String folderName) {
+		File folder = new File(folderName);
+	    File[] files = folder.listFiles();
+	    if(files!=null) { //some JVMs return null for empty dirs
+	        for(File f: files) {
+	            if(f.isDirectory()) {
+	            	clearFolderContent(f.getAbsolutePath());
+	            } else {
+	                f.delete();
+	            }
+	        }
+	    }
+	    //  folder.delete();
+	}
+	
 }
 
 

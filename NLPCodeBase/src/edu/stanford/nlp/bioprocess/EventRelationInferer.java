@@ -1,5 +1,6 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -74,17 +75,22 @@ public class EventRelationInferer {
 	
 	public List<BioDatum> Infer(List<Example> testData, Params parameters, EventRelationFeatureFactory ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>(); 
+		
 		for(Example ex:testData) {
 			LogInfo.begin_track("Example %s",ex.id);
 				
 			LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 			List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
+			
+			StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\""),
+						 bufferGold = new StringBuilder("subgraph cluster_0 { \n label = \"Gold\";\n style=filled; color=lightgrey;"), bufferPredicted = new StringBuilder("subgraph cluster_1 { \n label = \"Predicted\";");
 
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 				d.setPredictedLabel(classifier.classOf(newDatum));
 				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
 					continue;
+				
 				if(d.predictedLabel().equals(d.label)) {
 					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Correct", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
 				}
@@ -95,11 +101,37 @@ public class EventRelationInferer {
 					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Missed", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
 				}
 				else {
-					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));					
+					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				
+				//dot -o file.png -Tpng file.gv
+				if(!d.predictedLabel().equals("NONE")) {
+					bufferPredicted.append(String.format("\n%s -> %s [ label = \"%s\" %s color = \"%s\"];", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.predictedLabel(),
+						//If Cotemporal or same event, put bi-directional edges
+						(d.predictedLabel().equals("CotemporalEvent") || d.predictedLabel().equals("SameEvent")) ? "dir = \"both\"" : "", "Black")) ;
+				}
+				if(!d.label().equals("NONE")) {
+					bufferGold.append(String.format("\n%s -> %s [ label = \"%s\" %s color = \"%s\"];", "_" + Utils.getText(d.event1.getTreeNode()) + "_", "_" + Utils.getText(d.event2.getTreeNode()) + "_", d.label(),
+						//If Cotemporal or same event, put bi-directional edges
+						(d.label().equals("CotemporalEvent") || d.label().equals("SameEvent")) ? "dir = \"both\"" : "", "Blue")) ;
 				}
 			}
+			bufferGold.append("\n}");
+			bufferPredicted.append("\n}");
+			buffer.append("\n" + bufferPredicted.toString());
+			buffer.append("\n" + bufferGold.toString());
+			buffer.append("\n}");
 			predicted.addAll(dataset);
-			
+			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");
+		
+			try {
+	        	Runtime rt = Runtime.getRuntime();
+	        	rt.exec("dot -o GraphViz/" + ex.id + ".pdf -Tpdf GraphViz/" + ex.id + ".gv");
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				System.out.println("ERORRRR" + e.getMessage());
+				e.printStackTrace();
+			}
 			
 			LogInfo.end_track();
 		}
