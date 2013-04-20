@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -11,6 +12,7 @@ import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.ling.BasicDatum;
 import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
@@ -74,16 +76,20 @@ public class EventRelationInferer {
 
 	
 	public List<BioDatum> Infer(List<Example> testData, Params parameters, EventRelationFeatureFactory ff) {
-		List<BioDatum> predicted = new ArrayList<BioDatum>(); 
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		
 		for(Example ex:testData) {
 			LogInfo.begin_track("Example %s",ex.id);
 				
 			LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 			List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
-			
-			StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\""),
-						 bufferGold = new StringBuilder("subgraph cluster_0 { \n label = \"Gold\";\n style=filled; color=lightgrey;"), bufferPredicted = new StringBuilder("subgraph cluster_1 { \n label = \"Predicted\";");
+
+			StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\";");
+			int count = 0;
+			List<EventMention> eventMentions = ex.gold.get(EventMentionsAnnotation.class);
+			for(EventMention evtMention:ex.gold.get(EventMentionsAnnotation.class)) {
+				buffer.append(String.format("\nnode%s [label = \"%s\"]", count++, Utils.getText(evtMention.getTreeNode())));
+			}
 
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
@@ -106,20 +112,16 @@ public class EventRelationInferer {
 				
 				//dot -o file.png -Tpng file.gv
 				if(!d.predictedLabel().equals("NONE")) {
-					bufferPredicted.append(String.format("\n%s -> %s [ label = \"%s\" %s color = \"%s\"];", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.predictedLabel(),
+					buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"black\" %s color = \"%s\"];", "node"+eventMentions.indexOf(d.event1), "node"+eventMentions.indexOf(d.event2), d.predictedLabel(),
 						//If Cotemporal or same event, put bi-directional edges
 						(d.predictedLabel().equals("CotemporalEvent") || d.predictedLabel().equals("SameEvent")) ? "dir = \"both\"" : "", "Black")) ;
 				}
 				if(!d.label().equals("NONE")) {
-					bufferGold.append(String.format("\n%s -> %s [ label = \"%s\" %s color = \"%s\"];", "_" + Utils.getText(d.event1.getTreeNode()) + "_", "_" + Utils.getText(d.event2.getTreeNode()) + "_", d.label(),
-						//If Cotemporal or same event, put bi-directional edges
-						(d.label().equals("CotemporalEvent") || d.label().equals("SameEvent")) ? "dir = \"both\"" : "", "Blue")) ;
+					buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"goldenrod3\" %s color = \"%s\"];", "node"+eventMentions.indexOf(d.event1), "node"+eventMentions.indexOf(d.event2), d.label(),
+							//If Cotemporal or same event, put bi-directional edges
+							(d.label().equals("CotemporalEvent") || d.label().equals("SameEvent")) ? "dir = \"both\"" : "", "goldenrod3")) ;
 				}
 			}
-			bufferGold.append("\n}");
-			bufferPredicted.append("\n}");
-			buffer.append("\n" + bufferPredicted.toString());
-			buffer.append("\n" + bufferGold.toString());
 			buffer.append("\n}");
 			predicted.addAll(dataset);
 			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");

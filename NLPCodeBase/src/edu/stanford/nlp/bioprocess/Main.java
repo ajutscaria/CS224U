@@ -371,7 +371,7 @@ public class Main implements Runnable {
 			Scorer.updateMatrix(confusionMatrix, predicted, relations);
 			
 			System.out.println(Utils.findEventRelationDistribution(dataset.examples("sample")));
-			Utils.printConfusionMatrix(confusionMatrix, relations, "confusion.csv");
+			Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
 			
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);

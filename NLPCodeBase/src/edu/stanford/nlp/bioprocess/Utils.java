@@ -873,21 +873,21 @@ public static List<Example> readFile(String fileName) {
 		return new Pair<Integer, Integer>(sentenceCount, wordCount);
 	}
 
-	public static String findWordBefore(EventMention event) {
+	public static CoreLabel findWordBefore(EventMention event, int count) {
 		CoreLabel wordBefore = Utils.findCoreLabelFromTree(event.getSentence(), event.getTreeNode());
 		List<CoreLabel> tokens = event.getSentence().get(TokensAnnotation.class);
 		
-		if(wordBefore.index() >0)
-			return tokens.get(wordBefore.index() - 1).originalText();
+		if(wordBefore.index() > count-1)
+			return tokens.get(wordBefore.index() - 1 - (count-1));
 		return null;
 	}
 	
-	public static String findWordAfter(EventMention event) {
+	public static CoreLabel findWordAfter(EventMention event, int count) {
 		CoreLabel wordBefore = Utils.findCoreLabelFromTree(event.getSentence(), event.getTreeNode());
 		List<CoreLabel> tokens = event.getSentence().get(TokensAnnotation.class);
 		
-		if(wordBefore.index() < tokens.size() - 1)
-			return tokens.get(wordBefore.index() + 1).originalText();
+		if(wordBefore.index() < tokens.size() - 1 - (count -1))
+			return tokens.get(wordBefore.index() + 1 + (count - 1));
 		return null;
 	}
 	
