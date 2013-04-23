@@ -1,6 +1,7 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -114,8 +115,8 @@ public class Main implements Runnable {
 	public void printScores(String category, double[] precision, double[] recall, double[] f1) {
 		LogInfo.logs(String.format("\n------------------------------------------" + category + "-------------------------------------------"));
 		LogInfo.logs(printScore("Precision", precision));
-		LogInfo.logs(printScore("Recall", recall));
-		LogInfo.logs(printScore("F1", f1));
+		LogInfo.logs(printScore("Recall   ", recall));
+		LogInfo.logs(printScore("F1       ", f1));
 	}
 
 	public String printScore(String scoreType, double[] scores) {
@@ -367,39 +368,76 @@ public class Main implements Runnable {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
 			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, eventRelationFeatureFactory);
 			//List<BioDatum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, eventRelationFeatureFactory);
-			Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(predicted);
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(predicted);
 			Scorer.updateMatrix(confusionMatrix, predicted, relations);
 			
 			System.out.println(Utils.findEventRelationDistribution(dataset.examples("sample")));
 			Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
 			
-			LogInfo.logs("Precision : " + triple.first);
-			LogInfo.logs("Recall    : " + triple.second);
-			LogInfo.logs("F1 score  : " + triple.third);
+			LogInfo.logs("Precision : " + pairTriple.first.first);
+			LogInfo.logs("Recall    : " + pairTriple.first.second);
+			LogInfo.logs("F1 score  : " + pairTriple.first.third);
 		}
 		else {
 			LogInfo.logs(Utils.findEventRelationDistribution(dataset.examples("train")));
-			IntCounter<RelationType> counter = new IntCounter<>();
+			//IntCounter<RelationType> counter = new IntCounter<>();
 			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
-			double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
+			//double[] microPrecisionDev = new double[NumCrossValidation], microRecallDev = new double[NumCrossValidation], microF1Dev = new double[NumCrossValidation];
+			//double[] macroPrecisionDev = new double[NumCrossValidation], macroRecallDev = new double[NumCrossValidation], macroF1Dev = new double[NumCrossValidation];
+			List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
 			for(int i = 1; i <= NumCrossValidation; i++) {
 				LogInfo.begin_track("Iteration " + i);
 				
 				Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 				List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
-				
-				counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
 				//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
-	
-				Triple<Double, Double, Double> triple = Scorer.scoreEventRelations(result);
-				Scorer.updateMatrix(confusionMatrix, result, relations);
 				
-				precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
+				resultsFromAllFolds.addAll(result);
+				
+				//counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
+				Scorer.updateMatrix(confusionMatrix, result, relations);
+								
 				LogInfo.end_track();
 			}
-			System.out.println("Total relations - " + counter);
+			
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
+			//System.out.println("Total relations - " + counter);
+			
 			Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
-			printScores("Dev", precisionDev, recallDev, f1Dev);
+			
+			LogInfo.logs("Micro precision");
+			LogInfo.logs("Precision : " + pairTriple.first.first);
+			LogInfo.logs("Recall    : " + pairTriple.first.second);
+			LogInfo.logs("F1 score  : " + pairTriple.first.third);
+			
+			LogInfo.logs("\nMacro precision");
+			LogInfo.logs("Precision : " + pairTriple.second.first);
+			LogInfo.logs("Recall    : " + pairTriple.second.second);
+			LogInfo.logs("F1 score  : " + pairTriple.second.third);
+			
+			//printScores("Dev - Micro", microPrecisionDev, microRecallDev, microF1Dev);
+			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
+			System.out.println(inferer.totalEvents);
+			System.out.println(inferer.prevEvent);
+			System.out.println(inferer.superEvent);
+			System.out.println(inferer.causeEvent);
+			System.out.println(inferer.degreeDistribution);
+			
+			System.out.println(inferer.prevEventPred);
+			System.out.println(inferer.superEventPred);
+			System.out.println(inferer.causeEventPred);
+			System.out.println(inferer.degreeDistributionPred);
+			/*//Print triples
+			List<String> allRelations = ArgumentRelation.getEventRelations();
+			for(String rel1:allRelations) {
+				for(String rel2:allRelations) {
+					for(String rel3:allRelations) {
+						String rel = String.format("%s,%s,%s", rel1, rel2, rel3);
+						if(inferer.countGoldTriples.getCount(rel) != 0 || inferer.countPredictedTriples.getCount(rel) !=0)
+							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
+					}
+				}
+			}*/
 		}
 	}
 	

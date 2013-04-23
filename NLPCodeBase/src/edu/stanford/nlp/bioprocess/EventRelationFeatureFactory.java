@@ -12,12 +12,16 @@ import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
+import edu.stanford.nlp.trees.semgraph.SemanticGraph;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
@@ -80,7 +84,25 @@ public class EventRelationFeatureFactory {
 			//Lowest common ancestor between the two event triggers. Reduces score.
 			Tree root = event1.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
 			Tree lca = Trees.getLowestCommonAncestor(event1.getTreeNode(), event2.getTreeNode(), root);
-			//features.add("lowestCommonAncestor:" + lca.value());
+			features.add("lowestCommonAncestor:" + lca.value());
+			
+			//Are the event triggers part of a Prepositional phrase?
+			Tree node = lca;
+			boolean matched = false;
+			while(!node.value().equals("ROOT")) {
+				if(node.value().equals("PP")) {
+					for(Tree ponode:node.postOrderNodeList()) {
+						if(ponode.isPreTerminal() && ponode.value().equals("IN") && ponode.value().equals("TO")) {
+							features.add("partOfPP:" + ponode.firstChild().value());
+							matched = true;
+							break;
+						}
+					}
+				}
+				if(matched)
+					break;
+				node = node.parent(root);
+			}
 			
 			//Dependency path if the event triggers are in the same sentence.
 			String deppath2to1 = Utils.getDependencyPath(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode());
@@ -90,13 +112,27 @@ public class EventRelationFeatureFactory {
 				//Does event1 dominate event2
 				features.add("1dominates2");
 			}
-			if(!deppath2to1.isEmpty())
+			if(!deppath2to1.isEmpty()) {
 				features.add("deppath2to1:" + deppath2to1 );
+				features.add("2dominates1");
+			}
 		}
 		
-		
-		
-		
+		//Finding "mark" relationship
+		SemanticGraph graph1 = event1.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
+		IndexedWord indexedWord1 = Utils.findDependencyNode(event1.getSentence(), event1.getTreeNode());
+		for(SemanticGraphEdge e: graph1.getOutEdgesSorted(indexedWord1)) {
+			if(e.getRelation().getShortName().equals("mark")) {
+				features.add("markRelationEvent1:" + e.getTarget().originalText());
+			}
+		}
+		SemanticGraph graph2 = event2.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
+		IndexedWord indexedWord2 = Utils.findDependencyNode(event2.getSentence(), event2.getTreeNode());
+		for(SemanticGraphEdge e: graph2.getOutEdgesSorted(indexedWord2)) {
+			if(e.getRelation().getShortName().equals("mark")) {
+				features.add("markRelationEvent2:" + e.getTarget().originalText());
+			}
+		}
 		
 		//Word, lemma and POS before first event and word after second event. Dummy words added if first word or last word respectively.
 		//Lemma and POS are not good features.

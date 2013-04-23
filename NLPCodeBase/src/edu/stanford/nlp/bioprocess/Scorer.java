@@ -155,37 +155,69 @@ public class Scorer {
   }
   
   
-  public static Triple<Double, Double, Double> scoreEventRelations(List<BioDatum> predictedRelations) {
+  public static Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> scoreEventRelations(List<BioDatum> predictedRelations) {
 	IntCounter<String> truePos = new IntCounter<String>(), falsePos = new IntCounter<String>(), falseNeg = new IntCounter<String>();
 	int tp = 0, fp = 0, fn = 0;
 	for(BioDatum d:predictedRelations) {
-		if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
-			continue;
-		if(d.predictedLabel().equals(d.label)) {
+		if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE")) {
+			truePos.incrementCount(d.label);
+		}
+		else if(d.predictedLabel().equals(d.label)) {
 			tp++;
 			truePos.incrementCount(d.label);
 		}
 		else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
 			fp++;
 			falsePos.incrementCount(d.predictedLabel());
-		}
-		else if(!d.label().equals("NONE")){
-			fn++;
 			falseNeg.incrementCount(d.label);
 		}
-		else {
-			System.out.println("Things still missseedd!!");
+		else if(!d.label().equals("NONE")){
+			fn++;		
+			falseNeg.incrementCount(d.label);
+			falsePos.incrementCount(d.predictedLabel());
 		}
 	}
-	System.out.println("True positives :" + truePos);
-	System.out.println("False positives:" + falsePos);
-	System.out.println("False negatives:" + falseNeg);
+	
+	HashMap<String, Double> macroPrecision = new HashMap<String, Double>(), macroRecall = new HashMap<String, Double>(), macroF1 = new HashMap<String, Double>();
+	
+	List<String> nonNONERelations = ArgumentRelation.getEventRelations();
+	nonNONERelations.remove("NONE");
+	
+	for(String key : nonNONERelations) {
+		macroPrecision.put(key, 0.0);
+		macroRecall.put(key, 0.0);
+		macroF1.put(key, 0.0);
+	}
+	
+	for(String key : nonNONERelations) {
+		double precision = (truePos.getCount(key) + falsePos.getCount(key)) == 0 ? 1 :  (double) truePos.getCount(key) / (truePos.getCount(key) + falsePos.getCount(key));
+		double recall = (truePos.getCount(key) + falseNeg.getCount(key)) == 0 ? 0 :  (double) truePos.getCount(key) / (truePos.getCount(key) + falseNeg.getCount(key));
+		macroPrecision.put(key, precision);
+		macroRecall.put(key, recall);
+		macroF1.put(key, precision == 0 && recall == 0 ? 0 : (double) 2 * precision * recall / (precision + recall));
+	}
+	double macroPrec = 0, macroRec = 0, macroF = 0;
+	
+	System.out.println(macroPrecision);
+	System.out.println(macroRecall);
+	System.out.println(macroF1);
+	
+	for(String key : nonNONERelations) {
+		macroPrec += macroPrecision.get(key);
+		macroRec += macroRecall.get(key);
+		macroF += macroF1.get(key);
+	}
+	
+	macroPrec = macroPrec / nonNONERelations.size();
+	macroRec = macroRec / nonNONERelations.size();
+	macroF = macroF / nonNONERelations.size();
+	
 	LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
 	
 	double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
 	double f= 2 * precision * recall / (precision + recall);
 	    
-	return new Triple<Double, Double, Double>(precision, recall, f);
+	return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(new Triple<Double, Double, Double>(precision, recall, f), new Triple<Double, Double, Double>(macroPrec, macroRec, macroF));
   }
   
   /*
