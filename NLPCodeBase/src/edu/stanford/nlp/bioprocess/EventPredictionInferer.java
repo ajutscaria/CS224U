@@ -11,7 +11,7 @@ import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
-import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import fig.basic.LogInfo;
 
@@ -57,7 +57,7 @@ public class EventPredictionInferer extends Inferer {
 				else
 					entityNodes = Utils.getEntityNodesForSentenceFromDatum(prediction, sentence);
 				
-				LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+				LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 				List<BioDatum> dataset = ff.setFeaturesTest(sentence, entityNodes);
 
 				for(BioDatum d:dataset) {

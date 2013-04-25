@@ -36,7 +36,7 @@ public class ExchangeClusteringPreprocessor {
 	 * @throws IOException 
 	 */
 	public void preprocessBookFile(String bookFile, String preprocessedFile) throws IOException {		
-		PrintWriter writer = IOUtils.getPrintWriter(preprocessedFile);	
+		PrintWriter writer = edu.stanford.nlp.io.IOUtils.getPrintWriter(preprocessedFile);	
 		for(String line: IOUtils.readLines(bookFile)) {
 			writer.println(preprocessLine(line));
 		}	

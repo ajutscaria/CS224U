@@ -16,7 +16,7 @@ import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
-import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
@@ -177,7 +177,7 @@ public class SRLPredictionInferer extends Inferer {
 						}
 					//List<BioDatum> testDataWithLabel = new ArrayList<BioDatum>();
 					
-					LinearClassifier<String, String> classifier = new LinearClassifier<>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+					LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 					
 					for(BioDatum d : testDataEvent) {
 						Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.role());

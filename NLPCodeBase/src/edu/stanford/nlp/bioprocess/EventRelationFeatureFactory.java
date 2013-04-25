@@ -19,9 +19,9 @@ import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
-import edu.stanford.nlp.trees.semgraph.SemanticGraph;
-import edu.stanford.nlp.trees.semgraph.SemanticGraphEdge;
-import edu.stanford.nlp.trees.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.semgraph.SemanticGraph;
+import edu.stanford.nlp.semgraph.SemanticGraphEdge;
+import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
@@ -185,11 +185,14 @@ public class EventRelationFeatureFactory {
 		if (counts.first() == 0) {
 			List<SemanticGraphEdge> edges1 = graph1.getOutEdgesSorted(indexedWord1);
 			List<SemanticGraphEdge> edges2 = graph2.getOutEdgesSorted(indexedWord2);
-			System.out.println("Trying semgraph " + event1.getTreeNode() + ":" + event2.getTreeNode());
+			//System.out.println("Trying semgraph " + event1.getTreeNode() + ":" + event2.getTreeNode());
 			for(SemanticGraphEdge e1:edges1) {
 				for(SemanticGraphEdge e2:edges2) {
-					if(e1.getTarget() == e2.getTarget()) {
-						System.out.println("Share a child" + example.id);
+					//System.out.println(e1.getTarget().originalText() + ":" + e2.getTarget().originalText());
+					//System.out.println(e1.getTarget() + ":" + e2.getTarget());
+					if(e1.getTarget().equals(e2.getTarget())) {
+						//System.out.println("Share a child" + example.id);
+						features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
 						break;
 					}
 				}
@@ -300,7 +303,6 @@ public class EventRelationFeatureFactory {
     	List<BioDatum> newData = new ArrayList<BioDatum>();
     	List<EventMention> alreadyConsidered = new ArrayList<EventMention>();
 		for(EventMention event1: list) {
-			//System.out.println(Utils.getText(event1.getTreeNode()));
 			alreadyConsidered.add(event1);
 			for(EventMention event2: list) {
 				if(!alreadyConsidered.contains(event2)) {
