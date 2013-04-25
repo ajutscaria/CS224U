@@ -49,9 +49,19 @@ public class EventRelationFeatureFactory {
 		features.add("isImmediatelyAfter:" + Utils.isEventNextInOrder(example.gold.get(EventMentionsAnnotation.class), event1, event2));
 		
 		//Add words in between two event mentions.
-		List<String> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
-		for(String word:wordsInBetween) {
-			features.add("wordsInBetween:" + word);
+		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
+		for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
+			//Ignore if it is a noun
+			//if(!word.second().startsWith("NN"))
+			String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
+			String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
+					word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
+			if(POS.startsWith("VB") && POS2.equals("IN")) { 
+				features.add("wordsInBetween:" + word + " " + word2);
+				wordCounter++;
+			}
+			else
+				features.add("wordsInBetween:" + word);
 			if(TemporalConnectives.contains(word.toLowerCase())) {
 				features.add("temporalConnective:" + word.toLowerCase());
 			}
@@ -86,14 +96,45 @@ public class EventRelationFeatureFactory {
 			Tree lca = Trees.getLowestCommonAncestor(event1.getTreeNode(), event2.getTreeNode(), root);
 			features.add("lowestCommonAncestor:" + lca.value());
 			
-			//Are the event triggers part of a Prepositional phrase?
+			
 			Tree node = lca;
+			
+			while(!node.value().equals("ROOT")) {
+				node = node.parent(root);
+			}
+			
+			//Are the event triggers part of a Prepositional phrase individually (one feature each)?
 			boolean matched = false;
+			node = event1.getTreeNode();
+			root = event1.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
 			while(!node.value().equals("ROOT")) {
 				if(node.value().equals("PP")) {
 					for(Tree ponode:node.postOrderNodeList()) {
-						if(ponode.isPreTerminal() && ponode.value().equals("IN") && ponode.value().equals("TO")) {
-							features.add("partOfPP:" + ponode.firstChild().value());
+						//System.out.println(ponode);
+						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
+							//System.out.println("added feature!!");
+							features.add("1partOfPP:" + ponode.firstChild().value());
+							matched = true;
+							break;
+						}
+					}
+				}
+				
+				if(matched)
+					break;
+				node = node.parent(root);
+			}
+			
+			matched = false;
+			node = event2.getTreeNode();
+			root = event2.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
+			while(!node.value().equals("ROOT")) {
+				if(node.value().equals("PP")) {
+					//System.out.println("Found PP!!");
+					for(Tree ponode:node.postOrderNodeList()) {
+						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
+							//System.out.println("added feature!!");
+							features.add("2partOfPP:" + ponode.firstChild().value());
 							matched = true;
 							break;
 						}
@@ -125,12 +166,33 @@ public class EventRelationFeatureFactory {
 			if(e.getRelation().getShortName().equals("mark")) {
 				features.add("markRelationEvent1:" + e.getTarget().originalText());
 			}
+			if(e.getRelation().getShortName().equals("advmod")) {
+				features.add("advmodRelationEvent1:" + e.getTarget().originalText());
+			}
 		}
 		SemanticGraph graph2 = event2.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord2 = Utils.findDependencyNode(event2.getSentence(), event2.getTreeNode());
 		for(SemanticGraphEdge e: graph2.getOutEdgesSorted(indexedWord2)) {
 			if(e.getRelation().getShortName().equals("mark")) {
 				features.add("markRelationEvent2:" + e.getTarget().originalText());
+			}
+			if(e.getRelation().getShortName().equals("advmod")) {
+				features.add("advmodRelationEvent2:" + e.getTarget().originalText());
+			}
+		}
+		
+		//Do they share a common argument in the dependency tree?
+		if (counts.first() == 0) {
+			List<SemanticGraphEdge> edges1 = graph1.getOutEdgesSorted(indexedWord1);
+			List<SemanticGraphEdge> edges2 = graph2.getOutEdgesSorted(indexedWord2);
+			System.out.println("Trying semgraph " + event1.getTreeNode() + ":" + event2.getTreeNode());
+			for(SemanticGraphEdge e1:edges1) {
+				for(SemanticGraphEdge e2:edges2) {
+					if(e1.getTarget() == e2.getTarget()) {
+						System.out.println("Share a child" + example.id);
+						break;
+					}
+				}
 			}
 		}
 		

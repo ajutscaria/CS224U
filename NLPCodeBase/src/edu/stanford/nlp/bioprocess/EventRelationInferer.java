@@ -178,7 +178,7 @@ public class EventRelationInferer {
 		
 			try {
 	        	Runtime rt = Runtime.getRuntime();
-	        	rt.exec("dot -o GraphViz/" + ex.id + ".pdf -Tpdf GraphViz/" + ex.id + ".gv");
+	        	rt.exec("dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				System.out.println("ERORRRR" + e.getMessage());

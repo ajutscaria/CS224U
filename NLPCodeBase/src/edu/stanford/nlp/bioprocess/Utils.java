@@ -825,10 +825,11 @@ public static List<Example> readFile(String fileName) {
 		return counter;
 	}
 
-	public static List<String> findWordsInBetween(Example example,
+	//Returns List of words with its POS tags
+	public static List<Pair<String, String>> findWordsInBetween(Example example,
 			EventMention event1, EventMention event2) {
 		// TODO Auto-generated method stub
-		List<String> words = new ArrayList<String>();
+		List<Pair<String, String>> words = new ArrayList<Pair<String, String>>();
 		boolean beginGettingWords = false;
 		for(CoreMap sentence:example.gold.get(SentencesAnnotation.class)){
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
@@ -841,7 +842,7 @@ public static List<Example> readFile(String fileName) {
 					}
 					else if(beginGettingWords) {
 						//System.out.println(getText(node));
-						words.add(getText(node));
+						words.add(new Pair<String, String>(getText(node), node.value()));
 					}
 				}
 			}

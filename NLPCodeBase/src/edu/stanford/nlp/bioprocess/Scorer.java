@@ -172,7 +172,9 @@ public class Scorer {
 			falseNeg.incrementCount(d.label);
 		}
 		else if(!d.label().equals("NONE")){
-			fn++;		
+			fn++;
+			if(!d.predictedLabel().equals("NONE"))
+				fp++;
 			falseNeg.incrementCount(d.label);
 			falsePos.incrementCount(d.predictedLabel());
 		}
