@@ -1,5 +1,6 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -24,19 +25,29 @@ import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
+import edu.stanford.nlp.util.OneToOneMap.OneToOneMapException;
 import edu.stanford.nlp.util.Pair;
+import edu.stanford.nlp.wsd.WordNet.WordNetID;
 import fig.basic.LogInfo;
 
 public class EventRelationFeatureFactory {
 
 	private boolean printAnnotations = false, printDebug = false;
 	private boolean useLexicalFeatures;
+	WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since","when", "meanwhile", "lately", 
 										"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
 
 	public EventRelationFeatureFactory(boolean useLexicalFeatures) {
 		this.useLexicalFeatures = useLexicalFeatures;
+		try {
+			wnLexicon = new WnExpander();
+		} catch (IOException | OneToOneMapException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
 		// TODO Auto-generated constructor stub
 	}
 	
@@ -159,7 +170,7 @@ public class EventRelationFeatureFactory {
 			}
 		}
 		
-		//Finding "mark" relationship
+		//Finding "mark" and "advmod" relationship
 		SemanticGraph graph1 = event1.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord1 = Utils.findDependencyNode(event1.getSentence(), event1.getTreeNode());
 		for(SemanticGraphEdge e: graph1.getOutEdgesSorted(indexedWord1)) {
@@ -185,17 +196,31 @@ public class EventRelationFeatureFactory {
 		if (counts.first() == 0) {
 			List<SemanticGraphEdge> edges1 = graph1.getOutEdgesSorted(indexedWord1);
 			List<SemanticGraphEdge> edges2 = graph2.getOutEdgesSorted(indexedWord2);
-			//System.out.println("Trying semgraph " + event1.getTreeNode() + ":" + event2.getTreeNode());
 			for(SemanticGraphEdge e1:edges1) {
 				for(SemanticGraphEdge e2:edges2) {
-					//System.out.println(e1.getTarget().originalText() + ":" + e2.getTarget().originalText());
-					//System.out.println(e1.getTarget() + ":" + e2.getTarget());
 					if(e1.getTarget().equals(e2.getTarget())) {
-						//System.out.println("Share a child" + example.id);
 						features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
 						break;
 					}
 				}
+			}
+		}
+		
+		//WordNet Synsets?
+		Set<WordNetID> set1 = wnLexicon.getSynsets(Utils.getText(event1.getTreeNode()), event1.getTreeNode().value());
+		Set<WordNetID> set2 = wnLexicon.getSynsets(Utils.getText(event2.getTreeNode()), event2.getTreeNode().value());
+		if(set1!=null && set2!=null) {
+			boolean synsetMatch = false;
+			for(WordNetID w1:set1) {
+				for(WordNetID w2:set2){
+					if(w1.equals(w2)) {
+						features.add("synsetsOfEachOther");
+						synsetMatch = true;
+						break;
+					}
+				}
+				if(synsetMatch)
+					break;
 			}
 		}
 		

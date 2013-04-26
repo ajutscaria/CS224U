@@ -86,6 +86,29 @@ public class WnExpander {
     expansions.remove(phrase);
     return expansions;
   }
+  
+  public Set<WordNetID> getSynsets(String word, String posType) {
+	  char type = posType.startsWith("VB") ? 'v' : posType.startsWith("NN") ? 'n' : 'o';
+	  if(type == 'o')
+		  return null;
+	  Set<WordNetID> wordTags = new HashSet<WordNet.WordNetID>();
+	  WordID wordID = wn.getWordID(word);
+	  if(wordID==null)
+		  return null;
+	  wordTags.addAll(wordID.get(EdgeType.WORD_TO_WORDTAG));
+	  Set<WordNetID> synsets = new HashSet<WordNet.WordNetID>();
+	  for(WordNetID wordTag: wordTags) {
+		  if(wordTag.toString().endsWith("#" + type))
+			  synsets.addAll(wordTag.get(EdgeType.WORDTAG_IN_SYNSET));
+	    /*System.out.println(wordTag + " : " + wordTag.get(EdgeType.WORDTAG_IN_SYNSET));
+	    for(WordNetID synSet: synsets) {
+	  	  System.out.println("\tSynset " + synSet);
+	  	  for(WordNetID words: synSet.get(EdgeType.SYNSET_HAS_WORDTAG))
+	  		  System.out.println("\t\tWord " + words);
+	    }*/
+	  }
+	  return synsets;    
+	}
 
   private Set<String> synsetsToPhrases(Set<WordNetID> phraseSynsets) {
 
@@ -136,11 +159,11 @@ public class WnExpander {
       res.addAll(expandSynset(synset, edgeType));
     return res;
   }
-
+  
   public static void main(String[] args) throws IOException, OneToOneMapException {
 
     WnExpander wnLexicon = new WnExpander();
-    wnLexicon.expandPhrase("assassinate");
+    System.out.println(wnLexicon.getSynsets("attack", "VBZ"));
     System.out.println();
   }
 
