@@ -195,7 +195,7 @@ public class EventRelationFeatureFactory {
 			for(SemanticGraphEdge e1:edges1) {
 				for(SemanticGraphEdge e2:edges2) {
 					if(e1.getTarget().equals(e2.getTarget())) {
-						//features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
+						features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
 						break;
 					}
 				}
@@ -221,51 +221,51 @@ public class EventRelationFeatureFactory {
 		}*/
 		
 		//Word, lemma and POS before first event and word after second event. Dummy words added if first word or last word respectively.
-		//Lemma and POS are not good features.
+		//Lemma and POS are not good features. - NOT USEFUL
 		CoreLabel word1Before = Utils.findWordBefore(event1, 1), word1After = Utils.findWordAfter(event2, 1),
 				word2Before = Utils.findWordBefore(event1, 2), word2After = Utils.findWordAfter(event2, 2);
 
 		if(word1Before!=null) {
 			String word = word1Before.originalText();
-			features.add("word1BeforeFirstEvent:" + word);
+			//features.add("word1BeforeFirstEvent:" + word);
 			//features.add("POS1BeforeFirstEvent:" + word1Before.get(PartOfSpeechAnnotation.class));
 			//features.add("lemma1BeforeFirstEvent:" + (verbForms.containsKey(word)?verbForms.get(word):word));
 		}
 		else {
-			features.add("word1BeforeFirstEvent:" + "DUMMY_WORD");
+			//features.add("word1BeforeFirstEvent:" + "DUMMY_WORD");
 			//features.add("POS1BeforeFirstEvent:" + "DUMMY_POS");
 			//features.add("lemma1BeforeFirstEvent:" + "DUMMY_LEMMA");
 		}
 		if(word1After!=null) {	
 			String word = word1After.originalText();
-			features.add("word1AfterSecondEvent:" + word);
+			//features.add("word1AfterSecondEvent:" + word);
 			//features.add("POS1AfterSecondEvent:" + word1After.get(PartOfSpeechAnnotation.class));
 			//features.add("lemma1AfterSecondEvent:" + (verbForms.containsKey(word)?verbForms.get(word):word));
 		}
 		else {
-			features.add("word1AfterSecondEvent:" + "DUMMY_WORD");
+			//features.add("word1AfterSecondEvent:" + "DUMMY_WORD");
 			//features.add("POS1AfterSecondEvent:" + "DUMMY_POS");
 			//features.add("lemma1AfterSecondEvent:" + "DUMMY_LEMMA");
 		}
 		if(word2Before!=null) {
 			String word = word2Before.originalText();
-			features.add("word2BeforeFirstEvent:" + word);
+			//features.add("word2BeforeFirstEvent:" + word);
 			//features.add("POS2BeforeFirstEvent:" + word2Before.get(PartOfSpeechAnnotation.class));
 			//features.add("lemma2BeforeFirstEvent:" + (verbForms.containsKey(word)?verbForms.get(word):word));
 		}
 		else {
-			features.add("word2BeforeFirstEvent:" + "DUMMY_WORD");
+			//features.add("word2BeforeFirstEvent:" + "DUMMY_WORD");
 			//features.add("POS2BeforeFirstEvent:" + "DUMMY_POS");
 			//features.add("lemma2BeforeFirstEvent:" + "DUMMY_LEMMA");
 		}
 		if(word2After!=null) {
 			String word = word2After.originalText();
-			features.add("word2AfterSecondEvent:" + word);
+			//features.add("word2AfterSecondEvent:" + word);
 			//features.add("POS2AfterSecondEvent:" + word2After.get(PartOfSpeechAnnotation.class));
 			//features.add("lemma2AfterSecondEvent:" + (verbForms.containsKey(word)?verbForms.get(word):word));
 		}
 		else {
-			features.add("word2AfterSecondEvent:" + "DUMMY_WORD");
+			//features.add("word2AfterSecondEvent:" + "DUMMY_WORD");
 			//features.add("POS2AfterSecondEvent:" + "DUMMY_POS");
 			//features.add("lemma2AfterSecondEvent:" + "DUMMY_LEMMA");
 		}
