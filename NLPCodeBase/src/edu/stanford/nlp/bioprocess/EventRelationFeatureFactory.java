@@ -34,19 +34,19 @@ public class EventRelationFeatureFactory {
 
 	private boolean printAnnotations = false, printDebug = false;
 	private boolean useLexicalFeatures;
-	WnExpander wnLexicon;
+	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since","when", "meanwhile", "lately", 
 										"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
 
 	public EventRelationFeatureFactory(boolean useLexicalFeatures) {
 		this.useLexicalFeatures = useLexicalFeatures;
-		try {
+		/*try {
 			wnLexicon = new WnExpander();
 		} catch (IOException | OneToOneMapException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
+		}*/
 		
 		// TODO Auto-generated constructor stub
 	}
@@ -62,20 +62,21 @@ public class EventRelationFeatureFactory {
 		//Add words in between two event mentions.
 		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
 		for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
-			//Ignore if it is a noun
-			//if(!word.second().startsWith("NN"))
-			String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
-			String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
-					word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
-			if(POS.startsWith("VB") && POS2.equals("IN")) { 
-				features.add("wordsInBetween:" + word + " " + word2);
-				wordCounter++;
-			}
-			else
-				features.add("wordsInBetween:" + word);
-			if(TemporalConnectives.contains(word.toLowerCase())) {
-				features.add("temporalConnective:" + word.toLowerCase());
-			}
+			//Ignore if it is a noun - NOT GOOD
+			//if(!wordsInBetween.get(wordCounter).second().startsWith("NN")) {
+				String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
+				String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
+						word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
+				if(POS.startsWith("VB") && POS2.equals("IN")) { 
+					features.add("wordsInBetween:" + word + " " + word2);
+					wordCounter++;
+				}
+				else
+					features.add("wordsInBetween:" + word);
+				if(TemporalConnectives.contains(word.toLowerCase())) {
+					features.add("temporalConnective:" + word.toLowerCase());
+				}
+			//}
 		}
 		
 		//POS tags of both events
@@ -107,7 +108,6 @@ public class EventRelationFeatureFactory {
 			Tree lca = Trees.getLowestCommonAncestor(event1.getTreeNode(), event2.getTreeNode(), root);
 			features.add("lowestCommonAncestor:" + lca.value());
 			
-			
 			Tree node = lca;
 			
 			while(!node.value().equals("ROOT")) {
@@ -121,9 +121,7 @@ public class EventRelationFeatureFactory {
 			while(!node.value().equals("ROOT")) {
 				if(node.value().equals("PP")) {
 					for(Tree ponode:node.postOrderNodeList()) {
-						//System.out.println(ponode);
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							//System.out.println("added feature!!");
 							features.add("1partOfPP:" + ponode.firstChild().value());
 							matched = true;
 							break;
@@ -141,10 +139,8 @@ public class EventRelationFeatureFactory {
 			root = event2.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
 			while(!node.value().equals("ROOT")) {
 				if(node.value().equals("PP")) {
-					//System.out.println("Found PP!!");
 					for(Tree ponode:node.postOrderNodeList()) {
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							//System.out.println("added feature!!");
 							features.add("2partOfPP:" + ponode.firstChild().value());
 							matched = true;
 							break;
@@ -199,7 +195,7 @@ public class EventRelationFeatureFactory {
 			for(SemanticGraphEdge e1:edges1) {
 				for(SemanticGraphEdge e2:edges2) {
 					if(e1.getTarget().equals(e2.getTarget())) {
-						features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
+						//features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
 						break;
 					}
 				}
@@ -207,7 +203,7 @@ public class EventRelationFeatureFactory {
 		}
 		
 		//WordNet Synsets?
-		Set<WordNetID> set1 = wnLexicon.getSynsets(Utils.getText(event1.getTreeNode()), event1.getTreeNode().value());
+		/*Set<WordNetID> set1 = wnLexicon.getSynsets(Utils.getText(event1.getTreeNode()), event1.getTreeNode().value());
 		Set<WordNetID> set2 = wnLexicon.getSynsets(Utils.getText(event2.getTreeNode()), event2.getTreeNode().value());
 		if(set1!=null && set2!=null) {
 			boolean synsetMatch = false;
@@ -222,7 +218,7 @@ public class EventRelationFeatureFactory {
 				if(synsetMatch)
 					break;
 			}
-		}
+		}*/
 		
 		//Word, lemma and POS before first event and word after second event. Dummy words added if first word or last word respectively.
 		//Lemma and POS are not good features.
@@ -281,6 +277,11 @@ public class EventRelationFeatureFactory {
 		features.add("bias");
 		
 		FeatureVector fv = new FeatureVector(features);
+		if(printDebug) {
+			LogInfo.logs(String.format("\nExample : %s Event 1 - %s, Event 2 - %s", example.id, event1.getTreeNode(), event2.getTreeNode()));
+			LogInfo.logs(fv.getFeatureString());
+			LogInfo.logs("---------------------------------------------------------\n");
+		}
 		return fv;
 	}
 
@@ -358,7 +359,7 @@ public class EventRelationFeatureFactory {
 		if(numWords <= 3) {
 			return "Low";
 		}
-		else if(numWords <= 7) {
+		else if(numWords <= 8) {
 			return "Medium";
 		}
 		else if(numWords <= 15) {

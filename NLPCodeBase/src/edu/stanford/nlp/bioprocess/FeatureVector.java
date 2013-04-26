@@ -29,8 +29,8 @@ public class FeatureVector {
   public String getFeatureString() {
 	  StringBuilder f = new StringBuilder();
 	  for(String feature:features)
-		  f.append(feature + "  ");
-	return f.toString().trim();
+		  f.append("\n\t" + feature);
+	return f.toString();
   }
 }
 

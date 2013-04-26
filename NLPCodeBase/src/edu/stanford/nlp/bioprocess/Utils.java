@@ -863,7 +863,7 @@ public static List<Example> readFile(String fileName) {
 					else if(node==event2.getTreeNode()){
 						beginGettingWords=false;
 					}
-					else{
+					else if(beginGettingWords) {
 						wordCount++;
 					}
 				}
@@ -878,8 +878,8 @@ public static List<Example> readFile(String fileName) {
 		CoreLabel wordBefore = Utils.findCoreLabelFromTree(event.getSentence(), event.getTreeNode());
 		List<CoreLabel> tokens = event.getSentence().get(TokensAnnotation.class);
 		
-		if(wordBefore.index() > count-1)
-			return tokens.get(wordBefore.index() - 1 - (count-1));
+		if(wordBefore.index() > count)
+			return tokens.get(wordBefore.index() - 1 - (count));
 		return null;
 	}
 	
@@ -887,8 +887,8 @@ public static List<Example> readFile(String fileName) {
 		CoreLabel wordBefore = Utils.findCoreLabelFromTree(event.getSentence(), event.getTreeNode());
 		List<CoreLabel> tokens = event.getSentence().get(TokensAnnotation.class);
 		
-		if(wordBefore.index() < tokens.size() - 1 - (count -1))
-			return tokens.get(wordBefore.index() + 1 + (count - 1));
+		if(wordBefore.index() < tokens.size() - 1 - (count-2))
+			return tokens.get(wordBefore.index() + 1 + (count - 2));
 		return null;
 	}
 	
