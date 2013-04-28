@@ -27,6 +27,7 @@ public class BioDatum {
 	this.features = features;
   }
  
+  private String exampleID;
   public String guessLabel;
   public String guessRole;
   public int bestRoleIndex;
@@ -120,5 +121,13 @@ public void setPredictedLabel(String predictedLabel) {
 
 public String role() {
 	return this.role;
+}
+
+public String getExampleID() {
+	return exampleID;
+}
+
+public void setExampleID(String exampleID) {
+	this.exampleID = exampleID;
 }
 }

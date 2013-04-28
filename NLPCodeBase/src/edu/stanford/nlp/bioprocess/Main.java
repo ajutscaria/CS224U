@@ -2,6 +2,7 @@ package edu.stanford.nlp.bioprocess;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Properties;
@@ -24,6 +25,7 @@ public class Main implements Runnable {
 		@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
 	//}	
 	//public static Options opts = new Options();
+	public static List<String> features; 
 
 	public void runPrediction(HashMap<String, String> groups, FeatureExtractor featureFactory, Learner learner, Inferer inferer, Scorer scorer) {
 		int NumCrossValidation = 10;
@@ -384,40 +386,80 @@ public class Main implements Runnable {
 			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
 			//double[] microPrecisionDev = new double[NumCrossValidation], microRecallDev = new double[NumCrossValidation], microF1Dev = new double[NumCrossValidation];
 			//double[] macroPrecisionDev = new double[NumCrossValidation], macroRecallDev = new double[NumCrossValidation], macroF1Dev = new double[NumCrossValidation];
-			List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
-			for(int i = 1; i <= NumCrossValidation; i++) {
-				LogInfo.begin_track("Iteration " + i);
+			
+			features = new ArrayList<String>();
+			
+			features.add("isImmediatelyAfter");
+			features.add("wordsInBetween");
+			features.add("temporalConnective");
+			features.add("POS");
+			features.add("lemma");
+			features.add("eventLemmasSame");
+			features.add("numSentencesInBetween");
+			features.add("numWordsInBetween");
+			features.add("lowestCommonAncestor");
+			features.add("1partOfPP");
+			features.add("2partOfPP");
+			features.add("deppath1to2");
+			features.add("1dominates2");
+			features.add("deppath2to1");
+			features.add("2dominates1");
+			features.add("markRelationEvent1");
+			features.add("advmodRelationEvent1");
+			features.add("markRelationEvent2");
+			features.add("advmodRelationEvent2");
+			features.add("shareChild");
+			
+			double bestF1 = 0.49340866;
+			String worstFeature = "NONE";
+			//for(int featureCounter = 0; featureCounter < features.size(); featureCounter++) {
+				//String feature = features.get(featureCounter);
+				//features.remove(feature);
+				List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
 				
-				Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
-				List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
-				//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+				for(int i = 1; i <= NumCrossValidation; i++) {
+					LogInfo.begin_track("Iteration " + i);
+					
+					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
+					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+					
+					resultsFromAllFolds.addAll(result);
+					
+					//counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
+					Scorer.updateMatrix(confusionMatrix, result, relations);
+									
+					LogInfo.end_track();
+				}
 				
-				resultsFromAllFolds.addAll(result);
+				Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
+				//System.out.println("Total relations - " + counter);
 				
-				//counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
-				Scorer.updateMatrix(confusionMatrix, result, relations);
-								
-				LogInfo.end_track();
-			}
+				Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
+				//LogInfo.logs("Removed feature - " + feature);
+				LogInfo.logs("Micro precision");
+				LogInfo.logs("Precision : " + pairTriple.first.first);
+				LogInfo.logs("Recall    : " + pairTriple.first.second);
+				LogInfo.logs("F1 score  : " + pairTriple.first.third);
+				
+				LogInfo.logs("\nMacro precision");
+				LogInfo.logs("Precision : " + pairTriple.second.first);
+				LogInfo.logs("Recall    : " + pairTriple.second.second);
+				LogInfo.logs("F1 score  : " + pairTriple.second.third);
+				
+				if(pairTriple.first.third > bestF1) {
+					bestF1 = pairTriple.first.third;
+				//	worstFeature = feature;
+				}
+				//features.add(feature);
+			//}
 			
-			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
-			//System.out.println("Total relations - " + counter);
-			
-			Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
-			
-			LogInfo.logs("Micro precision");
-			LogInfo.logs("Precision : " + pairTriple.first.first);
-			LogInfo.logs("Recall    : " + pairTriple.first.second);
-			LogInfo.logs("F1 score  : " + pairTriple.first.third);
-			
-			LogInfo.logs("\nMacro precision");
-			LogInfo.logs("Precision : " + pairTriple.second.first);
-			LogInfo.logs("Recall    : " + pairTriple.second.second);
-			LogInfo.logs("F1 score  : " + pairTriple.second.third);
+			//LogInfo.logs("Worst feature - "  + worstFeature);
+			//LogInfo.logs("Best F1 - "  + bestF1);
 			
 			//printScores("Dev - Micro", microPrecisionDev, microRecallDev, microF1Dev);
 			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
-			System.out.println(inferer.totalEvents);
+			/*System.out.println(inferer.totalEvents);
 			System.out.println(inferer.prevEvent);
 			System.out.println(inferer.superEvent);
 			System.out.println(inferer.causeEvent);
@@ -426,7 +468,7 @@ public class Main implements Runnable {
 			System.out.println(inferer.prevEventPred);
 			System.out.println(inferer.superEventPred);
 			System.out.println(inferer.causeEventPred);
-			System.out.println(inferer.degreeDistributionPred);
+			System.out.println(inferer.degreeDistributionPred);*/
 			/*//Print triples
 			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {

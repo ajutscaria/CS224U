@@ -939,6 +939,13 @@ public static List<Example> readFile(String fileName) {
 	    }
 	    //  folder.delete();
 	}
+
+	public static boolean isEventNext(List<EventMention> list, EventMention event1, EventMention event2) {
+		int index1 = list.indexOf(event1), index2 = list.indexOf(event2);
+		if(index1 > index2)
+			return true;
+		return false;
+	}
 	
 }
 

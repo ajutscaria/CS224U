@@ -38,6 +38,7 @@ public class EventRelationFeatureFactory {
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since","when", "meanwhile", "lately", 
 										"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
+	HashMap<String, Integer> clusters = Utils.loadClustering();
 
 	public EventRelationFeatureFactory(boolean useLexicalFeatures) {
 		this.useLexicalFeatures = useLexicalFeatures;
@@ -55,9 +56,13 @@ public class EventRelationFeatureFactory {
 		List<String> features = new ArrayList<String>();
 		CoreLabel event1CoreLabel = Utils.findCoreLabelFromTree(event1.getSentence(), event1.getTreeNode()),
 				event2CoreLabel = Utils.findCoreLabelFromTree(event2.getSentence(), event2.getTreeNode());
-		
+		boolean isImmediatelyAfter = Utils.isEventNextInOrder(example.gold.get(EventMentionsAnnotation.class), event1, event2),
+				isAfter = Utils.isEventNext(example.gold.get(EventMentionsAnnotation.class), event1, event2);
 		//Is event2 immediately after event1?
-		features.add("isImmediatelyAfter:" + Utils.isEventNextInOrder(example.gold.get(EventMentionsAnnotation.class), event1, event2));
+		if(Main.features.contains("isImmediatelyAfter"))
+			features.add("isImmediatelyAfter:" + isImmediatelyAfter);
+		
+		features.add("isAfter:" + isAfter);
 		
 		//Add words in between two event mentions.
 		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
@@ -68,19 +73,29 @@ public class EventRelationFeatureFactory {
 				String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
 						word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
 				if(POS.startsWith("VB") && POS2.equals("IN")) { 
-					features.add("wordsInBetween:" + word + " " + word2);
+					if(Main.features.contains("wordsInBetween"))
+						features.add("wordsInBetween:" + word + " " + word2);
 					wordCounter++;
 				}
-				else
+				else if(Main.features.contains("wordsInBetween"))
 					features.add("wordsInBetween:" + word);
 				if(TemporalConnectives.contains(word.toLowerCase())) {
-					features.add("temporalConnective:" + word.toLowerCase());
+					if(Main.features.contains("temporalConnective"))
+						features.add("temporalConnective:" + word.toLowerCase());
 				}
 			//}
 		}
+		//Is there an and within 5 words of each other
+		if(wordsInBetween.size() <= 5) {
+			for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
+				if(wordsInBetween.get(wordCounter).first.equals("and")) 
+					features.add("closeAndInBetween");
+			}
+		}
 		
 		//POS tags of both events
-		features.add("POS:" + event1.getTreeNode().value() + "+" + event2.getTreeNode().value());
+		if(Main.features.contains("POS"))
+			features.add("POS:" + event1.getTreeNode().value() + "+" + event2.getTreeNode().value());
 		
 		//Lemmas of both events
 		String lemma1 = event1CoreLabel.lemma().toLowerCase();
@@ -91,22 +106,30 @@ public class EventRelationFeatureFactory {
 		if(verbForms.containsKey(lemma2)) {
 			lemma2 = verbForms.get(lemma2);
 		}
-		features.add("Lemma:" + lemma1 + "+" + lemma2);
-		
-		//Are the lemmas same?
-		features.add("eventLemmasSame:" + lemma1.equals(lemma2));
+		if(Main.features.contains("lemma"))
+			features.add("lemmas:" + lemma1 + "+" + lemma2);
 		
 		//Number of sentences and words between two event mentions. Quantized to 'Low', 'Medium', 'High' etc.
 		Pair<Integer, Integer> counts =  Utils.findNumberOfSentencesAndWordsBetween(example, event1, event2);
-		features.add("numSentencesInBetween:" + quantizedSentenceCount(counts.first()));
-		features.add("numWordsInBetween:" + quantizedWordCount(counts.second()));
+		if(Main.features.contains("numSentencesInBetween"))
+			features.add("numSentencesInBetween:" + quantizedSentenceCount(counts.first()));
+		if(Main.features.contains("numWordsInBetween"))
+			features.add("numWordsInBetween:" + quantizedWordCount(counts.second()));
+		
+		//Are the lemmas same?
+		String poss = event1.getTreeNode().value() + "+" + event2.getTreeNode().value();
+		if(Main.features.contains("eventLemmasSame"))
+			//if(!poss.equals("VBZ+VBZ") && !poss.equals("VBN+VBN"))
+				features.add("eventLemmasSame:" + lemma1.equals(lemma2));
+		
 		
 		//Features if the two triggers are in the same sentence.
 		if (counts.first() == 0) {
 			//Lowest common ancestor between the two event triggers. Reduces score.
 			Tree root = event1.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
 			Tree lca = Trees.getLowestCommonAncestor(event1.getTreeNode(), event2.getTreeNode(), root);
-			features.add("lowestCommonAncestor:" + lca.value());
+			if(Main.features.contains("lowestCommonAncestor"))
+				features.add("lowestCommonAncestor:" + lca.value());
 			
 			Tree node = lca;
 			
@@ -122,7 +145,8 @@ public class EventRelationFeatureFactory {
 				if(node.value().equals("PP")) {
 					for(Tree ponode:node.postOrderNodeList()) {
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							features.add("1partOfPP:" + ponode.firstChild().value());
+							if(Main.features.contains("1partOfPP"))
+								features.add("1partOfPP:" + ponode.firstChild().value());
 							matched = true;
 							break;
 						}
@@ -141,7 +165,8 @@ public class EventRelationFeatureFactory {
 				if(node.value().equals("PP")) {
 					for(Tree ponode:node.postOrderNodeList()) {
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							features.add("2partOfPP:" + ponode.firstChild().value());
+							if(Main.features.contains("2partOfPP"))
+								features.add("2partOfPP:" + ponode.firstChild().value());
 							matched = true;
 							break;
 						}
@@ -156,13 +181,17 @@ public class EventRelationFeatureFactory {
 			String deppath2to1 = Utils.getDependencyPath(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode());
 			String deppath1to2 = Utils.getDependencyPath(event1.getSentence(), event2.getTreeNode(), event1.getTreeNode());
 			if(!deppath1to2.isEmpty()) {
-				features.add("deppath1to2:" + deppath1to2 );
+				if(Main.features.contains("deppath1to2"))
+					features.add("deppath1to2:" + deppath1to2 );
 				//Does event1 dominate event2
-				features.add("1dominates2");
+				if(Main.features.contains("1dominates2"))
+					features.add("1dominates2");
 			}
 			if(!deppath2to1.isEmpty()) {
-				features.add("deppath2to1:" + deppath2to1 );
-				features.add("2dominates1");
+				if(Main.features.contains("deppath2to1"))
+					features.add("deppath2to1:" + deppath2to1 );
+				if(Main.features.contains("2dominates1"))
+					features.add("2dominates1");
 			}
 		}
 		
@@ -171,20 +200,24 @@ public class EventRelationFeatureFactory {
 		IndexedWord indexedWord1 = Utils.findDependencyNode(event1.getSentence(), event1.getTreeNode());
 		for(SemanticGraphEdge e: graph1.getOutEdgesSorted(indexedWord1)) {
 			if(e.getRelation().getShortName().equals("mark")) {
-				features.add("markRelationEvent1:" + e.getTarget().originalText());
+				if(Main.features.contains("markRelationEvent1"))
+					features.add("markRelationEvent1:" + e.getTarget().originalText());
 			}
 			if(e.getRelation().getShortName().equals("advmod")) {
-				features.add("advmodRelationEvent1:" + e.getTarget().originalText());
+				if(Main.features.contains("advmodRelationEvent1"))
+					features.add("advmodRelationEvent1:" + e.getTarget().originalText());
 			}
 		}
 		SemanticGraph graph2 = event2.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord2 = Utils.findDependencyNode(event2.getSentence(), event2.getTreeNode());
 		for(SemanticGraphEdge e: graph2.getOutEdgesSorted(indexedWord2)) {
 			if(e.getRelation().getShortName().equals("mark")) {
-				features.add("markRelationEvent2:" + e.getTarget().originalText());
+				if(Main.features.contains("markRelationEvent2"))
+					features.add("markRelationEvent2:" + e.getTarget().originalText());
 			}
 			if(e.getRelation().getShortName().equals("advmod")) {
-				features.add("advmodRelationEvent2:" + e.getTarget().originalText());
+				if(Main.features.contains("advmodRelationEvent2"))
+					features.add("advmodRelationEvent2:" + e.getTarget().originalText());
 			}
 		}
 		
@@ -195,12 +228,17 @@ public class EventRelationFeatureFactory {
 			for(SemanticGraphEdge e1:edges1) {
 				for(SemanticGraphEdge e2:edges2) {
 					if(e1.getTarget().equals(e2.getTarget())) {
-						features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
+						if(Main.features.contains("shareChild"))
+							features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
 						break;
 					}
 				}
 			}
 		}
+		
+		//Get first word in the sentence - Not Good
+		//features.add("firstWord1" + event1.getSentence().get(TokensAnnotation.class).get(0).originalText());
+		//features.add("firstWord2" + event2.getSentence().get(TokensAnnotation.class).get(0).originalText());
 		
 		//WordNet Synsets?
 		/*Set<WordNetID> set1 = wnLexicon.getSynsets(Utils.getText(event1.getTreeNode()), event1.getTreeNode().value());
@@ -335,6 +373,9 @@ public class EventRelationFeatureFactory {
 					String type = Utils.getEventEventRelation(example.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
 					BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
 					newDatum.features = computeFeatures(example, event1, event2);
+					if(newDatum.features.getFeatures().contains(("eventLemmasSame:true")))
+							LogInfo.logs("eventLemmasSame:" + newDatum.event1.getTreeNode() + ":" + newDatum.event2.getTreeNode() + ":" +newDatum.label);
+					newDatum.setExampleID(example.id);
 					newData.add(newDatum);
 				}
 		    }
@@ -359,7 +400,7 @@ public class EventRelationFeatureFactory {
 		if(numWords <= 3) {
 			return "Low";
 		}
-		else if(numWords <= 8) {
+		else if(numWords <= 6) {
 			return "Medium";
 		}
 		else if(numWords <= 15) {
