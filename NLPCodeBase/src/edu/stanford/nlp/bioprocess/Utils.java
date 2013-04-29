@@ -643,6 +643,26 @@ public static List<Example> readFile(String fileName) {
 		return buf.toString();
 	}
 	
+	public static String getUndirectedDependencyPath(CoreMap sentence, Tree entity, Tree event) {
+		//word as head token.
+		if(entity == null || entity.value().equals("S") || entity.value().equals("SBAR"))
+			return "";
+		IndexedWord entityIndexWord = findDependencyNode(sentence, entity);
+		//In case of punctuation marks, there is no head found.
+		StringBuilder buf = new StringBuilder();
+		if(entityIndexWord != null) {
+			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			//LogInfo.logs("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			IndexedWord word = findDependencyNode(sentence, event);
+			if(word == null) return "";
+			if(graph.getShortestUndirectedPathEdges(word, entityIndexWord) != null)
+				return graph.getShortestUndirectedPathEdges(word, entityIndexWord).toString();
+		}
+		//LogInfo.logs(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		
+		return buf.toString();
+	}
+	
 	public static boolean isNodesRelated(CoreMap sentence, Tree entity, EventMention event) {
 		//Event ideally wouldn't be parent of full sentence. But, it will tag it as parent because the full sentence has the trigger
 		//word as head token.
@@ -945,6 +965,21 @@ public static List<Example> readFile(String fileName) {
 		if(index1 > index2)
 			return true;
 		return false;
+	}
+
+	public static String getDeterminer(CoreMap sentence, Tree treeNode) {
+		//word as head token.
+		if(treeNode == null || treeNode.value().equals("S") || treeNode.value().equals("SBAR"))
+			return "";
+		IndexedWord iIndexWord = findDependencyNode(sentence, treeNode);
+		if(iIndexWord != null) {
+			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			for(SemanticGraphEdge edge: graph.getOutEdgesSorted(iIndexWord)) {
+				if(edge.getRelation().toString().equals("det"))
+					return edge.getTarget().originalText().toLowerCase();
+			}
+		}
+		return null;
 	}
 	
 }

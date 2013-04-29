@@ -64,26 +64,28 @@ public class EventRelationFeatureFactory {
 		
 		features.add("isAfter:" + isAfter);
 		
-		//Add words in between two event mentions.
+		//Add words in between two event mentions if they are adjacent in text.
 		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
-		for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
-			//Ignore if it is a noun - NOT GOOD
-			//if(!wordsInBetween.get(wordCounter).second().startsWith("NN")) {
-				String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
-				String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
-						word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
-				if(POS.startsWith("VB") && POS2.equals("IN")) { 
-					if(Main.features.contains("wordsInBetween"))
-						features.add("wordsInBetween:" + word + " " + word2);
-					wordCounter++;
-				}
-				else if(Main.features.contains("wordsInBetween"))
-					features.add("wordsInBetween:" + word);
-				if(TemporalConnectives.contains(word.toLowerCase())) {
-					if(Main.features.contains("temporalConnective"))
-						features.add("temporalConnective:" + word.toLowerCase());
-				}
-			//}
+		if(isImmediatelyAfter) {
+			for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
+				//Ignore if it is a noun - NOT GOOD
+				//if(!wordsInBetween.get(wordCounter).second().startsWith("NN")) {
+					String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
+					String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
+							word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
+					if(POS.startsWith("VB") && POS2.equals("IN")) { 
+						if(Main.features.contains("wordsInBetween"))
+							features.add("wordsInBetween:" + word + " " + word2);
+						wordCounter++;
+					}
+					else if(Main.features.contains("wordsInBetween"))
+						features.add("wordsInBetween:" + word);
+					if(TemporalConnectives.contains(word.toLowerCase())) {
+						if(Main.features.contains("temporalConnective"))
+							features.add("temporalConnective:" + word.toLowerCase());
+					}
+				//}
+			}
 		}
 		//Is there an and within 5 words of each other
 		if(wordsInBetween.size() <= 5) {
@@ -93,9 +95,10 @@ public class EventRelationFeatureFactory {
 			}
 		}
 		
+		String pos1 = event1.getTreeNode().value(), pos2 = event2.getTreeNode().value();
 		//POS tags of both events
 		if(Main.features.contains("POS"))
-			features.add("POS:" + event1.getTreeNode().value() + "+" + event2.getTreeNode().value());
+			features.add("POS:" + pos1 + "+" + pos2);
 		
 		//Lemmas of both events
 		String lemma1 = event1CoreLabel.lemma().toLowerCase();
@@ -117,11 +120,24 @@ public class EventRelationFeatureFactory {
 			features.add("numWordsInBetween:" + quantizedWordCount(counts.second()));
 		
 		//Are the lemmas same?
-		String poss = event1.getTreeNode().value() + "+" + event2.getTreeNode().value();
+		//String poss = event1.getTreeNode().value() + "+" + event2.getTreeNode().value();
+
 		if(Main.features.contains("eventLemmasSame"))
 			//if(!poss.equals("VBZ+VBZ") && !poss.equals("VBN+VBN"))
-				features.add("eventLemmasSame:" + lemma1.equals(lemma2));
+		{	
+			features.add("eventLemmasSame:" + lemma1.equals(lemma2));
+			//features.add("eventLemmasSame:" + lemma1.equals(lemma2) + (pos1.startsWith("NN") || pos2.startsWith("NN") ||
+			//		pos1.equals("VBG") || pos2.equals("VBG")));
+		}
 		
+		//If second trigger is noun, the determiner related to it in dependency tree.
+		if(pos2.startsWith("NN")) {
+			String determiner = Utils.getDeterminer(event2.getSentence(), event2.getTreeNode());
+			if(determiner != null) {
+				features.add("determinerBefore2:" + determiner);
+				LogInfo.logs("determiner:" + determiner);
+			}
+		}
 		
 		//Features if the two triggers are in the same sentence.
 		if (counts.first() == 0) {
@@ -131,65 +147,21 @@ public class EventRelationFeatureFactory {
 			if(Main.features.contains("lowestCommonAncestor"))
 				features.add("lowestCommonAncestor:" + lca.value());
 			
-			Tree node = lca;
-			
-			while(!node.value().equals("ROOT")) {
-				node = node.parent(root);
-			}
-			
-			//Are the event triggers part of a Prepositional phrase individually (one feature each)?
-			boolean matched = false;
-			node = event1.getTreeNode();
-			root = event1.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
-			while(!node.value().equals("ROOT")) {
-				if(node.value().equals("PP")) {
-					for(Tree ponode:node.postOrderNodeList()) {
-						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							if(Main.features.contains("1partOfPP"))
-								features.add("1partOfPP:" + ponode.firstChild().value());
-							matched = true;
-							break;
-						}
-					}
-				}
-				
-				if(matched)
-					break;
-				node = node.parent(root);
-			}
-			
-			matched = false;
-			node = event2.getTreeNode();
-			root = event2.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
-			while(!node.value().equals("ROOT")) {
-				if(node.value().equals("PP")) {
-					for(Tree ponode:node.postOrderNodeList()) {
-						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							if(Main.features.contains("2partOfPP"))
-								features.add("2partOfPP:" + ponode.firstChild().value());
-							matched = true;
-							break;
-						}
-					}
-				}
-				if(matched)
-					break;
-				node = node.parent(root);
-			}
-			
 			//Dependency path if the event triggers are in the same sentence.
-			String deppath2to1 = Utils.getDependencyPath(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode());
-			String deppath1to2 = Utils.getDependencyPath(event1.getSentence(), event2.getTreeNode(), event1.getTreeNode());
+			String deppath2to1 = Utils.getUndirectedDependencyPath(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode());
+			String deppath1to2 = Utils.getUndirectedDependencyPath(event1.getSentence(), event2.getTreeNode(), event1.getTreeNode());
 			if(!deppath1to2.isEmpty()) {
-				if(Main.features.contains("deppath1to2"))
+				if(Main.features.contains("deppath1to2")) {
 					features.add("deppath1to2:" + deppath1to2 );
+				}
 				//Does event1 dominate event2
 				if(Main.features.contains("1dominates2"))
 					features.add("1dominates2");
 			}
 			if(!deppath2to1.isEmpty()) {
-				if(Main.features.contains("deppath2to1"))
+				if(Main.features.contains("deppath2to1")) {
 					features.add("deppath2to1:" + deppath2to1 );
+				}
 				if(Main.features.contains("2dominates1"))
 					features.add("2dominates1");
 			}
@@ -233,6 +205,55 @@ public class EventRelationFeatureFactory {
 						break;
 					}
 				}
+			}
+		}
+
+		if(isImmediatelyAfter) {
+			Tree root = event1.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
+			Tree node = event1.getTreeNode();
+			
+			while(!node.value().equals("ROOT")) {
+				node = node.parent(root);
+			}
+			
+			//Are the event triggers part of a Prepositional phrase individually (one feature each)?
+			boolean matched = false;
+			node = event1.getTreeNode();
+			root = event1.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
+			while(!node.value().equals("ROOT")) {
+				if(node.value().equals("PP")) {
+					for(Tree ponode:node.postOrderNodeList()) {
+						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
+							if(Main.features.contains("1partOfPP"))
+								features.add("1partOfPP:" + ponode.firstChild().value());
+							matched = true;
+							break;
+						}
+					}
+				}
+				
+				if(matched)
+					break;
+				node = node.parent(root);
+			}
+			
+			matched = false;
+			node = event2.getTreeNode();
+			root = event2.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
+			while(!node.value().equals("ROOT")) {
+				if(node.value().equals("PP")) {
+					for(Tree ponode:node.postOrderNodeList()) {
+						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
+							if(Main.features.contains("2partOfPP"))
+								features.add("2partOfPP:" + ponode.firstChild().value());
+							matched = true;
+							break;
+						}
+					}
+				}
+				if(matched)
+					break;
+				node = node.parent(root);
 			}
 		}
 		
@@ -373,7 +394,7 @@ public class EventRelationFeatureFactory {
 					String type = Utils.getEventEventRelation(example.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
 					BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
 					newDatum.features = computeFeatures(example, event1, event2);
-					if(newDatum.features.getFeatures().contains(("eventLemmasSame:true")))
+					if(newDatum.features.getFeatures().contains(("eventLemmasSame:truetrue")))
 							LogInfo.logs("eventLemmasSame:" + newDatum.event1.getTreeNode() + ":" + newDatum.event2.getTreeNode() + ":" +newDatum.label);
 					newDatum.setExampleID(example.id);
 					newData.add(newDatum);
