@@ -100,6 +100,11 @@ public class EventRelationFeatureFactory {
 		if(Main.features.contains("POS"))
 			features.add("POS:" + pos1 + "+" + pos2);
 		
+		//If event1 is the first event in the paragraph and is a nominalization, it is likely that others are sub-events
+		if(example.gold.get(EventMentionsAnnotation.class).indexOf(event1) == 0 && event1.getTreeNode().value().startsWith("NN")) {
+			//features.add("firstAndNominalization");
+		}
+		
 		//Lemmas of both events
 		String lemma1 = event1CoreLabel.lemma().toLowerCase();
 		if(verbForms.containsKey(lemma1)) {
@@ -119,9 +124,9 @@ public class EventRelationFeatureFactory {
 		if(Main.features.contains("numWordsInBetween"))
 			features.add("numWordsInBetween:" + quantizedWordCount(counts.second()));
 		
-		//Are the lemmas same?
+		
 		//String poss = event1.getTreeNode().value() + "+" + event2.getTreeNode().value();
-
+		//Are the lemmas same?
 		if(Main.features.contains("eventLemmasSame"))
 			//if(!poss.equals("VBZ+VBZ") && !poss.equals("VBN+VBN"))
 		{	
@@ -135,7 +140,7 @@ public class EventRelationFeatureFactory {
 			String determiner = Utils.getDeterminer(event2.getSentence(), event2.getTreeNode());
 			if(determiner != null) {
 				features.add("determinerBefore2:" + determiner);
-				LogInfo.logs("determiner:" + determiner);
+				//LogInfo.logs("determiner:" + determiner);
 			}
 		}
 		
