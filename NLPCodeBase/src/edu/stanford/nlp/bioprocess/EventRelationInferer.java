@@ -123,7 +123,7 @@ public class EventRelationInferer {
 				for(String possibleLabel:labelsInClassifier)
 					weights.put(String.format("%d,%d,%d", eventMentions.indexOf(d.event1), eventMentions.indexOf(d.event2),
 											labelsInClassifier.indexOf(possibleLabel)), 
-											classifier.probabilityOf(newDatum).getCount(possibleLabel));
+											classifier.logProbabilityOf(newDatum).getCount(possibleLabel));
 				
 				labelings.put(eventMentions.indexOf(d.event1) + "," + eventMentions.indexOf(d.event2), new Pair<String, String>(d.label, d.predictedLabel()));
 				
@@ -193,12 +193,25 @@ public class EventRelationInferer {
 					}
 				}
 			}
+		
+			//System.out.println(weights);
+			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier.size());
+			
+			for(Pair<Integer,Integer> p:best.keySet()) {
+				for(BioDatum d:dataset) {
+					if(eventMentions.indexOf(d.event1) == p.first() && 
+							eventMentions.indexOf(d.event2) == p.second()) {
+						d.setPredictedLabel(labelsInClassifier.get(best.get(p)));
+					}
+				}
+				buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"green\" %s color = \"%s\"];", "node"+p.first(), "node"+p.second(), labelsInClassifier.get(best.get(p)),
+					//If Cotemporal or same event, put bi-directional edges
+					(labelsInClassifier.get(best.get(p)).equals("CotemporalEvent") || labelsInClassifier.get(best.get(p)).equals("SameEvent")) ? "dir = \"both\"" : "", "green")) ;
+			}
+			
 			buffer.append("\n}");
 			predicted.addAll(dataset);
 			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");
-		
-			//System.out.println(weights);
-			ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier.size());
 			
 			try {
 	        	Runtime rt = Runtime.getRuntime();

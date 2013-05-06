@@ -355,7 +355,7 @@ public class Main implements Runnable {
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		boolean small = true;
+		boolean small = false;
 		//Clearing folder for visualization
 		Utils.clearFolderContent("GraphViz");
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
