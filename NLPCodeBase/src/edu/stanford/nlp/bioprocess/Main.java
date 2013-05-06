@@ -355,7 +355,7 @@ public class Main implements Runnable {
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		boolean small = false;
+		boolean small = true;
 		//Clearing folder for visualization
 		Utils.clearFolderContent("GraphViz");
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
@@ -365,6 +365,29 @@ public class Main implements Runnable {
 		EventRelationInferer inferer = new EventRelationInferer();
 		List<String> relations = ArgumentRelation.getEventRelations();
 		double[][] confusionMatrix = new double[relations.size()][relations.size()];
+		
+		features = new ArrayList<String>();
+		
+		features.add("isImmediatelyAfter");
+		features.add("wordsInBetween");
+		features.add("temporalConnective");
+		features.add("POS");
+		features.add("lemma");
+		features.add("eventLemmasSame");
+		features.add("numSentencesInBetween");
+		features.add("numWordsInBetween");
+		features.add("lowestCommonAncestor");
+		features.add("1partOfPP");
+		features.add("2partOfPP");
+		features.add("deppath1to2");
+		features.add("1dominates2");
+		features.add("deppath2to1");
+		features.add("2dominates1");
+		features.add("markRelationEvent1");
+		features.add("advmodRelationEvent1");
+		features.add("markRelationEvent2");
+		features.add("advmodRelationEvent2");
+		features.add("shareChild");
 		
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
@@ -386,29 +409,6 @@ public class Main implements Runnable {
 			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
 			//double[] microPrecisionDev = new double[NumCrossValidation], microRecallDev = new double[NumCrossValidation], microF1Dev = new double[NumCrossValidation];
 			//double[] macroPrecisionDev = new double[NumCrossValidation], macroRecallDev = new double[NumCrossValidation], macroF1Dev = new double[NumCrossValidation];
-			
-			features = new ArrayList<String>();
-			
-			features.add("isImmediatelyAfter");
-			features.add("wordsInBetween");
-			features.add("temporalConnective");
-			features.add("POS");
-			features.add("lemma");
-			features.add("eventLemmasSame");
-			features.add("numSentencesInBetween");
-			features.add("numWordsInBetween");
-			features.add("lowestCommonAncestor");
-			features.add("1partOfPP");
-			features.add("2partOfPP");
-			features.add("deppath1to2");
-			features.add("1dominates2");
-			features.add("deppath2to1");
-			features.add("2dominates1");
-			features.add("markRelationEvent1");
-			features.add("advmodRelationEvent1");
-			features.add("markRelationEvent2");
-			features.add("advmodRelationEvent2");
-			features.add("shareChild");
 			
 			double bestF1 = 0.49340866;
 			String worstFeature = "NONE";

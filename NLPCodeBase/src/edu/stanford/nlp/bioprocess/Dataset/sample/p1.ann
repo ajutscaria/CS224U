@@ -19,9 +19,5 @@ T12	Entity 295 315	the haploid organism
 T13	Entity 355 364	the cells
 T14	Event 370 377	develop
 E7	Event:T14 result:T15 agent:T13
-T16	Event 407 412	develop
-E8	Event:T16
-T17	Event 422 429	develop
-E9	Event:T17
 T15	Entity 383 390	gametes
 *	same-entity T10 T12

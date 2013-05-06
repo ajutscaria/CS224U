@@ -94,16 +94,37 @@ public class EventRelationInferer {
 			StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\";");
 			int count = 0;
 			List<EventMention> eventMentions = ex.gold.get(EventMentionsAnnotation.class);
+			System.out.println(eventMentions);
 			
 			for(EventMention evtMention:ex.gold.get(EventMentionsAnnotation.class)) {
 				buffer.append(String.format("\nnode%s [label = \"%s\"]", count++, Utils.getText(evtMention.getTreeNode())));
+				System.out.println(evtMention.getTreeNode());
 			}
 
 			IntCounter<EventMention> dG = new IntCounter<EventMention>(), sG = new IntCounter<EventMention>(), pG = new IntCounter<EventMention>(), cG = new IntCounter<EventMention>();
 			IntCounter<EventMention> dP = new IntCounter<EventMention>(), sP = new IntCounter<EventMention>(), pP = new IntCounter<EventMention>(), cP = new IntCounter<EventMention>();
+			
+			HashMap<String, Double> weights = new HashMap<String, Double>();
+			List<String> labelsInClassifier = (List<String>) classifier.labels();
+
+			System.out.println();
+			
+			//Ensuring that 'NONE' is always at index 0
+			labelsInClassifier.remove("NONE");
+			labelsInClassifier.add(0, "NONE");
+			
+			for(String l:labelsInClassifier)
+				LogInfo.logs(l);
+			
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 				d.setPredictedLabel(classifier.classOf(newDatum));
+				
+				for(String possibleLabel:labelsInClassifier)
+					weights.put(String.format("%d,%d,%d", eventMentions.indexOf(d.event1), eventMentions.indexOf(d.event2),
+											labelsInClassifier.indexOf(possibleLabel)), 
+											classifier.probabilityOf(newDatum).getCount(possibleLabel));
+				
 				labelings.put(eventMentions.indexOf(d.event1) + "," + eventMentions.indexOf(d.event2), new Pair<String, String>(d.label, d.predictedLabel()));
 				
 				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
@@ -176,6 +197,9 @@ public class EventRelationInferer {
 			predicted.addAll(dataset);
 			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");
 		
+			//System.out.println(weights);
+			ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier.size());
+			
 			try {
 	        	Runtime rt = Runtime.getRuntime();
 	        	rt.exec("dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
