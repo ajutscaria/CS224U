@@ -459,17 +459,25 @@ public class Main implements Runnable {
 			
 			//printScores("Dev - Micro", microPrecisionDev, microRecallDev, microF1Dev);
 			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
-			/*System.out.println(inferer.totalEvents);
-			System.out.println(inferer.prevEvent);
-			System.out.println(inferer.superEvent);
-			System.out.println(inferer.causeEvent);
-			System.out.println(inferer.degreeDistribution);
+			//System.out.println(inferer.totalEvents);
+			LogInfo.logs("Previous Event");
+			LogInfo.logs("\tActual     " + inferer.prevEvent);
+			LogInfo.logs("\tPrediction " + inferer.prevEventPred);
 			
-			System.out.println(inferer.prevEventPred);
-			System.out.println(inferer.superEventPred);
-			System.out.println(inferer.causeEventPred);
-			System.out.println(inferer.degreeDistributionPred);*/
-			/*//Print triples
+			LogInfo.logs("Super Event");
+			LogInfo.logs("\tActual     " + inferer.superEvent);
+			LogInfo.logs("\tPrediction " + inferer.superEventPred);
+			
+			LogInfo.logs("Cause Event");
+			LogInfo.logs("\tActual     " + inferer.causeEvent);
+			LogInfo.logs("\tPrediction " + inferer.causeEventPred);
+			
+			LogInfo.logs("Degree Distribution");
+			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
+			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
+
+
+			//Print triples
 			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
@@ -479,7 +487,7 @@ public class Main implements Runnable {
 							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
 					}
 				}
-			}*/
+			}
 		}
 	}
 	

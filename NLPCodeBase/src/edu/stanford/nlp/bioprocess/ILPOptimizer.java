@@ -106,6 +106,7 @@ public class ILPOptimizer {
 				for(int j=i+1; j<numEvents; j++) {
 					GRBLinExpr directedIndicator1 = new GRBLinExpr();
 					directedIndicator1.addTerm(1.0, Y_ij.get(String.format("%d,%d", i, j)));
+					//directedIndicator1.addTerm(1.0, Y_ij.get(String.format("%d,%d", j, i)));
 					directedIndicator1.addTerm(-1.0, X_ij.get(String.format("%d,%d", i, j)));
 					model.addConstr(directedIndicator1, GRB.LESS_EQUAL, 0.0, String.format("c3_%d,%d", i,j));
 					
