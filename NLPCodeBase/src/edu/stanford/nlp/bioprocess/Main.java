@@ -415,42 +415,42 @@ public class Main implements Runnable {
 			//for(int featureCounter = 0; featureCounter < features.size(); featureCounter++) {
 				//String feature = features.get(featureCounter);
 				//features.remove(feature);
-				List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
+			List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
+			
+			for(int i = 1; i <= NumCrossValidation; i++) {
+				LogInfo.begin_track("Iteration " + i);
 				
-				for(int i = 1; i <= NumCrossValidation; i++) {
-					LogInfo.begin_track("Iteration " + i);
-					
-					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
-					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
-					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
-					
-					resultsFromAllFolds.addAll(result);
-					
-					//counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
-					Scorer.updateMatrix(confusionMatrix, result, relations);
-									
-					LogInfo.end_track();
-				}
+				Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
+				List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+				//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 				
-				Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
-				//System.out.println("Total relations - " + counter);
+				resultsFromAllFolds.addAll(result);
 				
-				Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
-				//LogInfo.logs("Removed feature - " + feature);
-				LogInfo.logs("Micro precision");
-				LogInfo.logs("Precision : " + pairTriple.first.first);
-				LogInfo.logs("Recall    : " + pairTriple.first.second);
-				LogInfo.logs("F1 score  : " + pairTriple.first.third);
-				
-				LogInfo.logs("\nMacro precision");
-				LogInfo.logs("Precision : " + pairTriple.second.first);
-				LogInfo.logs("Recall    : " + pairTriple.second.second);
-				LogInfo.logs("F1 score  : " + pairTriple.second.third);
-				
-				if(pairTriple.first.third > bestF1) {
-					bestF1 = pairTriple.first.third;
-				//	worstFeature = feature;
-				}
+				//counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
+				Scorer.updateMatrix(confusionMatrix, result, relations);
+								
+				LogInfo.end_track();
+			}
+			
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
+			//System.out.println("Total relations - " + counter);
+			
+			Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
+			//LogInfo.logs("Removed feature - " + feature);
+			LogInfo.logs("Micro precision");
+			LogInfo.logs("Precision : " + pairTriple.first.first);
+			LogInfo.logs("Recall    : " + pairTriple.first.second);
+			LogInfo.logs("F1 score  : " + pairTriple.first.third);
+			
+			LogInfo.logs("\nMacro precision");
+			LogInfo.logs("Precision : " + pairTriple.second.first);
+			LogInfo.logs("Recall    : " + pairTriple.second.second);
+			LogInfo.logs("F1 score  : " + pairTriple.second.third);
+			
+			if(pairTriple.first.third > bestF1) {
+				bestF1 = pairTriple.first.third;
+			//	worstFeature = feature;
+			}
 				//features.add(feature);
 			//}
 			
@@ -460,6 +460,11 @@ public class Main implements Runnable {
 			//printScores("Dev - Micro", microPrecisionDev, microRecallDev, microF1Dev);
 			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
 			//System.out.println(inferer.totalEvents);
+			
+			/*
+			LogInfo.logs("Maximum number of variables   : " + ILPOptimizer.MaxVariables);
+			LogInfo.logs("Maximum number of constraints : " + ILPOptimizer.MaxConstraints);
+				
 			LogInfo.logs("Previous Event");
 			LogInfo.logs("\tActual     " + inferer.prevEvent);
 			LogInfo.logs("\tPrediction " + inferer.prevEventPred);
@@ -475,9 +480,9 @@ public class Main implements Runnable {
 			LogInfo.logs("Degree Distribution");
 			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
+			*/
 
-
-			//Print triples
+			/*//Print triples
 			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
@@ -487,7 +492,22 @@ public class Main implements Runnable {
 							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
 					}
 				}
-			}
+			}*/
+			/*
+			LogInfo.begin_track("Mark relations");
+			for(String s:EventRelationFeatureFactory.markWords)
+				LogInfo.logs(s);
+			LogInfo.end_track();
+			
+			LogInfo.begin_track("Advmod relations");
+			for(String s:EventRelationFeatureFactory.advmodWords)
+				LogInfo.logs(s);
+			LogInfo.end_track();
+			
+			LogInfo.begin_track("Event inside PP relations");
+			for(String s:EventRelationFeatureFactory.eventInsidePP)
+				LogInfo.logs(s);
+			LogInfo.end_track();*/
 		}
 	}
 	

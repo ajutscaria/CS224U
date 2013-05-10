@@ -6,16 +6,9 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 import gurobi.*;
 
-/* This example formulates and solves the following simple MIP model:
-
-     maximize    x +   y + 2 z
-     subject to  x + 2 y + 3 z <= 4
-                 x +   y       >= 1
-     x, y, z binary
-*/
 
 public class ILPOptimizer {
-	
+	static int MaxVariables = 0, MaxConstraints = 0;
 	/**
 	 * The label NONE always comes at 0th index.
 	 * @param weights - 
@@ -23,7 +16,8 @@ public class ILPOptimizer {
 	 * @param numLabels
 	 */
 	public static HashMap<Pair<Integer,Integer>, Integer> OptimizeEventRelation(HashMap<String, Double> weights,
-			int numEvents, int numLabels) {
+			int numEvents, List<String> labels) {
+		int numLabels = labels.size();
 		HashMap<Pair<Integer,Integer>, Integer> best = new HashMap<Pair<Integer,Integer>, Integer>();
 		HashMap<String, GRBVar> X_ijr = new HashMap<String, GRBVar>();
 		HashMap<String, GRBVar> X_ij = new HashMap<String, GRBVar>();
@@ -170,6 +164,48 @@ public class ILPOptimizer {
 		    		}
 		    	}
 		    }
+		      
+		    //Constraint for CotemporalEvent
+		    if(labels.contains("CotemporalEvent")) {
+		    	int cotemporalEventIndex = labels.indexOf("CotemporalEvent");
+		    	int sameEventIndex = labels.contains("SameEvent") ?  labels.indexOf("SameEvent") : -1;
+			    for(int i=0; i<numEvents; i++) {
+			    	for(int j=i+1;j<numEvents;j++) {
+			    		for(int k=j+1;k<numEvents;k++) {
+			    			GRBLinExpr cotemporalConstraint = new GRBLinExpr();
+			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+							//model.addConstr(cotemporalConstraint, GRB.LESS_EQUAL, 1.0, String.format("c7_%d,%d,%d", i,j,k));
+							
+							cotemporalConstraint = new GRBLinExpr();
+			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+							//model.addConstr(cotemporalConstraint, GRB.LESS_EQUAL, 1.0, String.format("c8_%d,%d,%d", i,j,k));
+							
+							cotemporalConstraint = new GRBLinExpr();
+			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
+			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+							//model.addConstr(cotemporalConstraint, GRB.LESS_EQUAL, 1.0, String.format("c9_%d,%d,%d", i,j,k));
+			    		}
+			    	}
+			    }
+		    }
+		    
+		    model.update();
+		    
+		    //Count number of variables
+		    if(model.getVars().length > MaxVariables)
+		    	MaxVariables = model.getVars().length;
+		    
+		    //Count number of constraints
+		    if(model.getConstrs().length > MaxConstraints)
+		    	MaxConstraints = model.getConstrs().length;
 		    
 		    //Optimize the model
 		    model.optimize();

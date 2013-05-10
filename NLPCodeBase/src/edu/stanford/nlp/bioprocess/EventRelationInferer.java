@@ -94,11 +94,11 @@ public class EventRelationInferer {
 			StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\";");
 			int count = 0;
 			List<EventMention> eventMentions = ex.gold.get(EventMentionsAnnotation.class);
-			System.out.println(eventMentions);
+			//System.out.println(eventMentions);
 			
 			for(EventMention evtMention:ex.gold.get(EventMentionsAnnotation.class)) {
 				buffer.append(String.format("\nnode%s [label = \"%s\"]", count++, Utils.getText(evtMention.getTreeNode())));
-				System.out.println(evtMention.getTreeNode());
+				//System.out.println(evtMention.getTreeNode());
 			}
 
 			IntCounter<EventMention> dG = new IntCounter<EventMention>(), sG = new IntCounter<EventMention>(), pG = new IntCounter<EventMention>(), cG = new IntCounter<EventMention>();
@@ -195,12 +195,12 @@ public class EventRelationInferer {
 			}
 		
 			//System.out.println(weights);
-			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier.size());
+			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier);
 			
 			for(Pair<Integer,Integer> p:best.keySet()) {
 				for(BioDatum d:dataset) {
 					if(eventMentions.indexOf(d.event1) == p.first() && 
-							eventMentions.indexOf(d.event2) == p.second() && !d.predictedLabel().equals(best.get(p))) {
+							eventMentions.indexOf(d.event2) == p.second() && !d.predictedLabel().equals(labelsInClassifier.get(best.get(p)))) {
 						d.setPredictedLabel(labelsInClassifier.get(best.get(p)));
 						buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"darkgreen\" %s color = \"%s\"];", "node"+p.first(), "node"+p.second(), labelsInClassifier.get(best.get(p)),
 								//If Cotemporal or same event, put bi-directional edges
