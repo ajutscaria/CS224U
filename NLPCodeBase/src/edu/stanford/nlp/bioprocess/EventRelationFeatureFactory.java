@@ -66,12 +66,14 @@ public class EventRelationFeatureFactory {
 		
 		features.add("isAfter:" + isAfter);
 		
-		//Add words in between two event mentions if they are adjacent in text.
-		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
 		if(isImmediatelyAfter) {
+			//Add words in between two event mentions if they are adjacent in text.
+			List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
+			StringBuffer phrase = new StringBuffer();
 			for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
 				//Ignore if it is a noun - NOT GOOD
 				//if(!wordsInBetween.get(wordCounter).second().startsWith("NN")) {
+					phrase.append(wordsInBetween.get(wordCounter).first + " ");
 					String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
 					String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
 							word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
@@ -88,12 +90,14 @@ public class EventRelationFeatureFactory {
 					}
 				//}
 			}
-		}
-		//Is there an and within 5 words of each other
-		if(wordsInBetween.size() <= 5) {
-			for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
-				if(wordsInBetween.get(wordCounter).first.equals("and")) 
-					features.add("closeAndInBetween");
+			//features.add("phraseInBetween:" + phrase.toString().trim());
+			//Is there an and within 5 words of each other
+			if(wordsInBetween.size() <= 5) {
+
+				for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
+					if(wordsInBetween.get(wordCounter).first.equals("and")) 
+						features.add("closeAndInBetween");
+				}
 			}
 		}
 		

@@ -238,8 +238,12 @@ public class EventRelationInferer {
 				for(int j = i+1; j < eventMentions.size(); j++){
 					for(int k = j+1; k < eventMentions.size(); k++){
 						Pair<String, String> rel1 = labelings.get(i + "," + j), rel2 = labelings.get(j + "," + k), rel3 = labelings.get(i + "," + k);
-						countGoldTriples.incrementCount(rel1.first()+ "," + rel2.first() + "," + rel3.first());
-						countPredictedTriples.incrementCount(rel1.second()+ "," + rel2.second() + "," + rel3.second());
+						
+						Triple<String, String, String> goldEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1.first(), rel2.first(), rel3.first()));
+						Triple<String, String, String> predEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1.second(), rel2.second(), rel3.second()));
+						
+						countGoldTriples.incrementCount(goldEquivalent.first()+ "," + goldEquivalent.second() + "," + goldEquivalent.third());
+						countPredictedTriples.incrementCount(predEquivalent.first()+ "," + predEquivalent.second() + "," + predEquivalent.third());
 						String rel = String.format("%s->%s->%s", rel1.second(), rel2.second(), rel3.second());
 						if(rel.equals("Causes->Caused->NONE")) {
 							LogInfo.logs("NOGOLD:Causes->Caused->NONE " + ex.id + " " + eventMentions.get(i).getTreeNode()

@@ -52,6 +52,7 @@ import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.IntTuple;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
+import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 
 public class Utils {
@@ -982,6 +983,67 @@ public static List<Example> readFile(String fileName) {
 		return null;
 	}
 	
+	public static Triple<String, String, String> getEquivalentBaseTriple(Triple<String, String, String> triple) {
+		List<String> baseRelations = new ArrayList<String>();
+		
+		baseRelations.add(RelationType.NONE.toString());
+		baseRelations.add(RelationType.CotemporalEvent.toString());
+		baseRelations.add(RelationType.PreviousEvent.toString());
+		baseRelations.add(RelationType.SameEvent.toString());
+		baseRelations.add(RelationType.SuperEvent.toString());
+		baseRelations.add(RelationType.Causes.toString());
+		baseRelations.add(RelationType.Enables.toString());
+		
+		Triple<String, String, String> eq = null;
+		//int numEq = 0;
+		
+		for(Triple<String, String, String> equivalent:getEquivalentTriples(triple)) {
+			if(baseRelations.contains(equivalent.first()) &&
+					baseRelations.contains(equivalent.second())&&
+					baseRelations.contains(equivalent.third())) {
+				//numEq++;
+				//return equivalent;
+				if(eq== null || 
+						String.format("%s%s%s", eq.first, eq.second, eq.third).compareTo(
+								String.format("%s%s%s", equivalent.first, equivalent.second, equivalent.third)) > 0)
+					eq = equivalent;
+			}
+		}
+		/*
+		if(numEq != 1) {
+			LogInfo.logs("MORETHAN1EQ " + numEq + " " + triple + " " + eq);
+			for(Triple<String, String, String> equivalent:getEquivalentTriples(triple))
+				LogInfo.logs("\t" + equivalent);
+		}*/
+		return eq;
+	}
+	
+	public static List<Triple<String, String, String>> getEquivalentTriples(Triple<String, String, String> triple) {
+		HashMap<String, String> inverse = new HashMap<String, String>();
+		inverse.put(RelationType.NONE.toString(), RelationType.NONE.toString());
+		inverse.put(RelationType.CotemporalEvent.toString(), RelationType.CotemporalEvent.toString());
+		inverse.put(RelationType.NextEvent.toString(), RelationType.PreviousEvent.toString());
+		inverse.put(RelationType.PreviousEvent.toString(), RelationType.NextEvent.toString());
+		inverse.put(RelationType.SameEvent.toString(), RelationType.SameEvent.toString());
+		inverse.put(RelationType.SuperEvent.toString(), RelationType.SubEvent.toString());
+		inverse.put(RelationType.SubEvent.toString(), RelationType.SuperEvent.toString());
+		inverse.put(RelationType.Causes.toString(), RelationType.Caused.toString());
+		inverse.put(RelationType.Caused.toString(), RelationType.Causes.toString());
+		inverse.put(RelationType.Enables.toString(), RelationType.Enabled.toString());
+		inverse.put(RelationType.Enabled.toString(), RelationType.Enables.toString());
+		List<Triple<String, String, String>> allEquivalent = new ArrayList<Triple<String, String, String>>();
+		  
+		  
+		allEquivalent.add(triple);
+		allEquivalent.add(new Triple<String, String, String>(triple.third(), inverse.get(triple.second()), triple.first()));
+		allEquivalent.add(new Triple<String, String, String>(inverse.get(triple.first()), triple.third(), triple.second()));
+		allEquivalent.add(new Triple<String, String, String>(triple.second(), inverse.get(triple.third()), inverse.get(triple.first())));
+		allEquivalent.add(new Triple<String, String, String>(inverse.get(triple.third()), triple.first(), inverse.get(triple.second())));
+		allEquivalent.add(new Triple<String, String, String>(inverse.get(triple.second()), inverse.get(triple.first()), inverse.get(triple.third())));
+		
+		
+		return allEquivalent;
+	}
 }
 
 

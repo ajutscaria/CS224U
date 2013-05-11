@@ -196,6 +196,7 @@ public class Main implements Runnable {
 		else if(mode.equals("eventrelation")) {
 			LogInfo.logs("Running event relation");
 			runEventRelationsPrediction(folders);
+			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
 		}
 		LogInfo.end_track();
 	}
@@ -482,7 +483,7 @@ public class Main implements Runnable {
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
 			*/
 
-			/*//Print triples
+			//Print triples
 			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
@@ -492,7 +493,7 @@ public class Main implements Runnable {
 							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
 					}
 				}
-			}*/
+			}
 			/*
 			LogInfo.begin_track("Mark relations");
 			for(String s:EventRelationFeatureFactory.markWords)
