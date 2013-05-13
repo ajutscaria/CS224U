@@ -10,6 +10,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
+import java.nio.file.DirectoryIteratorException;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -960,6 +961,13 @@ public static List<Example> readFile(String fileName) {
 	    }
 	    //  folder.delete();
 	}
+	
+	public static void moveFolderContent(String oldFolderName, String newFolderName) {
+		clearFolderContent(newFolderName);
+		File folder = new File(oldFolderName);
+		folder.renameTo(new File(newFolderName));
+		folder.mkdir();
+	}
 
 	public static boolean isEventNext(List<EventMention> list, EventMention event1, EventMention event2) {
 		int index1 = list.indexOf(event1), index2 = list.indexOf(event2);
@@ -996,7 +1004,7 @@ public static List<Example> readFile(String fileName) {
 		
 		Triple<String, String, String> eq = null;
 		//int numEq = 0;
-		
+		//LogInfo.logs(getEquivalentTriples(triple));
 		for(Triple<String, String, String> equivalent:getEquivalentTriples(triple)) {
 			if(baseRelations.contains(equivalent.first()) &&
 					baseRelations.contains(equivalent.second())&&
@@ -1015,6 +1023,9 @@ public static List<Example> readFile(String fileName) {
 			for(Triple<String, String, String> equivalent:getEquivalentTriples(triple))
 				LogInfo.logs("\t" + equivalent);
 		}*/
+		if(eq==null) {
+			eq = triple;
+		}
 		return eq;
 	}
 	

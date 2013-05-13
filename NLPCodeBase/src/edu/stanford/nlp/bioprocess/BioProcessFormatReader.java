@@ -24,6 +24,7 @@ import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
+import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 
 public class BioProcessFormatReader extends GenericDataSetReader {
@@ -61,6 +62,30 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       example.data = rawText;
       example.id = file.replace(TEXT_EXTENSION, "");
       example.gold = createAnnotation(path + file);
+      
+      //Ensuring triadic closure
+      List<EventMention> eventMentions = example.gold.get(EventMentionsAnnotation.class);
+      for(int i = 0; i < eventMentions.size(); i++){
+			for(int j = i+1; j < eventMentions.size(); j++){
+				for(int k = j+1; k < eventMentions.size(); k++) {
+					String rel1 = Utils.getEventEventRelation(example.gold, eventMentions.get(i).getTreeNode(), eventMentions.get(j).getTreeNode()).toString();
+					String rel2 = Utils.getEventEventRelation(example.gold, eventMentions.get(j).getTreeNode(), eventMentions.get(k).getTreeNode()).toString();
+					String rel3 = Utils.getEventEventRelation(example.gold, eventMentions.get(i).getTreeNode(), eventMentions.get(k).getTreeNode()).toString();
+					Triple<String, String, String> goldEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1, rel2, rel3));
+					if((goldEquivalent.first().equals("NONE") && goldEquivalent.second().equals("SameEvent") && goldEquivalent.third().equals("SameEvent"))) {
+						if(rel1.equals("NONE")) {
+							eventMentions.get(i).addArgument(eventMentions.get(j), RelationType.SameEvent);
+						}
+						else if(rel2.equals("NONE")) {
+							eventMentions.get(j).addArgument(eventMentions.get(k), RelationType.SameEvent);
+						}
+						else if(rel3.equals("NONE")) {
+							eventMentions.get(i).addArgument(eventMentions.get(k), RelationType.SameEvent);
+						}
+					}
+				}
+			}
+      }
       
       example.prediction = example.gold.copy();
       example.prediction.set(EntityMentionsAnnotation.class, new ArrayList<EntityMention>());
@@ -100,7 +125,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       RandomAccessFile reader = new RandomAccessFile(new File(fileName.replace(TEXT_EXTENSION, ANNOTATION_EXTENSION)), "r");
       String line;
       while((line = reader.readLine())!=null) {
-    	System.out.println(line);
+    	LogInfo.logs(line);
         String[] splits = line.split("\t");
         String desc = splits[0];
         switch(desc.charAt(0)) {

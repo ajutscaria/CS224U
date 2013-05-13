@@ -178,9 +178,9 @@ public class Scorer {
 			falseNeg.incrementCount(d.label);
 			falsePos.incrementCount(d.predictedLabel());
 		}
-		//if(d.label.equals("SameEvent") && d.predictedLabel().equals("NONE")) {
-		//	LogInfo.logs(d.event1.getTreeNode() + ":" + d.event2.getTreeNode() + "-->" + d.getExampleID());
-		//}
+		if(d.label.equals("CotemporalEvent") && d.predictedLabel().equals("PreviousEvent")) {
+			LogInfo.logs(d.event1.getTreeNode() + ":" + d.event2.getTreeNode() + "-->" + d.getExampleID());
+		}
 	}
 	
 	HashMap<String, Double> macroPrecision = new HashMap<String, Double>(), macroRecall = new HashMap<String, Double>(), macroF1 = new HashMap<String, Double>();

@@ -358,8 +358,9 @@ public class Main implements Runnable {
 		int NumCrossValidation = 10;
 		boolean small = false;
 		//Clearing folder for visualization
+		Utils.moveFolderContent("GraphViz", "GraphVizPrev");
 		Utils.clearFolderContent("GraphViz");
-		BioprocessDataset dataset = loadDataSet(folders, small, false);
+		BioprocessDataset dataset = loadDataSet(folders, small, true);
 		
 		Learner eventRelationLearner = new Learner();
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
@@ -484,6 +485,7 @@ public class Main implements Runnable {
 			*/
 
 			//Print triples
+			/*
 			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
@@ -493,7 +495,7 @@ public class Main implements Runnable {
 							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
 					}
 				}
-			}
+			}*/
 			/*
 			LogInfo.begin_track("Mark relations");
 			for(String s:EventRelationFeatureFactory.markWords)
