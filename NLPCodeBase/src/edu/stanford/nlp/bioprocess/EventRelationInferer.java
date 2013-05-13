@@ -181,7 +181,7 @@ public class EventRelationInferer {
 							(d.label().equals("CotemporalEvent") || d.label().equals("SameEvent")) ? "dir = \"both\"" : "", "goldenrod3")) ;
 				}
 			}
-			/*
+			
 			//System.out.println(weights);
 			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier);
 			
@@ -197,7 +197,7 @@ public class EventRelationInferer {
 					}
 				}
 			}
-			*/
+			
 			for(BioDatum d:dataset) {
 				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
 					continue;
