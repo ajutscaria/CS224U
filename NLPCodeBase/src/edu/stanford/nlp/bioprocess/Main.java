@@ -360,7 +360,7 @@ public class Main implements Runnable {
 		//Clearing folder for visualization
 		Utils.moveFolderContent("GraphViz", "GraphVizPrev");
 		Utils.clearFolderContent("GraphViz");
-		BioprocessDataset dataset = loadDataSet(folders, small, true);
+		BioprocessDataset dataset = loadDataSet(folders, small, false);
 		
 		Learner eventRelationLearner = new Learner();
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
