@@ -60,11 +60,14 @@ public class EventRelationFeatureFactory {
 				event2CoreLabel = Utils.findCoreLabelFromTree(event2.getSentence(), event2.getTreeNode());
 		boolean isImmediatelyAfter = Utils.isEventNextInOrder(example.gold.get(EventMentionsAnnotation.class), event1, event2),
 				isAfter = Utils.isEventNext(example.gold.get(EventMentionsAnnotation.class), event1, event2);
-		//Is event2 immediately after event1?
-		if(Main.features.contains("isImmediatelyAfter"))
-			features.add("isImmediatelyAfter:" + isImmediatelyAfter);
 		
-		features.add("isAfter:" + isAfter);
+		//Is event2 immediately after event1?
+		//if(Main.features.contains("isImmediatelyAfter")) {
+		//	features.add("isImmediatelyAfter:" + isImmediatelyAfter);
+		//}
+		if(Main.features.contains("isAfter")) {
+			features.add("isAfter:" + isAfter);
+		}
 		
 		if(isImmediatelyAfter) {
 			//Add words in between two event mentions if they are adjacent in text.
@@ -95,8 +98,9 @@ public class EventRelationFeatureFactory {
 			if(wordsInBetween.size() <= 5) {
 
 				for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
-					if(wordsInBetween.get(wordCounter).first.equals("and")) 
-						features.add("closeAndInBetween");
+					if(Main.features.contains("closeAndInBetween"))
+						if(wordsInBetween.get(wordCounter).first.equals("and")) 
+							features.add("closeAndInBetween");
 				}
 			}
 		}
@@ -144,10 +148,11 @@ public class EventRelationFeatureFactory {
 		//If second trigger is noun, the determiner related to it in dependency tree.
 		if(pos2.startsWith("NN")) {
 			String determiner = Utils.getDeterminer(event2.getSentence(), event2.getTreeNode());
-			if(determiner != null) {
-				features.add("determinerBefore2:" + determiner);
-				//LogInfo.logs("determiner:" + determiner);
-			}
+			if(determiner != null)
+				if(Main.features.contains("numSentencesInBetween")) {
+					features.add("determinerBefore2:" + determiner);
+					//LogInfo.logs("determiner:" + determiner);
+				}
 		}
 		
 		//Features if the two triggers are in the same sentence.
@@ -461,10 +466,10 @@ public class EventRelationFeatureFactory {
 	}
 	
 	public String quantizedWordCount(int numWords) {
-		if(numWords <= 3) {
+		if(numWords <= 4) {
 			return "Low";
 		}
-		else if(numWords <= 6) {
+		else if(numWords <= 8) {
 			return "Medium";
 		}
 		else if(numWords <= 15) {

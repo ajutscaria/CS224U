@@ -1,7 +1,7 @@
 T1	Event 188 196	attaches
-E1	Event:T1 same-event:E2 agent:T12 theme:T14
+E1	Event:T1 same-event:E2 agent:T12 theme:T14 same-event2:E3 same-event3:E10
 T2	Event 362 367	binds
-E2	Event:T2 same-event:E3 agent:T16 theme:T17
+E2	Event:T2 same-event:E3 agent:T16 theme:T17 same-event2:E10
 T3	Event 416 423	binding
 E3	Event:T3 causes:E4 same-event:E10 agent:T19
 T4	Event 473 479	change

@@ -1,5 +1,5 @@
 T1	Event 16 23	absorbs
-E1	Event:T1 causes:E2 same-event:E4 agent:T8 theme:T9
+E1	Event:T1 causes:E2 same-event:E4 agent:T8 theme:T9 same-event2:E7
 T2	Event 78 86	elevated
 E2	Event:T2 same-event:E6 theme:T10 destination:T11 origin:T12
 T3	Static-Event 223 235	ground state

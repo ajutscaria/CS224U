@@ -64,6 +64,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       example.gold = createAnnotation(path + file);
       
       //Ensuring triadic closure
+      /*
       List<EventMention> eventMentions = example.gold.get(EventMentionsAnnotation.class);
       for(int i = 0; i < eventMentions.size(); i++){
 			for(int j = i+1; j < eventMentions.size(); j++){
@@ -73,6 +74,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
 					String rel3 = Utils.getEventEventRelation(example.gold, eventMentions.get(i).getTreeNode(), eventMentions.get(k).getTreeNode()).toString();
 					Triple<String, String, String> goldEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1, rel2, rel3));
 					if((goldEquivalent.first().equals("NONE") && goldEquivalent.second().equals("SameEvent") && goldEquivalent.third().equals("SameEvent"))) {
+						LogInfo.logs("NOTRIADCLOSURE" + example.id);
 						if(rel1.equals("NONE")) {
 							eventMentions.get(i).addArgument(eventMentions.get(j), RelationType.SameEvent);
 						}
@@ -85,7 +87,7 @@ public class BioProcessFormatReader extends GenericDataSetReader {
 					}
 				}
 			}
-      }
+      }*/
       
       example.prediction = example.gold.copy();
       example.prediction.set(EntityMentionsAnnotation.class, new ArrayList<EntityMention>());

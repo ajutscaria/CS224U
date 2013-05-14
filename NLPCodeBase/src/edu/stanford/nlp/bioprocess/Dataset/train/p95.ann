@@ -16,7 +16,7 @@ T6	Entity 378 400	The transduction stage
 T10	Entity 410 420	the signal
 T11	Entity 452 480	a specific cellular response
 T12	Event 127 137	"detected"
-E6	Event:T12 theme:T13
+E6	Event:T12 theme:T13 same-event:E2
 T13	Entity 106 123	A chemical signal
 T14	Entity 143 165	the signaling molecule
 *	same-entity T14 T13

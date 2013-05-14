@@ -7,7 +7,7 @@ E3	Event:T3 same-event:E5 agent:T14 cotemporal:E4 cotemporal2:E6
 T4	Event 263 268	moves
 E4	Event:T4 cotemporal:E6 agent:T15 destination:T16
 T5	Event 353 364	replicating
-E5	Event:T5 agent:T17 cotemporal:E6 cotemporal2:E4
+E5	Event:T5 agent:T17 cotemporal:E6 cotemporal2:E4 same-event:E1
 T6	Event 375 384	elongates
 E6	Event:T6 agent:T18 next-event:E9
 T7	Event 495 502	pinches

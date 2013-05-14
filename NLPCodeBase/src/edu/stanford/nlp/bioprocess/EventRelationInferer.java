@@ -183,6 +183,7 @@ public class EventRelationInferer {
 			}
 			
 			//System.out.println(weights);
+			
 			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier);
 			
 			
