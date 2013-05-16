@@ -23,6 +23,8 @@ public class ILPOptimizer {
 		HashMap<String, GRBVar> X_ij = new HashMap<String, GRBVar>();
 		HashMap<String, GRBVar> Y_ij = new HashMap<String, GRBVar>();
 		HashMap<String, GRBVar> Phi_ij = new HashMap<String, GRBVar>();
+		
+		int NONEIndex = 0;
 		try
 		{
 			GRBEnv	env = new GRBEnv("1.log");
@@ -165,33 +167,81 @@ public class ILPOptimizer {
 		    	}
 		    }
 		      
-		    //Constraint for CotemporalEvent
-		    if(labels.contains("CotemporalEvent")) {
-		    	int cotemporalEventIndex = labels.indexOf("CotemporalEvent");
+		    //Constraint for SameEvent triad closure
+		    if(labels.contains("SameEvent")) {
 		    	int sameEventIndex = labels.contains("SameEvent") ?  labels.indexOf("SameEvent") : -1;
 			    for(int i=0; i<numEvents; i++) {
 			    	for(int j=i+1;j<numEvents;j++) {
 			    		for(int k=j+1;k<numEvents;k++) {
-			    			GRBLinExpr cotemporalConstraint = new GRBLinExpr();
-			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-							//model.addConstr(cotemporalConstraint, GRB.LESS_EQUAL, 1.0, String.format("c7_%d,%d,%d", i,j,k));
+			    			GRBLinExpr sameEventConstraint = new GRBLinExpr();
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c7_%d,%d,%d", i,j,k));
 							
-							cotemporalConstraint = new GRBLinExpr();
-			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-							//model.addConstr(cotemporalConstraint, GRB.LESS_EQUAL, 1.0, String.format("c8_%d,%d,%d", i,j,k));
+							sameEventConstraint = new GRBLinExpr();
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c8_%d,%d,%d", i,j,k));
 							
-							cotemporalConstraint = new GRBLinExpr();
-			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
-			    			cotemporalConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-							//model.addConstr(cotemporalConstraint, GRB.LESS_EQUAL, 1.0, String.format("c9_%d,%d,%d", i,j,k));
+							sameEventConstraint = new GRBLinExpr();
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c9_%d,%d,%d", i,j,k));
+			    		}
+			    	}
+			    }
+		    }
+		    
+		    //Constraint for ensuring a--Prev-->b, b--Prev-->c, a--NONE-->c. (along with the six equivalent configurations)
+		    /*(PreviousEvent,PreviousEvent,NONE)
+		    (NONE,NextEvent,PreviousEvent)
+		    (NextEvent,NONE,PreviousEvent)
+		    (PreviousEvent,NONE,NextEvent)
+		    (NONE,PreviousEvent,NextEvent)
+		    (NextEvent,NextEvent,NONE)*/
+		    if(labels.contains("NextEvent") && labels.contains("PreviousEvent")) {
+		    	int nextEventIndex = labels.indexOf("NextEvent"), previousEventIndex = labels.indexOf("PreviousEvent");
+			    for(int i=0; i<numEvents; i++) {
+			    	for(int j=i+1;j<numEvents;j++) {
+			    		for(int k=j+1;k<numEvents;k++) {
+			    			GRBLinExpr previousEventConstraint = new GRBLinExpr();
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, previousEventIndex)));
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, previousEventIndex)));
+			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, NONEIndex)));
+							//model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c10_%d,%d,%d", i,j,k));
+							
+							/*previousEventConstraint = new GRBLinExpr();
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, nextEventIndex)));
+			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, previousEventIndex)));
+							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c11_%d,%d,%d", i,j,k));
+							
+							previousEventConstraint = new GRBLinExpr();
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, nextEventIndex)));
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, NONEIndex)));
+			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, previousEventIndex)));
+							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c12_%d,%d,%d", i,j,k));
+							
+							previousEventConstraint = new GRBLinExpr();
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, previousEventIndex)));
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, NONEIndex)));
+			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, nextEventIndex)));
+							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c13_%d,%d,%d", i,j,k));
+							
+							previousEventConstraint = new GRBLinExpr();
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, previousEventIndex)));
+			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, nextEventIndex)));
+							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c14_%d,%d,%d", i,j,k));
+							
+							previousEventConstraint = new GRBLinExpr();
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, nextEventIndex)));
+			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, nextEventIndex)));
+			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, NONEIndex)));
+							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c15_%d,%d,%d", i,j,k));*/
 			    		}
 			    	}
 			    }

@@ -457,15 +457,16 @@ public class Main implements Runnable {
 			//	}
 			//	features.add(feature);
 			//}
-			
-			LogInfo.logs("Worst feature - "  + worstFeature);
-			LogInfo.logs("Best F1 - "  + bestF1);
+			for(Triple t:Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "PreviousEvent", "NONE")))
+				System.out.println(t);
+			//LogInfo.logs("Worst feature - "  + worstFeature);
+			//LogInfo.logs("Best F1 - "  + bestF1);
 			
 			//printScores("Dev - Micro", microPrecisionDev, microRecallDev, microF1Dev);
 			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
 			//System.out.println(inferer.totalEvents);
 			
-			
+			/*
 			LogInfo.logs("Maximum number of variables   : " + ILPOptimizer.MaxVariables);
 			LogInfo.logs("Maximum number of constraints : " + ILPOptimizer.MaxConstraints);
 				
@@ -484,7 +485,7 @@ public class Main implements Runnable {
 			LogInfo.logs("Degree Distribution");
 			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
-			
+			*/
 
 			//Print triples
 			
