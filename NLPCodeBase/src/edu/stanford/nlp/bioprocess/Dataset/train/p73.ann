@@ -32,6 +32,6 @@ T21	Event 507 518	neutralized
 E6	Event:T21 theme:T22
 T22	Entity 496 506	its charge
 T23	Event 530 537	reduced
-E7	Event:T23 causes:E6 theme:T24 result:T25
+E7	Event:T23 causes:E6 theme:T24 result:T25 same-event:E3
 T24	Entity 524 526	it
 T25	Entity 541 545	NADH

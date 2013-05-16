@@ -27,6 +27,6 @@ T23	Event 514 520	joined
 E8	Event:T23 location:T25 theme:T22 theme2:T24
 T25	Entity 554 580	beyond the crossover point
 T26	Event 611 624	crossing over
-E9	Event:T26 result:T27
+E9	Event:T26 result:T27 same-event:E5
 T27	Entity 634 700	chromosomes with new combinations of maternal and paternal alleles
 T24	Entity 524 553	a piece of maternal chromatid

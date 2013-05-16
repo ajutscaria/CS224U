@@ -94,34 +94,40 @@ public class EventRelationInferer {
 			StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\";");
 			int count = 0;
 			List<EventMention> eventMentions = ex.gold.get(EventMentionsAnnotation.class);
+			//System.out.println(eventMentions);
 			
 			for(EventMention evtMention:ex.gold.get(EventMentionsAnnotation.class)) {
 				buffer.append(String.format("\nnode%s [label = \"%s\"]", count++, Utils.getText(evtMention.getTreeNode())));
+				//System.out.println(evtMention.getTreeNode());
 			}
 
 			IntCounter<EventMention> dG = new IntCounter<EventMention>(), sG = new IntCounter<EventMention>(), pG = new IntCounter<EventMention>(), cG = new IntCounter<EventMention>();
 			IntCounter<EventMention> dP = new IntCounter<EventMention>(), sP = new IntCounter<EventMention>(), pP = new IntCounter<EventMention>(), cP = new IntCounter<EventMention>();
+			
+			HashMap<String, Double> weights = new HashMap<String, Double>();
+			List<String> labelsInClassifier = (List<String>) classifier.labels();
+
+			System.out.println();
+			
+			//Ensuring that 'NONE' is always at index 0
+			labelsInClassifier.remove("NONE");
+			labelsInClassifier.add(0, "NONE");
+			
+			for(String l:labelsInClassifier)
+				LogInfo.logs(l);
+			
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 				d.setPredictedLabel(classifier.classOf(newDatum));
-				labelings.put(eventMentions.indexOf(d.event1) + "," + eventMentions.indexOf(d.event2), new Pair<String, String>(d.label, d.predictedLabel()));
 				
-				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
-					continue;
-				
-				if(d.predictedLabel().equals(d.label)) {
-					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Correct", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
-				}
-				else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
-					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Extra", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
-				}
-				else if(!d.label().equals("NONE") && d.predictedLabel().equals("NONE")){
-					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Missed", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
-				}
-				else {
-					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
-				}
-				
+				for(String possibleLabel:labelsInClassifier)
+					weights.put(String.format("%d,%d,%d", eventMentions.indexOf(d.event1), eventMentions.indexOf(d.event2),
+											labelsInClassifier.indexOf(possibleLabel)), 
+											classifier.logProbabilityOf(newDatum).getCount(possibleLabel));
+
+			}
+			
+			for(BioDatum d:dataset) {		
 				//dot -o file.png -Tpng file.gv
 				if(!d.predictedLabel().equals("NONE")) {
 					buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"black\" %s color = \"%s\"];", "node"+eventMentions.indexOf(d.event1), "node"+eventMentions.indexOf(d.event2), d.predictedLabel(),
@@ -133,8 +139,30 @@ public class EventRelationInferer {
 							//If Cotemporal or same event, put bi-directional edges
 							(d.label().equals("CotemporalEvent") || d.label().equals("SameEvent")) ? "dir = \"both\"" : "", "goldenrod3")) ;
 				}
+			}
+			
+			//System.out.println(weights);
+			
+			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier);
+			
+			
+			for(Pair<Integer,Integer> p:best.keySet()) {
+				for(BioDatum d:dataset) {
+					if(eventMentions.indexOf(d.event1) == p.first() && 
+							eventMentions.indexOf(d.event2) == p.second() && !d.predictedLabel().equals(labelsInClassifier.get(best.get(p)))) {
+						d.setPredictedLabel(labelsInClassifier.get(best.get(p)));
+						buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"darkgreen\" %s color = \"%s\"];", "node"+p.first(), "node"+p.second(), labelsInClassifier.get(best.get(p)),
+								//If Cotemporal or same event, put bi-directional edges
+								(labelsInClassifier.get(best.get(p)).equals("CotemporalEvent") || labelsInClassifier.get(best.get(p)).equals("SameEvent")) ? "dir = \"both\"" : "", "darkgreen")) ;
+					}
+				}
+			}
+			
+			for(BioDatum d:dataset) {
+				labelings.put(eventMentions.indexOf(d.event1) + "," + eventMentions.indexOf(d.event2), new Pair<String, String>(d.label, d.predictedLabel()));
+				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
+					continue;
 				
-
 				if(!d.label.equals("NONE")) {
 					if(d.label == RelationType.PreviousEvent.toString()) 
 						pG.incrementCount(d.event1);
@@ -171,11 +199,25 @@ public class EventRelationInferer {
 						dP.incrementCount(d.event2);
 					}
 				}
+				
+				if(d.predictedLabel().equals(d.label)) {
+					LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", ex.id, "Correct", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
+					LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s",  ex.id, "Extra", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				else if(!d.label().equals("NONE") && d.predictedLabel().equals("NONE")){
+					LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", ex.id,  "Missed", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
+				else {
+					LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", ex.id,  "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
+				}
 			}
+			
 			buffer.append("\n}");
 			predicted.addAll(dataset);
 			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");
-		
+			
 			try {
 	        	Runtime rt = Runtime.getRuntime();
 	        	rt.exec("dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
@@ -201,8 +243,12 @@ public class EventRelationInferer {
 				for(int j = i+1; j < eventMentions.size(); j++){
 					for(int k = j+1; k < eventMentions.size(); k++){
 						Pair<String, String> rel1 = labelings.get(i + "," + j), rel2 = labelings.get(j + "," + k), rel3 = labelings.get(i + "," + k);
-						countGoldTriples.incrementCount(rel1.first()+ "," + rel2.first() + "," + rel3.first());
-						countPredictedTriples.incrementCount(rel1.second()+ "," + rel2.second() + "," + rel3.second());
+						
+						Triple<String, String, String> goldEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1.first(), rel2.first(), rel3.first()));
+						Triple<String, String, String> predEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1.second(), rel2.second(), rel3.second()));
+						countGoldTriples.incrementCount(goldEquivalent.first()+ "," + goldEquivalent.second() + "," + goldEquivalent.third());
+						countPredictedTriples.incrementCount(predEquivalent.first()+ "," + predEquivalent.second() + "," + predEquivalent.third());
+						//String rel = String.format("%s->%s->%s", rel1.second(), rel2.second(), rel3.second());
 					}
 				}
 			}

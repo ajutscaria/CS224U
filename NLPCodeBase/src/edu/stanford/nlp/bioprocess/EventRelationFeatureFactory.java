@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,7 @@ import fig.basic.LogInfo;
 public class EventRelationFeatureFactory {
 
 	private boolean printAnnotations = false, printDebug = false;
+	public static Set<String> markWords = new HashSet<String>(), advmodWords = new HashSet<String>(), eventInsidePP = new HashSet<String>();
 	private boolean useLexicalFeatures;
 	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
@@ -58,18 +60,23 @@ public class EventRelationFeatureFactory {
 				event2CoreLabel = Utils.findCoreLabelFromTree(event2.getSentence(), event2.getTreeNode());
 		boolean isImmediatelyAfter = Utils.isEventNextInOrder(example.gold.get(EventMentionsAnnotation.class), event1, event2),
 				isAfter = Utils.isEventNext(example.gold.get(EventMentionsAnnotation.class), event1, event2);
+		
 		//Is event2 immediately after event1?
-		if(Main.features.contains("isImmediatelyAfter"))
-			features.add("isImmediatelyAfter:" + isImmediatelyAfter);
+		//if(Main.features.contains("isImmediatelyAfter")) {
+		//	features.add("isImmediatelyAfter:" + isImmediatelyAfter);
+		//}
+		if(Main.features.contains("isAfter")) {
+			features.add("isAfter:" + isAfter);
+		}
 		
-		features.add("isAfter:" + isAfter);
-		
-		//Add words in between two event mentions if they are adjacent in text.
-		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
 		if(isImmediatelyAfter) {
+			//Add words in between two event mentions if they are adjacent in text.
+			List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
+			StringBuffer phrase = new StringBuffer();
 			for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
 				//Ignore if it is a noun - NOT GOOD
 				//if(!wordsInBetween.get(wordCounter).second().startsWith("NN")) {
+					phrase.append(wordsInBetween.get(wordCounter).first + " ");
 					String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
 					String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
 							word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
@@ -86,12 +93,15 @@ public class EventRelationFeatureFactory {
 					}
 				//}
 			}
-		}
-		//Is there an and within 5 words of each other
-		if(wordsInBetween.size() <= 5) {
-			for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
-				if(wordsInBetween.get(wordCounter).first.equals("and")) 
-					features.add("closeAndInBetween");
+			//features.add("phraseInBetween:" + phrase.toString().trim());
+			//Is there an and within 5 words of each other
+			if(wordsInBetween.size() <= 5) {
+
+				for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
+					if(Main.features.contains("closeAndInBetween"))
+						if(wordsInBetween.get(wordCounter).first.equals("and")) 
+							features.add("closeAndInBetween");
+				}
 			}
 		}
 		
@@ -138,10 +148,11 @@ public class EventRelationFeatureFactory {
 		//If second trigger is noun, the determiner related to it in dependency tree.
 		if(pos2.startsWith("NN")) {
 			String determiner = Utils.getDeterminer(event2.getSentence(), event2.getTreeNode());
-			if(determiner != null) {
-				features.add("determinerBefore2:" + determiner);
-				//LogInfo.logs("determiner:" + determiner);
-			}
+			if(determiner != null)
+				if(Main.features.contains("numSentencesInBetween")) {
+					features.add("determinerBefore2:" + determiner);
+					//LogInfo.logs("determiner:" + determiner);
+				}
 		}
 		
 		//Features if the two triggers are in the same sentence.
@@ -172,33 +183,60 @@ public class EventRelationFeatureFactory {
 			}
 		}
 		
+	
 		//Finding "mark" and "advmod" relationship
 		SemanticGraph graph1 = event1.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord1 = Utils.findDependencyNode(event1.getSentence(), event1.getTreeNode());
 		for(SemanticGraphEdge e: graph1.getOutEdgesSorted(indexedWord1)) {
 			if(e.getRelation().getShortName().equals("mark")) {
-				if(Main.features.contains("markRelationEvent1"))
+				if(Main.features.contains("markRelationEvent1")&& counts.first == 0) {
 					features.add("markRelationEvent1:" + e.getTarget().originalText());
+					markWords.add(e.getTarget().originalText().toLowerCase());
+				}
 			}
 			if(e.getRelation().getShortName().equals("advmod")) {
-				if(Main.features.contains("advmodRelationEvent1"))
+				if(Main.features.contains("advmodRelationEvent1")) {
 					features.add("advmodRelationEvent1:" + e.getTarget().originalText());
+					advmodWords.add(e.getTarget().originalText().toLowerCase());
+				}
 			}
 		}
 		SemanticGraph graph2 = event2.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord2 = Utils.findDependencyNode(event2.getSentence(), event2.getTreeNode());
 		for(SemanticGraphEdge e: graph2.getOutEdgesSorted(indexedWord2)) {
 			if(e.getRelation().getShortName().equals("mark")) {
-				if(Main.features.contains("markRelationEvent2"))
+				if(Main.features.contains("markRelationEvent2")&& counts.first == 0) {
 					features.add("markRelationEvent2:" + e.getTarget().originalText());
+					markWords.add(e.getTarget().originalText().toLowerCase());		
+				}
 			}
 			if(e.getRelation().getShortName().equals("advmod")) {
-				if(Main.features.contains("advmodRelationEvent2"))
+				if(Main.features.contains("advmodRelationEvent2")) {
 					features.add("advmodRelationEvent2:" + e.getTarget().originalText());
+					advmodWords.add(e.getTarget().originalText().toLowerCase());
+				}
 			}
 		}
 		
-		//Do they share a common argument in the dependency tree?
+		//See if the two triggers share a common lemma as child in the dependency graph.
+		List<Pair<IndexedWord, String>> w1Children = new ArrayList<Pair<IndexedWord, String>>();
+		for(SemanticGraphEdge e: graph1.getOutEdgesSorted(indexedWord1)) {
+			w1Children.add(new Pair<IndexedWord, String>(e.getTarget() , e.getRelation().toString()));
+		}
+		
+		for(SemanticGraphEdge e: graph2.getOutEdgesSorted(indexedWord2)) {
+			for(Pair<IndexedWord, String> pair: w1Children) {
+				if(e.getTarget().originalText().equals(pair.first.originalText())) {
+					//System.out.println(indexedWord1 + ":" + indexedWord2 + " share children. " + pair.first.originalText()
+					//		 +":" +pair.second+ "+" +e.getRelation().toString());
+					//features.add("shareSameLemmaAsChild:"+ pair.second+ "+" +e.getRelation().toString());
+				}
+				//System.out.println(indexedWord1 + ":" + indexedWord2 + " share children. " + w.originalText());
+				//features.add("shareSameLemmaAsChild")// + w.originalText());
+			}
+		}
+		
+		//Do they share a common argument in the dependency tree? (if they are in the same sentence)
 		if (counts.first() == 0) {
 			List<SemanticGraphEdge> edges1 = graph1.getOutEdgesSorted(indexedWord1);
 			List<SemanticGraphEdge> edges2 = graph2.getOutEdgesSorted(indexedWord2);
@@ -213,6 +251,7 @@ public class EventRelationFeatureFactory {
 			}
 		}
 
+		
 		if(isImmediatelyAfter) {
 			Tree root = event1.getSentence().get(TreeCoreAnnotations.TreeAnnotation.class);
 			Tree node = event1.getTreeNode();
@@ -229,8 +268,10 @@ public class EventRelationFeatureFactory {
 				if(node.value().equals("PP")) {
 					for(Tree ponode:node.postOrderNodeList()) {
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							if(Main.features.contains("1partOfPP"))
+							if(Main.features.contains("1partOfPP")) {
 								features.add("1partOfPP:" + ponode.firstChild().value());
+								eventInsidePP.add(ponode.firstChild().value().toLowerCase());
+							}
 							matched = true;
 							break;
 						}
@@ -249,8 +290,10 @@ public class EventRelationFeatureFactory {
 				if(node.value().equals("PP")) {
 					for(Tree ponode:node.postOrderNodeList()) {
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							if(Main.features.contains("2partOfPP"))
+							if(Main.features.contains("2partOfPP")) {
 								features.add("2partOfPP:" + ponode.firstChild().value());
+								eventInsidePP.add(ponode.firstChild().value().toLowerCase());
+							}
 							matched = true;
 							break;
 						}
@@ -423,10 +466,10 @@ public class EventRelationFeatureFactory {
 	}
 	
 	public String quantizedWordCount(int numWords) {
-		if(numWords <= 3) {
+		if(numWords <= 4) {
 			return "Low";
 		}
-		else if(numWords <= 6) {
+		else if(numWords <= 8) {
 			return "Medium";
 		}
 		else if(numWords <= 15) {

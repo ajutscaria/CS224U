@@ -196,6 +196,7 @@ public class Main implements Runnable {
 		else if(mode.equals("eventrelation")) {
 			LogInfo.logs("Running event relation");
 			runEventRelationsPrediction(folders);
+			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
 		}
 		LogInfo.end_track();
 	}
@@ -357,6 +358,7 @@ public class Main implements Runnable {
 		int NumCrossValidation = 10;
 		boolean small = false;
 		//Clearing folder for visualization
+		Utils.moveFolderContent("GraphViz", "GraphVizPrev");
 		Utils.clearFolderContent("GraphViz");
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
 		
@@ -365,6 +367,31 @@ public class Main implements Runnable {
 		EventRelationInferer inferer = new EventRelationInferer();
 		List<String> relations = ArgumentRelation.getEventRelations();
 		double[][] confusionMatrix = new double[relations.size()][relations.size()];
+		
+		features = new ArrayList<String>();
+		
+		features.add("isImmediatelyAfter");
+		features.add("isAfter");
+		features.add("wordsInBetween");
+		features.add("temporalConnective");
+		features.add("closeAndInBetween");
+		features.add("POS");
+		features.add("lemma");
+		features.add("eventLemmasSame");
+		features.add("numSentencesInBetween");
+		features.add("numWordsInBetween");
+		features.add("lowestCommonAncestor");
+		features.add("1partOfPP");
+		features.add("2partOfPP");
+		features.add("deppath1to2");
+		features.add("1dominates2");
+		features.add("deppath2to1");
+		features.add("2dominates1");
+		features.add("markRelationEvent1");
+		features.add("advmodRelationEvent1");
+		features.add("markRelationEvent2");
+		features.add("advmodRelationEvent2");
+		features.add("shareChild");
 		
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
@@ -387,34 +414,11 @@ public class Main implements Runnable {
 			//double[] microPrecisionDev = new double[NumCrossValidation], microRecallDev = new double[NumCrossValidation], microF1Dev = new double[NumCrossValidation];
 			//double[] macroPrecisionDev = new double[NumCrossValidation], macroRecallDev = new double[NumCrossValidation], macroF1Dev = new double[NumCrossValidation];
 			
-			features = new ArrayList<String>();
-			
-			features.add("isImmediatelyAfter");
-			features.add("wordsInBetween");
-			features.add("temporalConnective");
-			features.add("POS");
-			features.add("lemma");
-			features.add("eventLemmasSame");
-			features.add("numSentencesInBetween");
-			features.add("numWordsInBetween");
-			features.add("lowestCommonAncestor");
-			features.add("1partOfPP");
-			features.add("2partOfPP");
-			features.add("deppath1to2");
-			features.add("1dominates2");
-			features.add("deppath2to1");
-			features.add("2dominates1");
-			features.add("markRelationEvent1");
-			features.add("advmodRelationEvent1");
-			features.add("markRelationEvent2");
-			features.add("advmodRelationEvent2");
-			features.add("shareChild");
-			
-			double bestF1 = 0.49340866;
+			double bestF1 = 0.00;
 			String worstFeature = "NONE";
 			//for(int featureCounter = 0; featureCounter < features.size(); featureCounter++) {
-				//String feature = features.get(featureCounter);
-				//features.remove(feature);
+			//	String feature = features.get(featureCounter);
+			//	features.remove(feature);
 				List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
 				
 				for(int i = 1; i <= NumCrossValidation; i++) {
@@ -436,7 +440,7 @@ public class Main implements Runnable {
 				//System.out.println("Total relations - " + counter);
 				
 				Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
-				//LogInfo.logs("Removed feature - " + feature);
+			//	LogInfo.logs("Removed feature - " + feature);
 				LogInfo.logs("Micro precision");
 				LogInfo.logs("Precision : " + pairTriple.first.first);
 				LogInfo.logs("Recall    : " + pairTriple.first.second);
@@ -447,29 +451,43 @@ public class Main implements Runnable {
 				LogInfo.logs("Recall    : " + pairTriple.second.second);
 				LogInfo.logs("F1 score  : " + pairTriple.second.third);
 				
-				if(pairTriple.first.third > bestF1) {
-					bestF1 = pairTriple.first.third;
-				//	worstFeature = feature;
-				}
-				//features.add(feature);
+			//	if(pairTriple.first.third > bestF1) {
+			//		bestF1 = pairTriple.first.third;
+			//		worstFeature = feature;
+			//	}
+			//	features.add(feature);
 			//}
 			
-			//LogInfo.logs("Worst feature - "  + worstFeature);
-			//LogInfo.logs("Best F1 - "  + bestF1);
+			LogInfo.logs("Worst feature - "  + worstFeature);
+			LogInfo.logs("Best F1 - "  + bestF1);
 			
 			//printScores("Dev - Micro", microPrecisionDev, microRecallDev, microF1Dev);
 			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
-			/*System.out.println(inferer.totalEvents);
-			System.out.println(inferer.prevEvent);
-			System.out.println(inferer.superEvent);
-			System.out.println(inferer.causeEvent);
-			System.out.println(inferer.degreeDistribution);
+			//System.out.println(inferer.totalEvents);
 			
-			System.out.println(inferer.prevEventPred);
-			System.out.println(inferer.superEventPred);
-			System.out.println(inferer.causeEventPred);
-			System.out.println(inferer.degreeDistributionPred);*/
-			/*//Print triples
+			
+			LogInfo.logs("Maximum number of variables   : " + ILPOptimizer.MaxVariables);
+			LogInfo.logs("Maximum number of constraints : " + ILPOptimizer.MaxConstraints);
+				
+			LogInfo.logs("Previous Event");
+			LogInfo.logs("\tActual     " + inferer.prevEvent);
+			LogInfo.logs("\tPrediction " + inferer.prevEventPred);
+			
+			LogInfo.logs("Super Event");
+			LogInfo.logs("\tActual     " + inferer.superEvent);
+			LogInfo.logs("\tPrediction " + inferer.superEventPred);
+			
+			LogInfo.logs("Cause Event");
+			LogInfo.logs("\tActual     " + inferer.causeEvent);
+			LogInfo.logs("\tPrediction " + inferer.causeEventPred);
+			
+			LogInfo.logs("Degree Distribution");
+			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
+			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
+			
+
+			//Print triples
+			
 			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
@@ -479,7 +497,22 @@ public class Main implements Runnable {
 							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
 					}
 				}
-			}*/
+			}
+			/*
+			LogInfo.begin_track("Mark relations");
+			for(String s:EventRelationFeatureFactory.markWords)
+				LogInfo.logs(s);
+			LogInfo.end_track();
+			
+			LogInfo.begin_track("Advmod relations");
+			for(String s:EventRelationFeatureFactory.advmodWords)
+				LogInfo.logs(s);
+			LogInfo.end_track();
+			
+			LogInfo.begin_track("Event inside PP relations");
+			for(String s:EventRelationFeatureFactory.eventInsidePP)
+				LogInfo.logs(s);
+			LogInfo.end_track();*/
 		}
 	}
 	
