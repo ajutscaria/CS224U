@@ -167,35 +167,41 @@ public class ILPOptimizer {
 		    	}
 		    }
 		      
-		    //Constraint for SameEvent triad closure
-		    if(labels.contains("SameEvent")) {
-		    	int sameEventIndex = labels.contains("SameEvent") ?  labels.indexOf("SameEvent") : -1;
-			    for(int i=0; i<numEvents; i++) {
-			    	for(int j=i+1;j<numEvents;j++) {
-			    		for(int k=j+1;k<numEvents;k++) {
-			    			GRBLinExpr sameEventConstraint = new GRBLinExpr();
-			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c7_%d,%d,%d", i,j,k));
-							
-							sameEventConstraint = new GRBLinExpr();
-			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c8_%d,%d,%d", i,j,k));
-							
-							sameEventConstraint = new GRBLinExpr();
-			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c9_%d,%d,%d", i,j,k));
-			    		}
-			    	}
-			    }
+		    /*
+		     * Constraint for SameEvent triad closure
+		     */
+	    	int sameEventIndex = labels.indexOf("SameEvent");
+		    for(int i=0; i<numEvents; i++) {
+		    	for(int j=i+1;j<numEvents;j++) {
+		    		for(int k=j+1;k<numEvents;k++) {
+		    			GRBLinExpr sameEventConstraint = new GRBLinExpr();
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c7_%d,%d,%d", i,j,k));
+						
+						LogInfo.logs(String.format("SCC ij, jk, ik %s-%s,%s-%s,%s-%s", i,j, j,k, i,k));
+						
+						sameEventConstraint = new GRBLinExpr();
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c8_%d,%d,%d", i,j,k));
+						LogInfo.logs(String.format("SCC ik, jk, ij %s-%s,%s-%s,%s-%s", i,k, j,k, i,j));
+						
+						sameEventConstraint = new GRBLinExpr();
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c9_%d,%d,%d", i,j,k));
+						LogInfo.logs(String.format("SCC ij, ik, jk %s-%s,%s-%s,%s-%s", i,j, i,k, j,k));
+		    		}
+		    	}
 		    }
 		    
-		    //Constraint for ensuring a--Prev-->b, b--Prev-->c, a--NONE-->c. (along with the six equivalent configurations)
+		    /*
+		     * Constraint for ensuring a--Prev-->b, b--Prev-->c, a--NONE-->c. (along with the six equivalent configurations)
+		     */
 		    /*(PreviousEvent,PreviousEvent,NONE)
 		    (NONE,NextEvent,PreviousEvent)
 		    (NextEvent,NONE,PreviousEvent)
@@ -281,11 +287,12 @@ public class ILPOptimizer {
 		    // Dispose of model and environment
 		    
 		    for(GRBVar x:X_ijr.values()) {
-		      //System.out.println(x.get(GRB.StringAttr.VarName)
-              //        + " " +x.get(GRB.DoubleAttr.X));
-		    	if(!x.get(GRB.StringAttr.VarName).endsWith(",0") && x.get(GRB.DoubleAttr.X) == 1) {
+		      LogInfo.logs(x.get(GRB.StringAttr.VarName)
+                      + " " +x.get(GRB.DoubleAttr.X));
+		      //if(!x.get(GRB.StringAttr.VarName).endsWith(",0") && x.get(GRB.DoubleAttr.X) == 1) {
+		      if(x.get(GRB.DoubleAttr.X) == 1) {
 		    		String splits[] = x.get(GRB.StringAttr.VarName).split(",");
-		    		best.put(new Pair(Integer.parseInt(splits[0]), Integer.parseInt(splits[1])), Integer.parseInt(splits[2]));
+		    		best.put(new Pair<Integer, Integer>(Integer.parseInt(splits[0]), Integer.parseInt(splits[1])), Integer.parseInt(splits[2]));
 		    	}
 		    }
 		    

@@ -97,7 +97,8 @@ public class EventRelationInferer {
 			//System.out.println(eventMentions);
 			
 			for(EventMention evtMention:ex.gold.get(EventMentionsAnnotation.class)) {
-				buffer.append(String.format("\nnode%s [label = \"%s\"]", count++, Utils.getText(evtMention.getTreeNode())));
+				buffer.append(String.format("\nnode%s [label = \"%s\"]", count, Utils.getText(evtMention.getTreeNode()) + "_" + count));
+				count++;
 				//System.out.println(evtMention.getTreeNode());
 			}
 
@@ -107,14 +108,13 @@ public class EventRelationInferer {
 			HashMap<String, Double> weights = new HashMap<String, Double>();
 			List<String> labelsInClassifier = (List<String>) classifier.labels();
 
-			System.out.println();
 			
 			//Ensuring that 'NONE' is always at index 0
 			labelsInClassifier.remove("NONE");
 			labelsInClassifier.add(0, "NONE");
 			
-			for(String l:labelsInClassifier)
-				LogInfo.logs(l);
+			//for(String l:labelsInClassifier)
+			//	LogInfo.logs(l);
 			
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
@@ -140,8 +140,6 @@ public class EventRelationInferer {
 							(d.label().equals("CotemporalEvent") || d.label().equals("SameEvent")) ? "dir = \"both\"" : "", "goldenrod3")) ;
 				}
 			}
-			
-			//System.out.println(weights);
 			
 			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier);
 			
@@ -246,9 +244,14 @@ public class EventRelationInferer {
 						
 						Triple<String, String, String> goldEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1.first(), rel2.first(), rel3.first()));
 						Triple<String, String, String> predEquivalent = Utils.getEquivalentBaseTriple(new Triple<String, String, String>(rel1.second(), rel2.second(), rel3.second()));
+						
 						countGoldTriples.incrementCount(goldEquivalent.first()+ "," + goldEquivalent.second() + "," + goldEquivalent.third());
 						countPredictedTriples.incrementCount(predEquivalent.first()+ "," + predEquivalent.second() + "," + predEquivalent.third());
-						//String rel = String.format("%s->%s->%s", rel1.second(), rel2.second(), rel3.second());
+						
+						String rel = String.format("%s->%s->%s", predEquivalent.first(), predEquivalent.second(), predEquivalent.third());
+						if(rel.equals("NONE->SameEvent->SameEvent")) {
+							LogInfo.logs("SPROBS" + ex.id);
+						}
 					}
 				}
 			}

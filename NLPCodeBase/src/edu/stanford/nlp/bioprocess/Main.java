@@ -466,7 +466,7 @@ public class Main implements Runnable {
 			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
 			//System.out.println(inferer.totalEvents);
 			
-			/*
+			
 			LogInfo.logs("Maximum number of variables   : " + ILPOptimizer.MaxVariables);
 			LogInfo.logs("Maximum number of constraints : " + ILPOptimizer.MaxConstraints);
 				
@@ -485,7 +485,7 @@ public class Main implements Runnable {
 			LogInfo.logs("Degree Distribution");
 			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
-			*/
+			
 
 			//Print triples
 			
