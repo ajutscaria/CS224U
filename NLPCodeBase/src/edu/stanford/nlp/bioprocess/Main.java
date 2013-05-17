@@ -466,7 +466,7 @@ public class Main implements Runnable {
 			//printScores("Dev - Macro", macroPrecisionDev, macroRecallDev, macroF1Dev);
 			//System.out.println(inferer.totalEvents);
 			
-			
+			/*
 			LogInfo.logs("Maximum number of variables   : " + ILPOptimizer.MaxVariables);
 			LogInfo.logs("Maximum number of constraints : " + ILPOptimizer.MaxConstraints);
 				
@@ -485,10 +485,10 @@ public class Main implements Runnable {
 			LogInfo.logs("Degree Distribution");
 			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
-			
+			*/
 
 			//Print triples
-			
+			/*
 			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
@@ -498,7 +498,7 @@ public class Main implements Runnable {
 							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
 					}
 				}
-			}
+			}*/
 			/*
 			LogInfo.begin_track("Mark relations");
 			for(String s:EventRelationFeatureFactory.markWords)

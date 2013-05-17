@@ -141,7 +141,8 @@ public class EventRelationInferer {
 				}
 			}
 			
-			HashMap<Pair<Integer,Integer>, Integer> best = ILPOptimizer.OptimizeEventRelation(weights, eventMentions.size(), labelsInClassifier);
+			ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier);
+			HashMap<Pair<Integer,Integer>, Integer> best = opt.OptimizeEventRelation();
 			
 			
 			for(Pair<Integer,Integer> p:best.keySet()) {

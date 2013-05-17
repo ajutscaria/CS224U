@@ -9,26 +9,27 @@ import gurobi.*;
 
 public class ILPOptimizer {
 	static int MaxVariables = 0, MaxConstraints = 0;
-	/**
-	 * The label NONE always comes at 0th index.
-	 * @param weights - 
-	 * @param numEvents
-	 * @param numLabels
-	 */
-	public static HashMap<Pair<Integer,Integer>, Integer> OptimizeEventRelation(HashMap<String, Double> weights,
+	HashMap<String, Double> weights;
+	int numEvents, numLabels, NONEIndex = 0;;
+	List<String> labels;
+	
+	HashMap<String, GRBVar> X_ij = new HashMap<String, GRBVar>();
+	
+	HashMap<String, GRBVar> X_ijr = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> Y_ij = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> Phi_ij = new HashMap<String, GRBVar>();
+	GRBEnv	env;
+	GRBModel  model;
+	
+	public ILPOptimizer(HashMap<String, Double> weights,
 			int numEvents, List<String> labels) {
-		int numLabels = labels.size();
-		HashMap<Pair<Integer,Integer>, Integer> best = new HashMap<Pair<Integer,Integer>, Integer>();
-		HashMap<String, GRBVar> X_ijr = new HashMap<String, GRBVar>();
-		HashMap<String, GRBVar> X_ij = new HashMap<String, GRBVar>();
-		HashMap<String, GRBVar> Y_ij = new HashMap<String, GRBVar>();
-		HashMap<String, GRBVar> Phi_ij = new HashMap<String, GRBVar>();
-		
-		int NONEIndex = 0;
-		try
-		{
-			GRBEnv	env = new GRBEnv("1.log");
-			GRBModel  model = new GRBModel(env);
+		this.weights = weights;
+		this.numEvents = numEvents;
+		this.labels = labels;
+		this.numLabels = labels.size();
+		try {
+			env = new GRBEnv("1.log");
+			model = new GRBModel(env);
 			
 			//Creating X_ijr variables(undirected) i<j, r \in R
 			for(int i=0; i<numEvents; i++) {
@@ -73,9 +74,187 @@ public class ILPOptimizer {
 				}
 			}
 		    model.setObjective(expr, GRB.MAXIMIZE);
+		}
+		catch (GRBException e) {
+			  System.out.println(e);
+		      System.out.println("Error code: " + e.getErrorCode() + ". " +
+		                         e.getMessage());
+	    }
+	}
+	/**
+	 * The label NONE always comes at 0th index.
+	 * @param weights - 
+	 * @param numEvents
+	 * @param numLabels
+	 */
+	public HashMap<Pair<Integer,Integer>, Integer> OptimizeEventRelation() {
+		
+		HashMap<Pair<Integer,Integer>, Integer> best = new HashMap<Pair<Integer,Integer>, Integer>();
+		try
+		{		
+			
+		    //Set connected component constraints
+		    addConnectedComponentConstraints();
+		      
+		    //Constraint for SameEvent triad closure
+	    	addSameEventTriadClosureConstraints();
+	    	
+	    	//Constraint for PreviousEvent
+	    	addPreviousEventConstraints();
 		    
-		    //Set constraints
-		    //For each unordered pair \sum{r \in R} X_ijr = 1
+		    model.update();
+		    
+		    //Count number of variables
+		    if(model.getVars().length > MaxVariables)
+		    	MaxVariables = model.getVars().length;
+		    
+		    //Count number of constraints
+		    if(model.getConstrs().length > MaxConstraints)
+		    	MaxConstraints = model.getConstrs().length;
+		    
+		    //Optimize the model
+		    model.optimize();
+		    
+		    
+		    /*model.computeIIS();
+		    
+		    for (GRBConstr c : model.getConstrs())
+		    {
+		        if (c.get(GRB.IntAttr.IISConstr) > 0)
+		        {
+		            System.out.println(c.get(GRB.StringAttr.ConstrName));
+		        }
+		    }                
+
+		    // Print the names of all of the variables in the IIS set.
+		    for (GRBVar v : model.getVars()) {
+		        if (v.get(GRB.IntAttr.IISLB) > 0 || v.get(GRB.IntAttr.IISUB) > 0)
+		        {
+		            System.out.println(v.get(GRB.StringAttr.VarName));
+		        }
+		    }*/
+		    // Dispose of model and environment
+		    
+		    for(GRBVar x:X_ijr.values()) {
+		      //LogInfo.logs(x.get(GRB.StringAttr.VarName)
+                     // + " " +x.get(GRB.DoubleAttr.X));
+		      //if(!x.get(GRB.StringAttr.VarName).endsWith(",0") && x.get(GRB.DoubleAttr.X) == 1) {
+		      if(x.get(GRB.DoubleAttr.X) == 1) {
+		    		String splits[] = x.get(GRB.StringAttr.VarName).split(",");
+		    		best.put(new Pair<Integer, Integer>(Integer.parseInt(splits[0]), Integer.parseInt(splits[1])), Integer.parseInt(splits[2]));
+		    	}
+		    }
+		    
+		    model.dispose();
+		    env.dispose();
+		}
+		catch (GRBException e) {
+			  System.out.println(e);
+		      System.out.println("Error code: " + e.getErrorCode() + ". " +
+		                         e.getMessage());
+	    }
+		System.out.println(best);
+		return best;
+	}
+	
+	private void addPreviousEventConstraints() {
+		/*
+	     * Constraint for ensuring a--Prev-->b, b--Prev-->c, a--NONE-->c. (along with the six equivalent configurations)
+	     */
+	    /*(PreviousEvent,PreviousEvent,NONE)
+	    (NONE,NextEvent,PreviousEvent)
+	    (NextEvent,NONE,PreviousEvent)
+	    (PreviousEvent,NONE,NextEvent)
+	    (NONE,PreviousEvent,NextEvent)
+	    (NextEvent,NextEvent,NONE)*/
+		try{
+	    	int nextEventIndex = labels.indexOf("NextEvent"), previousEventIndex = labels.indexOf("PreviousEvent");
+		    for(int i=0; i<numEvents; i++) {
+		    	for(int j=i+1;j<numEvents;j++) {
+		    		for(int k=j+1;k<numEvents;k++) {
+		    			GRBLinExpr previousEventConstraint = new GRBLinExpr();
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, previousEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, previousEventIndex)));
+		    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, NONEIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c10_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, nextEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, previousEventIndex)));
+		    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c11_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, nextEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, previousEventIndex)));
+		    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, NONEIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c12_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, previousEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, nextEventIndex)));
+		    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, NONEIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c13_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, previousEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, nextEventIndex)));
+		    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c14_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, nextEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, nextEventIndex)));
+		    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, NONEIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c15_%d,%d,%d", i,j,k));
+		    		}
+		    	}
+		    }
+		}
+		catch (GRBException e) {
+		      System.out.println("Error code: " + e.getErrorCode() + ". " +
+		                         e.getMessage());
+	    }
+	}
+	private void addSameEventTriadClosureConstraints() {
+		try {
+			int sameEventIndex = labels.indexOf("SameEvent");
+		    for(int i=0; i<numEvents; i++) {
+		    	for(int j=i+1;j<numEvents;j++) {
+		    		for(int k=j+1;k<numEvents;k++) {
+		    			GRBLinExpr sameEventConstraint = new GRBLinExpr();
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c7_%d,%d,%d", i,j,k));
+						//LogInfo.logs(String.format("SCC ij, jk, ik %s-%s,%s-%s,%s-%s", i,j, j,k, i,k));
+						
+						sameEventConstraint = new GRBLinExpr();
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c8_%d,%d,%d", i,j,k));
+						//LogInfo.logs(String.format("SCC ik, jk, ij %s-%s,%s-%s,%s-%s", i,k, j,k, i,j));
+						
+						sameEventConstraint = new GRBLinExpr();
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c9_%d,%d,%d", i,j,k));
+						//LogInfo.logs(String.format("SCC ij, ik, jk %s-%s,%s-%s,%s-%s", i,j, i,k, j,k));
+		    		}
+		    	}
+		    }
+		}
+		catch (GRBException e) {
+			  System.out.println(e);
+		      System.out.println("Error code: " + e.getErrorCode() + ". " +
+		                         e.getMessage());
+	    }
+	}
+	private void addConnectedComponentConstraints() {
+		try {
+			//For each unordered pair \sum{r \in R} X_ijr = 1
 		    for(int i=0; i<numEvents; i++) {
 				for(int j=i+1; j<numEvents; j++) {
 					GRBLinExpr oneRelationForPair = new GRBLinExpr();
@@ -166,146 +345,12 @@ public class ILPOptimizer {
 		    		}
 		    	}
 		    }
-		      
-		    /*
-		     * Constraint for SameEvent triad closure
-		     */
-	    	int sameEventIndex = labels.indexOf("SameEvent");
-		    for(int i=0; i<numEvents; i++) {
-		    	for(int j=i+1;j<numEvents;j++) {
-		    		for(int k=j+1;k<numEvents;k++) {
-		    			GRBLinExpr sameEventConstraint = new GRBLinExpr();
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c7_%d,%d,%d", i,j,k));
-						
-						LogInfo.logs(String.format("SCC ij, jk, ik %s-%s,%s-%s,%s-%s", i,j, j,k, i,k));
-						
-						sameEventConstraint = new GRBLinExpr();
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c8_%d,%d,%d", i,j,k));
-						LogInfo.logs(String.format("SCC ik, jk, ij %s-%s,%s-%s,%s-%s", i,k, j,k, i,j));
-						
-						sameEventConstraint = new GRBLinExpr();
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c9_%d,%d,%d", i,j,k));
-						LogInfo.logs(String.format("SCC ij, ik, jk %s-%s,%s-%s,%s-%s", i,j, i,k, j,k));
-		    		}
-		    	}
-		    }
-		    
-		    /*
-		     * Constraint for ensuring a--Prev-->b, b--Prev-->c, a--NONE-->c. (along with the six equivalent configurations)
-		     */
-		    /*(PreviousEvent,PreviousEvent,NONE)
-		    (NONE,NextEvent,PreviousEvent)
-		    (NextEvent,NONE,PreviousEvent)
-		    (PreviousEvent,NONE,NextEvent)
-		    (NONE,PreviousEvent,NextEvent)
-		    (NextEvent,NextEvent,NONE)*/
-		    if(labels.contains("NextEvent") && labels.contains("PreviousEvent")) {
-		    	int nextEventIndex = labels.indexOf("NextEvent"), previousEventIndex = labels.indexOf("PreviousEvent");
-			    for(int i=0; i<numEvents; i++) {
-			    	for(int j=i+1;j<numEvents;j++) {
-			    		for(int k=j+1;k<numEvents;k++) {
-			    			GRBLinExpr previousEventConstraint = new GRBLinExpr();
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, previousEventIndex)));
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, previousEventIndex)));
-			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, NONEIndex)));
-							//model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c10_%d,%d,%d", i,j,k));
-							
-							/*previousEventConstraint = new GRBLinExpr();
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, nextEventIndex)));
-			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, previousEventIndex)));
-							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c11_%d,%d,%d", i,j,k));
-							
-							previousEventConstraint = new GRBLinExpr();
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, nextEventIndex)));
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, NONEIndex)));
-			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, previousEventIndex)));
-							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c12_%d,%d,%d", i,j,k));
-							
-							previousEventConstraint = new GRBLinExpr();
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, previousEventIndex)));
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, NONEIndex)));
-			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, nextEventIndex)));
-							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c13_%d,%d,%d", i,j,k));
-							
-							previousEventConstraint = new GRBLinExpr();
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, previousEventIndex)));
-			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, nextEventIndex)));
-							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c14_%d,%d,%d", i,j,k));
-							
-							previousEventConstraint = new GRBLinExpr();
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, nextEventIndex)));
-			    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, nextEventIndex)));
-			    			previousEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, NONEIndex)));
-							model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c15_%d,%d,%d", i,j,k));*/
-			    		}
-			    	}
-			    }
-		    }
-		    
-		    model.update();
-		    
-		    //Count number of variables
-		    if(model.getVars().length > MaxVariables)
-		    	MaxVariables = model.getVars().length;
-		    
-		    //Count number of constraints
-		    if(model.getConstrs().length > MaxConstraints)
-		    	MaxConstraints = model.getConstrs().length;
-		    
-		    //Optimize the model
-		    model.optimize();
-		    
-		    
-		    /*model.computeIIS();
-		    
-		    for (GRBConstr c : model.getConstrs())
-		    {
-		        if (c.get(GRB.IntAttr.IISConstr) > 0)
-		        {
-		            System.out.println(c.get(GRB.StringAttr.ConstrName));
-		        }
-		    }                
-
-		    // Print the names of all of the variables in the IIS set.
-		    for (GRBVar v : model.getVars()) {
-		        if (v.get(GRB.IntAttr.IISLB) > 0 || v.get(GRB.IntAttr.IISUB) > 0)
-		        {
-		            System.out.println(v.get(GRB.StringAttr.VarName));
-		        }
-		    }*/
-		    // Dispose of model and environment
-		    
-		    for(GRBVar x:X_ijr.values()) {
-		      LogInfo.logs(x.get(GRB.StringAttr.VarName)
-                      + " " +x.get(GRB.DoubleAttr.X));
-		      //if(!x.get(GRB.StringAttr.VarName).endsWith(",0") && x.get(GRB.DoubleAttr.X) == 1) {
-		      if(x.get(GRB.DoubleAttr.X) == 1) {
-		    		String splits[] = x.get(GRB.StringAttr.VarName).split(",");
-		    		best.put(new Pair<Integer, Integer>(Integer.parseInt(splits[0]), Integer.parseInt(splits[1])), Integer.parseInt(splits[2]));
-		    	}
-		    }
-		    
-		    model.dispose();
-		    env.dispose();
 		}
 		catch (GRBException e) {
 			  System.out.println(e);
 		      System.out.println("Error code: " + e.getErrorCode() + ". " +
 		                         e.getMessage());
 	    }
-		System.out.println(best);
-		return best;
 	}
 	
 	public static void Optimize() {
@@ -359,7 +404,8 @@ public class ILPOptimizer {
 		      model.dispose();
 		      env.dispose();
 
-		    } catch (GRBException e) {
+	    } 
+		catch (GRBException e) {
 		      System.out.println("Error code: " + e.getErrorCode() + ". " +
 		                         e.getMessage());
 	    }
