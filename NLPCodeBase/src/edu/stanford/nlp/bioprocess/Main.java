@@ -383,14 +383,14 @@ public class Main implements Runnable {
 		features.add("lowestCommonAncestor");
 		features.add("1partOfPP");
 		features.add("2partOfPP");
-		features.add("deppath1to2");
+		features.add("deppath");
 		features.add("1dominates2");
-		features.add("deppath2to1");
 		features.add("2dominates1");
 		features.add("markRelationEvent1");
 		features.add("advmodRelationEvent1");
 		features.add("markRelationEvent2");
 		features.add("advmodRelationEvent2");
+		features.add("determinerBefore2");
 		features.add("shareChild");
 		
 		if(small) {
@@ -457,8 +457,7 @@ public class Main implements Runnable {
 			//	}
 			//	features.add(feature);
 			//}
-			for(Triple t:Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "PreviousEvent", "NONE")))
-				System.out.println(t);
+			
 			//LogInfo.logs("Worst feature - "  + worstFeature);
 			//LogInfo.logs("Best F1 - "  + bestF1);
 			

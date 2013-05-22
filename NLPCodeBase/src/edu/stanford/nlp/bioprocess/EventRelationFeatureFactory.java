@@ -9,9 +9,12 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
+
 import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.ie.machinereading.structure.Relation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
@@ -38,12 +41,57 @@ public class EventRelationFeatureFactory {
 	private boolean useLexicalFeatures;
 	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
-	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since","when", "meanwhile", "lately", 
-										"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
+	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
+									"include", "first", "begin", "start", "then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
+	
+	HashMap<String, String> MarkAndPPClusters = new HashMap<String, String>();
+	HashMap<String, String> AdvModClusters = new HashMap<String, String>();
+	
 	HashMap<String, Integer> clusters = Utils.loadClustering();
 
 	public EventRelationFeatureFactory(boolean useLexicalFeatures) {
 		this.useLexicalFeatures = useLexicalFeatures;
+		MarkAndPPClusters.put("if", RelationType.PreviousEvent.toString());
+		MarkAndPPClusters.put("until", RelationType.NextEvent.toString());
+		MarkAndPPClusters.put("after", RelationType.PreviousEvent.toString());
+		MarkAndPPClusters.put("as", RelationType.CotemporalEvent.toString());
+		MarkAndPPClusters.put("because", RelationType.Causes.toString());
+		MarkAndPPClusters.put("before", RelationType.NextEvent.toString());
+		MarkAndPPClusters.put("since", RelationType.Causes.toString());
+		MarkAndPPClusters.put("so", RelationType.Caused.toString());
+		MarkAndPPClusters.put("while", RelationType.CotemporalEvent.toString());
+		MarkAndPPClusters.put("during", RelationType.SuperEvent.toString());
+		MarkAndPPClusters.put("upon", RelationType.PreviousEvent.toString());
+		
+		AdvModClusters.put("then", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("thus", RelationType.Causes.toString());
+		AdvModClusters.put("also", RelationType.CotemporalEvent.toString());
+		AdvModClusters.put("eventually", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("meanwhile", RelationType.CotemporalEvent.toString());
+		AdvModClusters.put("thereby", RelationType.Causes.toString());
+		AdvModClusters.put("finally", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("first", RelationType.SuperEvent.toString());
+		AdvModClusters.put("hence", RelationType.Causes.toString());
+		AdvModClusters.put("later", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("next", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("simultaneously", RelationType.CotemporalEvent.toString());
+		AdvModClusters.put("subsequently", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("if", RelationType.NextEvent.toString());
+		AdvModClusters.put("until", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("after", RelationType.NextEvent.toString());
+		AdvModClusters.put("as", RelationType.CotemporalEvent.toString());
+		AdvModClusters.put("because", RelationType.Caused.toString());
+		AdvModClusters.put("so", RelationType.Causes.toString());
+		AdvModClusters.put("while", RelationType.CotemporalEvent.toString());
+		AdvModClusters.put("during", RelationType.SubEvent.toString());
+		AdvModClusters.put("upon", RelationType.NextEvent.toString());
+		AdvModClusters.put("include", RelationType.SuperEvent.toString());
+		AdvModClusters.put("begin", RelationType.SuperEvent.toString());
+		AdvModClusters.put("start", RelationType.SuperEvent.toString());
+		AdvModClusters.put("subsequent", RelationType.PreviousEvent.toString());
+		AdvModClusters.put("previously", RelationType.NextEvent.toString());
+		AdvModClusters.put("previous", RelationType.NextEvent.toString());
+		
 		/*try {
 			wnLexicon = new WnExpander();
 		} catch (IOException | OneToOneMapException e) {
@@ -60,18 +108,35 @@ public class EventRelationFeatureFactory {
 				event2CoreLabel = Utils.findCoreLabelFromTree(event2.getSentence(), event2.getTreeNode());
 		boolean isImmediatelyAfter = Utils.isEventNextInOrder(example.gold.get(EventMentionsAnnotation.class), event1, event2),
 				isAfter = Utils.isEventNext(example.gold.get(EventMentionsAnnotation.class), event1, event2);
+		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
+		//Number of sentences and words between two event mentions. Quantized to 'Low', 'Medium', 'High' etc.
+		Pair<Integer, Integer> counts =  Utils.findNumberOfSentencesAndWordsBetween(example, event1, event2);
 		
 		//Is event2 immediately after event1?
 		//if(Main.features.contains("isImmediatelyAfter")) {
 		//	features.add("isImmediatelyAfter:" + isImmediatelyAfter);
 		//}
-		if(Main.features.contains("isAfter")) {
+		/*if(Main.features.contains("isAfter")) {
 			features.add("isAfter:" + isAfter);
+		}*/
+		
+		//If comma or and only in between triggers
+		if(counts.first == 0) {
+			if(wordsInBetween.size() == 1) {
+				if(wordsInBetween.get(0).first.trim().equals(",")) {
+					//LogInfo.logs("CommaBetween " + example.id + ":" + event1.getTreeNode() + ":" + event2.getTreeNode());
+					//features.add("OnlyCommaBetween");
+				}
+				if(wordsInBetween.get(0).first.trim().equals("and")) {
+					//LogInfo.logs("AndBetween " + example.id + ":" + event1.getTreeNode() + ":" + event2.getTreeNode());
+					//features.add("OnlyAndBetween");
+				}
+			}
 		}
 		
 		if(isImmediatelyAfter) {
 			//Add words in between two event mentions if they are adjacent in text.
-			List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
+
 			StringBuffer phrase = new StringBuffer();
 			for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
 				//Ignore if it is a noun - NOT GOOD
@@ -87,21 +152,25 @@ public class EventRelationFeatureFactory {
 					}
 					else if(Main.features.contains("wordsInBetween"))
 						features.add("wordsInBetween:" + word);
-					if(TemporalConnectives.contains(word.toLowerCase())) {
+					/*if(TemporalConnectives.contains(word.toLowerCase())) {
 						if(Main.features.contains("temporalConnective"))
 							features.add("temporalConnective:" + word.toLowerCase());
-					}
+					}*/
 				//}
 			}
 			//features.add("phraseInBetween:" + phrase.toString().trim());
 			//Is there an and within 5 words of each other
 			if(wordsInBetween.size() <= 5) {
-
 				for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
 					if(Main.features.contains("closeAndInBetween"))
 						if(wordsInBetween.get(wordCounter).first.equals("and")) 
 							features.add("closeAndInBetween");
 				}
+			}
+			
+			//If event1 is the first event in the paragraph and is a nominalization, it is likely that others are sub-events
+			if(example.gold.get(EventMentionsAnnotation.class).indexOf(event1) == 0 && event1.getTreeNode().value().startsWith("NN")) {
+				features.add("firstAndNominalization");
 			}
 		}
 		
@@ -109,11 +178,6 @@ public class EventRelationFeatureFactory {
 		//POS tags of both events
 		if(Main.features.contains("POS"))
 			features.add("POS:" + pos1 + "+" + pos2);
-		
-		//If event1 is the first event in the paragraph and is a nominalization, it is likely that others are sub-events
-		if(example.gold.get(EventMentionsAnnotation.class).indexOf(event1) == 0 && event1.getTreeNode().value().startsWith("NN")) {
-			//features.add("firstAndNominalization");
-		}
 		
 		//Lemmas of both events
 		String lemma1 = event1CoreLabel.lemma().toLowerCase();
@@ -127,8 +191,6 @@ public class EventRelationFeatureFactory {
 		if(Main.features.contains("lemma"))
 			features.add("lemmas:" + lemma1 + "+" + lemma2);
 		
-		//Number of sentences and words between two event mentions. Quantized to 'Low', 'Medium', 'High' etc.
-		Pair<Integer, Integer> counts =  Utils.findNumberOfSentencesAndWordsBetween(example, event1, event2);
 		if(Main.features.contains("numSentencesInBetween"))
 			features.add("numSentencesInBetween:" + quantizedSentenceCount(counts.first()));
 		if(Main.features.contains("numWordsInBetween"))
@@ -149,7 +211,7 @@ public class EventRelationFeatureFactory {
 		if(pos2.startsWith("NN")) {
 			String determiner = Utils.getDeterminer(event2.getSentence(), event2.getTreeNode());
 			if(determiner != null)
-				if(Main.features.contains("numSentencesInBetween")) {
+				if(Main.features.contains("determinerBefore2")) {
 					features.add("determinerBefore2:" + determiner);
 					//LogInfo.logs("determiner:" + determiner);
 				}
@@ -164,22 +226,45 @@ public class EventRelationFeatureFactory {
 				features.add("lowestCommonAncestor:" + lca.value());
 			
 			//Dependency path if the event triggers are in the same sentence.
-			String deppath2to1 = Utils.getUndirectedDependencyPath(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode());
-			String deppath1to2 = Utils.getUndirectedDependencyPath(event1.getSentence(), event2.getTreeNode(), event1.getTreeNode());
-			if(!deppath1to2.isEmpty()) {
-				if(Main.features.contains("deppath1to2")) {
-					features.add("deppath1to2:" + deppath1to2 );
+			//LogInfo.logs(example.id + " " + lemma1 + " " + lemma2);
+			String deppath = Utils.getUndirectedDependencyPath_Events(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode());
+			if(!deppath.isEmpty()) {
+				if(Main.features.contains("deppath")) {
+					features.add("deppath:" + deppath);
+					features.add("deppathwithword:" + Utils.getUndirectedDependencyPath_Events_WithWords(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode()));
+					//LogInfo.logs("Dep path: " + lemma1 + " " + lemma2 + " " + deppath);
 				}
 				//Does event1 dominate event2
-				if(Main.features.contains("1dominates2"))
-					features.add("1dominates2");
-			}
-			if(!deppath2to1.isEmpty()) {
-				if(Main.features.contains("deppath2to1")) {
-					features.add("deppath2to1:" + deppath2to1 );
+				if(deppath.contains("->") && !deppath.contains("<-")) {
+					if(Main.features.contains("1dominates2")) {
+						features.add("1dominates2");
+						//LogInfo.logs(lemma1 + " " + lemma2 + " " + "1 dominates 2");
+					}
 				}
-				if(Main.features.contains("2dominates1"))
-					features.add("2dominates1");
+				
+				if(deppath.contains("<-") && !deppath.contains("->")) {
+					if(Main.features.contains("2dominates1")) {
+						features.add("2dominates1");
+						//LogInfo.logs(lemma1 + " " + lemma2 + " " +"2 dominates 1");
+					}
+				}
+			}
+			
+			if(isImmediatelyAfter) {
+				//Extract mark relation
+				List<Pair<String, String>> markRelations = extractMarkRelation(example, event1, event2);
+				for(Pair<String, String> markRelation: markRelations) {
+					LogInfo.logs("MARKERFOUND: " + example.id + " " + lemma1 + " " + lemma2 + " " + markRelation);
+					features.add("markRelation:" + markRelation.first());
+					features.add("markRelationCluster:" + markRelation.second());
+				}
+				//Extract PP relation
+				List<Pair<String, String>> ppRelations = extractPPRelation(example, event1, event2);
+				for(Pair<String, String> ppRelation: ppRelations) {
+					LogInfo.logs("PPFOUND: " + example.id + " " + lemma1 + " " + lemma2 + " " + ppRelation);
+					features.add("ppRelation:" + ppRelation.first());
+					features.add("ppRelationCluster:" + ppRelation.second());
+				}
 			}
 		}
 		
@@ -190,14 +275,15 @@ public class EventRelationFeatureFactory {
 		for(SemanticGraphEdge e: graph1.getOutEdgesSorted(indexedWord1)) {
 			if(e.getRelation().getShortName().equals("mark")) {
 				if(Main.features.contains("markRelationEvent1")&& counts.first == 0) {
-					features.add("markRelationEvent1:" + e.getTarget().originalText());
-					markWords.add(e.getTarget().originalText().toLowerCase());
+					//features.add("markRelationEvent1:" + e.getTarget().originalText());
+					
+					//markWords.add(e.getTarget().originalText().toLowerCase());
 				}
 			}
 			if(e.getRelation().getShortName().equals("advmod")) {
 				if(Main.features.contains("advmodRelationEvent1")) {
-					features.add("advmodRelationEvent1:" + e.getTarget().originalText());
-					advmodWords.add(e.getTarget().originalText().toLowerCase());
+					//features.add("advmodRelationEvent1:" + e.getTarget().originalText());
+					//advmodWords.add(e.getTarget().originalText().toLowerCase());
 				}
 			}
 		}
@@ -206,14 +292,15 @@ public class EventRelationFeatureFactory {
 		for(SemanticGraphEdge e: graph2.getOutEdgesSorted(indexedWord2)) {
 			if(e.getRelation().getShortName().equals("mark")) {
 				if(Main.features.contains("markRelationEvent2")&& counts.first == 0) {
-					features.add("markRelationEvent2:" + e.getTarget().originalText());
-					markWords.add(e.getTarget().originalText().toLowerCase());		
+					//features.add("markRelationEvent2:" + e.getTarget().originalText());
+
+					//markWords.add(e.getTarget().originalText().toLowerCase());		
 				}
 			}
 			if(e.getRelation().getShortName().equals("advmod")) {
 				if(Main.features.contains("advmodRelationEvent2")) {
-					features.add("advmodRelationEvent2:" + e.getTarget().originalText());
-					advmodWords.add(e.getTarget().originalText().toLowerCase());
+					//features.add("advmodRelationEvent2:" + e.getTarget().originalText());
+					//advmodWords.add(e.getTarget().originalText().toLowerCase());
 				}
 			}
 		}
@@ -268,9 +355,14 @@ public class EventRelationFeatureFactory {
 				if(node.value().equals("PP")) {
 					for(Tree ponode:node.postOrderNodeList()) {
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
-							if(Main.features.contains("1partOfPP")) {
-								features.add("1partOfPP:" + ponode.firstChild().value());
-								eventInsidePP.add(ponode.firstChild().value().toLowerCase());
+							if(Main.features.contains("1partOfPP") && isImmediatelyAfter) {
+								
+								//System.out.println(example.id);
+							//	System.out.println(lemma1);
+							//	System.out.println(lemma2);
+							//	System.out.println(ponode.firstChild().value());
+								//features.add("1partOfPP:" + ponode.firstChild().value());
+								//eventInsidePP.add(ponode.firstChild().value().toLowerCase());
 							}
 							matched = true;
 							break;
@@ -291,8 +383,8 @@ public class EventRelationFeatureFactory {
 					for(Tree ponode:node.postOrderNodeList()) {
 						if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
 							if(Main.features.contains("2partOfPP")) {
-								features.add("2partOfPP:" + ponode.firstChild().value());
-								eventInsidePP.add(ponode.firstChild().value().toLowerCase());
+								//features.add("2partOfPP:" + ponode.firstChild().value());
+								//eventInsidePP.add(ponode.firstChild().value().toLowerCase());
 							}
 							matched = true;
 							break;
@@ -450,6 +542,119 @@ public class EventRelationFeatureFactory {
 		    }
 		}
     	return newData;
+	}
+	
+	private List<Pair<String, String>> extractMarkRelation(Example example, EventMention eventMention1, EventMention eventMention2){
+		CoreMap sentence = eventMention1.getSentence();
+		Tree event1 = eventMention1.getTreeNode(), event2 = eventMention2.getTreeNode();
+		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+		IndexedWord indexedWord1 = Utils.findDependencyNode(sentence, event1), indexedWord2 = Utils.findDependencyNode(sentence, event2) ;
+		int event1Index = indexedWord1.index(), event2Index = indexedWord2.index();
+		
+		/*
+		//If they cross subordinate clause, then there is no relation.
+		String shortestPath = Utils.getUndirectedDependencyPath_Events(sentence, event1, event2);
+		if(shortestPath.contains("xcomp") || shortestPath.contains("ccomp")) {
+			return "";
+		} */
+		
+		List<Pair<String, String>> markRelations = new ArrayList<Pair<String,String>>();
+		
+		Pair<String, String> markRelation1 = extractMarkRelation(example.gold.get(EventMentionsAnnotation.class), graph, eventMention1,
+																					indexedWord1, event1Index, event2Index);
+		Pair<String, String> markRelation2 = extractMarkRelation(example.gold.get(EventMentionsAnnotation.class), graph, eventMention1,
+																					indexedWord2, event1Index, event2Index);
+		if(markRelation1 != null) {
+			markRelations.add(new Pair<String, String>(markRelation1.first() + "_1", markRelation1.second()));
+		}
+		
+		if(markRelation2 != null) {
+			markRelations.add(new Pair<String, String>(markRelation2.first() + "_2", markRelation2.second()));
+		}
+		
+		return markRelations;
+	}
+	
+	private Pair<String, String> extractMarkRelation(List<EventMention> mentions, SemanticGraph graph, EventMention eventMention1, 
+																		IndexedWord indexedWord, int event1Index, int event2Index) {
+		for(SemanticGraphEdge e: graph.getOutEdgesSorted(indexedWord)) {
+			if(e.getRelation().getShortName().equals("mark")) {
+				int markIndex = e.getTarget().index();
+				String markerName = e.getTarget().lemma().toLowerCase();
+				
+				if(Utils.isFirstEventInSentence(mentions, eventMention1) && markIndex < event1Index) {
+					LogInfo.logs("Marker before :" +markerName);
+					if(MarkAndPPClusters.containsKey(markerName))
+						return new Pair<String, String>(markerName, MarkAndPPClusters.get(markerName));
+				}
+				else if(markIndex < event2Index) {
+					LogInfo.logs("Marker between :" +markerName);
+					if(MarkAndPPClusters.containsKey(markerName))
+						return new Pair<String, String>(markerName, Utils.getInverseRelation(MarkAndPPClusters.get(markerName)));
+				}
+				else {
+					LogInfo.logs("Marker after");
+				}
+			}
+		}
+		return null;
+	}
+	
+	private List<Pair<String, String>> extractPPRelation(Example example, EventMention eventMention1, EventMention eventMention2){
+		CoreMap sentence = eventMention1.getSentence();
+		Tree event1 = eventMention1.getTreeNode(), event2 = eventMention2.getTreeNode();
+		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+		
+		int event1Index = event1.nodeNumber(root), event2Index = event2.nodeNumber(root);
+		//Are the event triggers part of a Prepositional phrase individually (one feature each)?
+		
+		List<Pair<String, String>> ppRelations = new ArrayList<Pair<String,String>>();
+		
+		Pair<String, String> ppRelation1 = extractPPRelation(example.gold.get(EventMentionsAnnotation.class), eventMention1, root,
+																					event1, event1Index, event2Index);
+		Pair<String, String> ppRelation2 = extractPPRelation(example.gold.get(EventMentionsAnnotation.class), eventMention1, root,
+																					event2, event1Index, event2Index);
+		if(ppRelation1 != null) {
+			ppRelations.add(new Pair<String, String>(ppRelation1.first() + "_1", ppRelation1.second()));
+		}
+		
+		if(ppRelation2 != null) {
+			ppRelations.add(new Pair<String, String>(ppRelation2.first() + "_2", ppRelation2.second()));
+		}
+		
+		return ppRelations;
+	}
+	
+	private Pair<String, String> extractPPRelation(List<EventMention> mentions, EventMention eventMention1, Tree root, Tree event, int event1Index, int event2Index) {
+		Tree node = event;
+		//Are the event triggers part of a Prepositional phrase individually (one feature each)?
+		while(!node.value().equals("ROOT") && !node.value().equals("S") && !node.value().equals("SBAR")) {
+			if(node.value().equals("PP")) {
+				for(Tree ponode:node.postOrderNodeList()) {
+					if(ponode.isPreTerminal() && (ponode.value().equals("IN") || ponode.value().equals("TO"))) {
+						String ppName = ponode.firstChild().value().toLowerCase();
+						int ppIndex = ponode.firstChild().nodeNumber(root);
+						if(Utils.isFirstEventInSentence(mentions, eventMention1) && ppIndex < event1Index) {
+							LogInfo.logs("PP before :" +ppName);
+							if(MarkAndPPClusters.containsKey(ppName))
+								return new Pair<String, String>(ppName, MarkAndPPClusters.get(ppName));
+						}
+						else if(ppIndex > event1Index && ppIndex < event2Index) {
+							LogInfo.logs("PP between :" +ppName);
+							if(MarkAndPPClusters.containsKey(ppName))
+								return new Pair<String, String>(ppName, Utils.getInverseRelation(MarkAndPPClusters.get(ppName)));
+						}
+						else if(ppIndex > event2Index){
+							LogInfo.logs("PP after");
+						}
+						
+						break;
+					}
+				}
+			}
+			node = node.parent(root);
+		}
+		return null;
 	}
 
 	public String quantizedSentenceCount(int numSentences) {

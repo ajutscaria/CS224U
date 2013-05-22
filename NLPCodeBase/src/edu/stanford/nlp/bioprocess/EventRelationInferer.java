@@ -28,6 +28,7 @@ public class EventRelationInferer {
 	public int totalEvents = 0;
 	IntCounter<Integer> prevEvent = new IntCounter<Integer>(), superEvent = new IntCounter<Integer>(), causeEvent = new IntCounter<Integer>(), degreeDistribution = new IntCounter<Integer>();
 	IntCounter<Integer> prevEventPred = new IntCounter<Integer>(), superEventPred = new IntCounter<Integer>(),  causeEventPred = new IntCounter<Integer>(), degreeDistributionPred = new IntCounter<Integer>();
+	private boolean enforceGlobalConstraints = false;
 	
 	public EventRelationInferer(List<BioDatum> predictions) {
 		prediction = predictions;
@@ -124,6 +125,7 @@ public class EventRelationInferer {
 					weights.put(String.format("%d,%d,%d", eventMentions.indexOf(d.event1), eventMentions.indexOf(d.event2),
 											labelsInClassifier.indexOf(possibleLabel)), 
 											classifier.logProbabilityOf(newDatum).getCount(possibleLabel));
+											//classifier.probabilityOf(newDatum).getCount(possibleLabel));
 
 			}
 			
@@ -141,22 +143,23 @@ public class EventRelationInferer {
 				}
 			}
 			
-			ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier);
-			HashMap<Pair<Integer,Integer>, Integer> best = opt.OptimizeEventRelation();
-			
-			
-			for(Pair<Integer,Integer> p:best.keySet()) {
-				for(BioDatum d:dataset) {
-					if(eventMentions.indexOf(d.event1) == p.first() && 
-							eventMentions.indexOf(d.event2) == p.second() && !d.predictedLabel().equals(labelsInClassifier.get(best.get(p)))) {
-						d.setPredictedLabel(labelsInClassifier.get(best.get(p)));
-						buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"darkgreen\" %s color = \"%s\"];", "node"+p.first(), "node"+p.second(), labelsInClassifier.get(best.get(p)),
-								//If Cotemporal or same event, put bi-directional edges
-								(labelsInClassifier.get(best.get(p)).equals("CotemporalEvent") || labelsInClassifier.get(best.get(p)).equals("SameEvent")) ? "dir = \"both\"" : "", "darkgreen")) ;
+			if(enforceGlobalConstraints ) {
+				ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier);
+				HashMap<Pair<Integer,Integer>, Integer> best = opt.OptimizeEventRelation();
+				
+				
+				for(Pair<Integer,Integer> p:best.keySet()) {
+					for(BioDatum d:dataset) {
+						if(eventMentions.indexOf(d.event1) == p.first() && 
+								eventMentions.indexOf(d.event2) == p.second() && !d.predictedLabel().equals(labelsInClassifier.get(best.get(p)))) {
+							d.setPredictedLabel(labelsInClassifier.get(best.get(p)));
+							buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"darkgreen\" %s color = \"%s\"];", "node"+p.first(), "node"+p.second(), labelsInClassifier.get(best.get(p)),
+									//If Cotemporal or same event, put bi-directional edges
+									(labelsInClassifier.get(best.get(p)).equals("CotemporalEvent") || labelsInClassifier.get(best.get(p)).equals("SameEvent")) ? "dir = \"both\"" : "", "darkgreen")) ;
+						}
 					}
 				}
 			}
-			
 			for(BioDatum d:dataset) {
 				labelings.put(eventMentions.indexOf(d.event1) + "," + eventMentions.indexOf(d.event2), new Pair<String, String>(d.label, d.predictedLabel()));
 				if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE"))
@@ -250,8 +253,9 @@ public class EventRelationInferer {
 						countPredictedTriples.incrementCount(predEquivalent.first()+ "," + predEquivalent.second() + "," + predEquivalent.third());
 						
 						String rel = String.format("%s->%s->%s", predEquivalent.first(), predEquivalent.second(), predEquivalent.third());
-						if(rel.equals("NONE->SameEvent->SameEvent")) {
-							LogInfo.logs("SPROBS" + ex.id);
+						if(rel.equals("CotemporalEvent->CotemporalEvent->NONE")) {
+							LogInfo.logs(String.format("PRINTING %s %s, %s, %s", ex.id, eventMentions.get(i).getTreeNode(), 
+									eventMentions.get(j).getTreeNode(), eventMentions.get(k).getTreeNode()));
 						}
 					}
 				}

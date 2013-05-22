@@ -665,6 +665,71 @@ public static List<Example> readFile(String fileName) {
 		return buf.toString();
 	}
 	
+	public static String getUndirectedDependencyPath_Events(CoreMap sentence, Tree node1, Tree node2) {
+		//word as head token.
+		if(node1 == null || node1.value().equals("S") || node1.value().equals("SBAR"))
+			return "";
+		IndexedWord indexedWordNode1 = findDependencyNode(sentence, node1);
+		//In case of punctuation marks, there is no head found.
+		StringBuilder buf = new StringBuilder();
+		if(indexedWordNode1 != null) {
+			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			//LogInfo.logs("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			IndexedWord indexedWordNode2 = findDependencyNode(sentence, node2);
+			if(indexedWordNode2 == null) return "";
+			if(graph.getShortestUndirectedPathNodes(indexedWordNode1, indexedWordNode2) != null) {
+				List<IndexedWord> words = graph.getShortestUndirectedPathNodes(indexedWordNode1, indexedWordNode2);
+				//System.out.println(words);
+				for(int i = 0; i < words.size() - 1; i++) {
+					if(graph.getEdge(words.get(i), words.get(i+1)) != null) {
+						buf.append(graph.getEdge(words.get(i), words.get(i+1)).getRelation() + "-> ");
+					}
+					else {
+						buf.append("<-" + graph.getEdge(words.get(i+1), words.get(i)).getRelation() + " ");
+					}
+				}
+				//return graph.getShortestUndirectedPathEdges(indexedWord2, indexedWordNode1).toString();
+			}
+		}
+		//LogInfo.logs(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		
+		return buf.toString().trim();
+	}
+	public static String getUndirectedDependencyPath_Events_WithWords(CoreMap sentence, Tree node1, Tree node2) {
+		//word as head token.
+		if(node1 == null || node1.value().equals("S") || node1.value().equals("SBAR"))
+			return "";
+		IndexedWord indexedWordNode1 = findDependencyNode(sentence, node1);
+		//In case of punctuation marks, there is no head found.
+		StringBuilder buf = new StringBuilder();
+		if(indexedWordNode1 != null) {
+			SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+			//LogInfo.logs("Event == " + event.getTreeNode() + ":" + event.getHeadInDependencyTree());
+			IndexedWord indexedWordNode2 = findDependencyNode(sentence, node2);
+			if(indexedWordNode2 == null) return "";
+			if(graph.getShortestUndirectedPathNodes(indexedWordNode1, indexedWordNode2) != null) {
+				List<IndexedWord> words = graph.getShortestUndirectedPathNodes(indexedWordNode1, indexedWordNode2);
+				//System.out.println(words);
+				for(int i = 0; i < words.size() - 1; i++) {
+					if(graph.getEdge(words.get(i), words.get(i+1)) != null) {
+						buf.append(graph.getEdge(words.get(i), words.get(i+1)).getRelation() + "-> ");
+					}
+					else {
+						buf.append("<-" + graph.getEdge(words.get(i+1), words.get(i)).getRelation() + " ");
+					}
+					
+					if(i != words.size() - 2) {
+						buf.append(words.get(i+1).lemma() + " ");
+					}
+				}
+				//return graph.getShortestUndirectedPathEdges(indexedWord2, indexedWordNode1).toString();
+			}
+		}
+		//LogInfo.logs(String.format("Don't think %s is parent of %s in dependency tree", event.getTreeNode(), entity));
+		
+		return buf.toString().trim();
+	}
+	
 	public static boolean isNodesRelated(CoreMap sentence, Tree entity, EventMention event) {
 		//Event ideally wouldn't be parent of full sentence. But, it will tag it as parent because the full sentence has the trigger
 		//word as head token.
@@ -1030,6 +1095,22 @@ public static List<Example> readFile(String fileName) {
 	}
 	
 	public static List<Triple<String, String, String>> getEquivalentTriples(Triple<String, String, String> triple) {
+		
+		List<Triple<String, String, String>> allEquivalent = new ArrayList<Triple<String, String, String>>();
+		  
+		  
+		allEquivalent.add(triple);
+		allEquivalent.add(new Triple<String, String, String>(triple.third(), getInverseRelation(triple.second()), triple.first()));
+		allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.first()), triple.third(), triple.second()));
+		allEquivalent.add(new Triple<String, String, String>(triple.second(), getInverseRelation(triple.third()), getInverseRelation(triple.first())));
+		allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.third()), triple.first(), getInverseRelation(triple.second())));
+		allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.second()), getInverseRelation(triple.first()), getInverseRelation(triple.third())));
+		
+		
+		return allEquivalent;
+	}
+	
+	public static String getInverseRelation(String relation) {
 		HashMap<String, String> inverse = new HashMap<String, String>();
 		inverse.put(RelationType.NONE.toString(), RelationType.NONE.toString());
 		inverse.put(RelationType.CotemporalEvent.toString(), RelationType.CotemporalEvent.toString());
@@ -1042,18 +1123,22 @@ public static List<Example> readFile(String fileName) {
 		inverse.put(RelationType.Caused.toString(), RelationType.Causes.toString());
 		inverse.put(RelationType.Enables.toString(), RelationType.Enabled.toString());
 		inverse.put(RelationType.Enabled.toString(), RelationType.Enables.toString());
-		List<Triple<String, String, String>> allEquivalent = new ArrayList<Triple<String, String, String>>();
-		  
-		  
-		allEquivalent.add(triple);
-		allEquivalent.add(new Triple<String, String, String>(triple.third(), inverse.get(triple.second()), triple.first()));
-		allEquivalent.add(new Triple<String, String, String>(inverse.get(triple.first()), triple.third(), triple.second()));
-		allEquivalent.add(new Triple<String, String, String>(triple.second(), inverse.get(triple.third()), inverse.get(triple.first())));
-		allEquivalent.add(new Triple<String, String, String>(inverse.get(triple.third()), triple.first(), inverse.get(triple.second())));
-		allEquivalent.add(new Triple<String, String, String>(inverse.get(triple.second()), inverse.get(triple.first()), inverse.get(triple.third())));
 		
-		
-		return allEquivalent;
+		return inverse.get(relation);
+	}
+	
+	public static boolean isFirstEventInSentence(List<EventMention> mentions, EventMention mention) {
+		CoreMap lastSentence = null;
+		for(EventMention m:mentions) {
+			if(m == mention) {
+				if(lastSentence != null && lastSentence.equals(m.getSentence())){
+					return false;
+				}
+				return true;
+			}
+			lastSentence = m.getSentence();
+		}
+		return false;
 	}
 }
 
