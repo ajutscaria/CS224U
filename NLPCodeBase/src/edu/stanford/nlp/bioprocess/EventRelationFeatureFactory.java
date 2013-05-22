@@ -256,14 +256,19 @@ public class EventRelationFeatureFactory {
 				for(Pair<String, String> markRelation: markRelations) {
 					LogInfo.logs("MARKERFOUND: " + example.id + " " + lemma1 + " " + lemma2 + " " + markRelation);
 					features.add("markRelation:" + markRelation.first());
-					features.add("markRelationCluster:" + markRelation.second());
+					//In some cases, we don't have clusters for some relation.
+					if(!markRelation.second().isEmpty())
+						features.add("markRelationCluster:" + markRelation.second());
 				}
 				//Extract PP relation
 				List<Pair<String, String>> ppRelations = extractPPRelation(example, event1, event2);
 				for(Pair<String, String> ppRelation: ppRelations) {
 					LogInfo.logs("PPFOUND: " + example.id + " " + lemma1 + " " + lemma2 + " " + ppRelation);
 					features.add("ppRelation:" + ppRelation.first());
-					features.add("ppRelationCluster:" + ppRelation.second());
+					//In some cases, we don't have clusters for some relation.
+					if(!ppRelation.second().isEmpty()) {
+						features.add("ppRelationCluster:" + ppRelation.second());
+					}
 				}
 			}
 		}
@@ -583,14 +588,18 @@ public class EventRelationFeatureFactory {
 				String markerName = e.getTarget().lemma().toLowerCase();
 				
 				if(Utils.isFirstEventInSentence(mentions, eventMention1) && markIndex < event1Index) {
-					LogInfo.logs("Marker before :" +markerName);
+					//LogInfo.logs("Marker before :" +markerName);
 					if(MarkAndPPClusters.containsKey(markerName))
 						return new Pair<String, String>(markerName, MarkAndPPClusters.get(markerName));
+					else
+						return new Pair<String, String>(markerName, "");
 				}
 				else if(markIndex < event2Index) {
-					LogInfo.logs("Marker between :" +markerName);
+					//LogInfo.logs("Marker between :" +markerName);
 					if(MarkAndPPClusters.containsKey(markerName))
 						return new Pair<String, String>(markerName, Utils.getInverseRelation(MarkAndPPClusters.get(markerName)));
+					else
+						return new Pair<String, String>(markerName, "");
 				}
 				else {
 					LogInfo.logs("Marker after");
@@ -638,11 +647,15 @@ public class EventRelationFeatureFactory {
 							LogInfo.logs("PP before :" +ppName);
 							if(MarkAndPPClusters.containsKey(ppName))
 								return new Pair<String, String>(ppName, MarkAndPPClusters.get(ppName));
+							else
+								return new Pair<String, String>(ppName, "");
 						}
 						else if(ppIndex > event1Index && ppIndex < event2Index) {
 							LogInfo.logs("PP between :" +ppName);
 							if(MarkAndPPClusters.containsKey(ppName))
 								return new Pair<String, String>(ppName, Utils.getInverseRelation(MarkAndPPClusters.get(ppName)));
+							else
+								return new Pair<String, String>(ppName, "");
 						}
 						else if(ppIndex > event2Index){
 							LogInfo.logs("PP after");
