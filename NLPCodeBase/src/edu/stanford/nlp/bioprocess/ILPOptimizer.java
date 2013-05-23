@@ -136,7 +136,7 @@ public class ILPOptimizer {
 		    addConnectedComponentConstraints();
 		      
 		    //Constraint for SameEvent triad closure
-	    	addSameEventTriadClosureHardConstraints();
+	    	//addSameEventTriadClosureHardConstraints();
 	    	
 	    	//Constraint for PreviousEvent
 	    	//addPreviousEventHardConstraints();

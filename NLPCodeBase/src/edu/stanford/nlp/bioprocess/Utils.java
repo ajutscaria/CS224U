@@ -929,6 +929,11 @@ public static List<Example> readFile(String fileName) {
 					}
 					else if(beginGettingWords) {
 						//System.out.println(getText(node));
+						IndexedWord indexedWord = findDependencyNode(sentence, node); 
+						//System.out.println(indexedWord);
+						//System.out.println(node);
+						//if(indexedWord != null)
+						//words.add(new Pair<String, String>(indexedWord.lemma(), node.value()));
 						words.add(new Pair<String, String>(getText(node), node.value()));
 					}
 				}

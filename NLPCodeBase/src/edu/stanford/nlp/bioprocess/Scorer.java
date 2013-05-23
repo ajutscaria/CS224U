@@ -203,9 +203,9 @@ public class Scorer {
 	}
 	double macroPrec = 0, macroRec = 0, macroF = 0;
 	
-	System.out.println(macroPrecision);
-	System.out.println(macroRecall);
-	System.out.println(macroF1);
+	LogInfo.logs(macroPrecision);
+	LogInfo.logs(macroRecall);
+	LogInfo.logs(macroF1);
 	
 	for(String key : nonNONERelations) {
 		macroPrec += macroPrecision.get(key);
