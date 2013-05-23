@@ -674,17 +674,14 @@ public class EventRelationFeatureFactory {
 							//LogInfo.logs("PP dominates other event");
 							return null;
 						}
-						
-						root.pennPrint();
-						
 						Tree lca = Trees.getLowestCommonAncestor(thisEvent, thatEvent, root);
-						LogInfo.logs("ANCESTOR " + lca.value());
+						//LogInfo.logs("ANCESTOR " + lca.value());
 						List<String> path = Trees.pathNodeToNode(lca, ponode, lca);
 						path.remove(path.size()-1);
 						path.remove(0);
 						path.remove(0);
-						
-						LogInfo.logs("PPPATH " + thisEvent + " " + path);
+
+						//LogInfo.logs("PPPATH " + thisEvent + " " + path);
 						//if(path.contains("down-S") || path.contains("down-SBAR")) {
 						if(path.contains("down-S") || path.contains("down-SBAR")) {
 							//LogInfo.logs("Contains S or SBAR");
@@ -696,18 +693,12 @@ public class EventRelationFeatureFactory {
 						path.remove(0);
 						path.remove(0);
 
-						LogInfo.logs("PPPATH " + thatEvent + " " + path);
+						//LogInfo.logs("PPPATH " + thatEvent + " " + path);
 						if(path.contains("down-S") || path.contains("down-SBAR")) {
 							//LogInfo.logs("Contains S or SBAR");
 							//return null;
 						}
-						if(Utils.getText(thisEvent).equals("kinase"))
-							try {
-								Thread.sleep(1000000);
-							} catch (InterruptedException e) {
-								// TODO Auto-generated catch block
-								e.printStackTrace();
-							}
+						
 						String ppName = ponode.firstChild().value().toLowerCase();
 						int ppIndex = ponode.firstChild().nodeNumber(root);
 						if(Utils.isFirstEventInSentence(mentions, eventMention1) && ppIndex < event1Index) {
