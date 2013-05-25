@@ -359,7 +359,7 @@ public class Main implements Runnable {
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
 		boolean small = false;
-		boolean performParameterSearch = false;
+		boolean performParameterSearch = true;
 		//double[] paramValues = new double[]{0.5, 10};
 		double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
 		boolean[] paramValuesBool = new boolean[]{false, true};
