@@ -359,7 +359,7 @@ public class Main implements Runnable {
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
 		boolean small = false;
-		boolean performParameterSearch = true;
+		boolean performParameterSearch = false;
 		//double[] paramValues = new double[]{0.5, 10};
 		double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
 		boolean[] paramValuesBool = new boolean[]{false, true};
@@ -572,7 +572,7 @@ public class Main implements Runnable {
 					
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-							true, false, false, 0.0,10.0,0.0);
+							true, false, true, 0.0,0.5,0.0);
 					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 					
 					resultsFromAllFolds.addAll(result);
