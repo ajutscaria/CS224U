@@ -275,37 +275,9 @@ public class EventRelationFeatureFactory {
 			}
 		}
 		
-		//Finding "mark" and "advmod" relationship
-		for(SemanticGraphEdge e: graph1.getOutEdgesSorted(indexedWord1)) {
-			if(e.getRelation().getShortName().equals("mark")) {
-				if(Main.features.contains("markRelationEvent1")&& sentenceBetweenEvents == 0) {
-					//features.add("markRelationEvent1:" + e.getTarget().originalText());
-					
-					//markWords.add(e.getTarget().originalText().toLowerCase());
-				}
-			}
-			if(e.getRelation().getShortName().equals("advmod")) {
-				if(Main.features.contains("advmodRelationEvent1")) {
-					//features.add("advmodRelationEvent1:" + e.getTarget().originalText());
-					//advmodWords.add(e.getTarget().originalText().toLowerCase());
-				}
-			}
-		}
-		
-		for(SemanticGraphEdge e: graph2.getOutEdgesSorted(indexedWord2)) {
-			if(e.getRelation().getShortName().equals("mark")) {
-				if(Main.features.contains("markRelationEvent2")&& sentenceBetweenEvents == 0) {
-					//features.add("markRelationEvent2:" + e.getTarget().originalText());
-
-					//markWords.add(e.getTarget().originalText().toLowerCase());		
-				}
-			}
-			if(e.getRelation().getShortName().equals("advmod")) {
-				if(Main.features.contains("advmodRelationEvent2")) {
-					//features.add("advmodRelationEvent2:" + e.getTarget().originalText());
-					//advmodWords.add(e.getTarget().originalText().toLowerCase());
-				}
-			}
+		String advMod = extractAdvModRelation(graph2, indexedWord2);
+		if(advMod != null && !advMod.isEmpty()) {
+			features.add("advMod:" + advMod);
 		}
 		
 		//See if the two triggers share a common lemma as child in the dependency graph.
@@ -604,6 +576,17 @@ public class EventRelationFeatureFactory {
 					return new Pair<String, String>(advModName, AdvModClusters.get(advModName));
 				else
 					return new Pair<String, String>(advModName, "");
+			}
+		}
+		return null;
+	}
+	
+	private String extractAdvModRelation(SemanticGraph graph, IndexedWord indexedWord) {
+		for(SemanticGraphEdge e: graph.getOutEdgesSorted(indexedWord)) {
+			if(e.getRelation().getShortName().equals("advmod")) {
+				if(Main.features.contains("advmodRelationEvent2")) {
+					return e.getTarget().originalText();
+				}
 			}
 		}
 		return null;

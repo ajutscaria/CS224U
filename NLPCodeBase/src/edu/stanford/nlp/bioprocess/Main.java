@@ -198,6 +198,7 @@ public class Main implements Runnable {
 		else if(mode.equals("eventrelation")) {
 			LogInfo.logs("Running event relation");
 			runEventRelationsPrediction(folders);
+			//runEventRelationsPredictionTest(folders);
 			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
 		}
 		LogInfo.end_track();
@@ -354,6 +355,58 @@ public class Main implements Runnable {
 			LogInfo.end_track();
 		}
 		printScores("Dev", precisionDev, recallDev, f1Dev);
+	}
+	
+	private void runEventRelationsPredictionTest(HashMap<String, String> folders) {
+		features = new ArrayList<String>();
+		
+		features.add("isImmediatelyAfter");
+		features.add("isAfter");
+		features.add("wordsInBetween");
+		features.add("temporalConnective");
+		features.add("closeAndInBetween");
+		features.add("POS");
+		features.add("lemma");
+		features.add("eventLemmasSame");
+		features.add("numSentencesInBetween");
+		features.add("numWordsInBetween");
+		features.add("lowestCommonAncestor");
+		features.add("1partOfPP");
+		features.add("2partOfPP");
+		features.add("deppath");
+		features.add("1dominates2");
+		features.add("2dominates1");
+		features.add("markRelationEvent1");
+		features.add("advmodRelationEvent1");
+		features.add("markRelationEvent2");
+		features.add("advmodRelationEvent2");
+		features.add("determinerBefore2");
+		features.add("shareChild");
+		
+		Utils.clearFolderContent("GraphViz");
+		BioprocessDataset trainDataset = loadDataSet(folders, false, false);
+		
+		BioprocessDataset testDataset = loadTestDataSet(folders, false);
+		
+		Learner eventRelationLearner = new Learner();
+		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
+		EventRelationInferer inferer = new EventRelationInferer();
+		
+		Params eventParam = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
+		List<BioDatum> result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
+				true, false, true, 0.0,0.5,0.0);
+		
+		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(result);
+	
+		LogInfo.logs("Micro precision");
+		LogInfo.logs("Precision : " + pairTriple.first.first);
+		LogInfo.logs("Recall    : " + pairTriple.first.second);
+		LogInfo.logs("F1 score  : " + pairTriple.first.third);
+		
+		LogInfo.logs("\nMacro precision");
+		LogInfo.logs("Precision : " + pairTriple.second.first);
+		LogInfo.logs("Recall    : " + pairTriple.second.second);
+		LogInfo.logs("F1 score  : " + pairTriple.second.third);
 	}
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
@@ -709,6 +762,24 @@ public class Main implements Runnable {
 		}
 		printScores("Dev Trigger", precisionTrigger, recallTrigger, f1Trigger);
 		printScores("Dev Entity", precisionEntity, recallEntity, f1Entity);
+	}
+	
+	private BioprocessDataset loadTestDataSet(HashMap<String, String> groups, boolean refreshDataFile) {
+		String examplesFileName = "data_test.bpa";
+		BioprocessDataset dataset = new BioprocessDataset(groups);
+
+		File f = new File(examplesFileName);
+		if(f.exists() && !refreshDataFile) {
+			LogInfo.begin_track("Quick data read");
+			dataset.allExamples.put("test", Utils.readFile(examplesFileName));
+			LogInfo.end_track();
+		}
+		else {
+			dataset.read("test");
+			Utils.writeFile(dataset.examples("test"), examplesFileName);
+		}
+		
+		return dataset;
 	}
 	
 	private BioprocessDataset loadDataSet(HashMap<String, String> groups, boolean useSmallSample, boolean refreshDataFile) {
