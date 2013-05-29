@@ -42,7 +42,8 @@ public class EventRelationFeatureFactory {
 	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
-									"include", "first", "begin", "start", "then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
+									"include","includes","including","included", "first", "begin","begins","began","beginning","begun","start","starts","started","starting",
+									"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
 	List<String> diffClauseRelations = Arrays.asList(new String[]{"acomp", "advcl", "ccomp", "csubj", "infmod", "prepc", "purpcl", "xcomp"});
 	HashMap<String, String> MarkAndPPClusters = new HashMap<String, String>();
 	HashMap<String, String> AdvModClusters = new HashMap<String, String>();
@@ -86,8 +87,18 @@ public class EventRelationFeatureFactory {
 		AdvModClusters.put("during", RelationType.SubEvent.toString());
 		AdvModClusters.put("upon", RelationType.NextEvent.toString());
 		AdvModClusters.put("include", RelationType.SuperEvent.toString());
+		AdvModClusters.put("includes", RelationType.SuperEvent.toString());
+		AdvModClusters.put("included", RelationType.SuperEvent.toString());
+		AdvModClusters.put("including", RelationType.SuperEvent.toString());
 		AdvModClusters.put("begin", RelationType.SuperEvent.toString());
+		AdvModClusters.put("begins", RelationType.SuperEvent.toString());
+		AdvModClusters.put("began", RelationType.SuperEvent.toString());
+		AdvModClusters.put("begun", RelationType.SuperEvent.toString());
+		AdvModClusters.put("beginning", RelationType.SuperEvent.toString());
 		AdvModClusters.put("start", RelationType.SuperEvent.toString());
+		AdvModClusters.put("starts", RelationType.SuperEvent.toString());
+		AdvModClusters.put("started", RelationType.SuperEvent.toString());
+		AdvModClusters.put("starting", RelationType.SuperEvent.toString());
 		AdvModClusters.put("subsequent", RelationType.PreviousEvent.toString());
 		AdvModClusters.put("previously", RelationType.NextEvent.toString());
 		AdvModClusters.put("previous", RelationType.NextEvent.toString());
