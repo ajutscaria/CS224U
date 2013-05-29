@@ -33,6 +33,26 @@ public class ILPOptimizer {
 	//Indicator variable for Same event soft constraint with penalty
 	HashMap<String, GRBVar> B_ijk = new HashMap<String, GRBVar>();
 	
+	//Indicator variable for Past event hard constraints
+	HashMap<String, GRBVar> C_ijPast = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> C_ijNotPast = new HashMap<String, GRBVar>();
+	
+	//Indicator variable for Present event hard constraints
+	HashMap<String, GRBVar> C_ijPresent = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> C_ijNotPresent = new HashMap<String, GRBVar>();
+	
+	//Indicator variable for Future event hard constraints
+	HashMap<String, GRBVar> C_ijFuture = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> C_ijNotFuture = new HashMap<String, GRBVar>();
+	
+	//Indicator variable for Sub event hard constraints
+	HashMap<String, GRBVar> C_ijSub = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> C_ijNotSub = new HashMap<String, GRBVar>();
+	
+	//Indicator variable for Super event hard constraints
+	HashMap<String, GRBVar> C_ijSuper = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> C_ijNotSuper = new HashMap<String, GRBVar>();
+	
 	GRBEnv	env;
 	GRBModel  model;
 	
@@ -71,6 +91,26 @@ public class ILPOptimizer {
 			for(int i=0; i<numEvents; i++) {
 				for(int j=i+1; j<numEvents; j++) {
 					X_ij.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijFuture.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijPast.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijPresent.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijSub.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijSuper.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijNotFuture.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijNotPast.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijNotPresent.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijNotSub.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+							String.format("%d,%d",i, j)));
+					C_ijNotSuper.put(String.format("%d,%d", i, j), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 							String.format("%d,%d",i, j)));
 				}
 			}
@@ -165,7 +205,8 @@ public class ILPOptimizer {
 				addPreviousEventHardConstraints();
 			}
 		    
-			//model.update();
+		    //Hard constraint for same event contradictions
+			//addSameEventContradictionHardConstarints();
 			
 		    //Soft constraint for cotemporal
 		    addCotemporalSoftConstraints();
@@ -174,8 +215,7 @@ public class ILPOptimizer {
 		    addSameEventSoftConstraintsReward();
 		    
 		    //Soft constraint for same event with penalty
-		    //addSameEventSoftConstraintsPenalize();
-		    
+		    addSameEventSoftConstraintsPenalize();
 		    
 		    model.update();
 		    
@@ -407,6 +447,81 @@ public class ILPOptimizer {
 		      System.out.println("Error code: " + e.getErrorCode() + ". " +
 		                         e.getMessage());
 	    }
+	}
+	
+	private void addSameEventContradictionHardConstarints() {
+		int nextEventIndex = labels.indexOf("NextEvent"), previousEventIndex = labels.indexOf("PreviousEvent");
+		int superEventIndex = labels.indexOf("SuperEvent"), subEventIndex = labels.indexOf("SubEvent");
+		int causesIndex = labels.indexOf("Causes"), causedIndex = labels.indexOf("Caused");
+		int enablesIndex = labels.indexOf("Enables"), enabledIndex = labels.indexOf("Enabled");
+		int cotemporalEventIndex = labels.indexOf("CotemporalEvent");
+		
+		try {
+			//Constraints for Past: Prev, Causes, Enables
+			for(int i=0; i<numEvents; i++) {
+				for(int j=i+1; j<numEvents; j++) {
+					GRBLinExpr sumRelationsPair = new GRBLinExpr();
+					
+					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, previousEventIndex)));
+					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, causesIndex)));
+					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, enablesIndex)));
+					
+					sumRelationsPair.addTerm(-1.0, C_ijPast.get(String.format("%d,%d", i, j)));
+					model.addConstr(sumRelationsPair, GRB.EQUAL, 0.0, String.format("c2_%d,%d", i,j));
+					
+					sumRelationsPair = new GRBLinExpr();
+					sumRelationsPair.addTerm(1.0, C_ijPast.get(String.format("%d,%d", i, j)));
+					sumRelationsPair.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", i, j)));
+					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
+					model.addConstr(sumRelationsPair, GRB.EQUAL, 1.0, String.format("c2_%d,%d", i,j));
+				}
+			}
+			for(int i=0; i<numEvents; i++) {
+		    	for(int j=i+1;j<numEvents;j++) {
+		    		for(int k=j+1;k<numEvents;k++) {
+		    			GRBLinExpr previousEventConstraint = new GRBLinExpr();
+		    			previousEventConstraint.addTerm(1.0, C_ijPast.get(String.format("%d,%d", i, j)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", i, k)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c10_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+						previousEventConstraint.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", i, j)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, C_ijPast.get(String.format("%d,%d", i, k)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c10_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+						previousEventConstraint.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", i, j)));
+		    			previousEventConstraint.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", j, k)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c10_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+						previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, C_ijPast.get(String.format("%d,%d", j, k)));
+		    			previousEventConstraint.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", i, k)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c10_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+						previousEventConstraint.addTerm(1.0, C_ijPast.get(String.format("%d,%d", i, j)));
+		    			previousEventConstraint.addTerm(1.0, C_ijPast.get(String.format("%d,%d", j, k)));
+		    			previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c10_%d,%d,%d", i,j,k));
+						
+						previousEventConstraint = new GRBLinExpr();
+						previousEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
+		    			previousEventConstraint.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", j, k)));
+		    			previousEventConstraint.addTerm(1.0, C_ijPast.get(String.format("%d,%d", i, k)));
+						model.addConstr(previousEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c10_%d,%d,%d", i,j,k));
+		    		}
+		    	}
+		    }
+		}
+		catch(GRBException e) {
+		      System.out.println("Error code: " + e.getErrorCode() + ". " +
+                      e.getMessage());
+		}
 	}
 	
 	private void addPreviousEventHardConstraints() {
