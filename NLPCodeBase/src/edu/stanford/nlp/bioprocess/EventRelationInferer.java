@@ -255,7 +255,9 @@ public class EventRelationInferer {
 						countPredictedTriples.incrementCount(predEquivalent.first()+ "," + predEquivalent.second() + "," + predEquivalent.third());
 						
 						String rel = String.format("%s->%s->%s", predEquivalent.first(), predEquivalent.second(), predEquivalent.third());
-						if(rel.equals("NONE->SameEvent->SameEvent")) {
+						//COtemp->Pre->Same
+						//Causes->SuperEvent->SameEvent
+						if(rel.equals("CotemporalEvent->PreviousEvent->SameEvent")) {
 							LogInfo.logs(String.format("PRINTING %s %s, %s, %s", ex.id, eventMentions.get(i).getTreeNode(), 
 									eventMentions.get(j).getTreeNode(), eventMentions.get(k).getTreeNode()));
 						}

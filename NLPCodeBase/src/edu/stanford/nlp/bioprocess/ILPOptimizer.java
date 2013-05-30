@@ -473,6 +473,7 @@ public class ILPOptimizer {
 					sumRelationsPair.addTerm(1.0, C_ijPast.get(String.format("%d,%d", i, j)));
 					sumRelationsPair.addTerm(1.0, C_ijNotPast.get(String.format("%d,%d", i, j)));
 					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, NONEIndex)));
+					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
 					model.addConstr(sumRelationsPair, GRB.EQUAL, 1.0, String.format("c2_%d,%d", i,j));
 				}
 			}

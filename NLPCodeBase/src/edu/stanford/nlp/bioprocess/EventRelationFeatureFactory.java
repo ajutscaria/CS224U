@@ -1,6 +1,5 @@
 package edu.stanford.nlp.bioprocess;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,18 +8,10 @@ import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
-import com.sun.org.apache.bcel.internal.generic.RETURN;
-
-import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
-import edu.stanford.nlp.ie.machinereading.structure.Relation;
-import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
-import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
-import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
@@ -28,8 +19,6 @@ import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
-import edu.stanford.nlp.util.IdentityHashSet;
-import edu.stanford.nlp.util.OneToOneMap.OneToOneMapException;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.wsd.WordNet.WordNetID;
 import fig.basic.LogInfo;
@@ -44,6 +33,8 @@ public class EventRelationFeatureFactory {
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
 									"include","includes","including","included", "first", "begin","begins","began","beginning","begun","start","starts","started","starting",
 									"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
+									//"result", "results", "lead", "leads", "cause", "causes"});
+
 	List<String> diffClauseRelations = Arrays.asList(new String[]{"acomp", "advcl", "ccomp", "csubj", "infmod", "prepc", "purpcl", "xcomp"});
 	HashMap<String, String> MarkAndPPClusters = new HashMap<String, String>();
 	HashMap<String, String> AdvModClusters = new HashMap<String, String>();
@@ -102,6 +93,12 @@ public class EventRelationFeatureFactory {
 		AdvModClusters.put("subsequent", RelationType.PreviousEvent.toString());
 		AdvModClusters.put("previously", RelationType.NextEvent.toString());
 		AdvModClusters.put("previous", RelationType.NextEvent.toString());
+		/*AdvModClusters.put("result", RelationType.Causes.toString());
+        AdvModClusters.put("results", RelationType.Causes.toString());
+        AdvModClusters.put("lead", RelationType.Causes.toString());
+        AdvModClusters.put("leads", RelationType.Causes.toString());
+        AdvModClusters.put("cause", RelationType.Causes.toString());
+        AdvModClusters.put("causes", RelationType.Causes.toString());*/
 		
 		/*try {
 			wnLexicon = new WnExpander();
@@ -143,7 +140,7 @@ public class EventRelationFeatureFactory {
 		
 		//Is event2 immediately after event1?
 		if(Main.features.contains("isImmediatelyAfter")) {
-			features.add("isImmediatelyAfter:" + isImmediatelyAfter);
+			//features.add("isImmediatelyAfter:" + isImmediatelyAfter);
 		}
 		
 		if(isImmediatelyAfter) {
@@ -166,7 +163,7 @@ public class EventRelationFeatureFactory {
 				}
 				else {	
 					if(sentenceBetweenEvents < 2) {
-						LogInfo.logs("TEMPORAL CONNECTIVE ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + word.toLowerCase());
+						//LogInfo.logs("TEMPORAL CONNECTIVE ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + word.toLowerCase());
 						features.add("connector:" + word.toLowerCase());
 						if(AdvModClusters.containsKey(word.toLowerCase())) {
 							features.add("connectorCluster:" + AdvModClusters.get(word.toLowerCase()));
@@ -249,10 +246,10 @@ public class EventRelationFeatureFactory {
 			}
 			
 			//Extract mark relation
-		    LogInfo.logs("Trying Marker: " + example.id + " " + lemma1 + " " + lemma2 + " ");
+		    //LogInfo.logs("Trying Marker: " + example.id + " " + lemma1 + " " + lemma2 + " ");
 			List<Pair<String, String>> markRelations = extractMarkRelation(example, event1, event2);
 			for(Pair<String, String> markRelation: markRelations) {
-				LogInfo.logs("MARKER ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + markRelation);
+				//LogInfo.logs("MARKER ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + markRelation);
 				features.add("connector:" + markRelation.first());
 				//In some cases, we don't have clusters for some relation.
 				if(!markRelation.second().isEmpty())
@@ -260,10 +257,10 @@ public class EventRelationFeatureFactory {
 			}
 				
 			//Extract PP relation
-			LogInfo.logs("Trying PP: " + example.id + " " + lemma1 + " " + lemma2 + " ");
+			//LogInfo.logs("Trying PP: " + example.id + " " + lemma1 + " " + lemma2 + " ");
 			List<Pair<String, String>> ppRelations = extractPPRelation(example, event1, event2);
 			for(Pair<String, String> ppRelation: ppRelations) {
-				LogInfo.logs("PP ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + ppRelation);
+				//LogInfo.logs("PP ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + ppRelation);
 				features.add("connector:" + ppRelation.first());
 				//In some cases, we don't have clusters (if we haven't included in the list.
 				if(!ppRelation.second().isEmpty()) {
@@ -274,10 +271,10 @@ public class EventRelationFeatureFactory {
 		
 		if(isImmediatelyAfter) {
 			//Extract advmod relation
-			LogInfo.logs("Trying AdvMod: " + example.id + " " + lemma1 + " " + lemma2 + " ");
+			//LogInfo.logs("Trying AdvMod: " + example.id + " " + lemma1 + " " + lemma2 + " ");
 			List<Pair<String, String>> advModRelations = extractAdvModRelation(example, event1, event2);
 			for(Pair<String, String> advModRelation: advModRelations) {
-				LogInfo.logs("ADVMOD ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + advModRelation);
+				//LogInfo.logs("ADVMOD ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + advModRelation);
 				features.add("connector:" + advModRelation.first());
 				//In some cases, we don't have clusters for some relation.
 				if(!advModRelation.second().isEmpty()) {
@@ -527,7 +524,7 @@ public class EventRelationFeatureFactory {
 					}
 				}
 				else {
-					LogInfo.logs("Marker not added: " + indexedWordThis + " " + indexedWordThat +" "+  markerName);
+					//LogInfo.logs("Marker not added: " + indexedWordThis + " " + indexedWordThat +" "+  markerName);
 				}
 				
 			}
@@ -582,7 +579,7 @@ public class EventRelationFeatureFactory {
 			if(e.getRelation().getShortName().equals("advmod")) {
 				String advModName = e.getTarget().lemma().toLowerCase();
 				
-				LogInfo.logs("AdvMod found '" + indexedWordThis + "':" + advModName);
+				//LogInfo.logs("AdvMod found '" + indexedWordThis + "':" + advModName);
 				if(AdvModClusters.containsKey(advModName))
 					return new Pair<String, String>(advModName, AdvModClusters.get(advModName));
 				else
