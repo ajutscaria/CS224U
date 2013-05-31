@@ -394,7 +394,7 @@ public class Main implements Runnable {
 		
 		Params eventParam = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
 		List<BioDatum> result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
-				true, false, true, 0.0,0.5,0.0);
+				true, false, false, 0.0,0.75,0.0);
 		
 		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(result);
 	
