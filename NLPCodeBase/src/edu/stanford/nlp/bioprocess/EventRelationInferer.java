@@ -257,7 +257,8 @@ public class EventRelationInferer {
 						String rel = String.format("%s->%s->%s", predEquivalent.first(), predEquivalent.second(), predEquivalent.third());
 						//COtemp->Pre->Same
 						//Causes->SuperEvent->SameEvent
-						if(rel.equals("CotemporalEvent->PreviousEvent->SameEvent")) {
+						//if(rel.equals("CotemporalEvent->PreviousEvent->SameEvent")) {
+						if(rel.startsWith("CotemporalEvent->Caused")) {
 							LogInfo.logs(String.format("PRINTING %s %s, %s, %s", ex.id, eventMentions.get(i).getTreeNode(), 
 									eventMentions.get(j).getTreeNode(), eventMentions.get(k).getTreeNode()));
 						}

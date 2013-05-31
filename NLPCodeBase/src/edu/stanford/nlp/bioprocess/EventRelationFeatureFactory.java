@@ -32,6 +32,7 @@ public class EventRelationFeatureFactory {
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
 									"include","includes","including","included", "first", "begin","begins","began","beginning","begun","start","starts","started","starting",
+									"lead","leads","causes","cause","result","results",
 									"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
 									//"result", "results", "lead", "leads", "cause", "causes"});
 
@@ -74,6 +75,12 @@ public class EventRelationFeatureFactory {
 		AdvModClusters.put("as", RelationType.CotemporalEvent.toString());
 		AdvModClusters.put("because", RelationType.Caused.toString());
 		AdvModClusters.put("so", RelationType.Causes.toString());
+		AdvModClusters.put("result", RelationType.Causes.toString());
+		AdvModClusters.put("results", RelationType.Causes.toString());
+		AdvModClusters.put("lead", RelationType.Causes.toString());
+		AdvModClusters.put("leads", RelationType.Causes.toString());
+		AdvModClusters.put("cause", RelationType.Causes.toString());
+		AdvModClusters.put("causes", RelationType.Causes.toString());
 		AdvModClusters.put("while", RelationType.CotemporalEvent.toString());
 		AdvModClusters.put("during", RelationType.SubEvent.toString());
 		AdvModClusters.put("upon", RelationType.NextEvent.toString());
@@ -93,12 +100,6 @@ public class EventRelationFeatureFactory {
 		AdvModClusters.put("subsequent", RelationType.PreviousEvent.toString());
 		AdvModClusters.put("previously", RelationType.NextEvent.toString());
 		AdvModClusters.put("previous", RelationType.NextEvent.toString());
-		/*AdvModClusters.put("result", RelationType.Causes.toString());
-        AdvModClusters.put("results", RelationType.Causes.toString());
-        AdvModClusters.put("lead", RelationType.Causes.toString());
-        AdvModClusters.put("leads", RelationType.Causes.toString());
-        AdvModClusters.put("cause", RelationType.Causes.toString());
-        AdvModClusters.put("causes", RelationType.Causes.toString());*/
 		
 		/*try {
 			wnLexicon = new WnExpander();
@@ -151,7 +152,7 @@ public class EventRelationFeatureFactory {
 				String POS = wordsInBetween.get(wordCounter).second, word = wordsInBetween.get(wordCounter).first;
 				String POS2 = wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).second : "", 
 						word2 =  wordCounter < wordsInBetween.size() - 1? wordsInBetween.get(wordCounter + 1).first : "";
-
+						
 				if(!TemporalConnectives.contains(word.toLowerCase())) {
 					if(POS.startsWith("VB") && POS2.equals("IN")) { 
 						if(Main.features.contains("wordsInBetween"))

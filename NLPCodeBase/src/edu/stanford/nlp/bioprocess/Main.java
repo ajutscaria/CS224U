@@ -410,14 +410,20 @@ public class Main implements Runnable {
 	}
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
+		System.out.println(Utils.getEquivalentTriples(new Triple<String, String, String>("Causes","CotemporalEvent", "Causes")));;
 		int NumCrossValidation = 10;
 		boolean small = false;
 		boolean performParameterSearch = false;
-		double[] paramValues = new double[]{0.5, 10};
-		//double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
+		//double[] paramValues = new double[]{0.5, 10};
+		double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
 		boolean[] paramValuesBool = new boolean[]{false, true};
-		String[] constraintNames = new String[]{"Connectivity constraint", "Same event triad closure : Hard", "Previous event : Hard",
-		                            "Cotemporal traid closure : Soft", "Same event triad closure : Soft, Reward", "Same event triad closure : Soft, Penalize"};
+		HashMap<Integer, String> constraintNames = new HashMap<Integer, String>();
+		constraintNames.put(1, "Connectivity constraint");
+		constraintNames.put(2, "Same event triad closure : Hard"); 
+		constraintNames.put(3, "Previous event : Hard");
+		constraintNames.put(4, "Cotemporal traid closure : Soft"); 
+		constraintNames.put(5, "Same event triad closure : Soft, Reward");
+		constraintNames.put(6, "Same event triad closure : Soft, Penalize");
 		//Clearing folder for visualization
 		Utils.moveFolderContent("GraphViz", "GraphVizPrev");
 		Utils.clearFolderContent("GraphViz");
@@ -487,19 +493,19 @@ public class Main implements Runnable {
 					int bestConstraint = -1, numParams = paramArray.size();
 					
 					for(int iterationCount = 0; iterationCount < numParams; iterationCount++) {
-						writer.write("Iteration " + iterationCount + "\n");
-						bestF1 = 0.0;
+						writer.write("Iteration " + (iterationCount + 1) + "\n");	
 						bestConstraint = -1;
 						double bestParamValue = -1;
+						bestF1 = 0.0;
 						boolean bestParamValueBool = false;
 						for(int paramCount = 0; paramCount < numParams - iterationCount; paramCount++)  {
-							int paramIndex = paramArray.get(paramCount);
+							int paramIndexInParamArray = paramArray.get(paramCount);
+							//bestF1 = 0.0;
+							writer.write("\tParam name : " + constraintNames.get(paramIndexInParamArray) + "\n");
 							
-							writer.write("\tParam name : " + constraintNames[paramIndex - 1] + "\n");
-							
-							if(paramIndex <= 3){
+							if(paramIndexInParamArray <= 3){
 								boolean oldValue = false;
-								switch (paramIndex) {
+								switch (paramIndexInParamArray) {
 								case 1:
 									oldValue = connectedComponent;
 									break;
@@ -511,7 +517,7 @@ public class Main implements Runnable {
 									break;
 								}
 								for(int paramValueCount = 0; paramValueCount < paramValuesBool.length; paramValueCount++) {
-									switch (paramIndex) {
+									switch (paramIndexInParamArray) {
 									case 1:
 										connectedComponent = paramValuesBool[paramValueCount];
 										break;
@@ -539,7 +545,7 @@ public class Main implements Runnable {
 									Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
 									writer.write(String.format("\t\tValue : %b, F1 : %f, P : %f, R : %f\n",  
 											paramValuesBool[paramValueCount], pairTriple.first.third, pairTriple.first.first, pairTriple.first.second));
-									LogInfo.logs("Micro precision " + paramIndex + " " + paramValues[paramValueCount]);
+									LogInfo.logs("Micro precision " + paramIndexInParamArray + " " + paramValues[paramValueCount]);
 									LogInfo.logs("Precision : " + pairTriple.first.first);
 									LogInfo.logs("Recall    : " + pairTriple.first.second);
 									LogInfo.logs("F1 score  : " + pairTriple.first.third);
@@ -552,11 +558,14 @@ public class Main implements Runnable {
 									if(pairTriple.first.third > bestF1) {
 										bestF1 = pairTriple.first.third;
 										bestParamValueBool = paramValuesBool[paramValueCount];
-										bestConstraint = paramIndex;
+										bestConstraint = paramIndexInParamArray;
+										writer.write("\t\tUpdating best F1. Best constraint: " + constraintNames.get(bestConstraint) +
+															". Best value: " + bestParamValueBool+  "\n");
 									}
+									writer.flush();
 								}
-								writer.write("Best value: " + bestParamValueBool + "\n");
-								switch (paramIndex) {
+								writer.write("\tBest value: " + bestParamValueBool + "\n");
+								switch (paramIndexInParamArray) {
 								case 1:
 									connectedComponent = oldValue;
 									break;
@@ -571,19 +580,19 @@ public class Main implements Runnable {
 						
 							else {
 								double oldValue = 0.0;
-								switch (paramIndex) {
-								case 1:
+								switch (paramIndexInParamArray) {
+								case 4:
 									oldValue = alpha1;
 									break;
-								case 2:
+								case 5:
 									oldValue = alpha2;
 									break;
-								case 3:
+								case 6:
 									oldValue = alpha3;
 									break;
 								}
 								for(int paramValueCount = 0; paramValueCount < paramValues.length; paramValueCount++) {
-									switch (paramIndex) {
+									switch (paramIndexInParamArray) {
 									case 4:
 										alpha1 = paramValues[paramValueCount];
 										break;
@@ -611,7 +620,7 @@ public class Main implements Runnable {
 		
 									writer.write(String.format("\t\tValue : %f, F1 : %f, P : %f, R : %f\n", 
 												paramValues[paramValueCount], pairTriple.first.third, pairTriple.first.first, pairTriple.first.second));
-									LogInfo.logs("Micro precision " + paramIndex + " " + paramValues[paramValueCount]);
+									LogInfo.logs("Micro precision " + paramIndexInParamArray + " " + paramValues[paramValueCount]);
 									LogInfo.logs("Precision : " + pairTriple.first.first);
 									LogInfo.logs("Recall    : " + pairTriple.first.second);
 									LogInfo.logs("F1 score  : " + pairTriple.first.third);
@@ -624,28 +633,31 @@ public class Main implements Runnable {
 									if(pairTriple.first.third > bestF1) {
 										bestF1 = pairTriple.first.third;
 										bestParamValue = paramValues[paramValueCount];
-										bestConstraint = paramIndex;
+										bestConstraint = paramIndexInParamArray;
+										writer.write("\t\tUpdating best F1. Best constraint: " + constraintNames.get(bestConstraint) +
+												". Best value: " + bestParamValue+  "\n");
 									}
 								}
 								
 								writer.write("\tBest value: " + bestParamValue + "\n");
 								
-								switch (paramIndex) {
-								case 1:
+								switch (paramIndexInParamArray) {
+								case 4:
 									alpha1 = oldValue;
 									break;
-								case 2:
+								case 5:
 									alpha2 = oldValue;
 									break;
-								case 3:
+								case 6:
 									alpha3 = oldValue;
 									break;
 								}
 							}
 							writer.write("--------------------------------------------------------\n");
 						}
+						writer.flush();
 						if(bestF1 > overallBestF1) {
-							writer.write("BestConstraint: " + constraintNames[bestConstraint]);
+							writer.write("BestConstraint: " + constraintNames.get(bestConstraint) + "\n");
 							overallBestF1 = bestF1;
 							switch (bestConstraint) {
 							case 4:
@@ -667,7 +679,8 @@ public class Main implements Runnable {
 								previousEvent = bestParamValueBool;
 								break;
 							}
-							paramArray.remove(bestConstraint);
+							paramArray.remove(paramArray.indexOf(bestConstraint));
+							writer.write("========================================================\n\n");
 						}
 						else {
 							writer.write("No further improvement.");
