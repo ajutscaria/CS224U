@@ -703,7 +703,7 @@ public class Main implements Runnable {
 					
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-							true, false, true, 0.0,0.5,0.0);
+							true, false, false, 0.0,0.75,0.0);
 					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 					
 					resultsFromAllFolds.addAll(result);
@@ -714,7 +714,7 @@ public class Main implements Runnable {
 					LogInfo.end_track();
 				}
 				
-				Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelationsWithNONE(resultsFromAllFolds);
+				Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
 				//System.out.println("Total relations - " + counter);
 				
 				Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");

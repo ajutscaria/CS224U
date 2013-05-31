@@ -225,14 +225,107 @@ public class Scorer {
 	return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(new Triple<Double, Double, Double>(precision, recall, f), new Triple<Double, Double, Double>(macroPrec, macroRec, macroF));
   }
   
-  public static Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> scoreEventRelationsWithNONE(List<BioDatum> predictedRelations) {
+  public static Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> scoreEventRelationsCollapsed(List<BioDatum> predictedRelations) {
 		IntCounter<String> truePos = new IntCounter<String>(), falsePos = new IntCounter<String>(), falseNeg = new IntCounter<String>();
 		int tp = 0, fp = 0, fn = 0;
+		List<String> PreviousEventCluster = new ArrayList<String>();
+		PreviousEventCluster.add("PreviousEvent");
+		PreviousEventCluster.add("Causes");
+		PreviousEventCluster.add("Enables");
+		
+		List<String> NextEventCluster = new ArrayList<String>();
+		PreviousEventCluster.add("NextEvent");
+		PreviousEventCluster.add("Caused");
+		PreviousEventCluster.add("Enabled");
+		
 		for(BioDatum d:predictedRelations) {
 			if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE")) {
 				truePos.incrementCount(d.label);
 			}
-			else if(d.predictedLabel().equals(d.label)) {
+			else if(d.predictedLabel().equals(d.label) ||
+					(PreviousEventCluster.contains(d.predictedLabel()) && PreviousEventCluster.contains(d.label)) ||
+					(NextEventCluster.contains(d.predictedLabel()) && NextEventCluster.contains(d.label))) {
+				tp++;
+				truePos.incrementCount(d.label);
+			}
+			else if(d.label().equals("NONE") && !d.predictedLabel().equals("NONE")){
+				fp++;
+				falsePos.incrementCount(d.predictedLabel());
+				falseNeg.incrementCount(d.label);
+			}
+			else if(!d.label().equals("NONE")){
+				fn++;
+				if(!d.predictedLabel().equals("NONE"))
+					fp++;
+				falseNeg.incrementCount(d.label);
+				falsePos.incrementCount(d.predictedLabel());
+			}
+			//if(d.label.equals("SameEvent") && d.predictedLabel().equals("NONE")) {
+			//	LogInfo.logs(d.event1.getTreeNode() + ":" + d.event2.getTreeNode() + "-->" + d.getExampleID());
+			//}
+		}
+		
+		HashMap<String, Double> macroPrecision = new HashMap<String, Double>(), macroRecall = new HashMap<String, Double>(), macroF1 = new HashMap<String, Double>();
+		
+		List<String> nonNONERelations = ArgumentRelation.getEventRelations();
+		nonNONERelations.remove("NONE");
+		
+		for(String key : nonNONERelations) {
+			macroPrecision.put(key, 0.0);
+			macroRecall.put(key, 0.0);
+			macroF1.put(key, 0.0);
+		}
+		
+		for(String key : nonNONERelations) {
+			double precision = (truePos.getCount(key) + falsePos.getCount(key)) == 0 ? 1 :  (double) truePos.getCount(key) / (truePos.getCount(key) + falsePos.getCount(key));
+			double recall = (truePos.getCount(key) + falseNeg.getCount(key)) == 0 ? 0 :  (double) truePos.getCount(key) / (truePos.getCount(key) + falseNeg.getCount(key));
+			macroPrecision.put(key, precision);
+			macroRecall.put(key, recall);
+			macroF1.put(key, precision == 0 && recall == 0 ? 0 : (double) 2 * precision * recall / (precision + recall));
+		}
+		double macroPrec = 0, macroRec = 0, macroF = 0;
+		
+		LogInfo.logs(macroPrecision);
+		LogInfo.logs(macroRecall);
+		LogInfo.logs(macroF1);
+		
+		for(String key : nonNONERelations) {
+			macroPrec += macroPrecision.get(key);
+			macroRec += macroRecall.get(key);
+			macroF += macroF1.get(key);
+		}
+		
+		macroPrec = macroPrec / nonNONERelations.size();
+		macroRec = macroRec / nonNONERelations.size();
+		macroF = macroF / nonNONERelations.size();
+		
+		LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+		
+		double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+		double f= 2 * precision * recall / (precision + recall);
+		    
+		return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(new Triple<Double, Double, Double>(precision, recall, f), new Triple<Double, Double, Double>(macroPrec, macroRec, macroF));
+	  }
+  
+  public static Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> scoreEventRelationsStructure(List<BioDatum> predictedRelations) {
+		IntCounter<String> truePos = new IntCounter<String>(), falsePos = new IntCounter<String>(), falseNeg = new IntCounter<String>();
+		int tp = 0, fp = 0, fn = 0;
+		List<String> PreviousEventCluster = new ArrayList<String>();
+		PreviousEventCluster.add("PreviousEvent");
+		PreviousEventCluster.add("Causes");
+		PreviousEventCluster.add("Enables");
+		
+		List<String> NextEventCluster = new ArrayList<String>();
+		PreviousEventCluster.add("NextEvent");
+		PreviousEventCluster.add("Caused");
+		PreviousEventCluster.add("Enabled");
+		
+		for(BioDatum d:predictedRelations) {
+			if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE")) {
+				truePos.incrementCount(d.label);
+			}
+			else if(d.predictedLabel().equals(d.label) ||
+					(!d.predictedLabel().equals("NONE") && !d.label.equals("NONE"))) {
 				tp++;
 				truePos.incrementCount(d.label);
 			}
