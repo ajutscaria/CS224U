@@ -144,7 +144,7 @@ public class EventRelationInferer {
 				}
 			}
 			
-			if(enforceGlobalConstraints ) {
+			if(enforceGlobalConstraints) {
 				ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier, 
 						connectedComponent, sameEvent, previousEvent, alpha1, alpha2, alpha3);
 				HashMap<Pair<Integer,Integer>, Integer> best = opt.OptimizeEventRelation();

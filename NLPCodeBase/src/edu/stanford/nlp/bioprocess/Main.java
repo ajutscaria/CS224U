@@ -410,7 +410,11 @@ public class Main implements Runnable {
 	}
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
-		System.out.println(Utils.getEquivalentTriples(new Triple<String, String, String>("Causes","CotemporalEvent", "Causes")));;
+		//System.out.println(Utils.getEquivalentTriples(new Triple<String, String, String>("Causes","CotemporalEvent", "Causes")));
+		//System.out.println(Utils.getEquivalentBaseTriple(new Triple<String, String, String>("PreviousEvent", "Causes","NONE")));
+		//System.out.println(Utils.getEquivalentBaseTriple(new Triple<String, String, String>("Caused","Causes", "CotemporalEvent")));
+		//System.out.println(Utils.getEquivalentBaseTriple(new Triple<String, String, String>("CotemporalEvent","Caused", "Caused")));
+		
 		int NumCrossValidation = 10;
 		boolean small = false;
 		boolean performParameterSearch = false;
@@ -765,8 +769,8 @@ public class Main implements Runnable {
 			*/
 
 			//Print triples
-			/*
-			List<String> allRelations = ArgumentRelation.getEventRelations();
+			
+			/*List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
 					for(String rel3:allRelations) {

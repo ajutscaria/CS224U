@@ -412,6 +412,21 @@ public class Utils {
 	    }
   }
   
+  public static void writeFile(Object data, String fileName) {
+	  // Write to disk with FileOutputStream
+	    try{
+	    FileOutputStream f_out = new FileOutputStream(fileName);
+
+	    // Write object with ObjectOutputStream
+	    ObjectOutputStream obj_out = new ObjectOutputStream (f_out);
+
+	    // Write object out to disk
+	    obj_out.writeObject ( data);
+	    }catch (Exception ex) {
+	    	
+	    }
+  }
+  
   public static IdentityHashSet<Tree> getEntityNodes(Example ex) {
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
 	  for(EntityMention entity : ex.gold.get(EntityMentionsAnnotation.class))
@@ -453,6 +468,25 @@ public static List<Example> readFile(String fileName) {
 	  // Read an object
 	  Object obj = obj_in.readObject();
 	  return (List<Example>) obj;
+	  }catch(Exception ex) {
+		  LogInfo.logs(ex.toString());
+	  }
+	  return null;
+  }
+  
+  @SuppressWarnings("unchecked")
+  public static Object readObject(String fileName) {
+	// Read from disk using FileInputStream
+	  try
+	  {
+	  FileInputStream f_in = new FileInputStream(fileName);
+
+	  // Read object using ObjectInputStream
+	  ObjectInputStream obj_in = new ObjectInputStream (f_in);
+
+	  // Read an object
+	  Object obj = obj_in.readObject();
+	  return obj;
 	  }catch(Exception ex) {
 		  LogInfo.logs(ex.toString());
 	  }
@@ -1100,16 +1134,19 @@ public static List<Example> readFile(String fileName) {
 	}
 	
 	public static List<Triple<String, String, String>> getEquivalentTriples(Triple<String, String, String> triple) {
-		
 		List<Triple<String, String, String>> allEquivalent = new ArrayList<Triple<String, String, String>>();
 		  
-		  
 		allEquivalent.add(triple);
-		allEquivalent.add(new Triple<String, String, String>(triple.third(), getInverseRelation(triple.second()), triple.first()));
-		allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.first()), triple.third(), triple.second()));
-		allEquivalent.add(new Triple<String, String, String>(triple.second(), getInverseRelation(triple.third()), getInverseRelation(triple.first())));
-		allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.third()), triple.first(), getInverseRelation(triple.second())));
-		allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.second()), getInverseRelation(triple.first()), getInverseRelation(triple.third())));
+		if(!allEquivalent.contains(new Triple<String, String, String>(triple.third(), getInverseRelation(triple.second()), triple.first())))
+			allEquivalent.add(new Triple<String, String, String>(triple.third(), getInverseRelation(triple.second()), triple.first()));
+		if(!allEquivalent.contains(new Triple<String, String, String>(getInverseRelation(triple.first()), triple.third(), triple.second())))
+			allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.first()), triple.third(), triple.second()));
+		if(!allEquivalent.contains(new Triple<String, String, String>(triple.second(), getInverseRelation(triple.third()), getInverseRelation(triple.first()))))
+			allEquivalent.add(new Triple<String, String, String>(triple.second(), getInverseRelation(triple.third()), getInverseRelation(triple.first())));
+		if(!allEquivalent.contains(new Triple<String, String, String>(getInverseRelation(triple.third()), triple.first(), getInverseRelation(triple.second()))))
+			allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.third()), triple.first(), getInverseRelation(triple.second())));
+		if(!allEquivalent.contains(new Triple<String, String, String>(getInverseRelation(triple.second()), getInverseRelation(triple.first()), getInverseRelation(triple.third()))))
+			allEquivalent.add(new Triple<String, String, String>(getInverseRelation(triple.second()), getInverseRelation(triple.first()), getInverseRelation(triple.third())));
 		
 		
 		return allEquivalent;
