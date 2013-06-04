@@ -27,7 +27,7 @@ public class EventRelationFeatureFactory {
 
 	private boolean printAnnotations = false, printDebug = false;
 	public static Set<String> markWords = new HashSet<String>(), advmodWords = new HashSet<String>(), eventInsidePP = new HashSet<String>();
-	private boolean useLexicalFeatures;
+	private boolean useLexicalFeatures, useBaselineFeaturesOnly = true;
 	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
@@ -127,6 +127,8 @@ public class EventRelationFeatureFactory {
 		SemanticGraph graph2 = event2.getSentence().get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord2 = Utils.findDependencyNode(event2.getSentence(), event2.getTreeNode());
 		
+		String pos1 = event1.getTreeNode().value(), pos2 = event2.getTreeNode().value();
+		
 		//Lemmas of both events
 		String lemma1 = event1CoreLabel.lemma().toLowerCase();
 		if(verbForms.containsKey(lemma1)) {
@@ -165,30 +167,54 @@ public class EventRelationFeatureFactory {
 				else {	
 					if(sentenceBetweenEvents < 2) {
 						//LogInfo.logs("TEMPORAL CONNECTIVE ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + word.toLowerCase());
-						features.add("connector:" + word.toLowerCase());
-						if(AdvModClusters.containsKey(word.toLowerCase())) {
-							features.add("connectorCluster:" + AdvModClusters.get(word.toLowerCase()));
+						if(useBaselineFeaturesOnly) {
+							features.add("temporalConnective:" + word.toLowerCase());
+						}
+						else {
+							features.add("connector:" + word.toLowerCase());
+							if(AdvModClusters.containsKey(word.toLowerCase())) {
+								features.add("connectorCluster:" + AdvModClusters.get(word.toLowerCase()));
+							}
 						}
 					}
 				}
 			}
 
-			//Is there an and within 5 words of each other
-			if(wordsInBetween.size() <= 5) {
-				for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
-					if(Main.features.contains("closeAndInBetween"))
-						if(wordsInBetween.get(wordCounter).first.equals("and")) 
-							features.add("closeAndInBetween");
+
+		}
+		
+		if(!useBaselineFeaturesOnly) {
+			if(isImmediatelyAfter) {
+				//Is there an and within 5 words of each other
+				if(wordsInBetween.size() <= 5) {
+					for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
+						if(Main.features.contains("closeAndInBetween"))
+							if(wordsInBetween.get(wordCounter).first.equals("and")) 
+								features.add("closeAndInBetween");
+					}
+				}
+				
+				//If event1 is the first event in the paragraph and is a nominalization, it is likely that others are sub-events
+				if(example.gold.get(EventMentionsAnnotation.class).indexOf(event1) == 0 && event1.getTreeNode().value().startsWith("NN")) {
+					features.add("firstAndNominalization");
 				}
 			}
+			//Are the lemmas same?
+			if(Main.features.contains("eventLemmasSame")) {	
+				features.add("eventLemmasSame:" + lemma1.equals(lemma2));
+			}
 			
-			//If event1 is the first event in the paragraph and is a nominalization, it is likely that others are sub-events
-			if(example.gold.get(EventMentionsAnnotation.class).indexOf(event1) == 0 && event1.getTreeNode().value().startsWith("NN")) {
-				features.add("firstAndNominalization");
+			//If second trigger is noun, the determiner related to it in dependency tree.
+			if(pos2.startsWith("NN")) {
+				String determiner = Utils.getDeterminer(event2.getSentence(), event2.getTreeNode());
+				if(determiner != null) {
+					if(Main.features.contains("determinerBefore2")) {
+						features.add("determinerBefore2:" + determiner);
+					}
+				}
 			}
 		}
 		
-		String pos1 = event1.getTreeNode().value(), pos2 = event2.getTreeNode().value();
 		//POS tags of both events
 		if(Main.features.contains("POS"))
 			features.add("POS:" + pos1 + "+" + pos2);
@@ -197,21 +223,6 @@ public class EventRelationFeatureFactory {
 			features.add("numSentencesInBetween:" + quantizedSentenceCount(sentenceBetweenEvents));
 		if(Main.features.contains("numWordsInBetween"))
 			features.add("numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));
-		
-		//Are the lemmas same?
-		if(Main.features.contains("eventLemmasSame"))
-		{	
-			features.add("eventLemmasSame:" + lemma1.equals(lemma2));
-		}
-		
-		//If second trigger is noun, the determiner related to it in dependency tree.
-		if(pos2.startsWith("NN")) {
-			String determiner = Utils.getDeterminer(event2.getSentence(), event2.getTreeNode());
-			if(determiner != null)
-				if(Main.features.contains("determinerBefore2")) {
-					features.add("determinerBefore2:" + determiner);
-				}
-		}
 		
 		//Features if the two triggers are in the same sentence.
 		if (sentenceBetweenEvents == 0) {
@@ -225,10 +236,11 @@ public class EventRelationFeatureFactory {
 			//LogInfo.logs(example.id + " " + lemma1 + " " + lemma2);
 			String deppath = Utils.getUndirectedDependencyPath_Events(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode());
 			if(!deppath.isEmpty()) {
-				if(Main.features.contains("deppath")) {
-					features.add("deppath:" + deppath);
-					features.add("deppathwithword:" + Utils.getUndirectedDependencyPath_Events_WithWords(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode()));
-					//LogInfo.logs("Dep path: " + lemma1 + " " + lemma2 + " " + deppath);
+				if(!useBaselineFeaturesOnly) {
+					if(Main.features.contains("deppath")) {
+						features.add("deppath:" + deppath);
+						features.add("deppathwithword:" + Utils.getUndirectedDependencyPath_Events_WithWords(event1.getSentence(), event1.getTreeNode(), event2.getTreeNode()));
+					}
 				}
 				//Does event1 dominate event2
 				if(deppath.contains("->") && !deppath.contains("<-")) {
@@ -251,10 +263,15 @@ public class EventRelationFeatureFactory {
 			List<Pair<String, String>> markRelations = extractMarkRelation(example, event1, event2);
 			for(Pair<String, String> markRelation: markRelations) {
 				//LogInfo.logs("MARKER ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + markRelation);
-				features.add("connector:" + markRelation.first());
-				//In some cases, we don't have clusters for some relation.
-				if(!markRelation.second().isEmpty())
-					features.add("connectorCluster:" + markRelation.second());
+				if(useBaselineFeaturesOnly) {
+					features.add("markRelation:" + markRelation.first());
+				}
+				else {
+					features.add("connector:" + markRelation.first());
+					//In some cases, we don't have clusters for some relation.
+					if(!markRelation.second().isEmpty())
+						features.add("connectorCluster:" + markRelation.second());
+				}
 			}
 				
 			//Extract PP relation
@@ -262,10 +279,15 @@ public class EventRelationFeatureFactory {
 			List<Pair<String, String>> ppRelations = extractPPRelation(example, event1, event2);
 			for(Pair<String, String> ppRelation: ppRelations) {
 				//LogInfo.logs("PP ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + ppRelation);
-				features.add("connector:" + ppRelation.first());
-				//In some cases, we don't have clusters (if we haven't included in the list.
-				if(!ppRelation.second().isEmpty()) {
-					features.add("connectorCluster:" + ppRelation.second());
+				if(useBaselineFeaturesOnly) {
+					features.add("PPRelation:" + ppRelation.first());
+				}
+				else {
+					features.add("connector:" + ppRelation.first());
+					//In some cases, we don't have clusters (if we haven't included in the list.
+					if(!ppRelation.second().isEmpty()) {
+						features.add("connectorCluster:" + ppRelation.second());
+					}
 				}
 			}
 		}
@@ -276,10 +298,15 @@ public class EventRelationFeatureFactory {
 			List<Pair<String, String>> advModRelations = extractAdvModRelation(example, event1, event2);
 			for(Pair<String, String> advModRelation: advModRelations) {
 				//LogInfo.logs("ADVMOD ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + advModRelation);
-				features.add("connector:" + advModRelation.first());
-				//In some cases, we don't have clusters for some relation.
-				if(!advModRelation.second().isEmpty()) {
-					features.add("connectorCluster:" + advModRelation.second());
+				if(useBaselineFeaturesOnly) {
+					features.add("advModRelation:" + advModRelation.first());
+				}
+				else {
+					features.add("connector:" + advModRelation.first());
+					//In some cases, we don't have clusters for some relation.
+					if(!advModRelation.second().isEmpty()) {
+						features.add("connectorCluster:" + advModRelation.second());
+					}
 				}
 			}
 		}

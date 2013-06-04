@@ -28,7 +28,7 @@ public class EventRelationInferer {
 	public int totalEvents = 0;
 	IntCounter<Integer> prevEvent = new IntCounter<Integer>(), superEvent = new IntCounter<Integer>(), causeEvent = new IntCounter<Integer>(), degreeDistribution = new IntCounter<Integer>();
 	IntCounter<Integer> prevEventPred = new IntCounter<Integer>(), superEventPred = new IntCounter<Integer>(),  causeEventPred = new IntCounter<Integer>(), degreeDistributionPred = new IntCounter<Integer>();
-	private boolean enforceGlobalConstraints = true;
+	private boolean enforceGlobalConstraints = false;
 	
 	public EventRelationInferer(List<BioDatum> predictions) {
 		prediction = predictions;
