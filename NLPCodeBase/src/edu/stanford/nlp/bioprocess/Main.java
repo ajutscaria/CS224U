@@ -394,7 +394,7 @@ public class Main implements Runnable {
 		
 		Params eventParam = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
 		List<BioDatum> result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
-				true, false, false, 0.0,0.75,0.0);
+				true, false, false, false,0.0,0.75,0.0,0.0,0.0,0.0);
 		
 		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(result);
 	
@@ -417,17 +417,23 @@ public class Main implements Runnable {
 		
 		int NumCrossValidation = 10;
 		boolean small = false;
-		boolean performParameterSearch = false;
-		//double[] paramValues = new double[]{0.5, 10};
-		double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
+		boolean performParameterSearch = true;
+		double[] paramValues = new double[]{0.5, 10};
+		//double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
 		boolean[] paramValuesBool = new boolean[]{false, true};
 		HashMap<Integer, String> constraintNames = new HashMap<Integer, String>();
-		constraintNames.put(1, "Connectivity constraint");
+		constraintNames.put(1, "Connectivity constraint : Hard");
 		constraintNames.put(2, "Same event triad closure : Hard"); 
 		constraintNames.put(3, "Previous event : Hard");
-		constraintNames.put(4, "Cotemporal traid closure : Soft"); 
-		constraintNames.put(5, "Same event triad closure : Soft, Reward");
-		constraintNames.put(6, "Same event triad closure : Soft, Penalize");
+		constraintNames.put(4, "Same event contradiction : Hard");
+
+		constraintNames.put(5, "Cotemporal traid closure : Soft, Penalize");
+		constraintNames.put(6, "Same event triad closure : Soft, Reward");
+		constraintNames.put(7, "Same event triad closure : Soft, Penalize");
+		constraintNames.put(8, "Cotemporal traid closure : Soft, Reward"); 
+		constraintNames.put(9, "Causes traid closure : Soft, Reward");
+		constraintNames.put(10, "Triad counts : Soft, Reward");
+
 		//Clearing folder for visualization
 		Utils.moveFolderContent("GraphViz", "GraphVizPrev");
 		Utils.clearFolderContent("GraphViz");
@@ -467,7 +473,7 @@ public class Main implements Runnable {
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
 			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, eventRelationFeatureFactory,
-					false, false, false, 0.0,0.0,0.0);
+					false, false, false, false, 0.0,0.0,0.0, 0.0,0.0,0.0);
 			//List<BioDatum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, eventRelationFeatureFactory);
 			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(predicted);
 			Scorer.updateMatrix(confusionMatrix, predicted, relations);
@@ -490,8 +496,9 @@ public class Main implements Runnable {
 				try{
 					ArrayList<Integer> paramArray = new ArrayList<Integer>();
 					paramArray.add(1);paramArray.add(2);paramArray.add(3);paramArray.add(4);paramArray.add(5);paramArray.add(6);
-					double alpha1 = 0.0, alpha2 = 0.0, alpha3 = 0.0;
-					boolean connectedComponent = false, sameEvent = false, previousEvent = false;
+					paramArray.add(7);paramArray.add(8);paramArray.add(9);
+					double alpha1 = 0.0, alpha2 = 0.0, alpha3 = 0.0, alpha4 = 0.0, alpha5 = 0.0, alpha6 = 0.0;
+					boolean connectedComponent = false, sameEvent = false, previousEvent = false, sameEventContradictions = false;
 					BufferedWriter writer = new BufferedWriter(new FileWriter("scores.txt"));
 					double bestF1 = 0.00, overallBestF1 = 0.00;
 					int bestConstraint = -1, numParams = paramArray.size();
@@ -507,7 +514,7 @@ public class Main implements Runnable {
 							//bestF1 = 0.0;
 							writer.write("\tParam name : " + constraintNames.get(paramIndexInParamArray) + "\n");
 							
-							if(paramIndexInParamArray <= 3){
+							if(paramIndexInParamArray <= 4){
 								boolean oldValue = false;
 								switch (paramIndexInParamArray) {
 								case 1:
@@ -518,6 +525,9 @@ public class Main implements Runnable {
 									break;
 								case 3:
 									oldValue = previousEvent;
+									break;
+								case 4:
+									oldValue = sameEventContradictions;
 									break;
 								}
 								for(int paramValueCount = 0; paramValueCount < paramValuesBool.length; paramValueCount++) {
@@ -531,6 +541,9 @@ public class Main implements Runnable {
 									case 3:
 										previousEvent = paramValuesBool[paramValueCount];
 										break;
+									case 4:
+										sameEventContradictions = paramValuesBool[paramValueCount];
+										break;
 									}
 									
 									//writer.write(String.format("Current values %b, %b, %b, %f, %f, %f\n", connectedComponent,
@@ -541,7 +554,8 @@ public class Main implements Runnable {
 									for(int i = 1; i <= NumCrossValidation; i++) {
 										Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 										List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-												connectedComponent, sameEvent, previousEvent, alpha1, alpha2, alpha3);
+												connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
+												alpha4, alpha5, alpha6);
 										
 										resultsFromAllFolds.addAll(result);
 									}
@@ -568,7 +582,7 @@ public class Main implements Runnable {
 									}
 									writer.flush();
 								}
-								writer.write("\tBest value: " + bestParamValueBool + "\n");
+								//writer.write("\tBest value: " + bestParamValueBool + "\n");
 								switch (paramIndexInParamArray) {
 								case 1:
 									connectedComponent = oldValue;
@@ -579,32 +593,53 @@ public class Main implements Runnable {
 								case 3:
 									previousEvent = oldValue;
 									break;
+								case 4:
+									sameEventContradictions = oldValue;
+									break;
 								}
 							}
 						
 							else {
 								double oldValue = 0.0;
 								switch (paramIndexInParamArray) {
-								case 4:
+								case 5:
 									oldValue = alpha1;
 									break;
-								case 5:
+								case 6:
 									oldValue = alpha2;
 									break;
-								case 6:
+								case 7:
 									oldValue = alpha3;
+									break;
+								case 8:
+									oldValue = alpha4;
+									break;
+								case 9:
+									oldValue = alpha5;
+									break;
+								case 10:
+									oldValue = alpha6;
 									break;
 								}
 								for(int paramValueCount = 0; paramValueCount < paramValues.length; paramValueCount++) {
 									switch (paramIndexInParamArray) {
-									case 4:
+									case 5:
 										alpha1 = paramValues[paramValueCount];
 										break;
-									case 5:
+									case 6:
 										alpha2 = paramValues[paramValueCount];
 										break;
-									case 6:
+									case 7:
 										alpha3 = paramValues[paramValueCount];
+										break;
+									case 8:
+										alpha4 = paramValues[paramValueCount];
+										break;
+									case 9:
+										alpha5 = paramValues[paramValueCount];
+										break;
+									case 10:
+										alpha6 = paramValues[paramValueCount];
 										break;
 									}
 									//writer.write(String.format("Current values %b, %b, %b, %f, %f, %f\n", connectedComponent,
@@ -615,7 +650,8 @@ public class Main implements Runnable {
 									for(int i = 1; i <= NumCrossValidation; i++) {
 										Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 										List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-												connectedComponent, sameEvent, previousEvent, alpha1, alpha2, alpha3);
+												connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
+												alpha4, alpha5, alpha6);
 										
 										resultsFromAllFolds.addAll(result);
 									}
@@ -643,17 +679,26 @@ public class Main implements Runnable {
 									}
 								}
 								
-								writer.write("\tBest value: " + bestParamValue + "\n");
+								//writer.write("\tBest value: " + bestParamValue + "\n");
 								
 								switch (paramIndexInParamArray) {
-								case 4:
+								case 5:
 									alpha1 = oldValue;
 									break;
-								case 5:
+								case 6:
 									alpha2 = oldValue;
 									break;
-								case 6:
+								case 7:
 									alpha3 = oldValue;
+									break;
+								case 8:
+									alpha4 = oldValue;
+									break;
+								case 9:
+									alpha5 = oldValue;
+									break;
+								case 10:
+									alpha6 = oldValue;
 									break;
 								}
 							}
@@ -664,14 +709,23 @@ public class Main implements Runnable {
 							writer.write("BestConstraint: " + constraintNames.get(bestConstraint) + "\n");
 							overallBestF1 = bestF1;
 							switch (bestConstraint) {
-							case 4:
+							case 5:
 								alpha1 = bestParamValue;
 								break;
-							case 5:
+							case 6:
 								alpha2 = bestParamValue;
 								break;
-							case 6:
+							case 7:
 								alpha3 = bestParamValue;
+								break;
+							case 8:
+								alpha4 = bestParamValue;
+								break;
+							case 9:
+								alpha5 = bestParamValue;
+								break;
+							case 10:
+								alpha6 = bestParamValue;
 								break;
 							case 1:
 								connectedComponent = bestParamValueBool;
@@ -681,6 +735,9 @@ public class Main implements Runnable {
 								break;
 							case 3:
 								previousEvent = bestParamValueBool;
+								break;
+							case 4:
+								sameEventContradictions = bestParamValueBool;
 								break;
 							}
 							paramArray.remove(paramArray.indexOf(bestConstraint));
@@ -707,7 +764,7 @@ public class Main implements Runnable {
 					
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-							true, false, false, 0.0,0.75,0.0);
+							true, false, false, false, 0.0,0.75,100,0,0,0);
 					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 					
 					resultsFromAllFolds.addAll(result);

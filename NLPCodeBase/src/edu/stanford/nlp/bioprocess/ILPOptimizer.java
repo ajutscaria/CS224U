@@ -19,6 +19,7 @@ public class ILPOptimizer {
 	int numEvents, numLabels, NONEIndex = 0;
 	int cotemporalEventIndex, sameEventIndex, previousEventIndex, causesIndex, causedIndex, enablesIndex, 
 					enabledIndex, nextEventIndex, superEventIndex, subEventIndex;
+	
 	private double alpha1 = 0;
 	private double alpha2 = 0;
 	private double alpha3 = 0;
@@ -26,7 +27,7 @@ public class ILPOptimizer {
 	private double alpha5 = 0;
 	private double alpha6 = 0;
 	private boolean includeConnectedComponentConstraint = false,  
-					includeSameEventHardConstraint = false, includePreviousHardConstraint = false;
+					includeSameEventHardConstraint = false, includePreviousHardConstraint = false, includeSameEventContradictionsHardConstraint = false;
 	List<String> labels;
 	IntCounter<String> goldTripleCounts;	
 	HashMap<String, GRBVar> X_ij = new HashMap<String, GRBVar>();
@@ -35,7 +36,7 @@ public class ILPOptimizer {
 	HashMap<String, GRBVar> Phi_ij = new HashMap<String, GRBVar>();
 	HashMap<String, Integer> eventTypeIndex = new HashMap<String, Integer>();
 	
-	//Indicator variable for Cotemporal event soft constraing
+	//Indicator variable for Cotemporal event soft constraint penalize
 	HashMap<String, GRBVar> Z1_ijk = new HashMap<String, GRBVar>();
 	HashMap<String, GRBVar> Z2_ijk = new HashMap<String, GRBVar>();
 	HashMap<String, GRBVar> Z3_ijk = new HashMap<String, GRBVar>();
@@ -44,7 +45,9 @@ public class ILPOptimizer {
 	HashMap<String, GRBVar> A_ijk = new HashMap<String, GRBVar>();
 	
 	//Indicator variable for Same event soft constraint with penalty
-	HashMap<String, GRBVar> B_ijk = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> B1_ijk = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> B2_ijk = new HashMap<String, GRBVar>();
+	HashMap<String, GRBVar> B3_ijk = new HashMap<String, GRBVar>();
 	
 	//Indicator variable for Past event hard constraints
 	HashMap<String, GRBVar> C_ijPast = new HashMap<String, GRBVar>();
@@ -66,7 +69,7 @@ public class ILPOptimizer {
 	HashMap<String, GRBVar> C_ijSuper = new HashMap<String, GRBVar>();
 	//HashMap<String, GRBVar> C_ijNotSuper = new HashMap<String, GRBVar>();
 	
-	//Indicator variable for Cotemporal->Cotemporal->Cotemporal event triad closure soft constraint with rewards
+	//Indicator variable for Cotemporal triad closure soft constraint with rewards
 	HashMap<String, GRBVar> D_ijk = new HashMap<String, GRBVar>();
 
 	//Indicator variable for Causes->Cotemporal->Causes event triad closure soft constraint with rewards
@@ -80,18 +83,24 @@ public class ILPOptimizer {
 	GRBModel  model;
 	
 	public ILPOptimizer(HashMap<String, Double> weights,
-			int numEvents, List<String> labels, boolean connectedComponentIn, boolean sameEventIn, boolean previousEventIn
-			, double alpha1In, double alpha2In, double alpha3In) {
+			int numEvents, List<String> labels, boolean connectedComponentIn, boolean sameEventIn, boolean previousEventIn,
+			boolean sameEventContradictionIn,
+			double alpha1In, double alpha2In, double alpha3In, double alpha4In, double alpha5In, double alpha6In) {
 		this.setWeights(weights);
 		this.numEvents = numEvents;
 		this.labels = labels;
 		this.numLabels = labels.size();
-		includeConnectedComponentConstraint = connectedComponentIn;
-		includeSameEventHardConstraint = sameEventIn;
-		includePreviousHardConstraint = previousEventIn;
+		this.includeConnectedComponentConstraint = connectedComponentIn;
+		this.includeSameEventHardConstraint = sameEventIn;
+		this.includePreviousHardConstraint = previousEventIn;
+		this.includeSameEventContradictionsHardConstraint = sameEventContradictionIn;
 		this.alpha1 = alpha1In;
 		this.alpha2 = alpha2In;
 		this.alpha3 = alpha3In;
+		this.alpha4 = alpha4In;
+		this.alpha5 = alpha5In;
+		this.alpha6 = alpha6In;
+		
 		
 		for(String eventType:ArgumentRelation.getEventRelations()) {
 			eventTypeIndex.put(eventType, labels.indexOf(eventType));
@@ -120,7 +129,7 @@ public class ILPOptimizer {
 				}
 			}
 			
-			System.out.println("\n" + goldTripleCounts.size());
+			//System.out.println("\n" + goldTripleCounts.size());
 			
 			env = new GRBEnv("1.log");
 			model = new GRBModel(env);
@@ -196,7 +205,11 @@ public class ILPOptimizer {
 					for(int k=j+1; k<numEvents; k++){
 						A_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
-						B_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+						B1_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+								String.format("%d,%d,%d",i, j, k)));
+						B2_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+								String.format("%d,%d,%d",i, j, k)));
+						B3_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
 						D_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
@@ -244,7 +257,9 @@ public class ILPOptimizer {
 						expr.addTerm(-1 * getAlpha1(), Z2_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(-1 * getAlpha1(), Z3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(getAlpha2(), A_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						expr.addTerm(-1 * getAlpha3(), B_ijk.get(String.format("%d,%d,%d", i, j, k)));
+						expr.addTerm(-1 * getAlpha3(), B1_ijk.get(String.format("%d,%d,%d", i, j, k)));
+						expr.addTerm(-1 * getAlpha3(), B2_ijk.get(String.format("%d,%d,%d", i, j, k)));
+						expr.addTerm(-1 * getAlpha3(), B3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(getAlpha4(), D_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(getAlpha5(), E1_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(getAlpha5(), E2_ijk.get(String.format("%d,%d,%d", i, j, k)));
@@ -283,7 +298,7 @@ public class ILPOptimizer {
 	public HashMap<Pair<Integer,Integer>, Integer> OptimizeEventRelation() {
 		HashMap<Pair<Integer,Integer>, Integer> best = new HashMap<Pair<Integer,Integer>, Integer>();
 		if(!includeConnectedComponentConstraint && !includePreviousHardConstraint && !includePreviousHardConstraint
-				&& alpha1 == 0 && alpha2 == 0 && alpha3 == 0)
+				&& alpha1 == 0 && alpha2 == 0 && alpha3 == 0 && alpha4 == 0 && alpha5 == 0 && alpha6 == 0)
 			return best; 
 		LogInfo.logs(String.format("Current values %b, %b, %b, %f, %f, %f\n", isIncludeConnectedComponentConstraint(),
 				isIncludeSameEventHardConstraint(),
@@ -308,7 +323,9 @@ public class ILPOptimizer {
 			}
 		    
 		    //Hard constraint for same event contradictions
-			//addSameEventContradictionHardConstarints();
+			if(includeSameEventContradictionsHardConstraint) {
+				addSameEventContradictionHardConstarints();
+			}
 			
 		    //Soft constraint for cotemporal penalize
 		    addCotemporalSoftConstraintsPenalize();
@@ -433,42 +450,42 @@ public class ILPOptimizer {
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, B_ijk.get(String.format("%d,%d,%d", i, j, k)));
+		    			sameEventConstraint.addTerm(-1.0, B1_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c24_%d,%d,%d", i,j,k));
 						
 						sameEventConstraint = new GRBLinExpr();
 						sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
 		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(3.0, B_ijk.get(String.format("%d,%d,%d", i, j, k)));
+		    			sameEventConstraint.addTerm(3.0, B1_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c25_%d,%d,%d", i,j,k));
 						
 						sameEventConstraint = new GRBLinExpr();
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, B_ijk.get(String.format("%d,%d,%d", i, j, k)));
+		    			sameEventConstraint.addTerm(-1.0, B2_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c26_%d,%d,%d", i,j,k));
 						
 						sameEventConstraint = new GRBLinExpr();
 						sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
-		    			sameEventConstraint.addTerm(3.0, B_ijk.get(String.format("%d,%d,%d", i, j, k)));
+		    			sameEventConstraint.addTerm(3.0, B2_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c27_%d,%d,%d", i,j,k));
 						
 						sameEventConstraint = new GRBLinExpr();
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
 		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, B_ijk.get(String.format("%d,%d,%d", i, j, k)));
+		    			sameEventConstraint.addTerm(-1.0, B3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c28_%d,%d,%d", i,j,k));
 						
 						sameEventConstraint = new GRBLinExpr();
 						sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, sameEventIndex)));
 		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, sameEventIndex)));
 		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, sameEventIndex)));
-		    			sameEventConstraint.addTerm(3.0, B_ijk.get(String.format("%d,%d,%d", i, j, k)));
+		    			sameEventConstraint.addTerm(3.0, B3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 1.0, String.format("c29_%d,%d,%d", i,j,k));
 		    		}
 		    	}
