@@ -417,9 +417,9 @@ public class Main implements Runnable {
 		
 		int NumCrossValidation = 10;
 		boolean small = false;
-		boolean performParameterSearch = true;
-		double[] paramValues = new double[]{0.5, 10};
-		//double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
+		boolean performParameterSearch = false;
+		//double[] paramValues = new double[]{0.5, 10};
+		double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
 		boolean[] paramValuesBool = new boolean[]{false, true};
 		HashMap<Integer, String> constraintNames = new HashMap<Integer, String>();
 		constraintNames.put(1, "Connectivity constraint : Hard");
@@ -644,39 +644,41 @@ public class Main implements Runnable {
 									}
 									//writer.write(String.format("Current values %b, %b, %b, %f, %f, %f\n", connectedComponent,
 									//		sameEvent, previousEvent, alpha1, alpha2, alpha3));
-									
-									List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
-									
-									for(int i = 1; i <= NumCrossValidation; i++) {
-										Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
-										List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-												connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
-												alpha4, alpha5, alpha6);
+									if(alpha5 <= 1) {
+										List<BioDatum> resultsFromAllFolds = new ArrayList<BioDatum>();
 										
-										resultsFromAllFolds.addAll(result);
+										for(int i = 1; i <= NumCrossValidation; i++) {
+											Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
+											List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
+													connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
+													alpha4, alpha5, alpha6);
+											
+											resultsFromAllFolds.addAll(result);
+										}
+										
+										Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
+			
+										writer.write(String.format("\t\tValue : %f, F1 : %f, P : %f, R : %f\n", 
+													paramValues[paramValueCount], pairTriple.first.third, pairTriple.first.first, pairTriple.first.second));
+										LogInfo.logs("Micro precision " + paramIndexInParamArray + " " + paramValues[paramValueCount]);
+										LogInfo.logs("Precision : " + pairTriple.first.first);
+										LogInfo.logs("Recall    : " + pairTriple.first.second);
+										LogInfo.logs("F1 score  : " + pairTriple.first.third);
+										
+										LogInfo.logs("\nMacro precision");
+										LogInfo.logs("Precision : " + pairTriple.second.first);
+										LogInfo.logs("Recall    : " + pairTriple.second.second);
+										LogInfo.logs("F1 score  : " + pairTriple.second.third);
+										
+										if(pairTriple.first.third > bestF1) {
+											bestF1 = pairTriple.first.third;
+											bestParamValue = paramValues[paramValueCount];
+											bestConstraint = paramIndexInParamArray;
+											writer.write("\t\tUpdating best F1. Best constraint: " + constraintNames.get(bestConstraint) +
+													". Best value: " + bestParamValue+  "\n");
+										}
 									}
-									
-									Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
-		
-									writer.write(String.format("\t\tValue : %f, F1 : %f, P : %f, R : %f\n", 
-												paramValues[paramValueCount], pairTriple.first.third, pairTriple.first.first, pairTriple.first.second));
-									LogInfo.logs("Micro precision " + paramIndexInParamArray + " " + paramValues[paramValueCount]);
-									LogInfo.logs("Precision : " + pairTriple.first.first);
-									LogInfo.logs("Recall    : " + pairTriple.first.second);
-									LogInfo.logs("F1 score  : " + pairTriple.first.third);
-									
-									LogInfo.logs("\nMacro precision");
-									LogInfo.logs("Precision : " + pairTriple.second.first);
-									LogInfo.logs("Recall    : " + pairTriple.second.second);
-									LogInfo.logs("F1 score  : " + pairTriple.second.third);
-									
-									if(pairTriple.first.third > bestF1) {
-										bestF1 = pairTriple.first.third;
-										bestParamValue = paramValues[paramValueCount];
-										bestConstraint = paramIndexInParamArray;
-										writer.write("\t\tUpdating best F1. Best constraint: " + constraintNames.get(bestConstraint) +
-												". Best value: " + bestParamValue+  "\n");
-									}
+									writer.flush();
 								}
 								
 								//writer.write("\tBest value: " + bestParamValue + "\n");
@@ -706,7 +708,12 @@ public class Main implements Runnable {
 						}
 						writer.flush();
 						if(bestF1 > overallBestF1) {
-							writer.write("BestConstraint: " + constraintNames.get(bestConstraint) + "\n");
+							writer.write("BestConstraint: " + constraintNames.get(bestConstraint) + ". Value: ");
+							if(bestConstraint < 5)
+								writer.write(((Boolean)bestParamValueBool).toString());
+							else
+								writer.write(((Double)bestParamValue).toString());
+							writer.write("\n");
 							overallBestF1 = bestF1;
 							switch (bestConstraint) {
 							case 5:
@@ -764,7 +771,7 @@ public class Main implements Runnable {
 					
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-							true, false, false, false, 0.0,0.75,100,0,0,0);
+							true, true, false, true, 0.0,0.75,0,0,0.75,0);
 					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 					
 					resultsFromAllFolds.addAll(result);

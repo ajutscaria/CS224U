@@ -300,10 +300,10 @@ public class ILPOptimizer {
 		if(!includeConnectedComponentConstraint && !includePreviousHardConstraint && !includePreviousHardConstraint
 				&& alpha1 == 0 && alpha2 == 0 && alpha3 == 0 && alpha4 == 0 && alpha5 == 0 && alpha6 == 0)
 			return best; 
-		LogInfo.logs(String.format("Current values %b, %b, %b, %f, %f, %f\n", isIncludeConnectedComponentConstraint(),
+		LogInfo.logs(String.format("Current values %b, %b, %b, %b, %f, %f, %f, %f, %f, %f\n", isIncludeConnectedComponentConstraint(),
 				isIncludeSameEventHardConstraint(),
-				isIncludePreviousHardConstraint()
-			, getAlpha1(), getAlpha2(), getAlpha3()));
+				isIncludePreviousHardConstraint(), includeSameEventContradictionsHardConstraint,
+				getAlpha1(), getAlpha2(), getAlpha3(), getAlpha4(), getAlpha5(), getAlpha6()));
 		try
 		{		
 			
