@@ -203,9 +203,9 @@ public class Scorer {
 	}
 	double macroPrec = 0, macroRec = 0, macroF = 0;
 	
-	LogInfo.logs(macroPrecision);
-	LogInfo.logs(macroRecall);
-	LogInfo.logs(macroF1);
+	//LogInfo.logs(macroPrecision);
+	//LogInfo.logs(macroRecall);
+	//LogInfo.logs(macroF1);
 	
 	for(String key : nonNONERelations) {
 		macroPrec += macroPrecision.get(key);
@@ -285,9 +285,9 @@ public class Scorer {
 		}
 		double macroPrec = 0, macroRec = 0, macroF = 0;
 		
-		LogInfo.logs(macroPrecision);
-		LogInfo.logs(macroRecall);
-		LogInfo.logs(macroF1);
+		//LogInfo.logs(macroPrecision);
+		//LogInfo.logs(macroRecall);
+		//LogInfo.logs(macroF1);
 		
 		for(String key : nonNONERelations) {
 			macroPrec += macroPrecision.get(key);
@@ -366,9 +366,9 @@ public class Scorer {
 		}
 		double macroPrec = 0, macroRec = 0, macroF = 0;
 		
-		LogInfo.logs(macroPrecision);
-		LogInfo.logs(macroRecall);
-		LogInfo.logs(macroF1);
+		//LogInfo.logs(macroPrecision);
+		//LogInfo.logs(macroRecall);
+		//LogInfo.logs(macroF1);
 		
 		for(String key : nonNONERelations) {
 			macroPrec += macroPrecision.get(key);
@@ -380,7 +380,7 @@ public class Scorer {
 		macroRec = macroRec / nonNONERelations.size();
 		macroF = macroF / nonNONERelations.size();
 		
-		LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+		//LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
 		
 		double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
 		double f= 2 * precision * recall / (precision + recall);

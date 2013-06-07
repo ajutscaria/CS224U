@@ -103,8 +103,7 @@ public class ILPOptimizer {
 		this.alpha4 = alpha4In;
 		this.alpha5 = alpha5In;
 		this.alpha6 = alpha6In;
-		
-		
+
 		for(String eventType:ArgumentRelation.getEventRelations()) {
 			eventTypeIndex.put(eventType, labels.indexOf(eventType));
 		}

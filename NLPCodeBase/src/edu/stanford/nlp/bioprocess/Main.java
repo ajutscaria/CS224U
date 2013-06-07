@@ -20,7 +20,9 @@ import fig.basic.Option;
 import fig.exec.Execution;
 
 public class Main implements Runnable {
-
+	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalModel = true;
+	boolean runEventRelationTest = false;
+	
 	//public static class Options {
 		@Option(gloss="Where to read the property file from") public String propertyFile;
 		@Option(gloss="The running mode: event, entity, or em") public String mode;
@@ -197,8 +199,10 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("eventrelation")) {
 			LogInfo.logs("Running event relation");
-			runEventRelationsPrediction(folders);
-			//runEventRelationsPredictionTest(folders);
+			if(!runEventRelationTest)
+				runEventRelationsPrediction(folders);
+			else
+				runEventRelationsPredictionTest(folders);
 			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
 		}
 		LogInfo.end_track();
@@ -393,20 +397,47 @@ public class Main implements Runnable {
 		EventRelationInferer inferer = new EventRelationInferer();
 		
 		Params eventParam = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
-		List<BioDatum> result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
-				true, false, false, false,0.0,0.75,0.0,0.0,0.0,0.0);
+		List<BioDatum> result = null;
+		if(runLocalModel) {
+			result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
+				true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
+		}
+		else if(runPrevBaseline) {
+			result = inferer.BaselineInfer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory);
+		}
+		else if(runBetterBaseline) {
+			result = inferer.BetterBaselineInfer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory);
+		}
 		
-		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(result);
+		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;// = Scorer.scoreEventRelations(result);
+		
+		pairTriple = Scorer.scoreEventRelations(result);
+		
+		LogInfo.logs("Full Micro precision");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		
+		pairTriple = Scorer.scoreEventRelationsCollapsed(result);
+		
+		LogInfo.logs("Collapsed Micro precision");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		
+		pairTriple = Scorer.scoreEventRelationsStructure(result);
+		
+		LogInfo.logs("Structure Micro precision");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
 	
-		LogInfo.logs("Micro precision");
-		LogInfo.logs("Precision : " + pairTriple.first.first);
-		LogInfo.logs("Recall    : " + pairTriple.first.second);
-		LogInfo.logs("F1 score  : " + pairTriple.first.third);
-		
+		/*
 		LogInfo.logs("\nMacro precision");
 		LogInfo.logs("Precision : " + pairTriple.second.first);
 		LogInfo.logs("Recall    : " + pairTriple.second.second);
 		LogInfo.logs("F1 score  : " + pairTriple.second.third);
+		*/
 	}
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
@@ -770,10 +801,17 @@ public class Main implements Runnable {
 					LogInfo.begin_track("Iteration " + i);
 					
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
-					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-							true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
-					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
-					//List<BioDatum> result = inferer.BetterBaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+					List<BioDatum> result = null;
+					if(runLocalModel) {
+						result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
+								true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
+					}
+					else if(runPrevBaseline) {
+						result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+					}
+					else if(runBetterBaseline) {
+						result = inferer.BetterBaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+					}
 					
 					resultsFromAllFolds.addAll(result);
 					
@@ -783,20 +821,38 @@ public class Main implements Runnable {
 					LogInfo.end_track();
 				}
 				
-				Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
-				//System.out.println("Total relations - " + counter);
-				
 				Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
-			//	LogInfo.logs("Removed feature - " + feature);
-				LogInfo.logs("Micro precision");
-				LogInfo.logs("Precision : " + pairTriple.first.first);
-				LogInfo.logs("Recall    : " + pairTriple.first.second);
-				LogInfo.logs("F1 score  : " + pairTriple.first.third);
 				
-				LogInfo.logs("\nMacro precision");
-				LogInfo.logs("Precision : " + pairTriple.second.first);
-				LogInfo.logs("Recall    : " + pairTriple.second.second);
-				LogInfo.logs("F1 score  : " + pairTriple.second.third);
+				Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
+				
+				pairTriple = Scorer.scoreEventRelations(resultsFromAllFolds);
+				
+				LogInfo.logs("Full Micro precision");
+				LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
+				LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
+				LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+				
+				pairTriple = Scorer.scoreEventRelationsCollapsed(resultsFromAllFolds);
+				
+				LogInfo.logs("Collapsed Micro precision");
+				LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
+				LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
+				LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+				
+				pairTriple = Scorer.scoreEventRelationsStructure(resultsFromAllFolds);
+				
+				LogInfo.logs("Structure Micro precision");
+				LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
+				LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
+				LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+				
+				/*
+				LogInfo.logs("\nFull Macro precision");
+				LogInfo.logs("P : " + String.format("%.4f", pairTriple.second.first));
+				LogInfo.logs("R : " + String.format("%.4f", pairTriple.second.second));
+				LogInfo.logs("F : " + String.format("%.4f", pairTriple.second.third));
+				*/
+
 				/*
 				System.out.println("Close to one  - " + ILPOptimizer.closeToOne);
 				System.out.println("All variables - " + ILPOptimizer.allVariables);
