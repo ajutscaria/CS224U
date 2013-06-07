@@ -771,8 +771,9 @@ public class Main implements Runnable {
 					
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 					List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-							true, true, false, true, 0.0,0.75,0,0,0.75,0);
+							true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
 					//List<BioDatum> result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
+					//List<BioDatum> result = inferer.BetterBaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
 					
 					resultsFromAllFolds.addAll(result);
 					
@@ -796,6 +797,11 @@ public class Main implements Runnable {
 				LogInfo.logs("Precision : " + pairTriple.second.first);
 				LogInfo.logs("Recall    : " + pairTriple.second.second);
 				LogInfo.logs("F1 score  : " + pairTriple.second.third);
+				/*
+				System.out.println("Close to one  - " + ILPOptimizer.closeToOne);
+				System.out.println("All variables - " + ILPOptimizer.allVariables);
+				System.out.println("Percentage    - " + (double)ILPOptimizer.closeToOne / ILPOptimizer.allVariables);
+				*/
 			}
 			//	if(pairTriple.first.third > bestF1) {
 			//		bestF1 = pairTriple.first.third;
@@ -833,8 +839,8 @@ public class Main implements Runnable {
 			*/
 
 			//Print triples
-			
-			/*List<String> allRelations = ArgumentRelation.getEventRelations();
+			/*
+			List<String> allRelations = ArgumentRelation.getEventRelations();
 			for(String rel1:allRelations) {
 				for(String rel2:allRelations) {
 					for(String rel3:allRelations) {
@@ -843,7 +849,8 @@ public class Main implements Runnable {
 							LogInfo.logs(String.format("%s, %.0f, %.0f", rel.replace(",", "->"), inferer.countGoldTriples.getCount(rel), inferer.countPredictedTriples.getCount(rel)));
 					}
 				}
-			}*/
+			}
+			*/
 			/*
 			LogInfo.begin_track("Mark relations");
 			for(String s:EventRelationFeatureFactory.markWords)

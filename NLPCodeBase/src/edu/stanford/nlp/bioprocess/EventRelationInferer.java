@@ -80,6 +80,47 @@ public class EventRelationInferer {
 		}
 		return predicted;
 	}
+	
+	public List<BioDatum> BetterBaselineInfer(List<Example> testData, Params parameters, EventRelationFeatureFactory ff) {
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
+		
+		for(Example ex:testData) {
+			//HashMap<String, Pair<String,String>> labelings = new HashMap<String, Pair<String,String>>();
+			LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+			List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
+
+			StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\";");
+			int count = 0;
+			List<EventMention> eventMentions = ex.gold.get(EventMentionsAnnotation.class);
+			//System.out.println(eventMentions);
+			
+			for(EventMention evtMention:ex.gold.get(EventMentionsAnnotation.class)) {
+				buffer.append(String.format("\nnode%s [label = \"%s\"]", count, Utils.getText(evtMention.getTreeNode()) + "_" + count));
+				count++;
+				//System.out.println(evtMention.getTreeNode());
+			}
+			List<String> labelsInClassifier = (List<String>) classifier.labels();
+			for(BioDatum d:dataset) {
+				if(Utils.isEventNextInOrder(eventMentions, d.event1, d.event2)) {
+					Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+					String bestLabel = "";
+					double bestScore = 0.0;
+					for(String label:labelsInClassifier) {
+						if(!label.equals("NONE") && classifier.probabilityOf(newDatum).getCount(label) > bestScore){
+							bestScore = classifier.probabilityOf(newDatum).getCount(label);
+							bestLabel = label;
+						}
+					}
+					d.setPredictedLabel(bestLabel);
+				}
+				else {
+					d.guessLabel = "NONE";
+				}
+			}
+			predicted.addAll(dataset);
+		}
+		return predicted;
+	}
 
 	
 	public List<BioDatum> Infer(List<Example> testData, Params parameters, EventRelationFeatureFactory ff, boolean connectedComponent,
