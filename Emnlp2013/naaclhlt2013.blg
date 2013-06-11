@@ -1,0 +1,46 @@
+This is BibTeX, Version 0.99d (TeX Live 2012)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: naaclhlt2013.aux
+The style file: naaclhlt2013.bst
+Database file #1: naaclhlt2013.bib
+You've used 4 entries,
+            2490 wiz_defined-function locations,
+            573 strings with 5041 characters,
+and the built_in function-call counts, 1998 in all, are:
+= -- 204
+> -- 62
+< -- 3
++ -- 20
+- -- 20
+* -- 125
+:= -- 290
+add.period$ -- 16
+call.type$ -- 4
+change.case$ -- 26
+chr.to.int$ -- 4
+cite$ -- 4
+duplicate$ -- 101
+empty$ -- 171
+format.name$ -- 26
+if$ -- 455
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 4
+newline$ -- 27
+num.names$ -- 12
+pop$ -- 39
+preamble$ -- 1
+purify$ -- 30
+quote$ -- 0
+skip$ -- 88
+stack$ -- 0
+substring$ -- 112
+swap$ -- 41
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 32
+warning$ -- 0
+while$ -- 14
+width$ -- 6
+write$ -- 57

@@ -1,0 +1,25 @@
+\section{Introduction}
+
+\textbf{Motivation:} Being able to reason over processes is crucial for language understanding applications. Consider the question 
+
+\begin{description}
+\item \emph{Some question that can only be answered by having some structure over a process}
+\end{description}
+
+A human reading the paragraph in Figure~\ref{fig:process} would be able to describe that etc. However, traditional state-of-the-art systems that are based on retrieval would fail. In this paper we suggest a method for extracting a process structure that will allow answering of complex questions. For example, knowing that... can help us answer the question.
+
+\textbf{Relation to previous work:} 
+Extracting processes is related to two lines of works in Information Extraction - event extraction and timeline construction. Recent work in event event extraction \cite{riedel11fast,Mcclosky11} is based on BioNLP challenges and focuses on extraction of a closed set of events such as \emph{regulation} and \emph{phosphorilation} from a single sentence and their relations to proteins. However, a process is typically described over multiple sentences and involves a large number of possible events. Work on timeline construction \cite{Do12,Mcclosky12} requires partially ordering a set of events that is described in a sequence of sentence. However, fully capturing process structure requires a rich set of relations (\emph{cause}, \emph{super}) that is missing from this line of work.
+
+\textbf{Emphasizing this work:} In this paper, we find the structure of a biological process by extracting the relations between the process events. Properties of our task (a) spans multiple sentences (b) open-ended set of events (c) rich set of relations comparing to timeline construction (d) the nature of the text - it is a textbook rather than abstracts. (e) We do not use domain-specific knowledge. Some sentence that says that by doing this we will be able to answer the complex question from the beginning - linking to language understanding.
+
+\textbf{Technical contribution} Processes have a global structure and we want to take advantage of that when extracting the relations. For example, all events a process description are connected to one another and there are various constraints such as if two event mentions refer to the same event then they must be related in a similar way to a third event. Similar to  many recent works in NLP \cite{} we model global constraints using ILP, however since many of the constraints can be violated we use soft constraints. We show that by encoding global constraints we can substantially improve performance.
+
+\textbf{Contributions} Three main contributions
+\begin{itemize}
+\item We define the task of process extraction - what is a process
+\item We propose a method for process extraction that uses global constraints and show that it improves performance
+\item We release a set of 150 biological processes, annotated by biologists.
+\end{itemize}
+
+\textbf{structure} Background, Definition of a process, Local classifier (old features and new features), Global model, Experiments and maybe analysis

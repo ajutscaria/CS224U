@@ -1,0 +1,28 @@
+\begin{thebibliography}{}
+
+\bibitem[\protect\citename{Do \bgroup et al.\egroup }2012]{Do12}
+Quang Do, Wei Lu, and Dan Roth.
+\newblock 2012.
+\newblock Joint inference for event timeline construction.
+\newblock In {\em EMNLP-CoNLL}, pages 677--687.
+
+\bibitem[\protect\citename{McClosky and Manning}2012]{Mcclosky12}
+David McClosky and Christopher~D. Manning.
+\newblock 2012.
+\newblock Learning constraints for consistent timeline extraction.
+\newblock In {\em EMNLP-CoNLL}, pages 873--882.
+
+\bibitem[\protect\citename{McClosky \bgroup et al.\egroup }2011]{Mcclosky11}
+David McClosky, Mihai Surdeanu, and Christopher~D. Manning.
+\newblock 2011.
+\newblock Event extraction as dependency parsing.
+\newblock In {\em ACL}, pages 1626--1635.
+
+\bibitem[\protect\citename{Riedel and McCallum}2011]{riedel11fast}
+Sebastian Riedel and Andrew McCallum.
+\newblock 2011.
+\newblock Fast and robust joint models for biomedical event extraction.
+\newblock In {\em Proceedings of the Conference on Empirical methods in natural
+  language processing (EMNLP '11)}.
+
+\end{thebibliography}
