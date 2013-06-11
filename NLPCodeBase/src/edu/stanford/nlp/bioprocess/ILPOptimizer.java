@@ -1,6 +1,7 @@
-package edu.stanford.nlp.bioprocess;
+	package edu.stanford.nlp.bioprocess;
 import java.util.HashMap;
 import java.util.List;
+import java.util.TreeMap;
 
 import com.sun.org.apache.bcel.internal.generic.NEW;
 
@@ -19,7 +20,7 @@ public class ILPOptimizer {
 	int numEvents, numLabels, NONEIndex = 0;
 	int cotemporalEventIndex, sameEventIndex, previousEventIndex, causesIndex, causedIndex, enablesIndex, 
 					enabledIndex, nextEventIndex, superEventIndex, subEventIndex;
-	
+	static int closeToOne, allVariables;
 	private double alpha1 = 0;
 	private double alpha2 = 0;
 	private double alpha3 = 0;
@@ -30,6 +31,7 @@ public class ILPOptimizer {
 					includeSameEventHardConstraint = false, includePreviousHardConstraint = false, includeSameEventContradictionsHardConstraint = false;
 	List<String> labels;
 	IntCounter<String> goldTripleCounts;	
+	Triple<String, String, String> causesCausesCotemporalTriple = new Triple<String, String, String>("Causes", "CotemporalEvent", "Causes");
 	HashMap<String, GRBVar> X_ij = new HashMap<String, GRBVar>();
 	HashMap<String, GRBVar> X_ijr = new HashMap<String, GRBVar>();
 	HashMap<String, GRBVar> Y_ij = new HashMap<String, GRBVar>();
@@ -73,14 +75,15 @@ public class ILPOptimizer {
 	HashMap<String, GRBVar> D_ijk = new HashMap<String, GRBVar>();
 
 	//Indicator variable for Causes->Cotemporal->Causes event triad closure soft constraint with rewards
-	HashMap<String, GRBVar> E1_ijk = new HashMap<String, GRBVar>();
-	HashMap<String, GRBVar> E2_ijk = new HashMap<String, GRBVar>();
-	HashMap<String, GRBVar> E3_ijk = new HashMap<String, GRBVar>();
-	
+	//HashMap<String, GRBVar> E1_ijk = new HashMap<String, GRBVar>();
+	//HashMap<String, GRBVar> E2_ijk = new HashMap<String, GRBVar>();
+	//HashMap<String, GRBVar> E3_ijk = new HashMap<String, GRBVar>();
+	HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar> E_ijk = new HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar>();
 	HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar> F_ijk = new HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar>();
 	
 	GRBEnv	env;
 	GRBModel  model;
+	private final int topK = 3;
 	
 	public ILPOptimizer(HashMap<String, Double> weights,
 			int numEvents, List<String> labels, boolean connectedComponentIn, boolean sameEventIn, boolean previousEventIn,
@@ -100,8 +103,7 @@ public class ILPOptimizer {
 		this.alpha4 = alpha4In;
 		this.alpha5 = alpha5In;
 		this.alpha6 = alpha6In;
-		
-		
+
 		for(String eventType:ArgumentRelation.getEventRelations()) {
 			eventTypeIndex.put(eventType, labels.indexOf(eventType));
 		}
@@ -119,17 +121,18 @@ public class ILPOptimizer {
 			this.subEventIndex = eventTypeIndex.get("SubEvent");
 			
 			goldTripleCounts = (IntCounter<String>)Utils.readObject("GoldTriplesCount.ser");
-			
+			/*
 			IntCounter<String> backup = (IntCounter<String>)goldTripleCounts.clone();
 			
 			goldTripleCounts = new IntCounter<String>();
 			for(String key:backup.keySet()) {
-				if(backup.getCount(key) > 100) {
+				if(backup.getCount(key) > 5) {
 					goldTripleCounts.setCount(key, backup.getCount(key));
 				}
 			}
-			
-			//System.out.println("\n" + goldTripleCounts.size());
+			*/
+			LogInfo.logs("\nGold triple count:" + goldTripleCounts.size());
+			//LogInfo.logs(goldTripleCounts.keySet());
 			
 			env = new GRBEnv("1.log");
 			model = new GRBModel(env);
@@ -213,32 +216,38 @@ public class ILPOptimizer {
 								String.format("%d,%d,%d",i, j, k)));
 						D_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
-						E1_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+						/*E1_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
 						E2_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
 						E3_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
+								*/
 				}
 			}
 			
 			//Creating F_ijk for counts
-			/*for(int i=0; i<numEvents; i++) {
+			for(int i=0; i<numEvents; i++) {
 				for(int j=i+1; j<numEvents; j++) {
 					for(int k=j+1; k<numEvents; k++) {
-						for(String key:goldTripleCounts.keySet()) {
+						/*for(String key:goldTripleCounts.keySet()) {
 							String[] triple = key.split(",");
 							//int tripleCount = 1;
+							//LogInfo.logs("Equivalent triples:"+key);
+							//LogInfo.logs(Utils.getEquivalentTriples(new Triple<String, String, String>(triple[0], triple[1], triple[2])));
 							for(Triple<String, String, String> expansion:Utils.getEquivalentTriples(new Triple<String, String, String>(triple[0], triple[1], triple[2]))) {
-								F_ijk.put(new Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>(new Triple<Integer, Integer, Integer>(i, j, k), new Triple<String, String, String>(expansion.first(), expansion.second(), expansion.third())), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+									F_ijk.put(new Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>(new Triple<Integer, Integer, Integer>(i, j, k), new Triple<String, String, String>(expansion.first(), expansion.second(), expansion.third())), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 										String.format("%d,%d,%d,%s,%s,%s",i, j, k, expansion.first(), expansion.second(), expansion.third())));
-								//LogInfo.logs("Added" +":"+new Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>(new Triple<Integer, Integer, Integer>(i, j, k), new Triple<String, String, String>(triple[0], triple[1], triple[2])));
 								//tripleCount++;
 							}
+						}*/
+						for(Triple<String, String, String> expansion:Utils.getEquivalentTriples(causesCausesCotemporalTriple)) {
+							E_ijk.put(new Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>(new Triple<Integer, Integer, Integer>(i, j, k), new Triple<String, String, String>(expansion.first(), expansion.second(), expansion.third())), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+								String.format("%d,%d,%d,%s,%s,%s",i, j, k, expansion.first(), expansion.second(), expansion.third())));
 						}
 					}
 				}
-			}*/
+			}
 			//for(Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>> ppp: F_ijk.keySet()) {
 				//LogInfo.logs(ppp);
 			//}
@@ -261,15 +270,19 @@ public class ILPOptimizer {
 						expr.addTerm(-1 * getAlpha3(), B2_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(-1 * getAlpha3(), B3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(getAlpha4(), D_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						expr.addTerm(getAlpha5(), E1_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						expr.addTerm(getAlpha5(), E2_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						expr.addTerm(getAlpha5(), E3_ijk.get(String.format("%d,%d,%d", i, j, k)));
+						//expr.addTerm(getAlpha5(), E1_ijk.get(String.format("%d,%d,%d", i, j, k)));
+						//expr.addTerm(getAlpha5(), E2_ijk.get(String.format("%d,%d,%d", i, j, k)));
+						//expr.addTerm(getAlpha5(), E3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 					}
 				}
 			}
 			
 			//Adding counts to objective
-			/*for(Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>> key:F_ijk.keySet()) {
+			for(Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>> key:E_ijk.keySet()) {
+				expr.addTerm(getAlpha5(), E_ijk.get(key));
+			}
+			/*
+			for(Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>> key:F_ijk.keySet()) {
 				Triple<String, String, String> baseTriple = Utils.getEquivalentBaseTriple(key.second());
 				String tripleString = String.format("%s,%s,%s", baseTriple.first(), baseTriple.second(), baseTriple.third());
 				//LogInfo.logs("Key in F_ijk  :" + tripleString);
@@ -380,13 +393,18 @@ public class ILPOptimizer {
 		    }*/
 		    // Dispose of model and environment
 		    
-		    for(GRBVar x:X_ijr.values()) {
+		    /*for(GRBVar x:X_ijr.values()) {
 		      //LogInfo.logs(x.get(GRB.StringAttr.VarName)
                      // + " " +x.get(GRB.DoubleAttr.X));
 		      //if(!x.get(GRB.StringAttr.VarName).endsWith(",0") && x.get(GRB.DoubleAttr.X) == 1) {
 		      if(x.get(GRB.DoubleAttr.X) == 1) {
 		    		String splits[] = x.get(GRB.StringAttr.VarName).split(",");
 		    		best.put(new Pair<Integer, Integer>(Integer.parseInt(splits[0]), Integer.parseInt(splits[1])), Integer.parseInt(splits[2]));
+		    	}
+		    }*/
+		    for(int i = 0; i < numEvents; i++) {
+		    	for(int j = i+1; j < numEvents; j++) {
+		    		best.put(new Pair<Integer, Integer>(i, j), getBestRelation(i, j));
 		    	}
 		    }
 		    
@@ -398,8 +416,36 @@ public class ILPOptimizer {
 		      System.out.println("Error code: " + e.getErrorCode() + ". " +
 		                         e.getMessage());
 	    }
-		System.out.println(best);
+		//System.out.println(best);
 		return best;
+	}
+	
+	private int getBestRelation(int i, int j) {
+		HashMap<String,Double> map = new HashMap<String,Double>();
+        ValueComparator bvc =  new ValueComparator(map);
+        TreeMap<String,Double> sorted_map = new TreeMap<String,Double>(bvc);
+		
+		for(String label:labels){
+			try {
+				map.put(((Integer)labels.indexOf(label)).toString(), X_ijr.get(String.format("%d,%d,%d", i, j, labels.indexOf(label))).get(GRB.DoubleAttr.X));
+			} catch (GRBException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		//System.out.println(map);
+		sorted_map.putAll(map);
+		
+		for(String key: sorted_map.keySet()) {
+			//System.out.println(map.get(key));
+			if(1- map.get(key) <= 0.0001) 
+				closeToOne++;
+			allVariables++;
+			//System.out.println("Returning " + key);
+			return Integer.parseInt(key);
+		}
+		
+		return -1;
 	}
 	
 	private void addConstraintforGOLDTriplesReward() {
@@ -415,20 +461,24 @@ public class ILPOptimizer {
 			    				//LogInfo.logs(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple));
 			    				//LogInfo.logs(F_ijk.get(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple)));
 								GRBLinExpr sameEventConstraint = new GRBLinExpr();
-				    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, eventTypeIndex.get(equivalentTriple.first))));
-				    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, eventTypeIndex.get(equivalentTriple.second))));
-				    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, eventTypeIndex.get(equivalentTriple.third))));
-				    			sameEventConstraint.addTerm(3.0, F_ijk.get(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple)));
-								model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 0.0, String.format("c18_%d,%d,%d", i,j,k));
-								
-								sameEventConstraint = new GRBLinExpr();
-								sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, eventTypeIndex.get(equivalentTriple.first))));
-				    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, eventTypeIndex.get(equivalentTriple.second))));
-				    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, eventTypeIndex.get(equivalentTriple.third))));
-				    			sameEventConstraint.addTerm(-1.0, F_ijk.get(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple)));
-								model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c19_%d,%d,%d", i,j,k));
-								
-								//tripleCount++;
+								if(Utils.isInTopK(weights, labels, i, j, equivalentTriple.first, topK) && 
+										Utils.isInTopK(weights, labels, j, k, equivalentTriple.second, topK) &&
+										Utils.isInTopK(weights, labels, i, k, equivalentTriple.third, topK)) {
+					    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, eventTypeIndex.get(equivalentTriple.first))));
+					    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, eventTypeIndex.get(equivalentTriple.second))));
+					    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, eventTypeIndex.get(equivalentTriple.third))));
+					    			sameEventConstraint.addTerm(3.0, F_ijk.get(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple)));
+									model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 0.0, String.format("c18_%d,%d,%d", i,j,k));
+									//System.out.println(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple));
+									
+									sameEventConstraint = new GRBLinExpr();
+									sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, eventTypeIndex.get(equivalentTriple.first))));
+					    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, eventTypeIndex.get(equivalentTriple.second))));
+					    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, eventTypeIndex.get(equivalentTriple.third))));
+					    			sameEventConstraint.addTerm(-1.0, F_ijk.get(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple)));
+									model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c19_%d,%d,%d", i,j,k));
+									//tripleCount++;
+								}
 			    			}
 		    			}
 		    		}
@@ -529,55 +579,26 @@ public class ILPOptimizer {
 	
 	private void addCausesSoftConstraintsReward() {
 		try{
-			//cotemporalEventIndex = labels.indexOf("CotemporalEvent");
-			int causesIndex = labels.indexOf("Causes"), causedIndex = labels.indexOf("Caused");
-
 			//(Causes,CotemporalEvent,Causes), (Caused,Causes,CotemporalEvent), (CotemporalEvent,Caused,Caused), 
 			 for(int i=0; i<numEvents; i++) {
 		    	for(int j=i+1;j<numEvents;j++) {
 		    		for(int k=j+1;k<numEvents;k++) {
-		    			GRBLinExpr sameEventConstraint = new GRBLinExpr();
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, causesIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, causesIndex)));
-		    			sameEventConstraint.addTerm(3.0, E1_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 0.0, String.format("c18_%d,%d,%d", i,j,k));
-						
-						sameEventConstraint = new GRBLinExpr();
-						sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, causesIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, cotemporalEventIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, causesIndex)));
-		    			sameEventConstraint.addTerm(-1.0, E1_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c19_%d,%d,%d", i,j,k));
-						
-						sameEventConstraint = new GRBLinExpr();
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, causedIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, causesIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
-		    			sameEventConstraint.addTerm(3.0, E2_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 0.0, String.format("c18_%d,%d,%d", i,j,k));
-						
-						sameEventConstraint = new GRBLinExpr();
-						sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, causedIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, causesIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, cotemporalEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, E2_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c19_%d,%d,%d", i,j,k));
-						
-						sameEventConstraint = new GRBLinExpr();
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, causedIndex)));
-		    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, causedIndex)));
-		    			sameEventConstraint.addTerm(3.0, E3_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 0.0, String.format("c18_%d,%d,%d", i,j,k));
-						
-						sameEventConstraint = new GRBLinExpr();
-						sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, causedIndex)));
-		    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, causedIndex)));
-		    			sameEventConstraint.addTerm(-1.0, E3_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c19_%d,%d,%d", i,j,k));
-						
+		    			List<Triple<String, String, String>> equivalentTriples = Utils.getEquivalentTriples(causesCausesCotemporalTriple);
+		    			for(Triple<String, String, String> equivalentTriple : equivalentTriples) {
+		    				GRBLinExpr sameEventConstraint = new GRBLinExpr();
+			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, j, eventTypeIndex.get(equivalentTriple.first))));
+			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", j, k, eventTypeIndex.get(equivalentTriple.second))));
+			    			sameEventConstraint.addTerm(-1.0, X_ijr.get(String.format("%d,%d,%d", i, k, eventTypeIndex.get(equivalentTriple.third))));
+			    			sameEventConstraint.addTerm(3.0, E_ijk.get(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple)));
+							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 0.0, String.format("c18_%d,%d,%d", i,j,k));
+							
+							sameEventConstraint = new GRBLinExpr();
+							sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, eventTypeIndex.get(equivalentTriple.first))));
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", j, k, eventTypeIndex.get(equivalentTriple.second))));
+			    			sameEventConstraint.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, k, eventTypeIndex.get(equivalentTriple.third))));
+			    			sameEventConstraint.addTerm(-1.0, E_ijk.get(new Pair<Triple<Integer,Integer,Integer>, Triple<String,String,String>>(new Triple<Integer, Integer, Integer>(i, j, k), equivalentTriple)));
+							model.addConstr(sameEventConstraint, GRB.LESS_EQUAL, 2.0, String.format("c19_%d,%d,%d", i,j,k));
+		    			}
 		    		}
 		    	}
 			 }

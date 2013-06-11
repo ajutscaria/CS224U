@@ -21,7 +21,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
 
 import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
@@ -1179,6 +1181,27 @@ public static List<Example> readFile(String fileName) {
 				return true;
 			}
 			lastSentence = m.getSentence();
+		}
+		return false;
+	}
+	
+	public static boolean isInTopK(HashMap<String, Double> weights, List<String> labels, int i, int j, String relationType, int K) {
+		HashMap<String,Double> map = new HashMap<String,Double>();
+        ValueComparator bvc =  new ValueComparator(map);
+        TreeMap<String,Double> sorted_map = new TreeMap<String,Double>(bvc);
+		
+		for(String label:labels){
+			map.put(label, weights.get(String.format("%d,%d,%d", i, j, labels.indexOf(label))));
+		}
+		sorted_map.putAll(map);
+		int count = 0;
+		for(String key:sorted_map.keySet()) {
+			if(count == K) {
+				break;
+			}
+			if(key.equals(relationType))
+				return true;
+			count++;
 		}
 		return false;
 	}
