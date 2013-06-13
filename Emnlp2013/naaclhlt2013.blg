@@ -3,6 +3,7 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: naaclhlt2013.aux
 The style file: naaclhlt2013.bst
 Database file #1: naaclhlt2013.bib
+Warning--I didn't find a database entry for ""
 You've used 4 entries,
             2490 wiz_defined-function locations,
             573 strings with 5041 characters,
@@ -44,3 +45,4 @@ warning$ -- 0
 while$ -- 14
 width$ -- 6
 write$ -- 57
+(There was 1 warning)

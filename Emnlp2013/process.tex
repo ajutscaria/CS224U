@@ -1,0 +1,24 @@
+\section{Process Definition and Data Set}
+
+A process is defined by a series of events, where each event involves some participants, and also by relations between the events (temporal, causal, etc.). 
+
+\textbf{Notation and definition of a process}. [think whether all of the notation is needed]
+
+A process $\sP=(V,E)$ is a graph with labeled edges (maybe the sentence $\bx$ is also part of it?), where the nodes $V=\{1,...,|V|\}$ are event mentions and edges represent event-event relations. Given a paragraph $\bx=\{x_1,...x_{|x|}\}$, we define $x_{i:j}$ to be a span of words $\{x_i,x_{i+1},...,x_j\}$. An event mention $v$ is defined by an event trigger $t_v$, which is some span of words $x_{i:j}$ and by a set of arguments $A_v$, were each argument $a_v \in A_v$ is again a span of words and a semantic role label $a_l$ taken from a set $\sL$. an event-event relation is a labeled edge $(u,v,r)$ where $r \in \sR$ is a closed set of relations\footnote{Our process annotation also contains coreference relations between arguments but we omit this since it is not very relevant.}.
+
+For example, the first sentence of Figure~\ref{fig:process} contains two event mentions, where $t_1=$\emph{flowing} and $t_2=$.... An example for the notation. [example that will make the notation complete and clear]
+
+In general, one can think of process extraction as comprising of two steps - the first is standard semantic role labeling which comprises trigger identification, argument identification and role labeling, and the second is extracting a rich set of event-event relations. We focus on the second task - basically we get as input the set of event mention triggers $\sT$ and extract the $E$.
+
+Next we will describe the full set of semantic role labels $\sL$, and more importantly the set of event-event relations $\sR$.
+
+The set of semantic role labels $\sL$ contains standard labels such as \emph{agent}, \emph{theme}, \emph{origin}, \emph{destination} and \emph{location}. In addition we have two semantic role labels that are relevant for the biological text domain - \emph{result} and \emph{raw-material}, which correspond to arguments that are the result of the event and materials used during the event. The last sentence in Figure~\ref{fig:process} gives an example for these two labels.
+
+Describe the set of relations $\sR$: (a) NextEvent - directed relation (b) Causes - directed relation (c) Enables - directed relation (d) SuperEvent - directed relation (e) Cotemporal - undirected relation (f) SameEvent - event coreference. (g) None. Differences from previous work: (1) we have not only the temporal relation bet also "cause" and "enable" that are important in our domain. (2) We have SuperEvent that most work on temporal ordering did not deal with (we should write who did deal with it) (3) We add coreference as just one of the event-event relations. This allows us to add constraints between cored and other relations in our global formulation. Write something about that  we believe this is a succinct and good set of relation for process representation.
+
+\textbf{Properties of processes} Naturally there are various properties to coherent processes (1) in the semantic role labeling part - different event triggers don't overlap, different argument of the same event don't overlap (this was used by Toutanova and Haghighi, 2006) [we have to think what to mention depending on whether we show results of the full pipeline] (2) in the event-event relations - all events are somehow linked to one another. Also in general the events are "chain-like" that is most events are related to one or two other events but not more than that (see Table that shows distribution of degrees of event mentions). In Section ... we will show that by using these global properties of processes and more we can improve performance. (3) Some triads are not possible etc. (4) more? [In general I think it is interesting and relevant to discuss here the global properties of processes even if we eventually don't use all of them in our final model - this is simply since the local model does a good enough job but still identifying these properties is of interest in this paper].
+
+\textbf{Data set}. We annotated 150 processes using the described scheme. Table ... describes the statistics of this data set. 
+Stats in the data set: average number of tokens, average number of events mentions, average number of relations, more?
+
+Next we will describe our method that given an annotation of event triggers $\sT$ extracts all the event-event relations. We first describe a local pairwise model that classifies each pair of events independently of others and then show our full model that uses global properties of structure.

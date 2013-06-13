@@ -1,12 +1,16 @@
 \section{Introduction}
 
-\textbf{Motivation:} Being able to reason over processes is crucial for language understanding applications. Consider the question 
+\textbf{Motivation:} Being able to reason over processes is crucial for language understanding applications. Consider for example the paragraph in Figure~\ref{fig:process}, which describes the process of ATP synthesis. A human reading this paragraph will be able to answer complex questions that require understanding of the process structure such as
 
-\begin{description}
-\item \emph{Some question that can only be answered by having some structure over a process}
-\end{description}
+\begin{enumerate}
+\item \emph{How do H+ ions contribute to the production of ATP?}
+\item \emph{What causes the rotor to spin?}
+\item \emph{In ATP synthesis, what happens if the rotor fails to spin?}
+\end{enumerate}
 
-\noindent A human reading the paragraph in Figure~\ref{fig:process} would be able to describe that etc. However, traditional state-of-the-art systems that are based on retrieval would fail. In this paper we suggest a method for extracting a process structure that will allow answering of complex questions. For example, knowing that... can help us answer the question.
+\noindent All these questions require understanding and reasoning over processes, and thus systems that have only bag-of-words representations will fail.In this paper we suggest a method for extracting a process structure that will facilitate answering of complex questions.
+
+\FigStar{figures/process}{0.8}{process}{An annotation of the ATP synthesis process}
 
 \textbf{Relation to previous work:} 
 Extracting processes is related to two lines of works in Information Extraction - event extraction and timeline construction. Recent work in event event extraction \cite{riedel11fast,Mcclosky11} is based on BioNLP challenges and focuses on extraction of a closed set of events such as \emph{regulation} and \emph{phosphorilation} from a single sentence and their relations to proteins. However, a process is typically described over multiple sentences and involves a large number of possible events. Work on timeline construction \cite{Do12,Mcclosky12} requires partially ordering a set of events that is described in a sequence of sentence. However, fully capturing process structure requires a rich set of relations (\emph{cause}, \emph{super}) that is missing from this line of work.
@@ -17,9 +21,9 @@ Extracting processes is related to two lines of works in Information Extraction 
 
 \textbf{Contributions} Three main contributions
 \begin{itemize}
-\item We define the task of process extraction - what is a process
+\item We define the task of process extraction - what is a process - we also identify properties of the process structure
 \item We propose a method for process extraction that uses global constraints and show that it improves performance
 \item We release a set of 150 biological processes, annotated by biologists.
 \end{itemize}
 
-\textbf{structure} Background, Definition of a process, Local classifier (old features and new features), Global model, Experiments and maybe analysis
+\textbf{structure} Background, Definition and properties of processes, Local classifier (old features and new features), Global model, Experiments and maybe analysis
