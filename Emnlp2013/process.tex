@@ -8,7 +8,7 @@ A process $\sP=(V,E)$ is a graph with labeled edges (maybe the sentence $\bx$ is
 
 For example, the first sentence of Figure~\ref{fig:process} contains two event mentions, where $t_1=$\emph{flowing} and $t_2=$.... An example for the notation. [example that will make the notation complete and clear]
 
-In general, one can think of process extraction as comprising of two steps - the first is standard semantic role labeling which comprises trigger identification, argument identification and role labeling, and the second is extracting a rich set of event-event relations. We focus on the second task - basically we get as input the set of event mention triggers $\sT$ and extract the $E$.
+In general, one can think of process extraction as comprising of two steps - the first is standard semantic role labeling which comprises trigger identification, argument identification and role labeling, and the second is extracting a rich set of event-event relations. We focus on the second task - basically we get as input the set of event mention triggers $\sT$ and extract the $E$. Performing the two tasks jointly is challenging direction for future work.
 
 Next we will describe the full set of semantic role labels $\sL$, and more importantly the set of event-event relations $\sR$.
 
@@ -20,5 +20,6 @@ Describe the set of relations $\sR$: (a) NextEvent - directed relation (b) Cause
 
 \textbf{Data set}. We annotated 150 processes using the described scheme. Table ... describes the statistics of this data set. 
 Stats in the data set: average number of tokens, average number of events mentions, average number of relations, more?
+We briefly describe the annotation procedure in Section ~\ref{}. Inter-annotator agreement is...
 
 Next we will describe our method that given an annotation of event triggers $\sT$ extracts all the event-event relations. We first describe a local pairwise model that classifies each pair of events independently of others and then show our full model that uses global properties of structure.

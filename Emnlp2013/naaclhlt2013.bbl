@@ -1,10 +1,23 @@
 \begin{thebibliography}{}
 
+\bibitem[\protect\citename{Chambers and Jurafsky}2008]{Chambers08}
+Nathanael Chambers and Daniel Jurafsky.
+\newblock 2008.
+\newblock Jointly combining implicit constraints improves temporal ordering.
+\newblock In {\em EMNLP}.
+
 \bibitem[\protect\citename{Do \bgroup et al.\egroup }2012]{Do12}
 Quang Do, Wei Lu, and Dan Roth.
 \newblock 2012.
 \newblock Joint inference for event timeline construction.
 \newblock In {\em EMNLP-CoNLL}, pages 677--687.
+
+\bibitem[\protect\citename{Martins \bgroup et al.\egroup }2009]{Martins09}
+Andr{\'e}~L. Martins, Noah~A. Smith, and Eric~P. Xing.
+\newblock 2009.
+\newblock Concise integer linear programming formulations for dependency
+  parsing.
+\newblock In {\em ACL/IJCNLP}, pages 342--350.
 
 \bibitem[\protect\citename{McClosky and Manning}2012]{Mcclosky12}
 David McClosky and Christopher~D. Manning.
