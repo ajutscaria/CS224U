@@ -1,0 +1,38 @@
+\section{Joint Model for Process Extraction}
+
+Our task is given a paragraph $\bx$ and a set of event mention triggers $\sT$, to extract all event-event relations $E$. Similar to \cite{} our model consists of two parts. In section \ref{subsec:pairwise}, we use a local pairwise classifier that considers each pair of triggers, and then in Section \ref{subsec:global} we perform joint inference over the set of relations using global constraints. 
+
+\subsection{Local pairwise classifier} \label{subsec:pairwise}
+
+Our local classifier is a function $f:\sT \times \sT \rightarrow \sR$. As a baseline we combine features from previous work \cite{Chambers08,Do12}. However, since our set of relations is different we also add some new features more relevant for our task. However, we do not use biological dictionaries as has been done in BioNLP.
+
+Description of baseline features according to categories. Either short or longer depending on importance. Mention that features that were in previous work but we did not use  are simply those that didn't help on the dev set. Have a table with list of features and from what paper we took them.
+
+Description of novel features. We have some that are for SuperEvent (first and nominalization), for coreference (use of determiners), use of dependency paths between the triggers, and the clustering. Maybe about the clustering we can talk a bit more - one of the problems in our scenario is that we have very little training data so it is important for us to use the information we have so we clustered time and cause words to share statistics. I think about this we can talk. I think we should have a short experiment with ablations on the new features to see how much they hurt the local pairwise classifier performance.
+
+classifier - say what classifier we used.
+
+\subsection{Global Constraints} \label{subsec:global}
+
+[I think we should have a short experiment with soft constraints on the degree of nodes, I think this will add some substance even if our intuition is that it might not work I don't think it is a lot of work]
+
+Motivation paragraph - naturally there are cases where local decision can lead to global structures that don't make sense. Give examples - one for something that is a hard constraint and something for soft constraints. Maybe we should have a figure with examples for bad local predictions - connectivity and triads.
+
+Define the notations for formulating the objective function and formulate the objective function (variables are indicators $e_{ijr}$). Our formulation will probably have in the objective the local model scores and the soft constraints. Our hard constraints are those to make the formulation make sense and the hard constraints. Say that we use log probabilities from the pairwise classifier as our weights in the model.
+
+Then we describe the modeling constraints. 
+
+Connectivity - short explanation. and then show the formulation which is a slight variation on \cite{Martins09}. Refer to the motivating figure. 
+
+chain-like - we did not implement this because we didn't think it would help but I think it is easy to formulate and experiment with this. Explain the motivation. Refer to the table that shows that the local classifier is doing already pretty well and say that later we show whether this helps or not in the process of choosing soft constraints.
+
+Triads - some triangles are not meaningful. To better understand what things are predicted by the model but are not in the gold and vice versa we counted and compared. Table... shows the top K of these. These guided us to engineer constraints that will improve the local classifier 
+
+Now we go over each one of the triad constraints we experimented with (even if some got 0 weight at the end) We explain the motivation and show the hard constraint formulation mentioning that turning them into soft is easy. We have to not make this boring so try to explain with examples.
+
+Say something about the number of variables and constraints. Say that we use Gurobi ILP solver. Say that in principle one can use dual decomposition methods but in practice for this work we found ILP was fast enough.
+
+Tuning of the soft constraints parameters - should we talk about this here or in the experimental section - probably in the experimental setting part
+
+
+

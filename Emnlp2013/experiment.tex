@@ -1,0 +1,28 @@
+\section{Experimental Evaluation}
+
+\subsection{Experimental setup}
+
+\textbf{Annotation} Talk a bit about annotation of the data. Talk about the split to train and dev. Explain that the dev was used for feature selection in the local classifier and for tuning the parameters for global constraints. Explain that these parameters were chosen with coordinate ascent. Explain what are the values we tried and what are the values that were chosen - if we want we can have a table for the way performance increased on the dev set and what were the values that were chosen. might not be crucial.
+
+Talk about the baselines (A) always next (B) Simple local (C) full local (D) local with chain structure (E) global model
+
+Talk about evaluation measures. (a) full (b) collapsed. Maybe talk about the double-counting problem and we do nothing about it. We have to decide if to use only micro or also macro. 
+
+\subsection{Results}
+
+Have a table with all results and discuss. We can see if interesting to have train/dev/test results. Maybe we can also have a confusion matrix for the final model to see that there are difficulties distinguishing cause-next-cotemp which are harder to do with global constraints and require more work on local features or more data.
+
+Maybe we can have a table with ablations for the new features we added to see which helps? not sure necessary.
+
+what other tables and figures can we have?
+
+\subsection{Analysis and Discussion}
+
+What other interesting stats we can put? I think it would be good to have some interesting example for something that got corrected and also something that we did not correct. It's alway nice to have some manual error analysis for intuition.
+
+\subsection{Full pipeline}
+
+If we have this we can briefly explain about our first step system and show some results. This is good to say we do everything and bad if this really sucks.
+
+
+
