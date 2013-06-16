@@ -1,16 +1,49 @@
 \begin{thebibliography}{}
 
+\bibitem[\protect\citename{Bj{\"o}rne \bgroup et al.\egroup }2011]{Bjorne11}
+Jari Bj{\"o}rne, Juho Heimonen, Filip Ginter, Antti Airola, Tapio Pahikkala,
+  and Tapio Salakoski.
+\newblock 2011.
+\newblock Extracting contextualized complex biological events with rich
+  graph-based feature sets.
+\newblock {\em Computational Intelligence}, 27(4):541--557.
+
+\bibitem[\protect\citename{Cambell and Reece}2005]{CambellReece}
+Neil Cambell and Jane Reece.
+\newblock 2005.
+\newblock {\em Biology}.
+\newblock Benjamin Cummings.
+
 \bibitem[\protect\citename{Chambers and Jurafsky}2008]{Chambers08}
 Nathanael Chambers and Daniel Jurafsky.
 \newblock 2008.
 \newblock Jointly combining implicit constraints improves temporal ordering.
 \newblock In {\em EMNLP}.
 
+\bibitem[\protect\citename{Denis and Muller}2011]{Denis11}
+Pascal Denis and Philippe Muller.
+\newblock 2011.
+\newblock Predicting globally-coherent temporal structures from texts via
+  endpoint inference and graph decomposition.
+\newblock In {\em IJCAI}.
+
 \bibitem[\protect\citename{Do \bgroup et al.\egroup }2012]{Do12}
 Quang Do, Wei Lu, and Dan Roth.
 \newblock 2012.
 \newblock Joint inference for event timeline construction.
 \newblock In {\em EMNLP-CoNLL}, pages 677--687.
+
+\bibitem[\protect\citename{Kim \bgroup et al.\egroup }2009]{kim09}
+Jin-Dong Kim, Tomoko Ohta, Sampo Pyysalo, Yoshinobu Kano, and Jun’ichi Tsujii.
+\newblock 2009.
+\newblock Overview of bionlp ’09 shared task on event extraction.
+\newblock In {\em Proceedings of BioNLP}.
+
+\bibitem[\protect\citename{Kim \bgroup et al.\egroup }2011]{kim11}
+Jin-Dong Kim, Sampo Pyysalo, Tomoko Ohta, Robert Bossy, and Jun’ichi Tsujii.
+\newblock 2011.
+\newblock Overview of bionlp shared task 2011.
+\newblock In {\em Proceedings of BioNLP}.
 
 \bibitem[\protect\citename{Martins \bgroup et al.\egroup }2009]{Martins09}
 Andr{\'e}~L. Martins, Noah~A. Smith, and Eric~P. Xing.
@@ -31,11 +64,30 @@ David McClosky, Mihai Surdeanu, and Christopher~D. Manning.
 \newblock Event extraction as dependency parsing.
 \newblock In {\em ACL}, pages 1626--1635.
 
+\bibitem[\protect\citename{Miwa \bgroup et al.\egroup }2010]{Miwa10}
+Makoto Miwa, Rune S{\ae}tre, Jin-Dong Kim, and Jun'ichi Tsujii.
+\newblock 2010.
+\newblock Event extraction with complex event classification using rich
+  features.
+\newblock {\em J. Bioinformatics and Computational Biology}, 8(1).
+
+\bibitem[\protect\citename{Poon and Vanderwende}2010]{Poon10}
+Hoifung Poon and Lucy Vanderwende.
+\newblock 2010.
+\newblock Joint inference for knowledge extraction from biomedical literature.
+\newblock In {\em HLT-NAACL}, pages 813--821.
+
 \bibitem[\protect\citename{Riedel and McCallum}2011]{riedel11fast}
 Sebastian Riedel and Andrew McCallum.
 \newblock 2011.
 \newblock Fast and robust joint models for biomedical event extraction.
 \newblock In {\em Proceedings of the Conference on Empirical methods in natural
   language processing (EMNLP '11)}.
+
+\bibitem[\protect\citename{Yoshikawa \bgroup et al.\egroup }2009]{Yoshikawa09}
+Katsumasa Yoshikawa, Sebastian Riedel, Masayuki Asahara, and Yuji Matsumoto.
+\newblock 2009.
+\newblock Jointly identifying temporal relations with markov logic.
+\newblock In {\em ACL/IJCNLP}.
 
 \end{thebibliography}
