@@ -1,5 +1,11 @@
 \begin{thebibliography}{}
 
+\bibitem[\protect\citename{Allen}1983]{Allen83}
+James~F. Allen.
+\newblock 1983.
+\newblock Maintaining knowledge about temporal intervals.
+\newblock {\em Commun. ACM}, 26(11):832--843.
+
 \bibitem[\protect\citename{Bj{\"o}rne \bgroup et al.\egroup }2011]{Bjorne11}
 Jari Bj{\"o}rne, Juho Heimonen, Filip Ginter, Antti Airola, Tapio Pahikkala,
   and Tapio Salakoski.
@@ -8,8 +14,8 @@ Jari Bj{\"o}rne, Juho Heimonen, Filip Ginter, Antti Airola, Tapio Pahikkala,
   graph-based feature sets.
 \newblock {\em Computational Intelligence}, 27(4):541--557.
 
-\bibitem[\protect\citename{Cambell and Reece}2005]{CambellReece}
-Neil Cambell and Jane Reece.
+\bibitem[\protect\citename{Campbell and Reece}2005]{CampbellReece}
+Neil Campbell and Jane Reece.
 \newblock 2005.
 \newblock {\em Biology}.
 \newblock Benjamin Cummings.
@@ -77,12 +83,27 @@ Hoifung Poon and Lucy Vanderwende.
 \newblock Joint inference for knowledge extraction from biomedical literature.
 \newblock In {\em HLT-NAACL}, pages 813--821.
 
+\bibitem[\protect\citename{Pustejovsky \bgroup et al.\egroup
+  }2003]{Pustejovsky03}
+James Pustejovsky, Jos{\'e}~M. Casta{\~n}o, Robert Ingria, Roser Sauri,
+  Robert~J. Gaizauskas, Andrea Setzer, Graham Katz, and Dragomir~R. Radev.
+\newblock 2003.
+\newblock Timeml: Robust specification of event and temporal expressions in
+  text.
+\newblock In {\em New Directions in Question Answering}, pages 28--34.
+
 \bibitem[\protect\citename{Riedel and McCallum}2011]{riedel11fast}
 Sebastian Riedel and Andrew McCallum.
 \newblock 2011.
 \newblock Fast and robust joint models for biomedical event extraction.
 \newblock In {\em Proceedings of the Conference on Empirical methods in natural
   language processing (EMNLP '11)}.
+
+\bibitem[\protect\citename{Toutanova \bgroup et al.\egroup }2008]{Toutanova08}
+Kristina Toutanova, Aria Haghighi, and Christopher~D. Manning.
+\newblock 2008.
+\newblock A global joint model for semantic role labeling.
+\newblock {\em Computational Linguistics}, 34(2):161--191.
 
 \bibitem[\protect\citename{Yoshikawa \bgroup et al.\egroup }2009]{Yoshikawa09}
 Katsumasa Yoshikawa, Sebastian Riedel, Masayuki Asahara, and Yuji Matsumoto.

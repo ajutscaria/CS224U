@@ -3,49 +3,52 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: naaclhlt2013.aux
 The style file: naaclhlt2013.bst
 Database file #1: naaclhlt2013.bib
+A bad cross reference---entry "Pustejovsky03"
+refers to entry "DBLP:conf/ndqa/2003", which doesn't exist
 A bad cross reference---entry "Martins09"
 refers to entry "DBLP:conf/acl/2009", which doesn't exist
 Warning--I didn't find a database entry for ""
+Warning--I didn't find a database entry for "DBLP:conf/ndqa/2003"
 Warning--I didn't find a database entry for "DBLP:conf/acl/2009"
-You've used 14 entries,
+You've used 17 entries,
             2490 wiz_defined-function locations,
-            630 strings with 6624 characters,
-and the built_in function-call counts, 6210 in all, are:
-= -- 613
-> -- 267
-< -- 5
-+ -- 90
-- -- 90
-* -- 429
-:= -- 959
-add.period$ -- 56
-call.type$ -- 14
-change.case$ -- 100
-chr.to.int$ -- 14
-cite$ -- 14
-duplicate$ -- 290
-empty$ -- 500
-format.name$ -- 110
-if$ -- 1346
+            655 strings with 7232 characters,
+and the built_in function-call counts, 7646 in all, are:
+= -- 756
+> -- 335
+< -- 6
++ -- 115
+- -- 114
+* -- 547
+:= -- 1189
+add.period$ -- 68
+call.type$ -- 17
+change.case$ -- 124
+chr.to.int$ -- 17
+cite$ -- 17
+duplicate$ -- 345
+empty$ -- 604
+format.name$ -- 137
+if$ -- 1647
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 15
-newline$ -- 87
-num.names$ -- 42
-pop$ -- 140
+missing$ -- 18
+newline$ -- 105
+num.names$ -- 51
+pop$ -- 163
 preamble$ -- 1
-purify$ -- 115
+purify$ -- 142
 quote$ -- 0
-skip$ -- 228
+skip$ -- 270
 stack$ -- 0
-substring$ -- 239
-swap$ -- 86
-text.length$ -- 5
+substring$ -- 317
+swap$ -- 100
+text.length$ -- 6
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 108
+type$ -- 132
 warning$ -- 0
-while$ -- 39
-width$ -- 16
-write$ -- 191
-(There was 1 error message)
+while$ -- 49
+width$ -- 20
+write$ -- 233
+(There were 2 error messages)
