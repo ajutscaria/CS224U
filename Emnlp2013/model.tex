@@ -1,16 +1,40 @@
 \section{Joint Model for Process Extraction}
 
-Our task is given a paragraph $\bx$ and a set of event mention triggers $\sT$, to extract all event-event relations $E$. Similar to \cite{} our model consists of two parts. In section \ref{subsec:pairwise}, we use a local pairwise classifier that considers each pair of triggers, and then in Section \ref{subsec:global} we perform joint inference over the set of relations using global constraints. 
+Our task is given a paragraph $\bx$ and a set of event mention triggers $\sT$, to extract all event-event relations $E$. Similar to Do et al. \shortcite{Do12} our model consists of two parts. In section \ref{subsec:pairwise}, we use a local pairwise classifier that considers each pair of triggers, and then in Section \ref{subsec:global} we incorporate global constraints in an ILP formulation.
 
 \subsection{Local pairwise classifier} \label{subsec:pairwise}
 
-Our local classifier is a function $f:\sT \times \sT \rightarrow \sR$. As a baseline we combine features from previous work \cite{Chambers08,Do12}. However, since our set of relations is different we also add some new features more relevant for our task. However, we do not use biological dictionaries as has been done in BioNLP.
+The pairwise classifier predicts relations between all event mention pairs (represented only by their triggers). Since relations in $\sR$ are directed, we must predict also the direction of each relation. We do this by expanding $\sR$ to include reverse relations and so we re-define $\sR$ to include 11 relations: \textsc{NextEvent}, \textsc{PreviousEvent}, \textsc{Cotemporal}, \textsc{SuperEvent}, \textsc{SubEvent}, \textsc{Causes}, \textsc{Caused}, \textsc{Enables}, \textsc{Enabled}, \textsc{SameEvent}, \textsc{None}, where \textsc{None} indicates no relation. Thus, our classifier is a function $w:\sT \times \sT \rightarrow \sR$. Let $n$ be the number of event triggers in a process description, and $t_i$ be the i'th trigger appearing in the description, since $w(t_i,t_j)$ completely determines $w(t_j,t_i)$ it suffices to consider only pairs such that $i<j$.
 
-Description of baseline features according to categories. Either short or longer depending on importance. Mention that features that were in previous work but we did not use  are simply those that didn't help on the dev set. Have a table with list of features and from what paper we took them.
+We have constructed an initial set of features based on previous work in temporal ordering \cite{Chambers08,Do12}. However, since our training set is quite small and we consider a larger set of relations we have defined some novel features that improved performance (see Section~\ref{sec:experiment}. We note that contrary to work in BioNLP, we did not employ any biological dictionaries.
 
-Description of novel features. We have some that are for SuperEvent (first and nominalization), for coreference (use of determiners), use of dependency paths between the triggers, and the clustering. Maybe about the clustering we can talk a bit more - one of the problems in our scenario is that we have very little training data so it is important for us to use the information we have so we clustered time and cause words to share statistics. I think about this we can talk. I think we should have a short experiment with ablations on the new features to see how much they hurt the local pairwise classifier performance.
+\paragraph{Baseline features\footnote{Some features from \cite{Chambers08,Do12} were not included since they did not improve performance on the development set.}}
 
-classifier - say what classifier we used.
+\begin{itemize}
+\item lemma pairs including WordNet normalization to verbs, POS paris
+\item for consecutive event mentions - words between
+\item for consecutive event mentions - temporal connectives
+\item POS pair
+\item quantized num of sentences and words
+\item lowest common ancestor
+\item one dominates the other
+\item share child
+\end{itemize}
+
+\paragraph{Novel features}
+
+\begin{itemize}
+\item for consecutive event mentions - clusterings
+\item existence of and (not important)
+\item - first and nominalization - for SuperEvent
+\item - same lemma - for SameEvent (includes nominialization)
+\item determiner before the second event - for SameEvent
+\item dependency path between them
+\item syntactic marker features including clustering
+\end{itemize}
+
+Talk about the fact that it is important to have the clustering and syntactic features to share stats.
+
 
 \subsection{Global Constraints} \label{subsec:global}
 
