@@ -7,48 +7,54 @@ A bad cross reference---entry "Pustejovsky03"
 refers to entry "DBLP:conf/ndqa/2003", which doesn't exist
 A bad cross reference---entry "Martins09"
 refers to entry "DBLP:conf/acl/2009", which doesn't exist
-Warning--I didn't find a database entry for ""
+A bad cross reference---entry "Finkel08"
+refers to entry "DBLP:conf/acl/2008s", which doesn't exist
+A bad cross reference---entry "Reichart12"
+refers to entry "DBLP:conf/naacl/2012", which doesn't exist
+Warning--I didn't find a database entry for "DBLP:conf/naacl/2012"
+Warning--I didn't find a database entry for "DBLP:conf/acl/2008s"
 Warning--I didn't find a database entry for "DBLP:conf/ndqa/2003"
 Warning--I didn't find a database entry for "DBLP:conf/acl/2009"
-You've used 17 entries,
+Warning--empty title in Fellbaum1998
+You've used 20 entries,
             2490 wiz_defined-function locations,
-            655 strings with 7232 characters,
-and the built_in function-call counts, 7646 in all, are:
-= -- 756
-> -- 335
-< -- 6
-+ -- 115
-- -- 114
-* -- 547
-:= -- 1189
-add.period$ -- 68
-call.type$ -- 17
-change.case$ -- 124
-chr.to.int$ -- 17
-cite$ -- 17
-duplicate$ -- 345
-empty$ -- 604
-format.name$ -- 137
-if$ -- 1647
+            675 strings with 7606 characters,
+and the built_in function-call counts, 8868 in all, are:
+= -- 878
+> -- 369
+< -- 8
++ -- 125
+- -- 124
+* -- 622
+:= -- 1367
+add.period$ -- 79
+call.type$ -- 20
+change.case$ -- 140
+chr.to.int$ -- 20
+cite$ -- 21
+duplicate$ -- 412
+empty$ -- 716
+format.name$ -- 152
+if$ -- 1924
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 18
-newline$ -- 105
-num.names$ -- 51
-pop$ -- 163
+missing$ -- 21
+newline$ -- 122
+num.names$ -- 61
+pop$ -- 192
 preamble$ -- 1
-purify$ -- 142
+purify$ -- 162
 quote$ -- 0
-skip$ -- 270
+skip$ -- 323
 stack$ -- 0
-substring$ -- 317
-swap$ -- 100
-text.length$ -- 6
+substring$ -- 372
+swap$ -- 121
+text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 132
-warning$ -- 0
-while$ -- 49
-width$ -- 20
-write$ -- 233
-(There were 2 error messages)
+type$ -- 152
+warning$ -- 1
+while$ -- 59
+width$ -- 23
+write$ -- 272
+(There were 4 error messages)

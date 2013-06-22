@@ -39,6 +39,17 @@ Quang Do, Wei Lu, and Dan Roth.
 \newblock Joint inference for event timeline construction.
 \newblock In {\em EMNLP-CoNLL}, pages 677--687.
 
+\bibitem[\protect\citename{Fellbaum}1998]{Fellbaum1998}
+Christiane Fellbaum, editor.
+\newblock 1998.
+\newblock MIT Press.
+
+\bibitem[\protect\citename{Finkel and Manning}2008]{Finkel08}
+Jenny~Rose Finkel and Christopher~D. Manning.
+\newblock 2008.
+\newblock Enforcing transitivity in coreference resolution.
+\newblock In {\em ACL (Short Papers)}, pages 45--48.
+
 \bibitem[\protect\citename{Kim \bgroup et al.\egroup }2009]{kim09}
 Jin-Dong Kim, Tomoko Ohta, Sampo Pyysalo, Yoshinobu Kano, and Jun’ichi Tsujii.
 \newblock 2009.
@@ -91,6 +102,12 @@ James Pustejovsky, Jos{\'e}~M. Casta{\~n}o, Robert Ingria, Roser Sauri,
 \newblock Timeml: Robust specification of event and temporal expressions in
   text.
 \newblock In {\em New Directions in Question Answering}, pages 28--34.
+
+\bibitem[\protect\citename{Reichart and Barzilay}2012]{Reichart12}
+Roi Reichart and Regina Barzilay.
+\newblock 2012.
+\newblock Multi-event extraction guided by global constraints.
+\newblock In {\em HLT-NAACL}, pages 70--79.
 
 \bibitem[\protect\citename{Riedel and McCallum}2011]{riedel11fast}
 Sebastian Riedel and Andrew McCallum.
