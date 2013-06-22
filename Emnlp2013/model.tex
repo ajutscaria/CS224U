@@ -4,7 +4,7 @@ Given a paragraph $\bx$ and a trigger set $\sT$ we wish to extract all event-eve
 
 \subsection{Local pairwise classifier} \label{subsec:pairwise}
 
-The pairwise classifier predicts relations between all event mention pairs (represented by their triggers). Since relations in $\sR$ are directed, we must predict also the direction of each relation. We do this by expanding $\sR$ to include reverse relations and so we re-define $\sR$ to include 11 relations: \textsc{NextEvent}, \textsc{PreviousEvent}, \textsc{Cotemporal}, \textsc{SuperEvent}, \textsc{SubEvent}, \textsc{Causes}, \textsc{Caused}, \textsc{Enables}, \textsc{Enabled}, \textsc{SameEvent}, \textsc{None}, where \textsc{None} indicates no relation. Thus, our classifier is a function $f:\sT \times \sT \rightarrow \sR$. Let $n$ be the number of triggers in a process description, and $t_i$ be the i'th trigger appearing in the description, since $f(t_i,t_j)$ completely determines $f(t_j,t_i)$ it suffices to consider only pairs such that $i<j$.
+The pairwise classifier predicts relations between all event mention pairs (represented by their triggers). Since relations in $\sR$ are directed, we must predict also the direction of each relation. We do this by expanding $\sR$ to include reverse relations and so we re-define $\sR$ to include 11 relations: \textsc{NextEvent}, \textsc{PreviousEvent}, \textsc{Cotemporal}, \textsc{SuperEvent}, \textsc{SubEvent}, \textsc{Causes}, \textsc{Caused}, \textsc{Enables}, \textsc{Enabled}, \textsc{SameEvent}, \textsc{None}, where \textsc{None} indicates no relation. Thus, our classifier is a function $f:\sT \times \sT \rightarrow \sR$. Let $n$ be the number of triggers in a process description, and $t_i$ be the i'th trigger appearing in the description, since $f(t_i,t_j)$ completely determines $f(t_j,t_i)$ it suffices to consider only pairs such that $i<j$. Note that in this new definition of $\sR$ the process graph $\sP=(V,E)$ is undirected.
 
 Table~\ref{tab:features} describes features from previous work~\cite{Chambers08,Do12} extracted for a trigger pair $(t_i,t_j)$. Some features were omitted since they did not yield improvement in performance on a development set, or they require gold annotations provided in TimeBank, which we do not have. To reduce sparseness, we convert nominalizations into their verbal forms when computing word lemmas, using WordNet's \cite{Fellbaum1998} derivation links.
 
@@ -38,7 +38,7 @@ A central source of information for extracting event-event relations from text a
 
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
 \item \small \textbf{Because} alleles are \emph{exchanged} during \emph{gene flow}, genetic differences are \emph{reduced}. \label{sent:1}
-\item \small During \emph{gene flow}, alleles are \emph{exchanged}, and \emph{so} genetic differences are \emph{reduced}. \label{sent:2}
+\item \small During \emph{gene flow}, alleles are \emph{exchanged}, and \textbf{so} genetic differences are \emph{reduced}. \label{sent:2}
 \end{enumerate}
 
 Both sentences express the relation $(\mbox{\emph{exchanged}},\mbox{\emph{reduced}},\mbox{\textsc{Causes}})$, but the connective used is different, its linear position with respect to the triggers is different, and in sentence~\ref{sent:1} the trigger \emph{gene flow} intervenes between \emph{exchanged} and \emph{reduced}. Since our data set is very small, we would like to identify the triggers related to each connective, and share features between such sentences. We do this using the dependency structure and a clustering of connectives.
@@ -51,19 +51,20 @@ For our pairwise classifier, we train a MaxEnt classifier that provides a probab
 
 \subsection{Global Constraints} \label{subsec:global}
 
-Naturally, a pairwise classifier can result in a process structure that violates the global properties described in Section~\ref{sec:process}. Figure~\ref{} shows in black edges the predictions of our local classifier, which result in the trigger [it'd be good to find a structure that combines transitivity violation and triad violation and refer to it] In this section we incorporate constraints that result in a coherent global process structure.
+Naturally, a pairwise classifier can result in a process structure that violates global properties as described in Section~\ref{sec:process}. Figure~\ref{} shows in black edges the predictions of our local classifier, which result in the trigger [it'd be good to find a structure that combines transitivity violation and triad violation and refer to it] In this section we incorporate constraints that result in a coherent global process structure.
 
-Let $\theta_{ijr}$ denote a score for whether the relation $r$ holds between triggers $(t_i,t_j)$ (e.g, $\theta_{ijr}=\log p_{ijr}$), and $y_{ijr}$ be an indicator for this relation. Our goal is to find an assignment for the indicators $\by=\{y_{ijr} \ | \ 1 \leq i < j \leq n, r \in \sR \}$. Without global constraints this can be formulated with the following ILP:
+Let $\theta_{ijr}$ score the relation $r$ for the triggers $(t_i,t_j)$ (e.g, $\theta_{ijr}=\log p_{ijr}$), and $y_{ijr}$ be an indicator for $r$. Our goal is to find an assignment for the indicators $\by=\{y_{ijr} \ | \ 1 \leq i < j \leq n, r \in \sR \}$. With no global constraints this can be formulated with the following ILP:
 
 \begin{align}
 \argmax_{\by} \sum_{ijr} \theta_{ijr} y_{ijr} \\
-\mbox{s.t.} \forall_{i,j} \sum_r y_{ijr}=1 \nonumber \\
-\forall_{i,j,r} \ y_{ijr} \in \{0,1\} \nonumber
+\mbox{s.t.} \forall_{i,j} \sum_r y_{ijr}=1 \nonumber
+% \forall_{i,j,r} \ y_{ijr} \in \{0,1\} \nonumber
 \end{align}
 
 \noindent where the constraint ensures each trigger pair is assigned to exactly one relation. We now describe constraints that result in a process that is connected, ``chain-like", and contains reasonable relation triangles.
 
-\paragraph{Connectivity} Our formulation for enforcing connectivity is a minor variation on the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we would like a connected graph, but not necessarily a tree, however since an undirected graph is connected iff there is a directed tree embedded in it, the resulting formulation is almost identical. This formulation is based on flow constraints that ensure that there is a path from a root in the graph to all other nodes.
+\paragraph{Connectivity} 
+Our formulation for enforcing connectivity is a minor variation on the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we want $\sP$ to be an undirected connected graph, and not a directed tree. However, an undirected graph is connected iff there is a directed tree embedded in it, and thus the resulting formulation is almost identical. This formulation is based on flow constraints that ensure that there is a path from a root in the graph to all other nodes.
 
  Let $\bar{\sR}$ be the set of relations except for \textsc{None}, i.e., $\sR \setminus \mbox{\textsc{None}}$. An edge $(t_i,t_j)$ is in $E$ if $y_{ij}=\sum_{r \in \bar{\sR}} y_{ijr}=1$. For each variable $y_{ij}$ we define two auxiliary binary variables $z_{ij}$ and $z_{ji}$ that correspond to the directed edges in the embedded tree. We tie each auxiliary variable to its corresponding ILP variable by ensuring that it is active only if the ILP variable is active:
  
@@ -83,28 +84,26 @@ Next, we add constraints that enforce the structure of the auxiliary variables r
 Equation~\ref{eq:oneparent} says that all nodes in the graph have exactly one parent, except for the root that has no parents. Equation~\ref{eq:rootflow} ensures that the outgoing flow from the root is $n-1$, and Equation~\ref{eq:flow} states that each of the other $n-1$ nodes consumes exactly one flow unit. Last, Equation~\ref{eq:tie} ties the auxiliary variables to the flow variables, making sure that flow occurs only on edges. The combination of these constraints guarantees that the graph induced by the variables $z_{ij}$ is a directed tree and consequently the graph induced by our variables $\by$ is connected.
 
 \paragraph{Chain structure} 
-A connected graph where the degree of all nodes is $\leq 2$ is a chain. Table~\ref{tab:degree} presents nodes' degree and demonstrated that indeed process graphs are close to being chains. The following constraint bounds node's degree by 2:
+A connected graph where the degree of all nodes is $\leq 2$ is a chain. Table~\ref{tab:degree} presents nodes' degree and demonstrated that indeed process graphs are close to being chains. The following constraint bounds nodes' degree by 2:
 
 \begin{align}
 \forall_j \sum_{i<j} y_{ij} + \sum_{j<k} y_{jk} \leq 2
 \end{align}
 
-Since graph structures are not always chains we add this as a soft constraint, that is, we penalize the objective for each violation. Thus, our modified objective function is $\sum_{ijr} \theta_{ijr} y_{ijr} + \sum_{k \in \sK} \alpha_k C_k$, where $\sK$ is the set of constraints, $\alpha_k<0$ is the penalty, and $C_k$ indicates whether a constraint is violated. We tune the parameters $\alpha_k$ on a development set, as explained in Section~\ref{sec:experiment}.
+Since graph structures are not always chains we add this as a soft constraint, that is, we penalize the objective for each violation. Thus, our modified objective function is $\sum_{ijr} \theta_{ijr} y_{ijr} + \sum_{k \in \sK} \alpha_k C_k$, where $\sK$ is the set of soft constraints, $\alpha_k$ is the penalty, and $C_k$ indicates whether a constraint is violated. We tune the parameters $\alpha_k$ on a development set, as explained in Section~\ref{sec:experiment}.
 
 \paragraph{Relation triangles} 
-A triangle is a 3-tuple of relations $f(t_i,t_j),f(t_j,t_k),f(t_i,t_k)$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction we counted how many time each possible triangle occurs in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagree. We are interested in triangles that never occur in the training data but our predicted by the classifier, and triangles that are frequent in the gold standard but do not appear in the classifier output. Figure~\ref{} illustrates the triangles we found and we next describe their ILP formulation:
+A triangle is a 3-tuple of relations $(f(t_i,t_j),f(t_j,t_k),f(t_i,t_k))$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction we counted how many time each possible triangle occurs in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagree. We are interested in triangles that never occur in the training data but are predicted by the classifier, and triangles that are frequent in the gold standard but do not appear in the classifier output. Figure~\ref{} illustrates the triangles found and Equations X-Y provide the corresponding ILP formulation. Soft constraints are incorporated by defining a penalty/reward $\alpha_k$ for each triangle structure and expanding the set $\sK$ accordingly. 
 
-\textsc{SameEvent} transitivity: SameEvent or coreference is a transitive relation (Figure~\ref{}), and this has been exploited in previous work \cite{Finkel08}. We encourage/penalize \textsc{SameEvent} transitivity by introducing a soft constraint... (if this is rewarding then explain that this is integrated in the same way as penalizations).
+\begin{enumerate}[itemsep=0pt,topsep=0pt] 
+\item \textsc{SameEvent} transitivity: The transitivity of \textsc{SameEvent} (co-reference) has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint (Equation X).
+\item \textsc{Cotemporal} transitivity:  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event (soft constraint in Equation X).
+\item \textsc{Cause}-\textsc{Cotemporal}: If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", a single event causes two subsequent events that occur simultaneously (soft constraint in Equation X).
+\item \textsc{SameEvent} contradiction: if $t_i$ is the same event as  $t_j$, then their temporal ordering with respect to a third trigger $t_k$ may result in a contradiction, e.g., if $t_i$ is before $t_k$, but $t_j$ is after $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint (Equation X). Note that this constraint depends on co-reference and temporal relations being predicted jointly.
+\item \textsc{PreviousEvent}: As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then it can not be that $t_i$ is immediately before $t_k$ (hard constraint in Equation X).
+\end{enumerate}.
 
-\textsc{Cotemporal} transitivity:  When $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event (Figure~\ref{}). We encourage this construction by introducing a soft constraint....
-
-\textsc{Cause}-\textsc{Cotemporal}: When $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal (Figure~\ref{}). A typical example is ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", where a single event causes two subsequent events that occur simultaneously. We encourage this construction with the constraint ....
-
-\textsc{SameEvent} contradiction: When $t_i$ is the same event as  $t_j$, then their temporal ordering with respect to a third trigger $t_k$ may result in a contradiction, e.g. if $t_i$ is before $t_k$, but $t_j$ is after $t_k$ (Figure~\ref{}). We derive five temporal categories from $\sR$: \textsc{Past} (corresponding to \textsc{PreviousEvent}, \textsc{Causes}, and \textsc{Enables}), \textsc{Future} (corresponding to \textsc{NextEvent}, \textsc{Caused}, and \textsc{Enabled}), \textsc{Cotemporal}, \textsc{SuperEvent}, and \textsc{SubEvent}, and define a contradiction when the relations $(t_i,t_j)$ and $(t_i,t_k)$ are from different temporal categories. We prohibit such constraints but introducing hard constraints for all possible contradictions, where a representative one is the following:
-
-\textsc{PreviousEvent}: As mentioned in Section~\ref{sec:model}, if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then it can not be that $t_i$ is immediately before $t_k$. We prohibit such constructions with a hard constraint:
-
-Overall, our ILP contains $O(n^2r)$ variables and $O(n^3)$ constraints, and we used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP. We have also developed an equivalent formulation that is amenable to dual decomposition methods \cite{Reichart12}, which is a faster approximation method, but practically we found that solving the problem exactly with Gurobi is quite fast (average/median time per process: XX/YY).
+WE used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2r)$ variables and $O(n^3)$ constraints. We have also developed an equivalent formulation amenable to dual decomposition \cite{Reichart12}, which is a faster approximation method, but practically we found that solving the problem exactly with Gurobi is quite fast (average/median time per process: XX/YY).
 
 
 

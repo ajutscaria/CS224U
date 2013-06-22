@@ -1,6 +1,6 @@
 \section{Process Definition and Data Set}
 
-A process description is a paragraph or sequence of tokens $\bx=\{x_1,...x_{|x|}\}$ describing a series of events that are related by various temporal and causal relations. For example, in ATP synthesis the event in which the rotor spins \emph{causes} the event where an internal rod spins. 
+A process description is a paragraph or sequence of tokens $\bx=\{x_1,...x_{|\bx|}\}$ describing a series of events that are related by various temporal and causal relations. For example, in ATP synthesis the event in which the rotor spins \emph{causes} the event where an internal rod spins. 
 
 We define the process events and their relations by a directed graph  $\sP=(V,E)$, where the nodes $V=\{1,...,|V|\}$ represent event mentions and labeled edges correspond to event-event relations. An event mention $v \in V$ is defined by a trigger $t_v$, which is a span of words $x_i,x_{i+1},...,x_j$ and by a set of argument mentions $A_v$, where each argument mention $a_v \in A_v$ is also a span of words labeled by a semantic role $l$ taken from a set $\sL$. For example, in the first event mention of ATP synthesis $t_v=\mbox{\emph{flowing}}$, and one of the arguments is $a_v=\mbox{\emph{(H+ ions, \textsc{Agent})}}$. A labeled edge $(u,v,r)$ in the graph describes a relation $r \in \sR$ between the event mentions $u$ and $v$. The task of process extraction is to extract the structure $P$ from the text $\bx$\footnote{Argument mentions can also be related by coreference, but we neglect that since it is not central to this paper.}.
 
@@ -11,10 +11,10 @@ The set $\sL$ contains standard semantic roles such as \textsc{Agent}, \textsc{T
 The relation set $\sR$ contains the following relations (assuming an edge $(u,v,r)$):
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
 \item \textsc{NextEvent} denotes that $v$ is an event immediately following $u$. Thus, the edges $(u,v,\mbox{\textsc{NextEvent}})$ and $(v,w,\mbox{\textsc{NextEvent}})$, preclude the edge $(u,w,\mbox{\textsc{NextEvent}})$. For example, in ``When a photon \emph{strikes} ... energy is  \emph{passed} ... until it \emph{reaches} ...'', there is no edge (\emph{strikes}, \emph{reaches}, \textsc{NextEvent}) due to the intervening event \emph{`passed'}.
-\item \textsc{Cotemporal} denotes that events $u$ and $v$ overlap over time (e.g., the first two event mentions in Figure~\ref{fig:process}).
-\item \textsc{SuperEvent} denotes that event $u$ is included in event $u$. For instance, the process for ``During \emph{DNA replication}, DNA polymerases \emph{proofread} each nucleotide..." has the edge (\emph{DNA replication}, \emph{proofread}, \textsc{SuperEvent}).
+\item \textsc{Cotemporal} denotes that events $u$ and $v$ overlap in time (e.g., the first two event mentions in Figure~\ref{fig:process}).
+\item \textsc{SuperEvent} denotes that event $v$ is included in event $u$. For instance, the process for ``During \emph{DNA replication}, DNA polymerases \emph{proofread} each nucleotide..." has the edge (\emph{DNA replication}, \emph{proofread}, \textsc{SuperEvent}).
 \item \textsc{Causes} denotes that event $u$ causes event $v$ (e.g., the relation between \emph{changing} and \emph{spins} in sentence 2 of Figure ~\ref{fig:process}).
-\item \textsc{Enables} denotes that event $u$ creates preconditions that allow event $v$ to take place. For example, the process ``... cause cancer cells  to \emph{lose} attachments to neighboring cells..., allowing them to \emph{spread} into nearby tissues" has the edge (\emph{lose}, \emph{spread}, \textsc{Enables}).
+\item \textsc{Enables} denotes that event $u$ creates preconditions that allow event $v$ to take place. For example, the description ``... cause cancer cells  to \emph{lose} attachments to neighboring cells..., allowing them to \emph{spread} into nearby tissues" has the edge (\emph{lose}, \emph{spread}, \textsc{Enables}).
 \item \textsc{SameEvent} denotes that $u$ and $v$ co-refer to the same event (see Figure~\ref{fig:process}).
 \end{enumerate}
 

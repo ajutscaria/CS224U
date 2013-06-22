@@ -210,6 +210,8 @@ public class EventRelationFeatureFactory {
 				if(determiner != null) {
 					if(Main.features.contains("determinerBefore2")) {
 						features.add("determinerBefore2:" + determiner);
+						if(determiner.equalsIgnoreCase("this"))
+							System.out.println();
 					}
 				}
 			}
