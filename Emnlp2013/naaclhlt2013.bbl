@@ -26,6 +26,12 @@ Nathanael Chambers and Daniel Jurafsky.
 \newblock Jointly combining implicit constraints improves temporal ordering.
 \newblock In {\em EMNLP}.
 
+\bibitem[\protect\citename{de Marneffe \bgroup et al.\egroup }2006]{Marneffe06}
+Marie-Catherine de~Marneffe, Bill MacCartney, and Christopher~D. Manning.
+\newblock 2006.
+\newblock Accurate unlexicalized parsing.
+\newblock In {\em LREC}.
+
 \bibitem[\protect\citename{Denis and Muller}2011]{Denis11}
 Pascal Denis and Philippe Muller.
 \newblock 2011.
@@ -61,6 +67,12 @@ Jin-Dong Kim, Sampo Pyysalo, Tomoko Ohta, Robert Bossy, and Jun’ichi Tsujii.
 \newblock 2011.
 \newblock Overview of bionlp shared task 2011.
 \newblock In {\em Proceedings of BioNLP}.
+
+\bibitem[\protect\citename{Klein and Manning}2003]{Klein03}
+Dan Klein and Christopher~D. Manning.
+\newblock 2003.
+\newblock Accurate unlexicalized parsing.
+\newblock In {\em ACL}.
 
 \bibitem[\protect\citename{Martins \bgroup et al.\egroup }2009]{Martins09}
 Andr{\'e}~L. Martins, Noah~A. Smith, and Eric~P. Xing.

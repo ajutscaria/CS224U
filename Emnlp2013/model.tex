@@ -103,7 +103,7 @@ A triangle is a 3-tuple of relations $(f(t_i,t_j),f(t_j,t_k),f(t_i,t_k))$. Clear
 \item \textsc{PreviousEvent}: As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then it can not be that $t_i$ is immediately before $t_k$ (hard constraint in Equation X).
 \end{enumerate}.
 
-WE used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2r)$ variables and $O(n^3)$ constraints. We have also developed an equivalent formulation amenable to dual decomposition \cite{Reichart12}, which is a faster approximation method, but practically we found that solving the problem exactly with Gurobi is quite fast (average/median time per process: XX/YY).
+We used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2r)$ variables and $O(n^3)$ constraints. We have also developed an equivalent formulation amenable to dual decomposition \cite{Reichart12}, which is a faster approximation method, but practically we found that solving the problem exactly with Gurobi is quite fast (average/median time per process: XX/YY).
 
 
 

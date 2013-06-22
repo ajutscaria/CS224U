@@ -16,45 +16,45 @@ Warning--I didn't find a database entry for "DBLP:conf/acl/2008s"
 Warning--I didn't find a database entry for "DBLP:conf/ndqa/2003"
 Warning--I didn't find a database entry for "DBLP:conf/acl/2009"
 Warning--empty title in Fellbaum1998
-You've used 20 entries,
+You've used 22 entries,
             2490 wiz_defined-function locations,
-            675 strings with 7606 characters,
-and the built_in function-call counts, 8868 in all, are:
-= -- 878
-> -- 369
+            684 strings with 7788 characters,
+and the built_in function-call counts, 9581 in all, are:
+= -- 946
+> -- 400
 < -- 8
-+ -- 125
-- -- 124
-* -- 622
-:= -- 1367
-add.period$ -- 79
-call.type$ -- 20
-change.case$ -- 140
-chr.to.int$ -- 20
-cite$ -- 21
-duplicate$ -- 412
-empty$ -- 716
-format.name$ -- 152
-if$ -- 1924
++ -- 135
+- -- 134
+* -- 668
+:= -- 1481
+add.period$ -- 87
+call.type$ -- 22
+change.case$ -- 153
+chr.to.int$ -- 22
+cite$ -- 23
+duplicate$ -- 448
+empty$ -- 780
+format.name$ -- 165
+if$ -- 2075
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 21
-newline$ -- 122
-num.names$ -- 61
-pop$ -- 192
+missing$ -- 23
+newline$ -- 134
+num.names$ -- 67
+pop$ -- 213
 preamble$ -- 1
-purify$ -- 162
+purify$ -- 177
 quote$ -- 0
-skip$ -- 323
+skip$ -- 346
 stack$ -- 0
-substring$ -- 372
-swap$ -- 121
+substring$ -- 382
+swap$ -- 127
 text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 152
+type$ -- 168
 warning$ -- 1
-while$ -- 59
-width$ -- 23
-write$ -- 272
+while$ -- 63
+width$ -- 25
+write$ -- 298
 (There were 4 error messages)
