@@ -3,49 +3,58 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: naaclhlt2013.aux
 The style file: naaclhlt2013.bst
 Database file #1: naaclhlt2013.bib
+A bad cross reference---entry "Pustejovsky03"
+refers to entry "DBLP:conf/ndqa/2003", which doesn't exist
 A bad cross reference---entry "Martins09"
 refers to entry "DBLP:conf/acl/2009", which doesn't exist
-Warning--I didn't find a database entry for ""
+A bad cross reference---entry "Finkel08"
+refers to entry "DBLP:conf/acl/2008s", which doesn't exist
+A bad cross reference---entry "Reichart12"
+refers to entry "DBLP:conf/naacl/2012", which doesn't exist
+Warning--I didn't find a database entry for "DBLP:conf/naacl/2012"
+Warning--I didn't find a database entry for "DBLP:conf/acl/2008s"
+Warning--I didn't find a database entry for "DBLP:conf/ndqa/2003"
 Warning--I didn't find a database entry for "DBLP:conf/acl/2009"
-You've used 14 entries,
+Warning--empty title in Fellbaum1998
+You've used 22 entries,
             2490 wiz_defined-function locations,
-            630 strings with 6624 characters,
-and the built_in function-call counts, 6210 in all, are:
-= -- 613
-> -- 267
-< -- 5
-+ -- 90
-- -- 90
-* -- 429
-:= -- 959
-add.period$ -- 56
-call.type$ -- 14
-change.case$ -- 100
-chr.to.int$ -- 14
-cite$ -- 14
-duplicate$ -- 290
-empty$ -- 500
-format.name$ -- 110
-if$ -- 1346
+            684 strings with 7788 characters,
+and the built_in function-call counts, 9581 in all, are:
+= -- 946
+> -- 400
+< -- 8
++ -- 135
+- -- 134
+* -- 668
+:= -- 1481
+add.period$ -- 87
+call.type$ -- 22
+change.case$ -- 153
+chr.to.int$ -- 22
+cite$ -- 23
+duplicate$ -- 448
+empty$ -- 780
+format.name$ -- 165
+if$ -- 2075
 int.to.chr$ -- 1
 int.to.str$ -- 0
-missing$ -- 15
-newline$ -- 87
-num.names$ -- 42
-pop$ -- 140
+missing$ -- 23
+newline$ -- 134
+num.names$ -- 67
+pop$ -- 213
 preamble$ -- 1
-purify$ -- 115
+purify$ -- 177
 quote$ -- 0
-skip$ -- 228
+skip$ -- 346
 stack$ -- 0
-substring$ -- 239
-swap$ -- 86
-text.length$ -- 5
+substring$ -- 382
+swap$ -- 127
+text.length$ -- 8
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 108
-warning$ -- 0
-while$ -- 39
-width$ -- 16
-write$ -- 191
-(There was 1 error message)
+type$ -- 168
+warning$ -- 1
+while$ -- 63
+width$ -- 25
+write$ -- 298
+(There were 4 error messages)

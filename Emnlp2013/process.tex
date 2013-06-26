@@ -1,25 +1,84 @@
 \section{Process Definition and Data Set}
 
-A process is defined by a series of events, where each event involves some participants, and also by relations between the events (temporal, causal, etc.). 
+A process description is a paragraph or sequence of tokens $\bx=\{x_1,...x_{|\bx|}\}$ describing a series of events that are related by various temporal and causal relations. For example, in ATP synthesis the event in which the rotor spins \emph{causes} the event where an internal rod spins. 
 
-\textbf{Notation and definition of a process}. [think whether all of the notation is needed]
+We define the process events and their relations by a directed graph  $\sP=(V,E)$, where the nodes $V=\{1,...,|V|\}$ represent event mentions and labeled edges correspond to event-event relations. An event mention $v \in V$ is defined by a trigger $t_v$, which is a span of words $x_i,x_{i+1},...,x_j$ and by a set of argument mentions $A_v$, where each argument mention $a_v \in A_v$ is also a span of words labeled by a semantic role $l$ taken from a set $\sL$. For example, in the first event mention of ATP synthesis $t_v=\mbox{\emph{flowing}}$, and one of the arguments is $a_v=\mbox{\emph{(H+ ions, \textsc{Agent})}}$. A labeled edge $(u,v,r)$ in the graph describes a relation $r \in \sR$ between the event mentions $u$ and $v$. The task of process extraction is to extract the structure $P$ from the text $\bx$\footnote{Argument mentions can also be related by coreference, but we neglect that since it is not central to this paper.}.
 
-A process $\sP=(V,E)$ is a graph with labeled edges (maybe the sentence $\bx$ is also part of it?), where the nodes $V=\{1,...,|V|\}$ are event mentions and edges represent event-event relations. Given a paragraph $\bx=\{x_1,...x_{|x|}\}$, we define $x_{i:j}$ to be a span of words $\{x_i,x_{i+1},...,x_j\}$. An event mention $v$ is defined by an event trigger $t_v$, which is some span of words $x_{i:j}$ and by a set of arguments $A_v$, were each argument $a_v \in A_v$ is again a span of words and a semantic role label $a_l$ taken from a set $\sL$. an event-event relation is a labeled edge $(u,v,r)$ where $r \in \sR$ is a closed set of relations\footnote{Our process annotation also contains coreference relations between arguments but we omit this since it is not very relevant.}.
+A natural way to break down process extraction into two steps is to first perform semantic role labeling (SRL), that is, identify triggers and predict argument mentions with their semantic role, and then extract event-event relations between pairs of event mentions. In this paper, we focus on the second task, where given a set of triggers $\sT$, we find all event-event relations. For completeness, we now describe the set of semantic roles $\sL$ used in our data set, and then present the set of event-event relations $\sR$.
 
-For example, the first sentence of Figure~\ref{fig:process} contains two event mentions, where $t_1=$\emph{flowing} and $t_2=$.... An example for the notation. [example that will make the notation complete and clear]
+The set $\sL$ contains standard semantic roles such as \textsc{Agent}, \textsc{Theme}, \textsc{Origin}, \textsc{Destination} and \textsc{Location}. Two additional semantic roles were employed that are relevant for biological text: \textsc{Result} corresponds to an entity that is the result of an event, and \textsc{Raw-material} describes an entity that is used or consumed during an event. For example, in the last event in Figure~\ref{fig:process} ATP is the \textsc{Result} of the event, while ADP is the \textsc{Raw-material}.
 
-In general, one can think of process extraction as comprising of two steps - the first is standard semantic role labeling which comprises trigger identification, argument identification and role labeling, and the second is extracting a rich set of event-event relations. We focus on the second task - basically we get as input the set of event mention triggers $\sT$ and extract the $E$. Performing the two tasks jointly is challenging direction for future work.
+The relation set $\sR$ contains the following relations (assuming an edge $(u,v,r)$):
+\begin{enumerate}[itemsep=0pt,topsep=0pt] 
+\item \textsc{Prev} denotes that $u$ is an event immediately previous $v$. Thus, the edges $(u,v,\mbox{\textsc{Prev}})$ and $(v,w,\mbox{\textsc{Prev}})$, preclude the edge $(u,w,\mbox{\textsc{Prev}})$. For example, in ``When a photon \emph{strikes} ... energy is  \emph{passed} ... until it \emph{reaches} ...'', there is no edge (\emph{strikes}, \emph{reaches}, \textsc{Prev}) due to the intervening event \emph{`passed'}.
+\item \textsc{Cotemp} denotes that events $u$ and $v$ overlap (e.g., the first two event mentions in Figure~\ref{fig:process}).
+\item \textsc{Super} denotes that event $v$ is included in event $u$. For instance, the process for ``During \emph{DNA replication}, DNA polymerases \emph{proofread} each nucleotide..." has the edge (\emph{DNA replication}, \emph{proofread}, \textsc{Super}).
+\item \textsc{Causes} denotes that event $u$ causes event $v$ (e.g., the relation between \emph{changing} and \emph{spins} in sentence 2 of Figure ~\ref{fig:process}).
+\item \textsc{Enables} denotes that event $u$ creates preconditions that allow event $v$ to take place. For example, the description ``... cause cancer cells  to \emph{lose} attachments to neighboring cells..., allowing them to \emph{spread} into nearby tissues" has the edge (\emph{lose}, \emph{spread}, \textsc{Enables}).
+\item \textsc{Same} denotes that $u$ and $v$ co-refer to the same event (see Figure~\ref{fig:process}).
+\end{enumerate}
 
-Next we will describe the full set of semantic role labels $\sL$, and more importantly the set of event-event relations $\sR$.
+Our relation set contains the relations \textsc{Causes} and \textsc{Enables}, which are important for modeling processes and go beyond temporal ordering only. We defined that whenever these two relations apply they override the temporal relation (which is invariably \textsc{Prev}). The \textsc{Super} relation appears in temporal annotations such as The Timebank corpus \cite{Pustejovsky03} and in work on temporal logic \cite{Allen83}, but in practice it is not considered by many temporal ordering systems \cite{Chambers08,Yoshikawa09,Do12}. 
 
-The set of semantic role labels $\sL$ contains standard labels such as \emph{agent}, \emph{theme}, \emph{origin}, \emph{destination} and \emph{location}. In addition we have two semantic role labels that are relevant for the biological text domain - \emph{result} and \emph{raw-material}, which correspond to arguments that are the result of the event and materials used during the event. The last sentence in Figure~\ref{fig:process} gives an example for these two labels.
+We also added event coreference (\textsc{Same}) to $\sR$. Do et al. \shortcite{Do12} used event coreference information in a temporal ordering task to modify probabilities provided by pairwise classifiers prior to joint inference. In this paper, we simply treat \textsc{Same} as another event-event relation, which allows us to easily perform joint inference and employ structural constraints that combine both coreference and temporal relations simultaneously. For example, if $(u,v,\mbox{\textsc{Same}})$, then it can not be for any $w$ that $u$ is before $w$, but $v$ is after $w$ (see Section~\ref{subsec:global})
 
-Describe the set of relations $\sR$: (a) NextEvent - directed relation (b) Causes - directed relation (c) Enables - directed relation (d) SuperEvent - directed relation (e) Cotemporal - undirected relation (f) SameEvent - event coreference. (g) None. Differences from previous work: (1) we have not only the temporal relation bet also "cause" and "enable" that are important in our domain. (2) We have SuperEvent that most work on temporal ordering did not deal with (we should write who did deal with it) (3) We add coreference as just one of the event-event relations. This allows us to add constraints between cored and other relations in our global formulation. Write something about that  we believe this is a succinct and good set of relation for process representation.
+We have annotated 150 process descriptions based on the aforementioned definitions and provide further details on annotation and data set statistics in Section~\ref{sec:experiment} and Table~\ref{tab:datastats}.
 
-\textbf{Properties of processes} Naturally there are various properties to coherent processes (1) in the semantic role labeling part - different event triggers don't overlap, different argument of the same event don't overlap (this was used by Toutanova and Haghighi, 2006) [we have to think what to mention depending on whether we show results of the full pipeline] (2) in the event-event relations - all events are somehow linked to one another. Also in general the events are "chain-like" that is most events are related to one or two other events but not more than that (see Table that shows distribution of degrees of event mentions). In Section ... we will show that by using these global properties of processes and more we can improve performance. (3) Some triads are not possible etc. (4) more? [In general I think it is interesting and relevant to discuss here the global properties of processes even if we eventually don't use all of them in our final model - this is simply since the local model does a good enough job but still identifying these properties is of interest in this paper].
+\begin{table}[t]
+{\small
+\hfill{}
+\begin{tabular}{|l|r|r|r|}
+\hline
+&\textbf{Avg}&\textbf{Min} & \textbf{Max}\\
+\hline
+\# of tokens            &            &           &   \\ 
+\# of events                &           &          &    \\ 
+\# of relations          &            &              & \\ 
+\hline
+\end{tabular}}
+\hfill{}
+\caption{Statistics over the 150 process descriptions}
+\label{tab:datastats}
+\end{table}
 
-\textbf{Data set}. We annotated 150 processes using the described scheme. Table ... describes the statistics of this data set. 
-Stats in the data set: average number of tokens, average number of events mentions, average number of relations, more?
-We briefly describe the annotation procedure in Section ~\ref{}. Inter-annotator agreement is...
+\paragraph{Structural properties of processes} 
+Naturally, coherent processes exhibit many structural properties. For example, two argument mentions related to the same event mention can not overlap -- a constraint that has been used in the past in SRL \cite{Toutanova08}. In this paper we focus on three main structural properties of the graph $\sP$. First, in a coherent process all event mentioned are related to one another, and hence the graph $\sP$ must be connected. Second, processes tend to have a ``chain-like" structure where one event follows another. Thus, we expect node degree to generally be $\leq 2$, and this is indeed the case as demonstrated by the first column in Table~\ref{tab:degree}. Last, if we consider all possible relation triangles, clearly some triangles are impossible, while other are common, which is illustrated in Figure~\ref{fig:triangles}. In Section~\ref{subsec:global}, we will show how using these properties we can improve process extraction, by formulating the problem as an ILP with both hard and soft constraints, and performing joint inference.
 
-Next we will describe our method that given an annotation of event triggers $\sT$ extracts all the event-event relations. We first describe a local pairwise model that classifies each pair of events independently of others and then show our full model that uses global properties of structure.
+\begin{table}[t]
+{\small
+\hfill{}
+\begin{tabular}{|l|r|r|r|}
+\hline
+\textbf{Deg.} &\textbf{Gold}&\textbf{Local} & \textbf{Global}\\
+\hline
+0            &            &           &   \\ 
+1            &            &           &   \\ 
+2                &           &          &    \\ 
+3          &            &              & \\ 
+\hline
+\end{tabular}}
+\hfill{}
+\caption{Node degree count for event mentions across the process descriptions}
+\label{tab:degree}
+\end{table}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
