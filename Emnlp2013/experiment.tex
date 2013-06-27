@@ -1,0 +1,56 @@
+\section{Experimental Evaluation}
+
+\subsection{Experimental setup}
+
+Our data set consists of 148 process descriptions annotated by a biologist. The biologist was presented with annotation guidelines, annotated 20 descriptions and then the annotations were discussed with the authors, after which all process descriptions were annotated. We trained a second biologist on 20 process descriptions, and measured inter-annotator agreement on another 30 random process descriptions, resulting in good agreement $\kappa=0.75$. 
+
+Process descriptions were parsed with the Stanford constituency and dependency parsers \cite{Klein03,Marneffe06}, and 35 process descriptions were set aside as a test set (\# of training set trigger pairs: XXX, \# of test set trigger pairs: XXX). We performed 10-fold cross validation over the training set for feature selection and tuning of constraint parameters. For each constraint type (connectivity, chain-structure, and five triangle constraints) we introduced a parameter and tuned the seven parameters by coordinate-wise ascent, where for hard constraints a binary parameter controls whether the constraint is used, and for soft constraints it controls reward/penalty ($\alpha_k$).
+
+We test the following systems: (a) \emph{All-Prev}: since the most common process structure is a chain of consecutive events we simply predict \textsc{NextEvent} for every two adjacent triggers. (b) \emph{Local$_{base}$}: A pairwise classifier with features from previous work (Section~\ref{subsec:pairwise}) (c) \emph{Local} A pairwise classifier with all features (Section~\ref{subsec:pairwise-novel}) (d) \emph{Local$_{chain}$}: For every two adjacent triggers we pick the highest probability non-\textsc{None} relation using the local classifier. Again, this uses the assumption that many processes have a chain-structure. (e) \emph{Global}: Our full model that uses ILP inference.
+
+To evaluate a system we compare its set of predictions on all trigger pairs to the gold standard annotations and compute micro-averaged precision, recall and F$_1$. We perform two types of evaluations: (a) \emph{Full}: evaluation on our full set of 11 relations (b) \emph{Temporal:} Evaluation on temporal relations only, performed by collapsing \textsc{PreviousEvent}, \textsc{Causes}, and \textsc{Enables} to a single category and similarly for \textsc{NextEvent}, \textsc{Caused}, and \textsc{Enabled}.
+
+\subsection{Results}
+
+\begin{table}[t]
+{\footnotesize
+\begin{tabular}{| l | c | c | c | c | c | c |}
+\hline
+    & \multicolumn{3}{c|}{\textbf{Full}} & \multicolumn{3}{c|}{\textbf{Temporal}} \\
+    & P & R & F$_1$ & P & R & F$_1$ \\
+\hline
+\hline
+\emph{All-Prev} & 34.1 & 32.0 & 33.0 & 62.2 & 58.3 & 60.2 \\
+\emph{Local$_{base}$} & & & & & & \\
+\emph{Local} & \textbf{57.6} & 44.7 & 50.3 & \textbf{67.8} & 52.6 & 59.3 \\
+\emph{Local$_{chain}$} & 52.8 & 49.6  & 51.1 & 65.0 & 60.1 & 62.9\\
+\emph{Global} & 55.4 & \textbf{54.0} & \textbf{54.7} & 66.2 & \textbf{64.5} & \textbf{65.3} \\
+\hline
+\end{tabular}}
+\caption{Test set results on all experiments}
+\label{tab:results}
+\end{table}
+Table~\ref{tab:results}
+
+Discuss results:
+\begin{itemize}
+\item Global improves over local by 4.5 F1 points in the full evaluation (6 points in temporal)
+\item Local chain uses a fixed structure and uses the classifier to predict which relation - global is better in both precision and recall
+\item All-prev full evaluation is really bad but temporal evaluation is not bad - this is since indeed the structure is mostly chain-like with the two most common relations being PrevEvent and Causes. Still global is better in both precision and recall. 
+\item our new features are important for our task they substantially improve the local classifier
+\item local classifier has good recall but bad precision - global improves recall thanks to connectivity constraint. Here we can talk about the double penalization.
+\item Mention that F$_1$ of human to human - that was not on the test set but shows that there is an upper bound around 0.7-0.75 for full evaluation and 0.85 for temporal
+\end{itemize}
+
+Table~\ref{} is a confusion matrix showing that it is hard to distinguish Causes, PrevEvent, and Cotemporal. These are not handled by global constraints and to handle this need other types of information.
+
+\subsection{Analysis and Discussion}
+
+Table that shows the setting of the hyper parameters on the dev set  - what order and what are the parameter values - this shows what constraint help and what constraints don't. We can interpret that - Connectivity is really important, Chains are not important since local classifier does a good enough job.
+
+An example - a graph from GraphViz showing what was predicted by local and how global fixed it - it should have both connectivity and triad issues.
+
+\subsection{Full pipeline}
+
+If we have this we can briefly explain about our first step system and show some results. This is good to say we do everything and bad if this really sucks.
+

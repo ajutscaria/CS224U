@@ -1,0 +1,56 @@
+
+
+%
+% File naaclhlt2013.tex
+%
+
+\documentclass[11pt,letterpaper]{article}
+\usepackage{naaclhlt2013}
+\usepackage{times}
+\usepackage{latexsym}
+\setlength\titlebox{6.5cm}    % Expanding the titlebox
+
+
+%%packaging we are adding
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{ifthen}
+\usepackage{graphicx}
+\usepackage{stmaryrd}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{url}
+\usepackage{lipsum}
+
+\input macros
+
+\title{Extracting Biological Processes with Global Constraints}
+
+\author{Author 1\\
+	    XYZ Company\\
+	    111 Anywhere Street\\
+	    Mytown, NY 10000, USA\\
+	    {\tt author1@xyz.org}
+	  \And
+	Author 2\\
+  	ABC University\\
+  	900 Main Street\\
+  	Ourcity, PQ, Canada A1A 1T2\\
+  {\tt author2@abc.ca}}
+
+\begin{document}
+\maketitle
+
+\input{abstract} 
+\input{introduction} \label{sec:intro}
+\input{process} \label{sec:process}
+\input{model} \label{sec:model}
+\input{experiment} \label{sec:experiment}
+\input{related} \label{sec:related}
+\input{conclusion} \label{sec:conclusion}
+
+
+\bibliographystyle{naaclhlt2013}
+\bibliography{naaclhlt2013}
+
+\end{document}
