@@ -125,14 +125,21 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 				
 				List<String> nodesInPath = Trees.pathNodeToNode(event, entityNode, Trees.getLowestCommonAncestor(event, entityNode, root));
 				//Okayish
-				if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
-					features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));	
+				
+				if(nodesInPath != null) {
+					if(!(nodesInPath.contains("up-S") || nodesInPath.contains("up-SBAR")))
+					{
+						features.add("pathtoentities=" + StringUtils.join(nodesInPath, ","));
+						
+						if(pathLength > nodesInPath.size()) {
+							shortestPath = StringUtils.join(nodesInPath, ",");
+						}
+					}
+				}
 				
 				features.add("deppath=" + Utils.getDependencyPath(sentence, entityNode, event));
 				
-				if(pathLength > nodesInPath.size()) {
-					shortestPath = StringUtils.join(nodesInPath, ",");
-				}
+				
 				IntPair entitySpan = entityNode.getSpan();
 				if(entitySpan.getSource() < eventSpan.getSource()) {
 					//features.add("entitybefore");

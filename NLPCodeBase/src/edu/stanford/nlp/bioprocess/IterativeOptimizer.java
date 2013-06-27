@@ -61,4 +61,68 @@ public class IterativeOptimizer {
 		
 		return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(triple, entityTriple);
 	}
+	
+	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> runPipelinePrediction(List<Example> train, List<Example> test, boolean useLexicalFeatures) {
+		LogInfo.begin_track("Basiccc trigger prediction");
+		Learner eventLearner = new Learner();
+		FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
+		Inferer inferer = new EventPredictionInferer();
+		Params param = eventLearner.learn(train, eventFeatureFactory);
+		List<BioDatum> predicted = inferer.Infer(test, param, eventFeatureFactory);
+		Triple<Double, Double, Double> triple = Scorer.score(predicted);
+		
+		LogInfo.logs("Score: Basic trigger prediction - " + triple);
+		LogInfo.end_track();
+		
+		Learner entityLearner = new Learner();
+		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
+		
+		Inferer entityInferer = new EntityStandaloneInferer();
+		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
+		Params entityStandaloneParams = entityLearner.learn(train, entityStandaloneFeatureFactory);
+		List<BioDatum> predictedStandaloneEntities = entityInferer.Infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
+		
+		Triple<Double, Double, Double> entityTriple = null;
+		for(int i = 0; i < 1; i++) {
+			LogInfo.begin_track("Entity prediction");
+			entityInferer = new EntityPredictionInferer(predicted);
+			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+			entityTriple = Scorer.scoreEntities(test, predictedEntities);
+			
+			LogInfo.logs("Score: Entity prediction - " + entityTriple);
+			LogInfo.end_track();
+			
+			predictedEntities.addAll(predictedStandaloneEntities);
+			
+			LogInfo.begin_track("Extended trigger prediction");
+			inferer = new EventPredictionInferer(predictedEntities);
+			eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
+			param = eventLearner.learn(train, eventFeatureFactory);
+			predicted = inferer.Infer(test, param, eventFeatureFactory);
+			triple = Scorer.score(predicted);
+			
+			LogInfo.logs("Score: Extended trigger prediction - " + triple);
+			LogInfo.end_track();
+			//break;
+		}
+		
+		entityInferer = new EntityPredictionInferer(predicted);
+		Params entityParams = entityLearner.learn(train, entityFeatureFactory);
+		List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+		entityTriple = Scorer.scoreEntities(test, predictedEntities);
+		
+		LogInfo.logs("Entity prediction - " + entityTriple);
+		
+		Learner eventRelationLearner = new Learner();
+		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
+		EventRelationInferer relationInferer = new EventRelationInferer();
+		
+		Params eventParam = eventRelationLearner.learn(train, eventRelationFeatureFactory);
+		List<BioDatum> result = null;
+		result = relationInferer.Infer(test, eventParam, eventRelationFeatureFactory,
+				true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
+		
+		return null;
+	}
 }

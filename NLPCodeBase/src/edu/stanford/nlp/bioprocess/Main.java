@@ -3,6 +3,7 @@ package edu.stanford.nlp.bioprocess;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -21,7 +22,7 @@ import fig.exec.Execution;
 
 public class Main implements Runnable {
 	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalModel = true;
-	boolean runEventRelationTest = false;
+	boolean runEventRelationTest = true;
 	
 	//public static class Options {
 		@Option(gloss="Where to read the property file from") public String propertyFile;
@@ -205,7 +206,53 @@ public class Main implements Runnable {
 				runEventRelationsPredictionTest(folders);
 			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
 		}
+		else if(mode.equals("pipeline")) {
+			runPipelinePrediction(folders);
+		}
 		LogInfo.end_track();
+	}
+
+	private void runPipelinePrediction(HashMap<String, String> folders) {
+		features = new ArrayList<String>();
+		
+		features.add("isImmediatelyAfter");
+		features.add("isAfter");
+		features.add("wordsInBetween");
+		features.add("temporalConnective");
+		features.add("closeAndInBetween");
+		features.add("POS");
+		features.add("lemma");
+		features.add("eventLemmasSame");
+		features.add("numSentencesInBetween");
+		features.add("numWordsInBetween");
+		features.add("lowestCommonAncestor");
+		features.add("1partOfPP");
+		features.add("2partOfPP");
+		features.add("deppath");
+		features.add("1dominates2");
+		features.add("2dominates1");
+		features.add("markRelationEvent1");
+		features.add("advmodRelationEvent1");
+		features.add("markRelationEvent2");
+		features.add("advmodRelationEvent2");
+		features.add("determinerBefore2");
+		features.add("shareChild");
+		
+		Utils.clearFolderContent("GraphViz");
+		BioprocessDataset trainDataset = loadDataSet(folders, false, false);
+		
+		BioprocessDataset testDataset = loadTestDataSet(folders, false);
+		
+		IterativeOptimizer opt = new IterativeOptimizer();
+		
+		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;// = Scorer.scoreEventRelations(result);
+		
+		pairTriple = opt.runPipelinePrediction(trainDataset.examples("train"), testDataset.examples("test"), true);
+		
+		LogInfo.logs("Full Micro precision");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
 	}
 
 	private void runAll(HashMap<String, String> folders) {
@@ -408,6 +455,20 @@ public class Main implements Runnable {
 		else if(runBetterBaseline) {
 			result = inferer.BetterBaselineInfer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory);
 		}
+		
+		BufferedWriter writer;
+		try {
+			writer = new BufferedWriter(new FileWriter("global.txt"));
+		
+			for(BioDatum d:result) {
+				writer.write("G:" + d.label + "," + "P:" + d.guessLabel+"\n");
+			}
+			
+			writer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
 		
 		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;// = Scorer.scoreEventRelations(result);
 		
