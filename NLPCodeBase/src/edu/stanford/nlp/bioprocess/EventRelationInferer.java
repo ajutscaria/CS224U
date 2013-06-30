@@ -28,7 +28,7 @@ public class EventRelationInferer {
 	public int totalEvents = 0;
 	IntCounter<Integer> prevEvent = new IntCounter<Integer>(), superEvent = new IntCounter<Integer>(), causeEvent = new IntCounter<Integer>(), degreeDistribution = new IntCounter<Integer>();
 	IntCounter<Integer> prevEventPred = new IntCounter<Integer>(), superEventPred = new IntCounter<Integer>(),  causeEventPred = new IntCounter<Integer>(), degreeDistributionPred = new IntCounter<Integer>();
-	private boolean enforceGlobalConstraints = true;
+	private boolean enforceGlobalConstraints = false;
 	
 	public EventRelationInferer(List<BioDatum> predictions) {
 		prediction = predictions;
@@ -125,7 +125,7 @@ public class EventRelationInferer {
 	
 	public List<BioDatum> Infer(List<Example> testData, Params parameters, EventRelationFeatureFactory ff, boolean connectedComponent,
 			boolean sameEvent, boolean previousEvent, boolean sameEventContradiction,
-			double alpha1, double alpha2, double alpha3, double alpha4, double alpha5, double alpha6) {
+			double alpha1, double alpha2, double alpha3, double alpha4, double alpha5, double alpha6, double alpha7) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		
 		for(Example ex:testData) {
@@ -188,7 +188,7 @@ public class EventRelationInferer {
 			
 			if(enforceGlobalConstraints) {
 				ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier, 
-						connectedComponent, sameEvent, previousEvent, sameEventContradiction, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6);
+						connectedComponent, sameEvent, previousEvent, sameEventContradiction, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7);
 				HashMap<Pair<Integer,Integer>, Integer> best = opt.OptimizeEventRelation();
 				
 				

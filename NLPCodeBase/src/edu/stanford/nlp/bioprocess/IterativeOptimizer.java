@@ -121,7 +121,7 @@ public class IterativeOptimizer {
 		Params eventParam = eventRelationLearner.learn(train, eventRelationFeatureFactory);
 		List<BioDatum> result = null;
 		result = relationInferer.Infer(test, eventParam, eventRelationFeatureFactory,
-				true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
+				true, true, false, true, 0.0,0.75,0,0,0.75,0.0, 0.0);
 		
 		return null;
 	}

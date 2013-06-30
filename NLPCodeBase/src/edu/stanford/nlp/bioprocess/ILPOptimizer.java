@@ -1,4 +1,5 @@
-	package edu.stanford.nlp.bioprocess;
+
+package edu.stanford.nlp.bioprocess;
 import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
@@ -27,6 +28,7 @@ public class ILPOptimizer {
 	private double alpha4 = 0;
 	private double alpha5 = 0;
 	private double alpha6 = 0;
+	private double alpha7 = 0;
 	private boolean includeConnectedComponentConstraint = false,  
 					includeSameEventHardConstraint = false, includePreviousHardConstraint = false, includeSameEventContradictionsHardConstraint = false;
 	List<String> labels;
@@ -81,6 +83,9 @@ public class ILPOptimizer {
 	HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar> E_ijk = new HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar>();
 	HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar> F_ijk = new HashMap<Pair<Triple<Integer, Integer, Integer>, Triple<String, String, String>>, GRBVar>();
 	
+	//Indicator variable for chain constraint : soft
+	HashMap<String, GRBVar> G_i = new HashMap<String, GRBVar>();
+	
 	GRBEnv	env;
 	GRBModel  model;
 	private final int topK = 3;
@@ -88,7 +93,7 @@ public class ILPOptimizer {
 	public ILPOptimizer(HashMap<String, Double> weights,
 			int numEvents, List<String> labels, boolean connectedComponentIn, boolean sameEventIn, boolean previousEventIn,
 			boolean sameEventContradictionIn,
-			double alpha1In, double alpha2In, double alpha3In, double alpha4In, double alpha5In, double alpha6In) {
+			double alpha1In, double alpha2In, double alpha3In, double alpha4In, double alpha5In, double alpha6In, double alpha7In) {
 		this.setWeights(weights);
 		this.numEvents = numEvents;
 		this.labels = labels;
@@ -103,6 +108,7 @@ public class ILPOptimizer {
 		this.alpha4 = alpha4In;
 		this.alpha5 = alpha5In;
 		this.alpha6 = alpha6In;
+		this.alpha7 = alpha7In;
 
 		for(String eventType:ArgumentRelation.getEventRelations()) {
 			eventTypeIndex.put(eventType, labels.indexOf(eventType));
@@ -216,18 +222,13 @@ public class ILPOptimizer {
 								String.format("%d,%d,%d",i, j, k)));
 						D_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
 								String.format("%d,%d,%d",i, j, k)));
-						/*E1_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
-								String.format("%d,%d,%d",i, j, k)));
-						E2_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
-								String.format("%d,%d,%d",i, j, k)));
-						E3_ijk.put(String.format("%d,%d,%d", i, j, k), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
-								String.format("%d,%d,%d",i, j, k)));
-								*/
 				}
 			}
 			
-			//Creating F_ijk for counts
+			//Creating F_ijk and G_i for counts
 			for(int i=0; i<numEvents; i++) {
+				G_i.put(String.format("%d", i), model.addVar(0.0, 1.0, 0.0, GRB.BINARY, 
+						String.format("%d", i)));
 				for(int j=i+1; j<numEvents; j++) {
 					for(int k=j+1; k<numEvents; k++) {
 						/*for(String key:goldTripleCounts.keySet()) {
@@ -270,11 +271,9 @@ public class ILPOptimizer {
 						expr.addTerm(-1 * getAlpha3(), B2_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(-1 * getAlpha3(), B3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 						expr.addTerm(getAlpha4(), D_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						//expr.addTerm(getAlpha5(), E1_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						//expr.addTerm(getAlpha5(), E2_ijk.get(String.format("%d,%d,%d", i, j, k)));
-						//expr.addTerm(getAlpha5(), E3_ijk.get(String.format("%d,%d,%d", i, j, k)));
 					}
 				}
+				expr.addTerm(-1 * getAlpha7(), G_i.get(String.format("%d", i)));
 			}
 			
 			//Adding counts to objective
@@ -313,10 +312,10 @@ public class ILPOptimizer {
 		if(!includeConnectedComponentConstraint && !includePreviousHardConstraint && !includePreviousHardConstraint
 				&& alpha1 == 0 && alpha2 == 0 && alpha3 == 0 && alpha4 == 0 && alpha5 == 0 && alpha6 == 0)
 			return best; 
-		LogInfo.logs(String.format("Current values %b, %b, %b, %b, %f, %f, %f, %f, %f, %f\n", isIncludeConnectedComponentConstraint(),
-				isIncludeSameEventHardConstraint(),
-				isIncludePreviousHardConstraint(), includeSameEventContradictionsHardConstraint,
-				getAlpha1(), getAlpha2(), getAlpha3(), getAlpha4(), getAlpha5(), getAlpha6()));
+		//LogInfo.logs(String.format("Current values %b, %b, %b, %b, %f, %f, %f, %f, %f, %f, %f\n", isIncludeConnectedComponentConstraint(),
+		//		isIncludeSameEventHardConstraint(),
+		//		isIncludePreviousHardConstraint(), includeSameEventContradictionsHardConstraint,
+		//		getAlpha1(), getAlpha2(), getAlpha3(), getAlpha4(), getAlpha5(), getAlpha6(), getAlpha7()));
 		try
 		{		
 			
@@ -357,6 +356,8 @@ public class ILPOptimizer {
 		    
 		    //Soft constraint for favoring triples in GOLD.
 		    //addConstraintforGOLDTriplesReward();
+		    
+		    addLinearChainSoftConstraintPenalize();
 		    
 		    model.update();
 		    
@@ -418,6 +419,42 @@ public class ILPOptimizer {
 	    }
 		//System.out.println(best);
 		return best;
+	}
+	
+	private void addLinearChainSoftConstraintPenalize() {
+		try{
+			for(int j=0; j<numEvents; j++) {
+				GRBLinExpr chainConstraint1 = new GRBLinExpr();
+
+				for(int i=0;i<numEvents;i++) {
+					if(i < j) {
+						chainConstraint1.addTerm(1.0, X_ij.get(String.format("%d,%d", i, j)));
+					}
+					else if(i > j) {
+						chainConstraint1.addTerm(1.0, X_ij.get(String.format("%d,%d", j, i)));
+					}
+		    	}
+				chainConstraint1.addTerm(-1 * (numEvents - 3), G_i.get(((Integer)j).toString()));
+				model.addConstr(chainConstraint1, GRB.LESS_EQUAL, 2, String.format("c50_%d", j));
+				
+				GRBLinExpr chainConstraint2 = new GRBLinExpr();
+				for(int i=0;i<numEvents;i++) {
+					if(i < j) {
+						chainConstraint2.addTerm(-1.0, X_ij.get(String.format("%d,%d", i, j)));
+					}
+					else if(i > j) {
+						chainConstraint2.addTerm(-1.0, X_ij.get(String.format("%d,%d", j, i)));
+					}
+		    	}
+				chainConstraint2.addTerm(3, G_i.get(((Integer)j).toString()));
+				
+
+				model.addConstr(chainConstraint2, GRB.LESS_EQUAL, 0, String.format("c50_%d", j));
+			}
+		}
+		catch(GRBException ex) {
+			ex.printStackTrace();
+		}
 	}
 	
 	private int getBestRelation(int i, int j) {
@@ -1434,6 +1471,12 @@ public class ILPOptimizer {
 	}
 	public void setAlpha6(double alpha6) {
 		this.alpha6 = alpha6;
+	}
+	private double getAlpha7() {
+		return alpha7;
+	}
+	private void setAlpha7(double alpha7) {
+		this.alpha7 = alpha7;
 	}
 }
 

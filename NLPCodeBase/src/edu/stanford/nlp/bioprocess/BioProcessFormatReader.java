@@ -17,6 +17,7 @@ import edu.stanford.nlp.ie.machinereading.GenericDataSetReader;
 
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.pipeline.Annotation;
 
@@ -38,6 +39,9 @@ public class BioProcessFormatReader extends GenericDataSetReader {
       TYPE_COTEMPORAL_EVENT = "cotemporal", TYPE_SAME_EVENT = "same-event", TYPE_SUPER_EVENT = "super-event", TYPE_ENABLES = "enables",
       TYPE_DESTINATION = "destination", TYPE_LOCATION = "location", TYPE_THEME = "theme", TYPE_SAME_ENTITY = "same-entity",
       TYPE_TIME = "time", TYPE_RAW_MATERIAL = "raw-material", TYPE_CAUSE ="cause";
+  
+  public static int numTokens = 0, numSentences = 0, maxTokensPerProcess = 0, minTokensPerProcess = Integer.MAX_VALUE,
+		  maxSentencesPerProcess = 0, minSentencesPerProcess = Integer.MAX_VALUE, numFilesRead = 0;
   
   //static int StaticEventCount =0;
  
@@ -111,7 +115,21 @@ public class BioProcessFormatReader extends GenericDataSetReader {
     processor.annotate(document);
     List<CoreMap> sentences = document.get(SentencesAnnotation.class);
     //Setting spans of the tree nodes of each sentence to avoid running into excpetions where we encounter sentences without any entities later.
+    
+    numFilesRead += 1;
+    numSentences += sentences.size();
+    if(sentences.size() > maxSentencesPerProcess) {
+    	maxSentencesPerProcess = sentences.size();
+    	LogInfo.logs("Updated maxSentencesPerProcess - " + fileName);
+    }
+    else if(sentences.size() < minSentencesPerProcess) {
+    	minSentencesPerProcess = sentences.size();
+    	LogInfo.logs("Updated minSentencesPerProcess - " + fileName);
+    }
+    
+    int tokenCount = 0;
     for(CoreMap sentence:sentences) {
+    	tokenCount += sentence.get(TokensAnnotation.class).size();
     	Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
     	
     	List<EventMention> eventMentions = new ArrayList<EventMention>();
@@ -122,6 +140,18 @@ public class BioProcessFormatReader extends GenericDataSetReader {
         
     	syntacticParse.setSpans();
     }
+    
+    numTokens += tokenCount;
+    
+    if(tokenCount > maxTokensPerProcess) {
+    	maxTokensPerProcess = tokenCount;
+    	LogInfo.logs("Updated maxTokensPerProcess - " + fileName);
+    }
+    else if(tokenCount < minTokensPerProcess) {
+    	minTokensPerProcess = tokenCount;
+    	LogInfo.logs("Updated minTokensPerProcess - " + fileName);
+    }
+    
     HashMap<String, ArgumentMention> mentions = new HashMap<String, ArgumentMention>();
     try {
       RandomAccessFile reader = new RandomAccessFile(new File(fileName.replace(TEXT_EXTENSION, ANNOTATION_EXTENSION)), "r");

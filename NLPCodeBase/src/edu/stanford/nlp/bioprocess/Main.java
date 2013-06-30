@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Properties;
 
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
+import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.classify.GeneralDataset;
 import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.util.Pair;
@@ -22,7 +23,7 @@ import fig.exec.Execution;
 
 public class Main implements Runnable {
 	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalModel = true;
-	boolean runEventRelationTest = true;
+	boolean runEventRelationTest = false;
 	
 	//public static class Options {
 		@Option(gloss="Where to read the property file from") public String propertyFile;
@@ -200,10 +201,13 @@ public class Main implements Runnable {
 		}
 		else if(mode.equals("eventrelation")) {
 			LogInfo.logs("Running event relation");
+			//computeStats(folders);
+			
 			if(!runEventRelationTest)
 				runEventRelationsPrediction(folders);
 			else
 				runEventRelationsPredictionTest(folders);
+			
 			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
 		}
 		else if(mode.equals("pipeline")) {
@@ -447,18 +451,19 @@ public class Main implements Runnable {
 		List<BioDatum> result = null;
 		if(runLocalModel) {
 			result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
-				true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
+				true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0.25);
 		}
 		else if(runPrevBaseline) {
 			result = inferer.BaselineInfer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory);
 		}
 		else if(runBetterBaseline) {
+			LogInfo.logs("Running better baseline");
 			result = inferer.BetterBaselineInfer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory);
 		}
 		
 		BufferedWriter writer;
 		try {
-			writer = new BufferedWriter(new FileWriter("global.txt"));
+			writer = new BufferedWriter(new FileWriter("localBase.txt"));
 		
 			for(BioDatum d:result) {
 				writer.write("G:" + d.label + "," + "P:" + d.guessLabel+"\n");
@@ -511,7 +516,7 @@ public class Main implements Runnable {
 		boolean small = false;
 		boolean performParameterSearch = false;
 		//double[] paramValues = new double[]{0.5, 10};
-		double[] paramValues = new double[]{0, 0.1, 0.2, 0.5, 0.75, 1, 2, 5, 10};
+		double[] paramValues = new double[]{0, 0.1, 0.25, 0.5, 0.75, 1, 2, 5, 10};
 		boolean[] paramValuesBool = new boolean[]{false, true};
 		HashMap<Integer, String> constraintNames = new HashMap<Integer, String>();
 		constraintNames.put(1, "Connectivity constraint : Hard");
@@ -524,7 +529,8 @@ public class Main implements Runnable {
 		constraintNames.put(7, "Same event triad closure : Soft, Penalize");
 		constraintNames.put(8, "Cotemporal traid closure : Soft, Reward"); 
 		constraintNames.put(9, "Causes traid closure : Soft, Reward");
-		constraintNames.put(10, "Triad counts : Soft, Reward");
+		//constraintNames.put(10, "Triad counts : Soft, Reward");
+		constraintNames.put(10, "Chain constraint : Soft, penalize");
 
 		//Clearing folder for visualization
 		Utils.moveFolderContent("GraphViz", "GraphVizPrev");
@@ -565,7 +571,7 @@ public class Main implements Runnable {
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
 			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, eventRelationFeatureFactory,
-					false, false, false, false, 0.0,0.0,0.0, 0.0,0.0,0.0);
+					false, false, false, false, 0.0,0.0,0.0, 0.0,0.0,0.0,0.0);
 			//List<BioDatum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, eventRelationFeatureFactory);
 			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(predicted);
 			Scorer.updateMatrix(confusionMatrix, predicted, relations);
@@ -588,8 +594,8 @@ public class Main implements Runnable {
 				try{
 					ArrayList<Integer> paramArray = new ArrayList<Integer>();
 					paramArray.add(1);paramArray.add(2);paramArray.add(3);paramArray.add(4);paramArray.add(5);paramArray.add(6);
-					paramArray.add(7);paramArray.add(8);paramArray.add(9);
-					double alpha1 = 0.0, alpha2 = 0.0, alpha3 = 0.0, alpha4 = 0.0, alpha5 = 0.0, alpha6 = 0.0;
+					paramArray.add(7);paramArray.add(8);paramArray.add(9);paramArray.add(10);
+					double alpha1 = 0.0, alpha2 = 0.0, alpha3 = 0.0, alpha4 = 0.0, alpha5 = 0.0, alpha6 = 0.0, alpha7 = 0.0;
 					boolean connectedComponent = false, sameEvent = false, previousEvent = false, sameEventContradictions = false;
 					BufferedWriter writer = new BufferedWriter(new FileWriter("scores.txt"));
 					double bestF1 = 0.00, overallBestF1 = 0.00;
@@ -647,7 +653,7 @@ public class Main implements Runnable {
 										Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 										List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
 												connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
-												alpha4, alpha5, alpha6);
+												alpha4, alpha5, alpha6, alpha7);
 										
 										resultsFromAllFolds.addAll(result);
 									}
@@ -710,7 +716,7 @@ public class Main implements Runnable {
 									oldValue = alpha5;
 									break;
 								case 10:
-									oldValue = alpha6;
+									oldValue = alpha7;
 									break;
 								}
 								for(int paramValueCount = 0; paramValueCount < paramValues.length; paramValueCount++) {
@@ -731,7 +737,7 @@ public class Main implements Runnable {
 										alpha5 = paramValues[paramValueCount];
 										break;
 									case 10:
-										alpha6 = paramValues[paramValueCount];
+										alpha7 = paramValues[paramValueCount];
 										break;
 									}
 									//writer.write(String.format("Current values %b, %b, %b, %f, %f, %f\n", connectedComponent,
@@ -743,7 +749,7 @@ public class Main implements Runnable {
 											Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 											List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
 													connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
-													alpha4, alpha5, alpha6);
+													alpha4, alpha5, alpha6, alpha7);
 											
 											resultsFromAllFolds.addAll(result);
 										}
@@ -792,7 +798,7 @@ public class Main implements Runnable {
 									alpha5 = oldValue;
 									break;
 								case 10:
-									alpha6 = oldValue;
+									alpha7 = oldValue;
 									break;
 								}
 							}
@@ -824,7 +830,7 @@ public class Main implements Runnable {
 								alpha5 = bestParamValue;
 								break;
 							case 10:
-								alpha6 = bestParamValue;
+								alpha7 = bestParamValue;
 								break;
 							case 1:
 								connectedComponent = bestParamValueBool;
@@ -865,7 +871,7 @@ public class Main implements Runnable {
 					List<BioDatum> result = null;
 					if(runLocalModel) {
 						result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-								true, true, false, true, 0.0,0.75,0,0,0.75,0.0);
+								true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0);
 					}
 					else if(runPrevBaseline) {
 						result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
@@ -949,11 +955,11 @@ public class Main implements Runnable {
 			LogInfo.logs("Cause Event");
 			LogInfo.logs("\tActual     " + inferer.causeEvent);
 			LogInfo.logs("\tPrediction " + inferer.causeEventPred);
-			
+			*/
 			LogInfo.logs("Degree Distribution");
 			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
-			*/
+			
 
 			//Print triples
 			/*
@@ -1072,5 +1078,66 @@ public class Main implements Runnable {
 			dataset.read("sample");
 		}
 		return dataset;
+	}
+	
+	private void computeStats(HashMap<String, String> groups) {
+		BioprocessDataset dataset = new BioprocessDataset(groups);
+		dataset.read("train");
+		dataset.read("test");
+		
+		System.out.println("Num file - " + BioProcessFormatReader.numFilesRead);
+		
+		System.out.println("Max sent - " + BioProcessFormatReader.maxSentencesPerProcess);
+		System.out.println("Min sent - " + BioProcessFormatReader.minSentencesPerProcess);
+		System.out.println("Max toks - " + BioProcessFormatReader.maxTokensPerProcess);
+		System.out.println("Min toks - " + BioProcessFormatReader.minTokensPerProcess);
+		
+		System.out.println("Avg sent - " + ((float)BioProcessFormatReader.numSentences) / BioProcessFormatReader.numFilesRead);
+		System.out.println("Avg toks - " + ((float)BioProcessFormatReader.numTokens) / BioProcessFormatReader.numFilesRead);
+		int numRelations = 0, numEvents = 0, maxRelations = 0, minRelations = Integer.MAX_VALUE, 
+				maxEvents = 0, minEvents = Integer.MAX_VALUE;
+		List<String> testAndTrain = new ArrayList<String>();
+		testAndTrain.add("test"); testAndTrain.add("train");
+		for(String group:testAndTrain) {
+			for(Example ex:dataset.examples(group)) {
+				int numEventsOnProcess = ex.gold.get(EventMentionsAnnotation.class).size();
+				if(numEventsOnProcess > maxEvents) {
+					maxEvents = numEventsOnProcess;
+					//LogInfo.logs("Updating maxEvents - "+ ex.id);
+				}
+				if(numEventsOnProcess < minEvents) {
+					minEvents = numEventsOnProcess;
+					//LogInfo.logs("Updating minEvents - "+ ex.id);
+				}
+				numEvents += numEventsOnProcess;
+				int numRelationsOnProcess = 0;
+				for(EventMention mention:ex.gold.get(EventMentionsAnnotation.class)) {
+					for(ArgumentRelation rel: mention.getArguments()) {
+						if(ArgumentRelation.getEventRelations().contains(rel.type.toString())) {
+							numRelationsOnProcess += 1;
+						}
+					}
+				}
+				if(numRelationsOnProcess > maxRelations) {
+					maxRelations = numRelationsOnProcess;
+					//LogInfo.logs("Updating maxRelations - "+ ex.id);
+				}
+				
+				if(numRelationsOnProcess < minRelations) {
+					minRelations = numRelationsOnProcess;
+					//LogInfo.logs("Updating minRelations - "+ ex.id);
+				}
+				
+				numRelations += numRelationsOnProcess;
+			}
+		}
+		
+		System.out.println("Max even - " + maxEvents);
+		System.out.println("Min even - " + minEvents);
+		System.out.println("Max rels - " + maxRelations);
+		System.out.println("Min rels - " + minRelations);
+		
+		System.out.println("Avg even - " + ((float)numEvents) / BioProcessFormatReader.numFilesRead);
+		System.out.println("Avg rels - " + ((float)numRelations) / BioProcessFormatReader.numFilesRead);
 	}
 }
