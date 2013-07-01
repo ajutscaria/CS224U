@@ -4,7 +4,7 @@
 
 Our data set consists of 148 process descriptions annotated by a biologist. The annotator was presented with annotation guidelines, annotated 20 descriptions and then annotations were discussed with the authors, after which all process descriptions were annotated. After training a second biologist, we measured inter-annotator agreement on 30 random process descriptions, resulting in agreement $\kappa=0.69$. 
 
-Process descriptions were parsed with Stanford constituency and dependency parsers \cite{Klein03,Marneffe06}, and 35 process descriptions were set aside as a test set (\# of training set trigger pairs: XXX, \# of test set trigger pairs: XXX). We performed 10-fold cross validation over the training set for feature selection and tuning of constraint parameters. For each constraint type (connectivity, chain-structure, and five triangle constraints) we introduced a parameter and tuned the seven parameters by coordinate-wise ascent, where for hard constraints a binary parameter controls whether the constraint is used, and for soft constraints it controls reward/penalty ($\alpha_k$).
+Process descriptions were parsed with Stanford constituency and dependency parsers \cite{Klein03,Marneffe06}, and 35 process descriptions were set aside as a test set (\# of training set trigger pairs: 1932, \# of test set trigger pairs: 906). We performed 10-fold cross validation over the training set for feature selection and tuning of constraint parameters. For each constraint type (connectivity, chain-structure, and five triangle constraints) we introduced a parameter and tuned the seven parameters by coordinate-wise ascent, where for hard constraints a binary parameter controls whether the constraint is used, and for soft constraints it controls reward/penalty ($\alpha_k$).
 
 We test the following systems: (a) \emph{All-Prev}: since the most common process structure is a chain of consecutive events we simply predict \textsc{NextEvent} for every two adjacent triggers. (b) \emph{Local$_{base}$}: A pairwise classifier with features from previous work (Section~\ref{subsec:pairwise}) (c) \emph{Local} A pairwise classifier with all features (Section~\ref{subsec:pairwise-novel}) (d) \emph{Global}: Our full model that uses ILP inference.
 
@@ -35,6 +35,16 @@ To evaluate system performance we compare its set of predictions on all trigger 
 \label{tab:results}
 \end{table}
 
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/p144.png} 
+\caption{Global model: The edges marked in black are the predictions by the local model. The ones in gold are the correct relations and the ones in green are the changes made by the global model. \textbf{Original paragraph:} Darwin's concept of natural selection is based on differential success in survival and reproduction: Individuals in a population exhibit \emph{variations} in their heritable traits, and those with traits that are \emph{better} suited to their environment tend to \emph{produce} more offspring than those with traits that are not as well suited. In genetic terms, we now know that selection results in alleles being \emph{passed} to the next generation in proportions that differ from those in the present generation.}
+\label{p144correct}
+\end{figure*}
+
+
+
 Table~\ref{tab:results} presents performance of all systems. Our main result is that using global constraints improves performance on all measures in both full and temporal evaluations. Particularly, in the full evaluation recall improves by 12\% and overall F$_1$ improves significantly by 3.5 points against \emph{Local} ($p<0.01$). Recall improvement suggests that modeling connectivity allowed \emph{Global} to add correct relations in cases where some events were not connected to one another [double penalization? for now not mentioning it]
 
 The full \emph{Local} classifier substantially outperforms \emph{Local$_{base}$}. This indicates that our novel features (Section~\ref{subsec:pairwise-novel}) are important for discriminating between process relations. Specifically, in the full evaluation \emph{Local} improves precision more than in the temporal evaluation, suggesting that designing syntactic and semantic features for connectives is useful for distinguishing \textsc{Next}, \textsc{Causes}, and \textsc{Enables} when the amount of training data is small.
@@ -47,9 +57,29 @@ Table~\ref{tab:degree} presents the degree distribution of \emph{Local} and \emp
 
 \subsection{Analysis and Discussion}
 
-Table that shows the setting of the hyper parameters on the dev set  - what order and what are the parameter values - this shows what constraint help and what constraints don't. We can interpret that - Connectivity is really important, Chains are not important since local classifier does a good enough job.
+Table~\ref{tab:paramtuning} shows the setting for selection of the hyper parameters on the dev set. We see that the first constraint selected is for connectivity. This shows that connectivity of the graph of triggers is very important and that every trigger is related to at least one trigger. Also, we see that the chain constraint is not so important as the local classifier in itself learns to identify chain structure. In addition, the same event transitivity and same event contradiction are identified as important constraints and give improvements. At the same time, \textsc{Cotemp} transitivity and \textsc{Prev} doesn't give any improvements in the F1 score. This could be because there aren't many instances of cotemporal transitivity as we had suspected that needs to be predicted by the global model.
 
-An example - a graph from GraphViz showing what was predicted by local and how global fixed it - it should have both connectivity and triad issues.
+Figure~\ref{p144correct} shows an example where the global constraints improve the predictions made by the local model. We see that the connectivity constraints help to identify the relation between \emph{produce} and \emph{passed}.
+
+
+\begin{table}[t]
+{\footnotesize
+\begin{tabular}{| l | c | c | c |}
+\hline
+    \textbf{Order}} & \textbf{Parameter name} & \textbf{Value} & \textbf{F1 score} \\
+\hline
+\hline
+- & \emph{Local model} & - & 49.9 \\
+1 & Connectivity constraint & \infty & 51.2 \\
+2 & \textsc{Same} transitivity &  0.5 & 52.0 \\
+3 & \textsc{Cause}-\textsc{Cotemp} & 0.75 & 52.2\\
+4 & \textsc{Same} contradiction & \infty & 52.4\\
+5 & Chain constraint & \infty & 52.5\\
+\hline
+\end{tabular}}
+\caption{Order in which constraints were added by the global model (starting from the local model) by using coordinate ascent feature selection strategy on the dev set. For each parameter, the value chosen and the new F1 score after including the constraint are provided. Also, a parameter value of $\infty$ indicates that the constraint was hard.}
+\label{tab:paramtuning}
+\end{table}
 
 \subsection{Full pipeline}
 
