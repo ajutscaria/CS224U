@@ -27,7 +27,7 @@ public class EventRelationFeatureFactory {
 
 	private boolean printAnnotations = false, printDebug = false;
 	public static Set<String> markWords = new HashSet<String>(), advmodWords = new HashSet<String>(), eventInsidePP = new HashSet<String>();
-	private boolean useLexicalFeatures, useBaselineFeaturesOnly = false;
+	private boolean useLexicalFeatures, useBaselineFeaturesOnly = true;
 	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 

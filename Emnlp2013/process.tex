@@ -2,9 +2,9 @@
 
 A process description is a paragraph or sequence of tokens $\bx=\{x_1,...x_{|\bx|}\}$ describing a series of events that are related by various temporal and causal relations. For example, in ATP synthesis the event in which the rotor spins \emph{causes} the event where an internal rod spins. 
 
-We define the process events and their relations by a directed graph  $\sP=(V,E)$, where the nodes $V=\{1,...,|V|\}$ represent event mentions and labeled edges correspond to event-event relations. An event mention $v \in V$ is defined by a trigger $t_v$, which is a span of words $x_i,x_{i+1},...,x_j$ and by a set of argument mentions $A_v$, where each argument mention $a_v \in A_v$ is also a span of words labeled by a semantic role $l$ taken from a set $\sL$. For example, in the first event mention of ATP synthesis $t_v=\mbox{\emph{flowing}}$, and one of the arguments is $a_v=\mbox{\emph{(H+ ions, \textsc{Agent})}}$. A labeled edge $(u,v,r)$ in the graph describes a relation $r \in \sR$ between the event mentions $u$ and $v$. The task of process extraction is to extract the structure $P$ from the text $\bx$\footnote{Argument mentions can also be related by coreference, but we neglect that since it is not central to this paper.}.
+We define the process events and their relations by a directed graph  $\sP=(V,E)$, where the nodes $V=\{1,...,|V|\}$ represent event mentions and labeled edges correspond to event-event relations. An event mention $v \in V$ is defined by a trigger $t_v$, which is a span of words $x_i,x_{i+1},...,x_j$ and by a set of argument mentions $A_v$, where each argument mention $a_v \in A_v$ is also a span of words labeled by a semantic role $l$ taken from a set $\sL$. For example, in the first event mention of ATP synthesis $t_v=\mbox{\emph{flowing}}$, and one of the arguments is $a_v=\mbox{\emph{(H+ ions, \textsc{Agent})}}$. A labeled edge $(u,v,r)$ in the graph describes a relation $r \in \sR$ between the event mentions $u$ and $v$. The task of process extraction is to extract the structure $P$ from the text $\bx$\footnote{Argument mentions are also related by coreference relations, but we neglect that since it is not central in this paper.}.
 
-A natural way to break down process extraction into two steps is to first perform semantic role labeling (SRL), that is, identify triggers and predict argument mentions with their semantic role, and then extract event-event relations between pairs of event mentions. In this paper, we focus on the second task, where given a set of triggers $\sT$, we find all event-event relations. For completeness, we now describe the set of semantic roles $\sL$ used in our data set, and then present the set of event-event relations $\sR$.
+A natural way to break down process extraction into two steps is to first perform semantic role labeling (SRL), that is, identify triggers and predict argument mentions with their semantic role, and then extract event-event relations between pairs of event mentions. In this paper, we focus on the second task, where given a set of triggers $\sT$, we find all event-event relations, where a trigger is a representative for the entire event. For completeness, we now describe the semantic roles $\sL$ used in our data set, and then present the set of event-event relations $\sR$.
 
 The set $\sL$ contains standard semantic roles such as \textsc{Agent}, \textsc{Theme}, \textsc{Origin}, \textsc{Destination} and \textsc{Location}. Two additional semantic roles were employed that are relevant for biological text: \textsc{Result} corresponds to an entity that is the result of an event, and \textsc{Raw-material} describes an entity that is used or consumed during an event. For example, in the last event in Figure~\ref{fig:process} ATP is the \textsc{Result} of the event, while ADP is the \textsc{Raw-material}.
 
@@ -18,9 +18,9 @@ The relation set $\sR$ contains the following relations (assuming an edge $(u,v,
 \item \textsc{Same} denotes that $u$ and $v$ co-refer to the same event (see Figure~\ref{fig:process}).
 \end{enumerate}
 
-Our relation set contains the relations \textsc{Causes} and \textsc{Enables}, which are important for modeling processes and go beyond temporal ordering only. We defined that whenever these two relations apply they override the temporal relation (which is invariably \textsc{Prev}). The \textsc{Super} relation appears in temporal annotations such as The Timebank corpus \cite{Pustejovsky03} and in work on temporal logic \cite{Allen83}, but in practice it is not considered by many temporal ordering systems \cite{Chambers08,Yoshikawa09,Do12}. 
+Our relation set contains the relations \textsc{Causes} and \textsc{Enables}, which are important for modeling processes and go beyond temporal ordering only. We defined that these two relations take precedence over their corresponding temporal relation (which is almost invariably \textsc{Prev}). The \textsc{Super} relation appears in temporal annotations such as the Timebank corpus \cite{Pustejovsky03} and in work on temporal logic \cite{Allen83}, but in practice it is not considered by many temporal ordering systems \cite{Chambers08,Yoshikawa09,Do12}. 
 
-We also added event coreference (\textsc{Same}) to $\sR$. Do et al. \shortcite{Do12} used event coreference information in a temporal ordering task to modify probabilities provided by pairwise classifiers prior to joint inference. In this paper, we simply treat \textsc{Same} as another event-event relation, which allows us to easily perform joint inference and employ structural constraints that combine both coreference and temporal relations simultaneously. For example, if $(u,v,\mbox{\textsc{Same}})$, then it can not be for any $w$ that $u$ is before $w$, but $v$ is after $w$ (see Section~\ref{subsec:global})
+We also added event coreference (\textsc{Same}) to $\sR$. Do et al. \shortcite{Do12} used event coreference information in a temporal ordering task to modify probabilities provided by pairwise classifiers prior to joint inference. In this paper, we simply treat \textsc{Same} as another event-event relation, which allows us to easily perform joint inference and employ structural constraints that combine both coreference and temporal relations simultaneously. For example, if $u$ and $v$ are the same event, then it can not be for any $w$ that $u$ is before $w$, but $v$ is after $w$ (see Section~\ref{subsec:global})
 
 We have annotated 148 process descriptions based on the aforementioned definitions and provide further details on annotation and data set statistics in Section~\ref{sec:experiment} and Table~\ref{tab:datastats}.
 
@@ -38,12 +38,12 @@ We have annotated 148 process descriptions based on the aforementioned definitio
 \hline
 \end{tabular}}
 \hfill{}
-\caption{Statistics over the 150 process descriptions}
+\caption{Process statistics over 148 process descriptions}
 \label{tab:datastats}
 \end{table}
 
 \paragraph{Structural properties of processes} 
-Naturally, coherent processes exhibit many structural properties. For example, two argument mentions related to the same event mention can not overlap -- a constraint that has been used in the past in SRL \cite{Toutanova08}. In this paper we focus on three main structural properties of the graph $\sP$. First, in a coherent process all events mentioned are related to one another, and hence the graph $\sP$ must be connected. Second, processes tend to have a ``chain-like" structure where one event follows another. Thus, we expect node degree to generally be $\leq 2$, and this is indeed the case as demonstrated by the first column in Table~\ref{tab:degree}. Last, if we consider all possible relation triangles, clearly some triangles are impossible, while other are common, which is illustrated in Figure~\ref{fig:triangles}. In Section~\ref{subsec:global}, we will show how using these properties we can improve process extraction by performing joint inference.
+Naturally, coherent processes exhibit many structural properties. For example, two argument mentions related to the same event can not overlap -- a constraint that has been used in the past in SRL \cite{Toutanova08}. In this paper we focus on three main structural properties of the graph $\sP$. First, in a coherent process all events mentioned are related to one another, and hence the graph $\sP$ must be connected. Second, processes tend to have a ``chain-like" structure where one event follows another, and thus, we expect node degree to generally be $\leq 2$. Indeed, 90\% of event mentions have degree $\leq2$, as is demonstrated by the first column in Table~\ref{tab:degree}. Last, if we consider all possible relation triangles, clearly some triangles are impossible, while other are common, which is illustrated in Figure~\ref{fig:triangles}. In Section~\ref{subsec:global}, we will show how by modeling these properties we can improve process extraction using a joint inference framework.
 
 \begin{table}[t]
 {\footnotesize
@@ -52,15 +52,15 @@ Naturally, coherent processes exhibit many structural properties. For example, t
 \hline
 \textbf{Deg.} &\textbf{Gold}&\textbf{Local} & \textbf{Global}\\
 \hline
-0            &     0        &    44       &   0 \\ 
-1            &     219        &    290       & 224  \\ 
-2            &     369        &    306       &  408  \\ 
-3            &     46        &     16      &  17 \\ 
-$>$3           &     22        &     0      &  7 \\
+$0$            &     0        &    44       &   0 \\ 
+$1$            &     219        &    290       & 224  \\ 
+$2$            &     369        &    306       &  408  \\ 
+$3$            &     46        &     16      &  17 \\ 
+$\geq4$           &     22        &     0      &  7 \\
 \hline
 \end{tabular}}
 \hfill{}
-\caption{Node degree distribution for event mentions on out training set.}
+\caption{Node degree distribution for event mentions on the training set. Predictions for the \emph{Local} and \emph{Global} models were obtained using 10-fold cross validation}.
 \label{tab:degree}
 \end{table}
 
