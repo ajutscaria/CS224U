@@ -22,7 +22,7 @@ Our relation set contains the relations \textsc{Causes} and \textsc{Enables}, wh
 
 We also added event coreference (\textsc{Same}) to $\sR$. Do et al. \shortcite{Do12} used event coreference information in a temporal ordering task to modify probabilities provided by pairwise classifiers prior to joint inference. In this paper, we simply treat \textsc{Same} as another event-event relation, which allows us to easily perform joint inference and employ structural constraints that combine both coreference and temporal relations simultaneously. For example, if $u$ and $v$ are the same event, then it can not be for any $w$ that $u$ is before $w$, but $v$ is after $w$ (see Section~\ref{subsec:global})
 
-We have annotated 148 process descriptions based on the aforementioned definitions and provide further details on annotation and data set statistics in Section~\ref{sec:experiment} and Table~\ref{tab:datastats}.
+We have annotated 148 process descriptions based on the aforementioned definitions and provide further details on annotation and data set statistics in Section~\ref{subsec:setup} and Table~\ref{tab:datastats}.
 
 \begin{table}[t]
 {\footnotesize

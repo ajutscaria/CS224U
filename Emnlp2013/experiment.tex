@@ -1,6 +1,6 @@
 \section{Experimental Evaluation}
 
-\subsection{Experimental setup}
+\subsection{Experimental setup} \label{subsec:setup}
 
 Our data set consists of 148 process descriptions annotated by a biologist. The annotator was presented with annotation guidelines, annotated 20 descriptions and then annotations were discussed with the authors, after which all process descriptions were annotated. After training a second biologist, we measured inter-annotator agreement on 30 random process descriptions, resulting in agreement $\kappa=0.69$. 
 
@@ -12,7 +12,7 @@ We test the following systems: (a) \emph{All-Prev}: since the most common proces
 
 To evaluate system performance we compare its set of predictions on all trigger pairs to the gold standard annotations and compute micro-averaged precision, recall and F$_1$. We perform two types of evaluations: (a) \emph{Full}: evaluation on our full set of 11 relations (b) \emph{Temporal:} Evaluation on temporal relations only, by collapsing \textsc{PreviousEvent}, \textsc{Causes}, and \textsc{Enables} to a single category and similarly for \textsc{NextEvent}, \textsc{Caused}, and \textsc{Enabled} (inter-annotator agreement $\kappa=0.75$). We computed statistical significance of our results with the paired bootstrap resampling method \cite{efron1993}.
 
-\subsection{Results}
+\subsection{Results} \label{subsec:results}
 
 \begin{table}[t]
 {\footnotesize
@@ -55,7 +55,7 @@ Table~\ref{tab:degree} presents the degree distribution of \emph{Local} and \emp
 
 %Table~\ref{} is a confusion matrix showing that it is hard to distinguish Causes, PrevEvent, and Cotemporal. These are not handled by global constraints and to handle this need other types of information.
 
-\subsection{Analysis and Discussion}
+\subsection{Analysis and Discussion} \label{subsec:analysis}
 
 Table~\ref{tab:paramtuning} shows the order in which global constraints were introduced into the model using coordinate ascent on the development set. Connectivity is the first constraint to be introduced, and improves performance considerably. The chain constraint, on the other hand, is included last, which can be explained by examining the distribution of degrees in Table~\ref{tab:degree}. The predictions of \emph{Local} do not have many nodes with degree $>2$ and thus the effect of this constraint is small. As for triangle constraints, we see that three constraints are included in the model but two are discarded, since the changes they caused to the final solution did not improve F$_1$ on the development set.
 
