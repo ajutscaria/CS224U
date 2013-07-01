@@ -93,17 +93,62 @@ A connected graph where the degree of all nodes is $\leq 2$ is a chain. Table~\r
 Since graph structures are not always chains we add this as a soft constraint, that is, we penalize the objective for each violation. Thus, our modified objective function is $\sum_{ijr} \theta_{ijr} y_{ijr} + \sum_{k \in \sK} \alpha_k C_k$, where $\sK$ is the set of soft constraints, $\alpha_k$ is the penalty, and $C_k$ indicates whether a constraint is violated. We tune the parameters $\alpha_k$ on a development set, as explained in Section~\ref{sec:experiment}.
 
 \paragraph{Relation triangles} 
-A triangle is a 3-tuple of relations $(f(t_i,t_j),f(t_j,t_k),f(t_i,t_k))$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction we counted how many time each possible triangle occurs in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagree. We are interested in triangles that never occur in the training data but are predicted by the classifier, and triangles that are frequent in the gold standard but do not appear in the classifier output. Figure~\ref{} illustrates the triangles found and Equations X-Y provide the corresponding ILP formulation. Soft constraints are incorporated by defining a penalty/reward $\alpha_k$ for each triangle structure and expanding the set $\sK$ accordingly. 
+A triangle is a 3-tuple of relations $(f(t_i,t_j),f(t_j,t_k),f(t_i,t_k))$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction we counted how many time each possible triangle occurs in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagree. We are interested in triangles that never occur in the training data but are predicted by the classifier, and triangles that are frequent in the gold standard but do not appear in the classifier output. Table~\ref{tab:constraintformulation} illustrates the triangles found and Equations 8-14 provide the corresponding ILP formulation. Soft constraints are incorporated by defining a penalty/reward $\alpha_k$ for each triangle structure and expanding the set $\sK$ accordingly. 
 
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
-\item \textsc{Same} transitivity: The transitivity of \textsc{Same} (co-reference) has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint (Equation X).
-\item \textsc{Cotemp} transitivity:  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event (soft constraint in Equation X).
-\item \textsc{Cause}-\textsc{Cotemp}: If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", a single event causes two subsequent events that occur simultaneously (soft constraint in Equation X).
-\item \textsc{Same} contradiction: if $t_i$ is the same event as  $t_j$, then their temporal ordering with respect to a third trigger $t_k$ may result in a contradiction, e.g., if $t_i$ is before $t_k$, but $t_j$ is after $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint (Equation X). Note that this constraint depends on co-reference and temporal relations being predicted jointly.
-\item \textsc{Prev}: As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then it can not be that $t_i$ is immediately before $t_k$ (hard constraint in Equation X).
+\item \textsc{Same} transitivity: The transitivity of \textsc{Same} (co-reference) has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint (Equation 8).
+\item \textsc{Cotemp} transitivity:  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event (soft constraint in Equation 9).
+\item \textsc{Cause}-\textsc{Cotemp}: If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", a single event causes two subsequent events that occur simultaneously (soft constraint in Equation 10).
+\item \textsc{Same} contradiction: if $t_i$ is the same event as  $t_j$, then their temporal ordering with respect to a third trigger $t_k$ may result in a contradiction, e.g., if $t_i$ is before $t_k$, but $t_j$ is after $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint (Equations 11 - 13). This constraint ensures that if $f(t_j,t_k) = SAME$, then $t_i$ cannot occur before $t_j$ and after $t_k$. Note that this constraint depends on co-reference and temporal relations being predicted jointly.
+\item \textsc{Prev}: As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then it can not be that $t_i$ is immediately before $t_k$ (hard constraint in Equation 14).
 \end{enumerate}.
 
-We used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2r)$ variables and $O(n^3)$ constraints. We have also developed an equivalent formulation amenable to dual decomposition \cite{Reichart12}, which is a faster approximation method, but practically found that solving the problem exactly with Gurobi is quite fast (average/median time per process: XX/YY).
+\begin{table}[t]
+{\footnotesize
+\hfill{}
+\begin{tabular}{|p{2cm}|p{5.1cm}|}
+\hline
+\textbf{Name} &\textbf{Constraint formulation}\\
+\hline
+SAME transitivity &  \begin{align}
+y_{ijSAME} + y_{jkSAME} - y_{ikSAME} \leq 1
+\end{align}\\
+
+COTEMP transitivity &
+\begin{align}
+y_{ijCOTEMP} + y_{jkCOTEMP} - y_{ikCOTEMP} - y_{ikSAME} \leq 1
+\end{align}\\
+\\
+
+CAUSE - COTEMP &
+\begin{align}
+y_{ijCAUSES} + y_{jkCOTEMP} - y_{ikCAUSES} \leq 1
+\end{align}\\
+\\
+
+SAME contradiction &
+\begin{align}
+c_{ijPAST} = y_{ijPREV} + y_{ijCAUSES} + y_{ijENABLES} \\
+c_{ijFUTURE} = y_{ijNEXT} + y_{ijCAUSED} + y_{ijENABLED} \\
+c_{ijPAST} + y_{jkSAME} + c_{ikFUTURE} \leq 2
+\end{align}\\
+\\
+
+PREV & 
+\begin{align}
+y_{ijPREV} + y_{jkPREV} - y_{ikNONE} \leq 1
+\end{align}\\
+\\
+
+
+\hline
+\end{tabular}}
+\hfill{}
+\caption{Constraint formulation for event tringles.}
+\label{tab:constraintformulation}
+\end{table}
+
+We used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2r)$ variables and $O(n^3)$ constraints. We have also developed an equivalent formulation amenable to dual decomposition \cite{Reichart12}, which is a faster approximation method, but practically found that solving the problem exactly with Gurobi is quite fast (average/median time per process: 0.294 sec/ 0.152 sec).
 
 
 
