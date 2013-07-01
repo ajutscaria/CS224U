@@ -39,8 +39,8 @@ To evaluate system performance we compare its set of predictions on all trigger 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.9\textwidth]{figures/p144.png} 
-\caption{Global model: The edges marked in black are the predictions by the local model. The ones in gold are the correct relations and the ones in green are the changes made by the global model. \textbf{Original paragraph:} Darwin's concept of natural selection is based on differential success in survival and reproduction: Individuals in a population exhibit \emph{variations} in their heritable traits, and those with traits that are \emph{better} suited to their environment tend to \emph{produce} more offspring than those with traits that are not as well suited. In genetic terms, we now know that selection results in alleles being \emph{passed} to the next generation in proportions that differ from those in the present generation.}
-\label{p144correct}
+\caption{Process graph example. Black edges are predictions of \emph{Local}, green edges indicate edges added by \emph{Global}, and gold edges represent gold standard edges. \textbf{Original text:} ``... Individuals in a population exhibit \emph{variations} in their heritable traits, and those with traits that are \emph{better} suited to their environment tend to \emph{produce} more offspring than those with traits that are not as well suited. In genetic terms, we now know that selection results in alleles being \emph{passed} to the next generation in proportions that differ from those in the present generation."}
+\label{fig:graph}
 \end{figure*}
 
 
@@ -57,31 +57,25 @@ Table~\ref{tab:degree} presents the degree distribution of \emph{Local} and \emp
 
 \subsection{Analysis and Discussion}
 
-Table~\ref{tab:paramtuning} shows the setting for selection of the hyper parameters on the dev set. We see that the first constraint selected is for connectivity. This shows that connectivity of the graph of triggers is very important and that every trigger is related to at least one trigger. Also, we see that the chain constraint is not so important as the local classifier in itself learns to identify chain structure. In addition, the same event transitivity and same event contradiction are identified as important constraints and give improvements. At the same time, \textsc{Cotemp} transitivity and \textsc{Prev} doesn't give any improvements in the F1 score. This could be because there aren't many instances of cotemporal transitivity as we had suspected that needs to be predicted by the global model.
-
-Figure~\ref{p144correct} shows an example where the global constraints improve the predictions made by the local model. We see that the connectivity constraints help to identify the relation between \emph{produce} and \emph{passed}.
-
+Table~\ref{tab:paramtuning} shows the order in which global constraints were introduced into the model using coordinate ascent on the development set. Connectivity is the first constraint to be introduced, and improves performance considerably. The chain constraint, on the other hand, is included last, which can be explained by examining the distribution of degrees in Table~\ref{tab:degree}. The predictions of \emph{Local} do not have many nodes with degree $>2$ and thus the effect of this constraint is small. As for triangle constraints, we see that three constraints are included in the model but two are discarded, since the changes they caused to the final solution did not improve F$_1$ on the development set.
 
 \begin{table}[t]
 {\footnotesize
 \begin{tabular}{| l | c | c | c |}
 \hline
-    \textbf{Order}} & \textbf{Parameter name} & \textbf{Value} & \textbf{F1 score} \\
+    \textbf{Order} & \textbf{Parameter name} & \textbf{Value} ($\alpha$)& \textbf{F$_1$ score} \\
 \hline
 \hline
 - & \emph{Local model} & - & 49.9 \\
-1 & Connectivity constraint & \infty & 51.2 \\
+1 & Connectivity constraint & $\infty$ & 51.2 \\
 2 & \textsc{Same} transitivity &  0.5 & 52.0 \\
 3 & \textsc{Cause}-\textsc{Cotemp} & 0.75 & 52.2\\
-4 & \textsc{Same} contradiction & \infty & 52.4\\
-5 & Chain constraint & \infty & 52.5\\
+4 & \textsc{Same} contradiction & $\infty$ & 52.4\\
+5 & Chain constraint & ?? & 52.5\\
 \hline
 \end{tabular}}
-\caption{Order in which constraints were added by the global model (starting from the local model) by using coordinate ascent feature selection strategy on the dev set. For each parameter, the value chosen and the new F1 score after including the constraint are provided. Also, a parameter value of $\infty$ indicates that the constraint was hard.}
+\caption{Order in which constraint parameters were set using coordinate ascent on the dev set. For each parameter, the value chosen and F$_1$ score after including the constraint are provided. A value of $\infty$ indicates a hard constraint}
 \label{tab:paramtuning}
 \end{table}
 
-\subsection{Full pipeline}
-
-If we have this we can briefly explain about our first step system and show some results. This is good to say we do everything and bad if this really sucks.
-
+Figure~\ref{fig:graph} shows an example where the global constraints improve the predictions made by the local model. We see that the connectivity constraints help to identify the relation between \emph{produce} and \emph{passed} [TEMP EXAMPLE - FIND MORE INTERESTING]
