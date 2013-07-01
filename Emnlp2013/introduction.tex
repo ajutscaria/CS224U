@@ -1,10 +1,10 @@
 \section{Introduction}
 
-A series of inter-related events that involve multiple entities and lead to an end result is called a \emph{process}. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the \textit{enter} event \textit{causes} the \textit{changing} event). 
+A series of inter-related events that involve multiple entities and lead to an end result is called a \emph{process}. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the \textit{`enter'} event \textit{causes} the \textit{`changing'} event). 
 
-\FigStar{figures/process3}{0.8}{process}{An annotation of the ATP synthesis process}
+\FigStar{figures/process5}{0.8}{process}{An annotation of the ATP synthesis process}
 
-Automatically extracting the structure of processes from text is crucial for semantic applications such as non-factoid QA. For instance, answering a question on ATP synthesis such as \emph{``How do H+ ions contribute to the production of ATP?"} is only possible given a structure that links \emph{H+ ions} (Figure~\ref{fig:process}, sentence 1) to \emph{ATP} (Figure~\ref{fig:process}, sentence 4) through a sequence of intermediate events. Such ``how" questions are common in FAQ websites \cite{Surdeanu:2011}, which provides further support for the importance of process extraction.
+Automatically extracting the structure of processes from text is crucial for applications that require reasoning such as non-factoid QA. For instance, answering a question on ATP synthesis such as \emph{``How do H+ ions contribute to the production of ATP?"} is only possible given a structure that links \emph{H+ ions} (Figure~\ref{fig:process}, sentence 1) to \emph{ATP} (Figure~\ref{fig:process}, sentence 4) through a sequence of intermediate events. Such ``how" questions are common in FAQ websites \cite{Surdeanu:2011}, which further supports the importance of process extraction.
 
 %Automatically extracting the structure of processes from text is crucial for applications such as non-factoid QA. A human reading the example paragraph can answer questions such as:
 %\begin{enumerate}[itemsep=0pt,topsep=0pt] 
@@ -16,22 +16,22 @@ Automatically extracting the structure of processes from text is crucial for sem
 %Question answering systems that rely on bag-of-words representations will fail to correctly answer such questions.
 
 Process extraction is related to two recent lines of work in Information Extraction -- event extraction and timeline construction.
-Traditional tasks in event extraction focus on identifying single events from a closed set  in a single sentence. 
+Traditional event extraction focuses on identifying specific events from a closed set in a single sentence. 
 For example, the BioNLP 2009 and 2011 shared tasks \cite{kim09,kim11} consider nine events types that are relevant for proteins.
-Process extraction, on the other hand, are centered around discovering \emph{relations} between events that span \emph{multiple} sentences. The set of possible event types in process extraction is also much larger.
+Process extraction, on the other hand, is centered around discovering \emph{relations} between events that span \emph{multiple} sentences. The set of possible event types in process extraction is also much larger. Timeline construction involves identifying temporal relations between events \cite{Chambers08,Yoshikawa09,Denis11,Do12,Mcclosky12}, and is thus related to process extraction as both focus on event-event relations that span multiple sentences. However, events in processes are tightly coupled in ways that go beyond simple temporal ordering, and these inter-dependencies are central in the task of process extraction. Consequently, capturing process structure requires modeling a larger set of relations that includes, temporal, causal and coreference relations.
 
-Timeline construction involves identifying temporal relations between events \cite{Chambers08,Yoshikawa09,Denis11,Do12,Mcclosky12}, and is thus related to process extraction as both focus on event-event relations that span multiple sentences. However, fully capturing process structure requires handling a rich set of relations such as \textsc{Causes} and \textsc{SuperEvent} (see Section~\ref{sec:process}), which are often not addressed in timeline construction. Moreover, events in processes exhibit much higher degrees of dependencies, for example, in general all events in a process are related to one another. This property does not hold in temporal ordering. 
+%However, fully capturing process structure requires handling a rich set of relations such as \textsc{Causes} and \textsc{SuperEvent} (see Section~\ref{sec:process}), which are often not addressed in timeline construction. Moreover, events in processes exhibit much higher degrees of dependencies, for example, in general all events in a process are related to one another. This property does not hold in temporal ordering. 
 
 In this paper, we formally define the task of process extraction and present automatic extraction methods. 
 Our approach works over multiple sentences and extracts a rich set of event-event relations, where the set of possible event types is open ended. 
 Furthermore, we characterize a set of global properties in process structure that can be utilized during process extraction. 
-For example, most processes exhibit a ``chain-like" structure corresponding to process progression over time, and all process events are connected to one another, as previously noted. 
+For example, in processes all events are somehow connected to one another, and in addition processes usually exhibit a ``chain-like" structure corresponding to process progression over time. 
 We show that by incorporating global properties into our model and performing joint inference over the extracted relations, we can significantly improve process quality.  
-Our empirical experiments are performed over a novel data set of 150 process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not utilize any domain-specific knowledge and can be easily adopted for domains other than Biology.
+Our empirical experiments are performed over a novel data set of 148 process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not utilize any domain-specific knowledge and can be easily adopted for domains other than Biology.
 
 The three main contributions of this paper are:
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
-\item We define process extraction and characterize the structural properties of processes.
+\item We define process extraction and characterize their structural properties.
 \item We show that modeling global structural properties significantly improves process extraction accuracy.
-\item  We publicly release a novel data set of 150 fully annotated biological process descriptions.
+\item  We publicly release a novel data set of 148 fully annotated biological process descriptions.
 \end{enumerate}

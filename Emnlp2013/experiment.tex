@@ -2,7 +2,7 @@
 
 \subsection{Experimental setup}
 
-Our data set consists of 148 process descriptions annotated by a biologist. The annotator was presented with annotation guidelines, annotated 20 descriptions and then annotations were discussed with the authors, after which all process descriptions were annotated. After training a second biologist, we measured inter-annotator agreement on 30 random process descriptions, resulting in good agreement $\kappa=0.69$. 
+Our data set consists of 148 process descriptions annotated by a biologist. The annotator was presented with annotation guidelines, annotated 20 descriptions and then annotations were discussed with the authors, after which all process descriptions were annotated. After training a second biologist, we measured inter-annotator agreement on 30 random process descriptions, resulting in agreement $\kappa=0.69$. 
 
 Process descriptions were parsed with Stanford constituency and dependency parsers \cite{Klein03,Marneffe06}, and 35 process descriptions were set aside as a test set (\# of training set trigger pairs: XXX, \# of test set trigger pairs: XXX). We performed 10-fold cross validation over the training set for feature selection and tuning of constraint parameters. For each constraint type (connectivity, chain-structure, and five triangle constraints) we introduced a parameter and tuned the seven parameters by coordinate-wise ascent, where for hard constraints a binary parameter controls whether the constraint is used, and for soft constraints it controls reward/penalty ($\alpha_k$).
 
@@ -10,7 +10,7 @@ We test the following systems: (a) \emph{All-Prev}: since the most common proces
 
 %(d) \emph{Local$_{chain}$}: For every two adjacent triggers we pick the highest probability non-\textsc{None} relation using the local classifier. Again, this uses the assumption that many processes have a chain-structure.
 
-To evaluate system performance we compare its set of predictions on all trigger pairs to the gold standard annotations and compute micro-averaged precision, recall and F$_1$. We perform two types of evaluations: (a) \emph{Full}: evaluation on our full set of 11 relations (b) \emph{Temporal:} Evaluation on temporal relations only, by collapsing \textsc{PreviousEvent}, \textsc{Causes}, and \textsc{Enables} to a single category and similarly for \textsc{NextEvent}, \textsc{Caused}, and \textsc{Enabled} (inter-annotator agreement $\kappa=0.75$). We compute statistical significance with the paired bootstrap resampling method \cite{efron1993}.
+To evaluate system performance we compare its set of predictions on all trigger pairs to the gold standard annotations and compute micro-averaged precision, recall and F$_1$. We perform two types of evaluations: (a) \emph{Full}: evaluation on our full set of 11 relations (b) \emph{Temporal:} Evaluation on temporal relations only, by collapsing \textsc{PreviousEvent}, \textsc{Causes}, and \textsc{Enables} to a single category and similarly for \textsc{NextEvent}, \textsc{Caused}, and \textsc{Enabled} (inter-annotator agreement $\kappa=0.75$). We computed statistical significance of our results with the paired bootstrap resampling method \cite{efron1993}.
 
 \subsection{Results}
 
@@ -41,8 +41,9 @@ The full \emph{Local} classifier substantially outperforms \emph{Local$_{base}$}
 
 The \emph{All-Prev} baseline performs quite badly in the full evaluation, but in temporal evaluation it performs reasonably well. This shows a strong tendency of process descriptions to proceed linearly from one event to the other, which is a general property of discourse structure \cite{schegloff73}.
 
+Table~\ref{tab:degree} presents the degree distribution of \emph{Local} and \emph{Global} on the development set comparing to the gold standard. Clearly, degree distribution of \emph{Global} is much more similar to the gold standard than \emph{Local}. In particular, the connectivity constraint ensures that there are no isolated nodes and shifts mass from nodes with degree $0$ and $1$ to nodes with degree $2$.
 
-Table~\ref{} is a confusion matrix showing that it is hard to distinguish Causes, PrevEvent, and Cotemporal. These are not handled by global constraints and to handle this need other types of information.
+%Table~\ref{} is a confusion matrix showing that it is hard to distinguish Causes, PrevEvent, and Cotemporal. These are not handled by global constraints and to handle this need other types of information.
 
 \subsection{Analysis and Discussion}
 

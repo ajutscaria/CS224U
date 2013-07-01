@@ -20,8 +20,9 @@ Lemma & Pair of lemmas \\
 Prep$^*$ & Preposition lexeme, if in a prepositional phrase \\
 Words between  & For adjacent triggers, content words between triggers \\
 Temp. between & For adjacent triggers, temporal connectives (from a small list) between triggers \\
-\# sent. & Quantized number of sentences between triggers \\
-\# word. & Quantized number of words between triggers \\
+Adjacency & Whether two triggers are adjacent \\
+\# Sent. & Quantized number of sentences between triggers \\
+\# Word. & Quantized number of words between triggers \\
 LCA & Least common ancestor on constituency tree, if exists \\
 Dominates$^*$ & Whether one trigger dominates other \\
 Share & Whether triggers share a child on dependency tree \\
@@ -49,11 +50,11 @@ One of the signals we use to identify connectives between event triggers is to u
 
 We further extend our features to handle the rich relation set necessary for process extraction. Processes often begin with a trigger for an event that includes subsequent triggers, e.g., ``The \emph{Calvin cycle} begins by \emph{incorporating}...". Thus, we add a feature for $t_i$ indicating whether $i=1$ and $t_i$  is a noun. We also add two features targeted at the relation \textsc{Same}: one indicating whether the lemmas of $t_i$ and $t_j$ are equal, and another specifying the determiner of $t_j$, if it exists. Intuition is that certain determiners indicate that the event triggered had already been mentioned, e.g., the determiner \emph{this} hints a \textsc{Same} relation in ``The next steps \emph{decompose} citrate back to oxaloacetate. This \emph{regeneration} makes...". Last, we add as a feature the dependency path between $t_i$ and $t_j$, if it exists, e.g., the feature $\xrightarrow{\scriptscriptstyle dobj} \xrightarrow{\scriptscriptstyle rcmod}$ between \emph{produces} and \emph{divide} will fire in ``meiosis produces cells that divide...".
 
-For our pairwise classifier, we train a MaxEnt classifier that provides a probability $p_{ijr}$ for every trigger pair $(t_i,t_j)$ and relation $r$. Hence, $f(t_i,t_j)= \arg\max_r p_{ijr}$.
+For our pairwise classifier, we train a maximum entropy classifier that provides a probability $p_{ijr}$ for every trigger pair $(t_i,t_j)$ and relation $r$. Hence, $f(t_i,t_j)= \arg\max_r p_{ijr}$.
 
 \subsection{Global Constraints} \label{subsec:global}
 
-Naturally, a pairwise classifier can result in a process structure that violates global properties (see Section~\ref{sec:process}). Figure~\ref{} shows in black edges the predictions of our local classifier, which result in the trigger [it'd be good to find a structure that combines transitivity violation and triad violation and refer to it] In this section we incorporate constraints that result in a coherent global process structure.
+Naturally, a pairwise classifier can result in a process structure that violates global properties (see Section~\ref{sec:process}). Figure~\ref{} shows in black edges the predictions of our local classifier, which result in the trigger [HERE WILL BE AN EXAMPLE FOR BAD LOCAL DECISIONS]. In this section we incorporate into our model constraints that result in a coherent global process structure.
 
 Let $\theta_{ijr}$ be a score for the relation $r$ and the triggers $(t_i,t_j)$ (e.g, $\theta_{ijr}=\log p_{ijr}$), and $y_{ijr}$ be the corresponding indicator. Our goal is to find an assignment for the indicators $\by=\{y_{ijr} \ | \ 1 \leq i < j \leq n, r \in \sR \}$. With no global constraints this can be formulated as the following ILP:
 
@@ -66,15 +67,15 @@ Let $\theta_{ijr}$ be a score for the relation $r$ and the triggers $(t_i,t_j)$ 
 \noindent where the constraint ensures each trigger pair is assigned exactly one relation. We now describe constraints that result in a process that is connected, ``chain-like", and has reasonable relation triangles.
 
 \paragraph{Connectivity} 
-Our formulation for enforcing connectivity is a minor variation on the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we want $\sP$ to be an connected undirected graph, and not a directed tree. However, an undirected graph is connected iff there is a directed tree embedded in it, and thus the resulting formulation is almost identical. This formulation is based on flow constraints that ensure that there is a path from a root in the graph to all other nodes.
+Our formulation for enforcing connectivity is a minor variation on the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we want $\sP$ to be a connected undirected graph, and not a directed tree. However, an undirected graph is connected iff there is a directed tree embedded in it, and thus the resulting formulation is almost identical. This formulation is based on flow constraints that ensure that there is a path from a designated root in the graph to all other nodes.
 
- Let $\bar{\sR}$ be the set $\sR \setminus \mbox{\textsc{None}}$. An edge $(t_i,t_j)$ is in $E$ if $y_{ij}=\sum_{r \in \bar{\sR}} y_{ijr}=1$. For each variable $y_{ij}$ we define two auxiliary binary variables $z_{ij}$ and $z_{ji}$ that correspond to the directed edges in the embedded tree. We tie each auxiliary variable to its corresponding ILP variable by ensuring  $z_{ij}$ and $z_{ji}$ are active, only if $y_{ij}$ is active:
+ Let $\bar{\sR}$ be the set $\sR \setminus \mbox{\textsc{None}}$. An edge $(t_i,t_j)$ is in $E$ if $y_{ij}=\sum_{r \in \bar{\sR}} y_{ijr}=1$. For each variable $y_{ij}$ we define two auxiliary binary variables $z_{ij}$ and $z_{ji}$ that correspond to the directed edges in the embedded tree. We tie each auxiliary variable to its corresponding ILP variable by ensuring  $z_{ij}$ and $z_{ji}$ are active only if $y_{ij}$ is active:
  
 \begin{align}
 \forall_{i<j} \ z_{ij}<y_{ij}, z_{ji} < y_{ij}
 \end{align}
 
-Next, we add constraints that enforce the structure of the auxiliary variables results in a tree rooted in node $1$. For that we need for every $i \neq j$ a flow variable $\phi_{ij}$ which specifies the amount of flow on the directed edge $z_{ij}$.
+Next, we add constraints that enforce that the graph structure induced by the auxiliary variables results in a tree rooted in node $1$. For that we need for every $i \neq j$ a flow variable $\phi_{ij}$ which specifies the amount of flow on the directed edge $z_{ij}$.
 
 \begin{align}
 \small &\sum_{i} z_{i1} =0, \forall_{j \neq 1} \sum_{i} z_{ij}=1 \label{eq:oneparent} \\ 
@@ -92,11 +93,10 @@ A connected graph where the degree of all nodes is $\leq 2$ is a chain. Table~\r
 \forall_j \sum_{i<j} y_{ij} + \sum_{j<k} y_{jk} \leq 2
 \end{align}
 
-Since graph structures are not always chains we add this as a soft constraint, that is, we penalize the objective for each violation. Thus, our modified objective function is $\sum_{ijr} \theta_{ijr} y_{ijr} + \sum_{k \in \sK} \alpha_k C_k$, where $\sK$ is the set of soft constraints, $\alpha_k$ is the penalty, and $C_k$ indicates whether a constraint is violated. We tune the parameters $\alpha_k$ on a development set, as explained in Section~\ref{sec:experiment}.
+Since graph structures are not always chains we add this as a soft constraint, that is, we penalize the objective for each node with degree $>2$. Thus, our modified objective function is $\sum_{ijr} \theta_{ijr} y_{ijr} + \sum_{k \in \sK} \alpha_k C_k$, where $\sK$ is the set of soft constraints, $\alpha_k$ is the penalty, and $C_k$ indicates whether a constraint is violated. We tune the parameters $\alpha_k$ on a development set, as explained in Section~\ref{sec:experiment}.
 
 \paragraph{Relation triangles} 
 A triangle is a 3-tuple of relations $(f(t_i,t_j),f(t_j,t_k),f(t_i,t_k))$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction we counted how many time each possible triangle occurs in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagree. We are interested in triangles that never occur in the training data but are predicted by the classifier, and triangles that are frequent in the gold standard but do not appear in the classifier output. Table~\ref{tab:constraintformulation} illustrates the triangles found and Equations 8-14 provide the corresponding ILP formulation. Soft constraints are incorporated by defining a penalty/reward $\alpha_k$ for each triangle structure and expanding the set $\sK$ accordingly. 
-
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
 \item \textsc{Same} transitivity: The transitivity of \textsc{Same} (co-reference) has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint (Equation 8).
 \item \textsc{Cotemp} transitivity:  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event (soft constraint in Equation 9).
