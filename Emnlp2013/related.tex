@@ -1,15 +1,17 @@
 \section{Related Work}
+As we mentioned in the introduction, a closely related line of work is biomedical event extraction in recent BioNLP shard tasks \cite{kim09,kim11}. 
+%To capture the rich relations and complex nested event types annotated in BioNLP dataset, \newcite{Miwa10} proposed a classification approach with a rich set of features specifically designed for complex relations. 
+Traditional approach to event extraction employs a pipeline architecture where events are identified first, typically done using classifiers with rich set of features \cite{Miwa10}, arguments of the candidate events are then identified next \cite{Bjorne11}. 
+\newcite{Poon10} showed improved results using Markov logic to jointly predict events and arguments. 
+\newcite{Mcclosky11} observed that the arguments in nested events exhibit a tree-like structure. They proposed an approach to extract such structure using dependency parsing algorithms.
 
-BioNLP work
+One limitation in the setting of these earlier work in event extraction is that events that occur together are considered independently, and the context is limited to a single sentence. \newcite{riedel11fast} presented three successive models that capture the correlations between events, and enforces consistency across arguments. They showed an efficient joint-inference algorithm using dual decomposition techniques. 
+Temporal event-to-event relations have been extensively studied before \cite{Chambers07,Chambers08,DSouzaNg:13a}. We leverage the  techniques used in temporal relation extraction in our work and borrow some features from \cite{Chambers07}. But one importance is that we extend beyond the simple types of temporal relations (e.g., \textit{before},\textit{after} and \textit{overlap}) to a richer set that includes \textit{cause}, \textit{enable} and \textit{super-event}.
 
-Timeline construction work.
-
-Scripts work - Chambers, Poon 2013.
-
-Work that uses global constraints with ILP or dual decomposition or whatever.
-
-Process extraction is related to two recent lines of work in Information Extraction -- event extraction and timeline construction. The BioNLP 2009 and 2011 shared tasks \cite{kim09,kim11} led to increasing interest in biomedical event extraction \cite{Poon10,Miwa10,riedel11fast,Mcclosky11,Bjorne11}, where given a single sentence annotated with protein mentions, events are identified and relations between events and proteins are extracted. In this shared task participants were asked to consider nine event types that are relevant for proteins (such as \emph{Phosphorilation} and \emph{Transcription}). Processes, on the other hand,  are centered around discovering \emph{relations} between events that span \emph{multiple} sentences. In Figure~\ref{fig:process} for instance, process extraction involves determining the relations between 8 events (\emph{flowing}, \emph{enter}, etc.) that are necessary for ATP production, which appear across four sentences. Note that the set of possible event types can not be restricted to a small closed set.
-
-Timeline construction involves identifying temporal relations between events \cite{Chambers08,Yoshikawa09,Denis11,Do12,Mcclosky12}, and is thus related to process extraction as both focus on event-event relations that span multiple sentences. However, fully capturing process structure requires handling a rich set of relations such as \textsc{Causes} and \textsc{SuperEvent} (see Section~\ref{sec:process}), which are often not addressed in timeline construction. Moreover, processes exhibit particular properties that do not hold generally in temporal ordering. For example, in processes all events are somehow related to one another, a property that can be exploited for improving extraction.
+ \newcite{Chambers08ACL} learns narrative events and arguments using distributional similarities, and then resort to a temporal classifier to link the events in temporal order in a chain structure. In our work, we make no such assumption of a chain structure, and predict more complex structures. \newcite{Cheung13} also learns to construct a event template (a.k.a. \textit{frame}) from text using unsupervised generative models. A major difference in our work is that we do not have the abundance of data as in frame learning setting, where common events and their arguments are observed many times; instead we are given one paragraph and our model has a ``one-shot'' chance at extracting the process structure.
  
-
+We showed in this paper that global structural properties can lead to significant improvements in process extraction accuracy, and ILP is an effective framework for modeling global constraints. Similar observations and techniques have also been proposed in other information extraction tasks. 
+\newcite{Reichart12} ties information from multiple sequence models that describe the same event by using global higher-order potentials. 
+\newcite{CLBerant} proposed a global inference algorithm to identify entailment relations. 
+\newcite{Do12} models a set of global temporal order constraints also using ILP for timeline construction. 
+There is abundance of examples of enforcing global constraints using approximate in other NLP tasks, such as in coreference resolution \cite{Finkel08}, parsing \cite{Rush12} and named entity recognition \cite{Wang13}.

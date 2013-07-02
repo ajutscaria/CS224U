@@ -1,10 +1,21 @@
 \section{Process Definition and Data Set}
 
+\begin{figure*}[ht]
+  \begin{center}
+    %\begin{tabular}{ccc}
+      \input{triad}
+    %\end{tabular}
+  \end{center}
+  \caption{\textcolor{red}{TODO:} add appropriate caption.}\label{fig:triad}
+\end{figure*}
+
+
 A process description is a paragraph or sequence of tokens $\bx=\{x_1,...x_{|\bx|}\}$ describing a series of events that are related by various temporal and causal relations. For example, in ATP synthesis, the event in which the rotor spins \emph{causes} the event where an internal rod spins. 
 
 We define the process events and their relations by a directed graph  $\sP=(V,E)$, where the nodes $V=\{1,...,|V|\}$ represent event mentions and labeled edges correspond to event-event relations. An event mention $v \in V$ is defined by a trigger $t_v$, which is a span of words $x_i,x_{i+1},...,x_j$ and by a set of argument mentions $A_v$, where each argument mention $a_v \in A_v$ is also a span of words labeled by a semantic role $l$ taken from a set $\sL$. For example, in the first event mention of ATP synthesis $t_v=\mbox{\emph{flowing}}$, and one of the arguments is $a_v=\mbox{\emph{(H+ ions, \textsc{Agent})}}$. A labeled edge $(u,v,r)$ in the graph describes a relation $r \in \sR$ between the event mentions $u$ and $v$. The task of process extraction is to extract the structure $P$ from the text $\bx$\footnote{Argument mentions are also related by coreference relations, but we neglect that since it is not central in this paper.}.
 
 A natural way to break down process extraction into two steps is to first perform semantic role labeling (SRL), that is, identify triggers and predict argument mentions with their semantic role, and then extract event-event relations between pairs of event mentions. In this paper, we focus on the second task, where given a set of triggers $\sT$, we find all event-event relations, where a trigger is a representative for the entire event. For completeness, we now describe the semantic roles $\sL$ used in our data set, and then present the set of event-event relations $\sR$.
+
 
 The set $\sL$ contains standard semantic roles such as \textsc{Agent}, \textsc{Theme}, \textsc{Origin}, \textsc{Destination} and \textsc{Location}. Two additional semantic roles were employed that are relevant for biological text: \textsc{Result} corresponds to an entity that is the result of an event, and \textsc{Raw-material} describes an entity that is used or consumed during an event. For example, in the last event \emph{'produce'} in Figure~\ref{fig:process} \emph{'ATP'} is the \textsc{Result} of the event, while \emph{'ADP'} is the \textsc{Raw-material}.
 
