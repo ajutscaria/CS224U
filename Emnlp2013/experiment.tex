@@ -28,7 +28,7 @@ To evaluate system performance we compare its set of predictions on all trigger 
 \emph{Local} & 66.2 & 58.3 & 62.0 & 54.7 & 48.3 & 51.3 \\
 %\emph{Local} & 50.3 & \textbf{67.8} & 52.6 & 59.3 & \textbf{57.6} & 44.7 \\
 %\emph{Local$_{chain}$} & 65.0 & 60.1 & 62.9 & 52.8 & 49.6  & 51.1 \\
-\emph{Global} & \textbf{66.5} & \textbf{64.5*} & \textbf{65.5*} & \textbf{55.7} & \textbf{54.0*} & \textbf{54.8*} \\
+\emph{Global} & \textbf{67.1} & \textbf{64.5*} & \textbf{65.8*} & \textbf{56.2} & \textbf{54.0*} & \textbf{55.0*} \\
 \hline
 \end{tabular}}
 \caption{Test set results on all experiments. Asterisk (*) denotes statistical significance ($p<0.01$) against all other baselines.}
@@ -57,7 +57,7 @@ Table~\ref{tab:degree} presents the degree distribution of \emph{Local} and \emp
 
 \subsection{Analysis and Discussion} \label{subsec:analysis}
 
-Table~\ref{tab:paramtuning} shows the order in which global constraints were introduced into the model using coordinate ascent on the development set. Connectivity is the first constraint to be introduced, and improves performance considerably. The chain constraint, on the other hand, is included last, which can be explained by examining the distribution of degrees in Table~\ref{tab:degree}. The predictions of \emph{Local} do not have many nodes with degree $>2$ and thus the effect of this constraint is small. As for triangle constraints, we see that three constraints are included in the model but two are discarded, since the changes they caused to the final solution did not improve F$_1$ on the development set.
+Table~\ref{tab:paramtuning} shows the order in which global constraints were introduced into the model using coordinate ascent on the development set. Connectivity is the first constraint to be introduced, and improves performance considerably. The chain constraint, on the other hand, is included third, which can be explained by examining the distribution of degrees in Table~\ref{tab:degree}. The predictions of \emph{Local} do not have many nodes with degree $>2$ and thus the effect of this constraint is small. As for triangle constraints, we see that four constraints are included in the model but one is discarded, since the changes they caused to the final solution did not improve F$_1$ on the development set.
 
 \begin{table}[t]
 {\footnotesize
@@ -68,10 +68,12 @@ Table~\ref{tab:paramtuning} shows the order in which global constraints were int
 \hline
 - & \emph{Local model} & - & 49.9 \\
 1 & Connectivity constraint & $\infty$ & 51.2 \\
-2 & \textsc{Same} transitivity &  0.5 & 52.0 \\
-3 & \textsc{Cause}-\textsc{Cotemp} & 0.75 & 52.2\\
-4 & \textsc{Same} contradiction & $\infty$ & 52.4\\
-5 & Chain constraint & 0.25 & 52.5\\
+2 & \textsc{Same} transitivity &  0.5 & 52.9 \\
+3 & Chain constraint & 0.5 & 53.3\\
+4 & \textsc{Cause}-\textsc{Cotemp} & 1.0 & 53.7\\
+6 & \textsc{Prev} contradiction & $\infty$ & 53.8\\
+7 & \textsc{Same} contradiction & $\infty$ & 53.9\\
+
 \hline
 \end{tabular}}
 \caption{Order in which constraint parameters were set using coordinate ascent on the dev set. For each parameter, the value chosen and F$_1$ score after including the constraint are provided. A value of $\infty$ indicates a hard constraint}
