@@ -1,6 +1,6 @@
 \section{Introduction}
 
-A series of inter-related events that involve multiple entities and lead to an end result is called a \emph{process}. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the \textit{`enter'} event \textit{causes} the \textit{`changing'} event). 
+A \emph{process} is defined as a series of inter-related events that involve multiple entities and lead to an end result. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the event \textit{`enter'}, \textit{'causes'} the event \textit{`changing'}). 
 
 \FigStar{figures/process5}{0.8}{process}{An annotation of the ATP synthesis process}
 
@@ -27,7 +27,7 @@ Our approach works over multiple sentences and extracts a rich set of event-even
 Furthermore, we characterize a set of global properties in process structure that can be utilized during process extraction. 
 For example, in processes all events are somehow connected to one another, and in addition processes usually exhibit a ``chain-like" structure corresponding to process progression over time. 
 We show that by incorporating global properties into our model and performing joint inference over the extracted relations, we can significantly improve process quality.  
-Our empirical experiments are performed over a novel data set of 148 process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not utilize any domain-specific knowledge and can be easily adopted for domains other than Biology.
+Our empirical experiments are performed over a novel data set of 148 process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not require any domain-specific knowledge and can be easily adopted for domains other than Biology.
 
 The three main contributions of this paper are:
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
