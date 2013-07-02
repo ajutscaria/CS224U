@@ -37,9 +37,9 @@ Share & Whether triggers share a child on dependency tree \\
 
 A central source of information for extracting event-event relations from text are \emph{connectives} such as \emph{after}, \emph{during}, etc. However, there is variability in the occurrence of these connectives. Consider the following two sentences (connectives in bold, triggers in italics):
 
-\begin{enumerate}[itemsep=0pt,topsep=0pt] 
-\item \footnotesize \textbf{Because} alleles are \emph{exchanged} during \emph{gene flow}, genetic differences are \emph{reduced}. \label{sent:1}
-\item \footnotesize During \emph{gene flow}, alleles are \emph{exchanged}, and genetic differences are \textbf{hence} \emph{reduced}. \label{sent:2}
+\begin{enumerate}[itemsep=0pt,topsep=0pt] \footnotesize{
+\item \textbf{Because} alleles are \emph{exchanged} during \emph{gene flow}, genetic differences are \emph{reduced}. \label{sent:1}
+\item During \emph{gene flow}, alleles are \emph{exchanged}, and genetic differences are \textbf{hence} \emph{reduced}. \label{sent:2}}
 \end{enumerate}
 
 Both sentences express the relation $(\mbox{\emph{exchanged}},\mbox{\emph{reduced}},\mbox{\textsc{Causes}})$, but the connective used is different, its linear position with respect to the triggers is different, and in sentence~\ref{sent:1} the trigger \emph{gene flow} intervenes between \emph{exchanged} and \emph{reduced}. Since our data set is very small, we would like to identify the triggers related to each connective, and share features between such sentences. We do this using the syntactic structure and a clustering of connectives.
