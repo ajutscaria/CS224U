@@ -96,13 +96,13 @@ Jenny~Rose Finkel and Christopher~D. Manning.
 \bibitem[\protect\citename{Kim \bgroup et al.\egroup }2009]{kim09}
 Jin-Dong Kim, Tomoko Ohta, Sampo Pyysalo, Yoshinobu Kano, and Jun’ichi Tsujii.
 \newblock 2009.
-\newblock Overview of bionlp ’09 shared task on event extraction.
+\newblock Overview of {BioNLP} ’09 shared task on event extraction.
 \newblock In {\em Proceedings of BioNLP}.
 
 \bibitem[\protect\citename{Kim \bgroup et al.\egroup }2011]{kim11}
 Jin-Dong Kim, Sampo Pyysalo, Tomoko Ohta, Robert Bossy, and Jun’ichi Tsujii.
 \newblock 2011.
-\newblock Overview of bionlp shared task 2011.
+\newblock Overview of {BioNLP} shared task 2011.
 \newblock In {\em Proceedings of BioNLP}.
 
 \bibitem[\protect\citename{Klein and Manning}2003]{Klein03}
@@ -148,7 +148,7 @@ Hoifung Poon and Lucy Vanderwende.
 James Pustejovsky, Jos{\'e}~M. Casta{\~n}o, Robert Ingria, Roser Sauri,
   Robert~J. Gaizauskas, Andrea Setzer, Graham Katz, and Dragomir~R. Radev.
 \newblock 2003.
-\newblock Timeml: Robust specification of event and temporal expressions in
+\newblock {TimeML}: Robust specification of event and temporal expressions in
   text.
 \newblock In {\em New Directions in Question Answering}.
 
@@ -200,7 +200,7 @@ Mengqiu Wang, Wanxiang Che, and Christopher~D. Manning.
 \bibitem[\protect\citename{Yoshikawa \bgroup et al.\egroup }2009]{Yoshikawa09}
 Katsumasa Yoshikawa, Sebastian Riedel, Masayuki Asahara, and Yuji Matsumoto.
 \newblock 2009.
-\newblock Jointly identifying temporal relations with markov logic.
+\newblock Jointly identifying temporal relations with {M}arkov logic.
 \newblock In {\em Proceedings of ACL/IJCNLP}.
 
 \end{thebibliography}
