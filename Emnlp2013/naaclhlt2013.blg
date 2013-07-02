@@ -1,0 +1,48 @@
+This is BibTeX, Version 0.99d (TeX Live 2012)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: naaclhlt2013.aux
+The style file: naaclhlt2013.bst
+Database file #1: naaclhlt2013.bib
+Warning--empty title in Fellbaum1998
+You've used 25 entries,
+            2490 wiz_defined-function locations,
+            690 strings with 8053 characters,
+and the built_in function-call counts, 10229 in all, are:
+= -- 1005
+> -- 444
+< -- 6
++ -- 150
+- -- 148
+* -- 727
+:= -- 1621
+add.period$ -- 99
+call.type$ -- 25
+change.case$ -- 171
+chr.to.int$ -- 25
+cite$ -- 26
+duplicate$ -- 470
+empty$ -- 826
+format.name$ -- 184
+if$ -- 2172
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 27
+newline$ -- 152
+num.names$ -- 76
+pop$ -- 234
+preamble$ -- 1
+purify$ -- 199
+quote$ -- 0
+skip$ -- 349
+stack$ -- 0
+substring$ -- 355
+swap$ -- 111
+text.length$ -- 6
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 188
+warning$ -- 1
+while$ -- 65
+width$ -- 28
+write$ -- 337
+(There was 1 warning)
