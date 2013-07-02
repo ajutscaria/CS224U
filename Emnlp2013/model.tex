@@ -44,7 +44,7 @@ A central source of information for extracting event-event relations from text a
 
 Both sentences express the relation $(\mbox{\emph{exchanged}},\mbox{\emph{reduced}},\mbox{\textsc{Causes}})$, but the connective used is different, its linear position with respect to the triggers is different, and in sentence~\ref{sent:1} the trigger \emph{gene flow} intervenes between \emph{exchanged} and \emph{reduced}. Since our data set is very small, we would like to identify the triggers related to each connective, and share features between such sentences. We do this using the syntactic structure and a clustering of connectives.
 
-Sentence~\ref{sent:1} presents a typical case where by walking up the Stanford dependency tree from the marker \emph{because} we can find the triggers related by this marker: $\mbox{\emph{because}}\xleftarrow{\scriptscriptstyle mark}\mbox{\emph{exchanged}}\xleftarrow{\scriptscriptstyle advcl}\mbox{\emph{reduced}}$. Whenever a trigger is the head of an adverbial clause and marked by a \emph{mark} dependency label, we walk on the dependency tree and look for a trigger in the main clause that is closest to the root (or the root itself in this example). 
+Sentence~\ref{sent:1} presents a typical case where by walking up the dependency tree from the marker \emph{because} we can find the triggers related by this marker: $\mbox{\emph{because}}\xleftarrow{\scriptscriptstyle mark}\mbox{\emph{exchanged}}\xleftarrow{\scriptscriptstyle advcl}\mbox{\emph{reduced}}$. Whenever a trigger is the head of an adverbial clause and marked by a \emph{mark} dependency label, we walk on the dependency tree and look for a trigger in the main clause that is closest to the root (or the root itself in this example). 
 By utilizing the syntactic structure we can correctly ignore the trigger \emph{gene flow} that is linearly closer to the trigger \emph{exchanged}. After locating the relevant pair of triggers, we reduce sparseness utilizing a hand-made clustering of 30 connectives that maps words such as \emph{because} and \emph{since} to a ``causality" cluster and fire a feature for this cluster. We perform a similar procedure whenever a trigger is part of a prepositional phrase (imagine sentence~\ref{sent:1} starting with ``due to allele exchange during gene flow...") by walking up the constituency tree, but we omit details here for brevity. In sentence~\ref{sent:2}, the connective \emph{hence} is an adverbial modifier of the trigger \emph{reduced}. We look up the cluster for the connective \emph{hence} and fire the same feature in this sentence as well for the adjacent triggers \emph{exchanged} and \emph{reduced}.
 
 %One of the signals we use to identify connectives between event triggers is to use markers in dependency graph of the sentence. A marker of an adverbial clausal complement (advcl) is the word introducing it and carries information as to how triggers are related. We also use adverbial modifier relations that modifies the meaning of the word as another signal. In sentence 1 in the above example, \emph{because} acts as a marker between the triggers \emph{exchanged} and  \emph{reduced}. But, in sentence 2, \emph{hence} is an adverbial modifier to \emph{reduced}. We see that even though the sentences have the same semantics, the dependency relations ensued is very different. In fact, \emph{because} and \emph{hence} indicates that one trigger causes the other, but, $because X, Y$ translates to $X hence Y$. Hence, we would like the same set of features to be fired for the pair of triggers for both the sentences. To this end, we cluster the different marker and advmod relations based on the relation type it indicates. While appearing in the text between the event triggers, \emph{because} indicates $CAUSED$, whereas \emph{hence} indicates $CAUSES$. But, when \emph{because} appears before the first trigger, the causal relation is inverted, and as a result, it indicates $CAUSES$ as well. We extract a marker to indicate a relation between a pair of triggers if one is related to the other by an adverbial clause and the former has a marker attached to it. For advmod, we extract the relation if the two triggers appear consecutive in text and the latter has an advmod attached to it. Instead of using the actual marker or adverbial modifier, we insert the cluster name as the feature. We see that for both the sentences, the same cluster feature is fired. We also include connectives based on prepositional phrases, but will not go into details for brevity.
@@ -55,7 +55,7 @@ For our pairwise classifier, we train a maximum entropy classifier that provides
 
 \subsection{Global Constraints} \label{subsec:global}
 
-Naturally, a pairwise classifier can result in a process structure that violates global properties (see Section~\ref{sec:process}). Figure~\ref{fig:graph} shows in black edges the predictions of our local classifier, which result in the trigger \emph{passed} being isolated from the rest of the process [NEED BETTER EXAMPLE]. In this section we incorporate into our model, constraints that result in a coherent global process structure.
+Naturally, a pairwise classifier can result in a process structure that violates global properties (see Section~\ref{sec:process}). Figure~\ref{fig:graph} shows in black edges the predictions of our local classifier, which result in the trigger \emph{passed} being isolated from the rest of the process [\textcolor{red}{TODO} NEED BETTER EXAMPLE WITH INTERESTING EXPLANATION]. In this section we incorporate into our model, constraints that result in a coherent global process structure.
 
 Let $\theta_{ijr}$ be a score for the relation $r$ and the triggers $(t_i,t_j)$ (e.g, $\theta_{ijr}=\log p_{ijr}$), and $y_{ijr}$ be the corresponding indicator. Our goal is to find an assignment for the indicators $\by=\{y_{ijr} \ | \ 1 \leq i < j \leq n, r \in \sR \}$. With no global constraints this can be formulated as the following ILP:
 
@@ -65,27 +65,27 @@ Let $\theta_{ijr}$ be a score for the relation $r$ and the triggers $(t_i,t_j)$ 
 % \forall_{i,j,r} \ y_{ijr} \in \{0,1\} \nonumber
 \end{align}
 
-\noindent where the constraint ensures each trigger pair is assigned exactly one relation. We now describe constraints that result in a process that is connected, ``chain-like", and has reasonable relation triangles.
+\noindent where the constraint ensures each trigger pair is assigned exactly one relation. We now describe constraints that result in a process with a coherent global structure:
 
 \paragraph{Connectivity} 
-Our formulation for enforcing connectivity is a minor variation on the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we want $\sP$ to be a connected undirected graph, and not a directed tree. However, an undirected graph is connected iff there is a directed tree embedded in it, and thus the resulting formulation is almost identical. This formulation is based on flow constraints that ensure that there is a path from a designated root in the graph to all other nodes.
+Our formulation for enforcing connectivity is a minor variation on the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we want $\sP$ to be a connected undirected graph, and not a directed tree. However, an undirected graph $\sP$ is connected iff there is a directed tree that is a subgraph of $\sP$ when edge directions are ignored. Thus the resulting formulation is almost identical. This formulation is based on flow constraints that ensure that there is a path from a designated root in the graph to all other nodes.
 
- Let $\bar{\sR}$ be the set $\sR \setminus \mbox{\textsc{None}}$. An edge $(t_i,t_j)$ is in $E$ if $y_{ij}=\sum_{r \in \bar{\sR}} y_{ijr}=1$. For each variable $y_{ij}$ we define two auxiliary binary variables $z_{ij}$ and $z_{ji}$ that correspond to the directed edges in the embedded tree. We tie each auxiliary variable to its corresponding ILP variable by ensuring  $z_{ij}$ and $z_{ji}$ are active only if $y_{ij}$ is active:
+ Let $\bar{\sR}$ be the set $\sR \setminus \mbox{\textsc{None}}$. An edge $(t_i,t_j)$ is in $E$ if there is some none-\textsc{None} relation between $t_i$ and $t_j$: $y_{ij}=\sum_{r \in \bar{\sR}} y_{ijr}=1$. For each variable $y_{ij}$ we define two auxiliary binary variables $z_{ij}$ and $z_{ji}$ that correspond to edges of the directed tree that is a subgraph of $\sP$. We ensure that the edges in the tree exist also in $\sP$ by tying each auxiliary variable to its corresponding ILP variable:
  
 \begin{align}
 \forall_{i<j} \ z_{ij} \leq y_{ij}, z_{ji} \leq y_{ij}
 \end{align}
 
-Next, we add constraints that enforce that the graph structure induced by the auxiliary variables results in a tree rooted in an arbitrary node $1$ (The choice of root doesn't affect connectivity). For that we need for every $i \neq j$ a flow variable $\phi_{ij}$ which specifies the amount of flow on the directed edge $z_{ij}$.
+Next, we add constraints that enforce the graph structure induced by the auxiliary variables is a tree rooted in an arbitrary node $1$ (The choice of root doesn't affect connectivity). We add for every $i \neq j$ a flow variable $\phi_{ij}$ which specifies the amount of flow on the directed edge $z_{ij}$.
 
 \begin{align}
 \small &\sum_{i} z_{i1} =0, \forall_{j \neq 1} \sum_{i} z_{ij}=1 \label{eq:oneparent} \\ 
 &\sum_{i} \phi_{1i}=n-1 \label{eq:rootflow} \\ 
-&\forall_{j} \ \sum_{i} \phi_{ij} - \sum_{k} \phi_{jk}=1 \label{eq:flow} \\
+&\forall_{j \neq 1} \ \sum_{i} \phi_{ij} - \sum_{k} \phi_{jk}=1 \label{eq:flow} \\
 &\forall_{i \neq j} \ \phi_{ij} \leq n \cdot z_{ij} \label{eq:tie} 
 \end{align}
 
-Equation~\ref{eq:oneparent} says that all nodes in the graph have exactly one parent, except for the root that has no parents. Equation~\ref{eq:rootflow} ensures that the outgoing flow from the root is $n-1$, and Equation~\ref{eq:flow} states that each of the other $n-1$ nodes consumes exactly one flow unit. Last, Equation~\ref{eq:tie} ties the auxiliary variables to the flow variables, making sure that flow occurs only on edges. The combination of these constraints guarantees that the graph induced by the variables $z_{ij}$ is a directed tree and consequently the graph induced by our variables $\by$ is connected.
+Equation~\ref{eq:oneparent} says that all nodes in the graph have exactly one parent, except for the root that has no parents. Equation~\ref{eq:rootflow} ensures that the outgoing flow from the root is $n-1$, and Equation~\ref{eq:flow} states that each of the other $n-1$ nodes consumes exactly one flow unit. Last, Equation~\ref{eq:tie} ties the auxiliary variables to the flow variables, making sure that flow occurs only on edges. The combination of these constraints guarantees that the graph induced by the variables $z_{ij}$ is a directed tree and consequently the graph induced by the objective variables $\by$ is connected.
 
 \paragraph{Chain structure} 
 A connected graph where the degree of all nodes is $\leq 2$ is a chain. Table~\ref{tab:degree} presents nodes' degree and demonstrates that indeed process graphs are close to being chains. The following constraint bounds nodes' degree by 2:
@@ -94,35 +94,38 @@ A connected graph where the degree of all nodes is $\leq 2$ is a chain. Table~\r
 \forall_j \sum_{i<j} y_{ij} + \sum_{j<k} y_{jk} \leq 2
 \end{align}
 
-Since graph structures are not always chains we add this as a soft constraint, that is, we penalize the objective for each node with degree $>2$. Thus, our modified objective function is $\sum_{ijr} \theta_{ijr} y_{ijr} + \sum_{k \in \sK} \alpha_k C_k$, where $\sK$ is the set of soft constraints, $\alpha_k$ is the penalty, and $C_k$ indicates whether a constraint is violated. We tune the parameters $\alpha_k$ on a development set, as explained in Section~\ref{subsec:analysis}.
+Since graph structures are not always chains we add this as a soft constraint, that is, we penalize the objective for each node with degree $>2$. Thus, our modified objective function is $\sum_{ijr} \theta_{ijr} y_{ijr} + \sum_{k \in \sK} \alpha_k C_k$, where $\sK$ is the set of soft constraints, $\alpha_k$ is the penalty, and $C_k$ indicates whether a constraint is violated. We tune the parameters $\alpha_k$ on a development set, as explained in Section~\ref{subsec:setup}.
 
 \paragraph{Relation triangles} 
-A triangle is a 3-tuple of relations $(f(t_i,t_j),f(t_j,t_k),f(t_i,t_k))$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction we counted how many time each possible triangle occurs in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagree. We are interested in triangles that never occur in the training data but are predicted by the classifier, and triangles that are frequent in the gold standard but do not appear in the classifier output. Table~\ref{tab:constraintformulation} illustrates the triangles found and Equations 8-12 provide the corresponding ILP formulation. Soft constraints are incorporated by defining a penalty/reward $\alpha_k$ for each triangle structure and expanding the set $\sK$ accordingly. 
+A triangle is a 3-tuple of relations $(f(t_i,t_j),f(t_j,t_k),f(t_i,t_k))$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction we counted how many times each possible triangle occurs in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagreed. We are interested in triangles that never occur in the training data but are predicted by the classifier, and triangles that are frequent in the gold standard but do not appear in the classifier output. Figure~\ref{fig:triad} illustrates the triangles found and Equations~\ref{eq:sametransitivity}-\ref{eq:prev} provide the corresponding ILP formulation. Soft constraints were incorporated by defining a reward $\alpha_k$ for each triangle type and expanding the set $\sK$ accordingly\footnote{We experimented with a reward for certain triangles or a penalty for others and empirically found that using rewards results in better performance on the development set.}. 
+
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
-\item \textsc{Same} transitivity: The transitivity of \textsc{Same} (co-reference) has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint (Equation 8).
+\item \textsc{Same} transitivity (Figure~\ref{fig:triad}a): Co-reference transitivity has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint that encourages triangles that respect transitivity: 
 \begin{align}
-y_{ijSAME} + y_{jkSAME} - y_{ikSAME} \leq 1 \label{eq:sametransitivity}
+y_{ijSAME} + y_{jkSAME} + y_{ikSAME} \geq 3 \label{eq:sametransitivity}
 \end{align}
 
-\item \textsc{Cotemp} transitivity:  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event (soft constraint in Equation 9).
+\item \textsc{Cause}-\textsc{Cotemp} (Figure~\ref{fig:triad}b): If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", a single event causes two subsequent events that occur simultaneously. We formulate this as a soft constraint:
+\begin{align}
+y_{ijCAUSES} + y_{ikCAUSES} + y_{jkCOTEMP} \geq 3 \label{eq:causecotemp}
+\end{align}
+
+\item \textsc{Cotemp} transitivity (Figure~\ref{fig:triad}c):  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event. We formulate this as a soft constraint:
 \begin{multline}
-y_{ijCOTEMP} + y_{jkCOTEMP} - y_{ikCOTEMP} \\ - y_{ikSAME} \leq 1 \label{eq:cotemptransitivity}
+y_{ijCOTEMP} + y_{jkCOTEMP}  +y_{ikCOTEMP} \\ + y_{ikSAME} \geq 3 \label{eq:cotemptransitivity}
 \end{multline}
-\item \textsc{Cause}-\textsc{Cotemp}: If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", a single event causes two subsequent events that occur simultaneously (soft constraint in Equation 10).
+
+\item \textsc{Same} contradiction (Figure~\ref{fig:triad}d): if $t_i$ is the same event as  $t_j$, then their temporal ordering with respect to a third trigger $t_k$ may result in a contradiction, e.g., if $t_i$ is before $t_k$, but $t_j$ is after $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint. Note that this constraint depends on co-reference and temporal relations being predicted jointly.
 \begin{align}
-y_{ijCAUSES} + y_{jkCOTEMP} - y_{ikCAUSES} \leq 1 \label{eq:causecotemp}
+y_{ijPREV} + y_{jkPREV} + y_{ikSAME} \leq 2 \label{eq:samecontradiction}
 \end{align}
-\item \textsc{Same} contradiction: if $t_i$ is the same event as  $t_j$, then their temporal ordering with respect to a third trigger $t_k$ may result in a contradiction, e.g., if $t_i$ is before $t_k$, but $t_j$ is after $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint (Equations 11). This constraint ensures that if $f(t_j,t_k) = SAME$, then $t_i$ cannot occur before $t_j$ and after $t_k$. Note that this constraint depends on co-reference and temporal relations being predicted jointly.
-\begin{align}
-y_{ijPREV} + y_{jkSAME} + y_{ikNEXT} \leq 2 \label{eq:samecontradiction}
-\end{align}
-\item \textsc{Prev}: As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then it can not be that $t_i$ is immediately before $t_k$ (hard constraint in Equation 12).
+\item \textsc{Prev} contradiction (Figure~\ref{fig:triad}e): As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then it can not be that $t_i$ is immediately before $t_k$ (hard constraint).
 \begin{align} 
 y_{ijPREV} + y_{jkPREV} - y_{ikNONE} \leq 1 \label{eq:prev}
 \end{align}
 \end{enumerate}.
 
-We used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2r)$ variables and $O(n^3)$ constraints. We have also developed an equivalent formulation amenable to dual decomposition \cite{Reichart12}, which is a faster approximation method, but practically found that solving the problem exactly with Gurobi is quite fast (average/median time per process: 0.294 sec/0.152 sec).
+We used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2|\sR|)$ variables and $O(n^3)$ constraints. We have also developed an equivalent formulation amenable to dual decomposition \cite{Reichart12}, which is a faster approximation method, but practically found that solving the problem exactly with Gurobi is quite fast (average/median time per process: 0.294 sec/0.152 sec).
 
 
 
