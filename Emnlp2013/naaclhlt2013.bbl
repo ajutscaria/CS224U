@@ -26,23 +26,17 @@ Neil Campbell and Jane Reece.
 \newblock {\em Biology}.
 \newblock Benjamin Cummings.
 
-\bibitem[\protect\citename{Chambers and Jurafsky}2008a]{Chambers08}
+\bibitem[\protect\citename{Chambers and Jurafsky}2008]{Chambers08}
 Nathanael Chambers and Daniel Jurafsky.
-\newblock 2008a.
+\newblock 2008.
 \newblock Jointly combining implicit constraints improves temporal ordering.
 \newblock In {\em Proceedings of EMNLP}.
 
-\bibitem[\protect\citename{Chambers and Jurafsky}2008b]{Chambers08ACL}
-Nathanael Chambers and Daniel Jurafsky.
-\newblock 2008b.
-\newblock Unsupervised learning of narrative event chains.
-\newblock In {\em Proceedings of ACL}.
-
-\bibitem[\protect\citename{Chambers \bgroup et al.\egroup }2007]{Chambers07}
-Nathanael Chambers, Shan Wang, and Daniel Jurafsky.
-\newblock 2007.
-\newblock Classifying temporal relations between events.
-\newblock In {\em Proceedings of ACL}.
+\bibitem[\protect\citename{Chambers and Jurafsky}2011]{Chambers11}
+Nathanael Chambers and Dan Jurafsky.
+\newblock 2011.
+\newblock Template-based information extraction without the templates.
+\newblock In {\em ACL}, pages 976--986.
 
 \bibitem[\protect\citename{Cheung \bgroup et al.\egroup }2013]{Cheung13}
 Jackie Chi~Kit Cheung, Hoifung Poon, and Lucy Vanderwende.
