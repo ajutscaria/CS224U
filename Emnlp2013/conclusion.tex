@@ -1,7 +1,5 @@
 \section{Conclusion}
 
-\textcolor{red}{TODO} WRITE CONCLUSION FOR REAL
+Developing systems that read and extract meaning from process descriptions is an important step towards applications that require deep reasoning, such as non-factoid QA. In this paper we have presented the task of process extraction, and developed methods for extracting relations between process events. Processes contain events that are  tightly coupled through strong mutual dependencies. We have shown that by exploiting these structural dependencies and performing joint inference over all event mentions we can significantly improve accuracy comparing to several baselines. We have also released a new data set containing 148 fully annotated descriptions of biological processes.
 
-In this paper we presented the task of process extraction and a method for extracting processes. We focused on extracting relations between event triggers. We also release publicly a data set for the scientific community. We have shown that by taking advantage of the global structure of a process we can improve performance.
-
-Future work - adding more constraints - Mengqiu's idea. This may results in inference problems (it does) and so we can try think of smarter inference. There is the problem of very little data and we can think about using data from other domains and do adaptations. We want to do the full pipeline jointly.
+We assumed in this paper that event triggers are given as input. In future work we would like to perform trigger identification jointly with extraction of event-event relations. Because data annotation is expensive, another important direction is to reduce annotation burden by using data from similar domains or large unannotated corpora. Last, we would like to combine our method in a QA system that uses the extracted structure to answer non-factoid questions that are unanswerable by current state-of-the-art systems.
