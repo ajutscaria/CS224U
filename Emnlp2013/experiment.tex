@@ -38,8 +38,9 @@ To evaluate system performance we compare the set of predictions on all trigger 
 
 \begin{figure*}[t]
 \centering
-\includegraphics[width=0.9\textwidth]{figures/p144.png} 
-\caption{Process graph example. Black edges are predictions of \emph{Local}, green edges indicate edges added by \emph{Global}, and gold edges represent gold standard edges. \textbf{Original text:} ``... Individuals in a population exhibit \emph{variations} in their heritable traits, and those with traits that are \emph{better} suited to their environment tend to \emph{produce} more offspring than those with traits that are not as well suited. In genetic terms, we now know that selection results in alleles being \emph{passed} to the next generation in proportions that differ from those in the present generation."}
+\includegraphics[width=0.99\textwidth]{figures/example.png} 
+\caption{Process graph example. Black edges are predictions of \emph{Local}, green edges indicate edges modified by \emph{Global}, and gold edges represent gold standard edges. \textbf{Original text: 1.} "... the template \emph{shifts} with respect to the new complementary strand, and a part of the template strand is either \emph{skipped} by the replication machinery or \emph{used} twice as a template.
+As a result, a segment of DNA is \emph{deleted} or \emph{duplicated}." \textbf{2.} "Cells of mating type A secrete a signaling molecule, which can \emph{bind} to specific receptor proteins on nearby cells. At the same time, cells \emph{secrete} factor, which \emph{binds} to receptors on a cells."}
 \label{fig:graph}
 \end{figure*}
 
@@ -78,4 +79,8 @@ Table~\ref{tab:paramtuning} presents the order in which global constraints were 
 
 \subsection{Qualitative Analysis} \label{subsec:analysis}
 
-Figure~\ref{fig:graph} shows an example where the global constraints improve the predictions made by the local model. We see that the connectivity constraints help to identify the relation between \emph{produce} and \emph{passed} \textcolor{red}{TODO} FIND TWO MORE INTERESTING EXAMLPES AND DISCUSS AND SOME ERROR ANALYSIS
+Figure~\ref{fig:graph} shows two examples where the global constraints improve the predictions made by the local model. In (a), the local model fails to predict relations \emph{skipped}-\emph{deleted} and \emph{used}-\emph{duplicated}, probably because they are not close by and in two different sentences. Now, the global model enforces the connectivity constraint which makes sure that \emph{deleted} and \emph{duplicated} are related to at least one another trigger. In this case, the global model predicts the relations correctly.
+
+In (b), the local model predicts a triad which is not possible. This is because \emph{bind} and \emph{binds} cannot be the same event with an event \emph{secrete} happening between them. At the same time, since \emph{bind} and \emph{binds} shares the same lemma, the local model has good reason to predict that these are same events. Once the global model enforces the constraints, it finds that the relation triangle is not feasible and as result corrects the prediction of the local model to NONE. It could very well have been possible that instead of making the relation between \emph{bind} and \emph{binds} to NONE, it could have removed the relation between \emph{secrete} and \emph{binds}. The global model picks the configuration that maximizes the objective.
+
+We see that the connectivity constraints help to identify the relation between \emph{produce} and \emph{passed} \textcolor{red}{TODO} FIND TWO MORE INTERESTING EXAMLPES AND DISCUSS AND SOME ERROR ANALYSIS
