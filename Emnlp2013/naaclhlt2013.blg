@@ -3,44 +3,44 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: naaclhlt2013.aux
 The style file: naaclhlt2013.bst
 Database file #1: naaclhlt2013.bib
-You've used 32 entries,
+You've used 33 entries,
             2490 wiz_defined-function locations,
-            721 strings with 9002 characters,
-and the built_in function-call counts, 12482 in all, are:
-= -- 1214
-> -- 565
+            726 strings with 9197 characters,
+and the built_in function-call counts, 12923 in all, are:
+= -- 1255
+> -- 594
 < -- 4
-+ -- 191
-- -- 188
-* -- 882
-:= -- 2011
-add.period$ -- 128
-call.type$ -- 32
-change.case$ -- 219
-chr.to.int$ -- 31
-cite$ -- 32
-duplicate$ -- 576
-empty$ -- 1017
-format.name$ -- 233
-if$ -- 2622
++ -- 200
+- -- 197
+* -- 916
+:= -- 2088
+add.period$ -- 133
+call.type$ -- 33
+change.case$ -- 226
+chr.to.int$ -- 32
+cite$ -- 33
+duplicate$ -- 595
+empty$ -- 1050
+format.name$ -- 243
+if$ -- 2714
 int.to.chr$ -- 2
 int.to.str$ -- 0
-missing$ -- 34
-newline$ -- 195
-num.names$ -- 97
-pop$ -- 303
+missing$ -- 35
+newline$ -- 201
+num.names$ -- 102
+pop$ -- 314
 preamble$ -- 1
-purify$ -- 254
+purify$ -- 262
 quote$ -- 0
-skip$ -- 406
+skip$ -- 415
 stack$ -- 0
-substring$ -- 342
-swap$ -- 116
+substring$ -- 347
+swap$ -- 118
 text.length$ -- 4
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 244
+type$ -- 252
 warning$ -- 0
-while$ -- 75
-width$ -- 35
-write$ -- 429
+while$ -- 78
+width$ -- 36
+write$ -- 443

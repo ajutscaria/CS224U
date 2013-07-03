@@ -177,6 +177,13 @@ Emanuel~A Schegloff and Harvey Sacks.
 \newblock Opening up closings.
 \newblock {\em Semiotica}, 8(4):289--327.
 
+\bibitem[\protect\citename{Sontag \bgroup et al.\egroup }2011]{dualdecomp}
+David Sontag, Amir Globerson, and Tommi Jaakkola.
+\newblock 2011.
+\newblock Introduction to dual decomposition for inference.
+\newblock In Suvrit Sra, Sebastian Nowozin, and Stephen~J. Wright, editors,
+  {\em Optimization for Machine Learning}. MIT Press.
+
 \bibitem[\protect\citename{Surdeanu \bgroup et al.\egroup }2011]{Surdeanu:2011}
 Mihai Surdeanu, Massimiliano Ciaramita, and Hugo Zaragoza.
 \newblock 2011.
