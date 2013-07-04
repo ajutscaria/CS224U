@@ -39,8 +39,8 @@ To evaluate system performance we compare the set of predictions on all trigger 
 \begin{figure*}[t]
 \centering
 \includegraphics[width=0.99\textwidth]{figures/example.png} 
-\caption{Process graph example. Black edges are predictions of \emph{Local}, green edges indicate edges modified by \emph{Global}, and gold edges represent gold standard edges. \textbf{Original text: 1.} "... the template \emph{shifts} with respect to the new complementary strand, and a part of the template strand is either \emph{skipped} by the replication machinery or \emph{used} twice as a template.
-As a result, a segment of DNA is \emph{deleted} or \emph{duplicated}." \textbf{2.} "Cells of mating type A secrete a signaling molecule, which can \emph{bind} to specific receptor proteins on nearby cells. At the same time, cells \emph{secrete} factor, which \emph{binds} to receptors on a cells."}
+\caption{Process graph example. Black edges are predictions of \emph{Local}, green edges indicate edges modified by \emph{Global}, and gold edges represent gold standard edges. \textbf{Original text: (Left)} "... the template \emph{shifts} with respect to the new complementary strand, and a part of the template strand is either \emph{skipped} by the replication machinery or \emph{used} twice as a template.
+As a result, a segment of DNA is \emph{deleted} or \emph{duplicated}." \textbf{(Right)} "Cells of mating type A secrete a signaling molecule, which can \emph{bind} to specific receptor proteins on nearby cells. At the same time, cells \emph{secrete} factor, which \emph{binds} to receptors on a cells."}
 \label{fig:graph}
 \end{figure*}
 
@@ -79,8 +79,13 @@ Table~\ref{tab:paramtuning} presents the order in which global constraints were 
 
 \subsection{Qualitative Analysis} \label{subsec:analysis}
 
-Figure~\ref{fig:graph} shows two examples where the global constraints improve the predictions made by the local model. In (a), the local model fails to predict relations \emph{skipped}-\emph{deleted} and \emph{used}-\emph{duplicated}, probably because they are not close by and in two different sentences. Now, the global model enforces the connectivity constraint which makes sure that \emph{deleted} and \emph{duplicated} are related to at least one another trigger. In this case, the global model predicts the relations correctly.
+Figure~\ref{fig:graph} shows two examples where the global constraints improve the predictions made by the local model. In Figure~\ref{fig:graph} left, the local model fails to predict relations \emph{skipped}-\emph{deleted} and \emph{used}-\emph{duplicated}, probably because they are not close by and in two different sentences. Now, the global model enforces the connectivity constraint which makes sure that \emph{deleted} and \emph{duplicated} are related to at least one another trigger. In this case, the global model predicts the relations correctly.
 
-In (b), the local model predicts a triad which is not possible. This is because \emph{bind} and \emph{binds} cannot be the same event with an event \emph{secrete} happening between them. At the same time, since \emph{bind} and \emph{binds} shares the same lemma, the local model has good reason to predict that these are same events. Once the global model enforces the constraints, it finds that the relation triangle is not feasible and as result corrects the prediction of the local model to NONE. It could very well have been possible that instead of making the relation between \emph{bind} and \emph{binds} to NONE, it could have removed the relation between \emph{secrete} and \emph{binds}. The global model picks the configuration that maximizes the objective.
+Figure~\ref{fig:graph} right, the local model predicts a triad which is not possible. This is because \emph{bind} and \emph{binds} cannot be the same event with an event \emph{secrete} happening between them. At the same time, since \emph{bind} and \emph{binds} shares the same lemma, the local model has good reason to predict that these are same events. Once the global model enforces the constraints, it finds that the relation triangle is not feasible and as result corrects the prediction of the local model to NONE. It could very well have been possible that instead of making the relation between \emph{bind} and \emph{binds} to NONE, it could have removed the relation between \emph{secrete} and \emph{binds}. The global model picks the configuration that maximizes the objective.
 
-We see that the connectivity constraints help to identify the relation between \emph{produce} and \emph{passed} \textcolor{red}{TODO} FIND TWO MORE INTERESTING EXAMLPES AND DISCUSS AND SOME ERROR ANALYSIS
+In general, the local model learns feature weights that favor the more dominant classes - \textsc{Prev} and \textsc{Causes}, which generally happens with classifiers trying to maximize the overall score. In addition, the relation types \textsc{Causes} and \textsc{Enables} are harder to differentiate from \textsc{Prev} as demonstrated in Figure~\ref{fig:graph} right. This is expected as temporally, all three relations mean the same, but have very subtle differences. With some of the examples, even human annotators find it hard to differentiate between the three classes. Analyzing the confusion matrix of the predictions also gave several insights:
+\begin{enumerate}
+\item The mass is concentrated across the diagonal.
+\item The class-specific F1 score reduces with how prevalent the class is.
+\item The most common misclassification is between PREV-CAUSES and PREV-COTEMP.
+\end{enumerate}
