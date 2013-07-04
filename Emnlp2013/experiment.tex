@@ -76,13 +76,31 @@ As a result, a segment of DNA is \emph{deleted} or \emph{duplicated}." Right: ``
 \label{fig:graph}
 \end{figure*}
 
+\begin{table*}[t]
+{\footnotesize
+\begin{tabular}{| l | c | c | c | c | c | c | c | c | c | c | }
+\hline
+    & PREV & CAUSES & SAME & COTEMP & SUPER & CAUSED & ENABLES & NEXT & SUB & ENABLED &
+\hline
+\hline
+Percentage & 34.7 & 23.8 & 13.3 & 13.3 &  5.7 & 3.0 &  2.5 & 1.8 & 1.5  & 0.3  &
+F1   & 62.9 & 55.8 & 43.9 & 43.2 & 31.4 & 8.7 & 23.5 &   0 &   0  &  0   &
+\hline
+\end{tabular}}
+\caption{Percentage of different relations in the dataset vs. the quality of prediction by the local model.}
+\label{tab:relationdistribution}
+\end{table*}
+
 Figure~\ref{fig:graph} shows two examples where global constraints corrected predictions made by \emph{Local}. In Figure~\ref{fig:graph}, left, \emph{Local} failed to predict the causal relations \emph{skipped}-\emph{deleted} and \emph{used}-\emph{duplicated}, possibly because they are not in the same sentence and are not adjacent to one another. By enforcing a connectivity constraint, \emph{Global} was able to connect the triggers \emph{deleted} and \emph{duplicated} to the other triggers in the process using the correct relations.
 
 In Figure~\ref{fig:graph}, right, \emph{Local} predicts a triangle that violates the ``\textsc{Same} contradiction" constraint. The triggers \emph{bind} and \emph{binds} cannot denote the same event if a third trigger \emph{secrete} is temporally between them. However, since \emph{bind} and \emph{binds} share the same lemma, \emph{Local} predicts that they are co-referring triggers. Global constraints prohibit this solution and as a result \emph{Global} modifies the solution and correctly predicts \textsc{None}.
 
-In general, the local model learns feature weights that favor the more dominant classes - \textsc{Prev} and \textsc{Causes}, which generally happens with classifiers trying to maximize the overall score. In addition, the relation types \textsc{Causes} and \textsc{Enables} are harder to differentiate from \textsc{Prev} as demonstrated in Figure~\ref{fig:graph} right. This is expected as temporally, all three relations mean the same, but have very subtle differences. With some of the examples, even human annotators find it hard to differentiate between the three classes. Analyzing the confusion matrix of the predictions also gave several insights:
+In general, the local model learns feature weights that favor the more dominant classes - \textsc{Prev} and \textsc{Causes}, which generally happens with classifiers trying to maximize the overall score. In addition, the relation types \textsc{Causes} and \textsc{Enables} are harder to differentiate from \textsc{Prev} as demonstrated in Figure~\ref{fig:graph} right. This is expected as temporally, all three relations mean the same, but have very subtle differences. With some of these examples, even humans would find it hard to differentiate between the three classes. Analyzing the confusion matrix of the predictions also gave several insights:
 \begin{enumerate}
-\item The mass is concentrated across the diagonal.
-\item The class-specific F1 score reduces with how prevalent the class is.
-\item The most common misclassification is between PREV-CAUSES and PREV-COTEMP.
+\item The mass is concentrated across the diagonal: Considering that it is a 11 class classification task, the local model performs well and most of the mass lies along the diagonal.
+\item The class-specific F1 score depends largely on how prevalent the class is: From Table~\ref{relationdistribution}, we see that the relation types that are more common have higher F1 scores if we calculate the class-specific F1 scores.
+\item Reverse relations are hard to predict: The reverse of the natural relations like \textsc{Next}, \textsc{Caused} etc. are harder to predict and we see that very few of these are correctly predicted.
+\item The most common misclassification is between PREV-CAUSES and PREV-COTEMP. As noted earlier, the distinctions between the PREV-CAUSES and PREV-COTEMP classes are sometimes not so obvious. In some cases, enhancing features to include phrases that denote temporal, causal or co-occurrence relations can help improve the local classifier.
 \end{enumerate}
+
+The performance of the global classifier largely depends on the predictions made by the local classifier. Firstly, the global model can only make a few modifications on the structure predicted by the local model. Secondly, the objective fuction used for scoring different structures are based on the probability values predicted by the local model. We also see that the global constraints we devised give good improvements on top of the local model. An interesting point to note is that even though the predictions made by the local model may not be perfectly correct, it will still help to resolve some inconsistencies like in Figure~\ref{fig:graph} right.
