@@ -55,7 +55,7 @@ For our pairwise classifier, we train a maximum entropy classifier that provides
 
 \subsection{Global Constraints} \label{subsec:global}
 
-Naturally, a pairwise classifier can result in a process structure that violates global properties (see Section~\ref{sec:process}). Figure~\ref{fig:graph} shows in black edges the predictions of our local classifier, which result in the trigger \emph{passed} being isolated from the rest of the process [\textcolor{red}{TODO} NEED BETTER EXAMPLE WITH INTERESTING EXPLANATION]. In this section we incorporate into our model, constraints that result in a coherent global process structure.
+Naturally, a pairwise classifier can result in a process structure that violates global properties. Figure~\ref{fig:graph} (left) presents an example for predictions made by the pairwise classifier, which result in two triggers (\emph{deleted} and \emph{depleted}) that are isolated from the rest of the process. In this section we incorporate into our model constraints that lead to a coherent global process structure.
 
 Let $\theta_{ijr}$ be a score for the relation $r$ and the triggers $(t_i,t_j)$ (e.g, $\theta_{ijr}=\log p_{ijr}$), and $y_{ijr}$ be the corresponding indicator. Our goal is to find an assignment for the indicators $\by=\{y_{ijr} \ | \ 1 \leq i < j \leq n, r \in \sR \}$. With no global constraints this can be formulated as the following ILP:
 

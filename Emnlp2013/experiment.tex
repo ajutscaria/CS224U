@@ -35,15 +35,6 @@ To evaluate system performance we compare the set of predictions on all trigger 
 \label{tab:results}
 \end{table}
 
-
-\begin{figure*}[t]
-\centering
-\includegraphics[width=0.99\textwidth]{figures/example.png} 
-\caption{Process graph example. Black edges are predictions of \emph{Local}, green edges indicate edges modified by \emph{Global}, and gold edges represent gold standard edges. \textbf{Original text: (Left)} "... the template \emph{shifts} with respect to the new complementary strand, and a part of the template strand is either \emph{skipped} by the replication machinery or \emph{used} twice as a template.
-As a result, a segment of DNA is \emph{deleted} or \emph{duplicated}." \textbf{(Right)} "Cells of mating type A secrete a signaling molecule, which can \emph{bind} to specific receptor proteins on nearby cells. At the same time, cells \emph{secrete} factor, which \emph{binds} to receptors on a cells."}
-\label{fig:graph}
-\end{figure*}
-
 Table~\ref{tab:results} presents performance of all systems. Our main result is that using global constraints improves performance on all measures in both full and temporal evaluations. Particularly, in the full evaluation recall improves by 12\% and overall F$_1$ improves significantly by 3.7 points against \emph{Local} ($p<0.01$). Recall improvement suggests that modeling connectivity allowed \emph{Global} to add correct relations in cases where some events were not connected to one another.
 
 The full \emph{Local} classifier substantially outperforms \emph{Local$_{base}$}. This indicates that our novel features (Section~\ref{subsec:pairwise-novel}) are important for discriminating between process relations. Specifically, in the full evaluation \emph{Local} improves precision more than in the temporal evaluation, suggesting that designing syntactic and semantic features for connectives is useful for distinguishing \textsc{Next}, \textsc{Causes}, and \textsc{Enables} when the amount of training data is small.
@@ -52,9 +43,7 @@ The \emph{All-Prev} baseline performs quite badly in the full evaluation, but in
 
 Table~\ref{tab:degree} presents the degree distribution of \emph{Local} and \emph{Global} on the development set comparing to the gold standard. Clearly, degree distribution of \emph{Global} is much more similar to the gold standard than \emph{Local}. In particular, the connectivity constraint ensures that there are no isolated nodes and shifts mass from nodes with degree $0$ and $1$ to nodes with degree $2$.
 
-Table~\ref{tab:paramtuning} presents the order in which global constraints were introduced into the model using coordinate ascent on the development set. Connectivity is the first constraint to be introduced, and improves performance considerably. The chain constraint, on the other hand, is included third, which can be explained by examining the distribution of degrees in Table~\ref{tab:degree}. The predictions of \emph{Local} do not have many nodes with degree $>2$ and thus the effect of this constraint is smaller. As for triangle constraints, we see that four constraints are included in the model but one is discarded, since the changes they caused to the final solution did not improve F$_1$ on the development set.
-
-%Table~\ref{} is a confusion matrix showing that it is hard to distinguish Causes, PrevEvent, and Cotemporal. These are not handled by global constraints and to handle this need other types of information.
+Table~\ref{tab:paramtuning} presents the order in which global constraints were introduced into the model using coordinate ascent on the development set. Connectivity is the first constraint to be introduced, and improves performance considerably. The chain constraint, on the other hand, is included third, which can be explained by examining the distribution of degrees in Table~\ref{tab:degree}. The predictions of \emph{Local} do not have many nodes with degree $>2$ and thus the effect of this constraint is smaller. As for triangle constraints, we see that four constraints are included in the model but one is discarded since it did not improve F$_1$ on the development set.
 
 \begin{table}[t]
 {\footnotesize
@@ -73,15 +62,23 @@ Table~\ref{tab:paramtuning} presents the order in which global constraints were 
 
 \hline
 \end{tabular}}
-\caption{Order in which constraint parameters were set using coordinate ascent on the development set. For each parameter, the value chosen and F$_1$ score after including the constraint are provided. Negative values correspond to penalties, positive values to rewards, and a value of $\infty$ indicates a hard constraint.}
+\caption{Order by which constraint parameters were set using coordinate ascent on the development set. For each parameter, the value chosen and F$_1$ score after including the constraint are provided. Negative values correspond to penalties, positive values to rewards, and a value of $\infty$ indicates a hard constraint.}
 \label{tab:paramtuning}
 \end{table}
 
 \subsection{Qualitative Analysis} \label{subsec:analysis}
 
-Figure~\ref{fig:graph} shows two examples where the global constraints improve the predictions made by the local model. In Figure~\ref{fig:graph} left, the local model fails to predict relations \emph{skipped}-\emph{deleted} and \emph{used}-\emph{duplicated}, probably because they are not close by and in two different sentences. Now, the global model enforces the connectivity constraint which makes sure that \emph{deleted} and \emph{duplicated} are related to at least one another trigger. In this case, the global model predicts the relations correctly.
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.99\textwidth]{figures/example.png} 
+\caption{Fragments of process graphs. Black edges are predictions of \emph{Local}, green edges indicate edges modified by \emph{Global}, and gold edges represent gold standard edges. Original text, Left: ``... the template \emph{shifts} with respect to the new complementary strand, and a part of the template strand is either \emph{skipped} by the replication machinery or \emph{used} twice as a template.
+As a result, a segment of DNA is \emph{deleted} or \emph{duplicated}." Right: ``Cells of mating type A secrete a signaling molecule, which can \emph{bind} to specific receptor proteins on nearby cells. At the same time, cells \emph{secrete} factor, which \emph{binds} to receptors on a cells."}
+\label{fig:graph}
+\end{figure*}
 
-Figure~\ref{fig:graph} right, the local model predicts a triad which is not possible. This is because \emph{bind} and \emph{binds} cannot be the same event with an event \emph{secrete} happening between them. At the same time, since \emph{bind} and \emph{binds} shares the same lemma, the local model has good reason to predict that these are same events. Once the global model enforces the constraints, it finds that the relation triangle is not feasible and as result corrects the prediction of the local model to NONE. It could very well have been possible that instead of making the relation between \emph{bind} and \emph{binds} to NONE, it could have removed the relation between \emph{secrete} and \emph{binds}. The global model picks the configuration that maximizes the objective.
+Figure~\ref{fig:graph} shows two examples where global constraints corrected predictions made by \emph{Local}. In Figure~\ref{fig:graph}, left, \emph{Local} failed to predict the causal relations \emph{skipped}-\emph{deleted} and \emph{used}-\emph{duplicated}, possibly because they are not in the same sentence and are not adjacent to one another. By enforcing a connectivity constraint, \emph{Global} was able to connect the triggers \emph{deleted} and \emph{duplicated} to the other triggers in the process using the correct relations.
+
+In Figure~\ref{fig:graph}, right, \emph{Local} predicts a triangle that violates the ``\textsc{Same} contradiction" constraint. The triggers \emph{bind} and \emph{binds} cannot denote the same event if a third trigger \emph{secrete} is temporally between them. However, since \emph{bind} and \emph{binds} share the same lemma, \emph{Local} predicts that they are co-referring triggers. Global constraints prohibit this solution and as a result \emph{Global} modifies the solution and correctly predicts \textsc{None}.
 
 In general, the local model learns feature weights that favor the more dominant classes - \textsc{Prev} and \textsc{Causes}, which generally happens with classifiers trying to maximize the overall score. In addition, the relation types \textsc{Causes} and \textsc{Enables} are harder to differentiate from \textsc{Prev} as demonstrated in Figure~\ref{fig:graph} right. This is expected as temporally, all three relations mean the same, but have very subtle differences. With some of the examples, even human annotators find it hard to differentiate between the three classes. Analyzing the confusion matrix of the predictions also gave several insights:
 \begin{enumerate}
