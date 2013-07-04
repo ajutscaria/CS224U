@@ -3,12 +3,9 @@ Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
 The top-level auxiliary file: naaclhlt2013.aux
 The style file: naaclhlt2013.bst
 Database file #1: naaclhlt2013.bib
-A bad cross reference---entry "Chambers11"
-refers to entry "DBLP:conf/acl/2011", which doesn't exist
-Warning--I didn't find a database entry for "DBLP:conf/acl/2011"
 You've used 32 entries,
             2490 wiz_defined-function locations,
-            726 strings with 9163 characters,
+            724 strings with 9127 characters,
 and the built_in function-call counts, 12721 in all, are:
 = -- 1241
 > -- 576
@@ -47,4 +44,3 @@ warning$ -- 0
 while$ -- 78
 width$ -- 35
 write$ -- 431
-(There was 1 error message)
