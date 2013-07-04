@@ -1,6 +1,6 @@
 \section{Introduction}
 
-A \emph{process} is defined as a series of inter-related events that involve multiple entities and lead to an end result. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the event \textit{`enter'}, \textit{'causes'} the event \textit{`changing'}). 
+A \emph{process} is defined as a series of inter-related events that involve multiple entities and lead to an end result. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the event \textit{`enter'}, \textit{causes} the event \textit{`changing'}). 
 
 \FigStar{figures/process5}{0.8}{process}{Partial annotation of the ATP synthesis process}
 
@@ -26,7 +26,7 @@ In this paper, we formally define the task of process extraction and present aut
 Our approach works over multiple sentences and extracts a rich set of event-event relations, where the set of possible event types is open ended. 
 Furthermore, we characterize a set of global properties in process structure that can be utilized during process extraction. 
 For example, in processes all events are somehow connected to one another, and in addition processes usually exhibit a ``chain-like" structure corresponding to process progression over time. 
-We show that by incorporating global properties into our model and performing joint inference over the extracted relations, we can significantly improve process quality.  
+We show that by incorporating global properties into our model and performing joint inference over the extracted relations, we can significantly improve the quality of process structures predicted.  
 Our empirical experiments are performed over a novel data set of 148 process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not require any domain-specific knowledge and can be easily adapted for domains other than Biology.
 
 The three main contributions of this paper are:
