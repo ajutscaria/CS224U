@@ -9,23 +9,25 @@ The pairwise classifier predicts relations between all event mention pairs (repr
 Table~\ref{tab:features} describes features from previous work~\cite{Chambers08,Do12} extracted for a trigger pair $(t_i,t_j)$. Some features were omitted since they did not yield improvement in performance on a development set, or they require gold annotations provided in TimeBank, which we do not have. To reduce sparseness, we convert nominalizations into their verbal forms when computing word lemmas, using WordNet's \cite{Fellbaum1998} derivation links.
 
 \begin{table}[t]
-{\footnotesize
+\setlength{\tabcolsep}{5pt}
+{\scriptsize
 \hfill{}
-\begin{tabular}{|p{2.4cm}|p{4.7cm}|}
+\begin{tabular}{|p{1.3cm}|p{6cm}|}
 \hline
 \textbf{Feature} &\textbf{Description}\\
 \hline
- POS & Pair of POS tags \\
-Lemma & Pair of lemmas \\
-Prep$^*$ & Preposition lexeme, if in a prepositional phrase \\
-Words between  & For adjacent triggers, content words between triggers \\
-Temp. between & For adjacent triggers, temporal connectives (from a small list) between triggers \\
-Adjacency & Whether two triggers are adjacent \\
-\# Sent. & Quantized number of sentences between triggers \\
-\# Word. & Quantized number of words between triggers \\
-LCA & Least common ancestor on constituency tree, if exists \\
-Dominates$^*$ & Whether one trigger dominates other \\
-Share & Whether triggers share a child on dependency tree \\
+ POS & \scriptsize{Pair of POS tags} \\
+Lemma & \scriptsize{Pair of lemmas} \\
+Prep$^*$ & \scriptsize{Preposition lexeme, if in a prepositional phrase} \\
+Sent. count & \scriptsize{Quantized number of sentences between triggers} \\
+Word count & \scriptsize{Quantized number of words between triggers} \\
+LCA & \scriptsize{Least common ancestor on constituency tree, if exists} \\
+Dominates$^*$ & \scriptsize{Whether one trigger dominates other} \\
+Share & \scriptsize{Whether triggers share a child on dependency tree} \\
+Adjacency & \scriptsize{Whether two triggers are adjacent} \\
+Words btw. & \scriptsize{For adjacent triggers, content words between triggers} \\
+%between & \\
+Temp. btw. & \scriptsize{For adjacent triggers, temporal connectives (from a small list) between triggers} \\
 \hline
 \end{tabular}}
 \hfill{}
@@ -58,27 +60,27 @@ For our pairwise classifier, we train a maximum entropy classifier that provides
 Naturally, a pairwise classifier can result in a process structure that violates global properties. Figure~\ref{fig:graph} (left) presents an example for predictions made by the pairwise classifier, which result in two triggers (\emph{deleted} and \emph{depleted}) that are isolated from the rest of the process. In this section we incorporate into our model constraints that lead to a coherent global process structure.
 
 Let $\theta_{ijr}$ be a score for the relation $r$ and the triggers $(t_i,t_j)$ (e.g. $\theta_{ijr}=\log p_{ijr}$), and $y_{ijr}$ be the corresponding indicator variable. Our goal is to find an assignment for the indicators $\by=\{y_{ijr} \ | \ 1 \leq i < j \leq n, r \in \sR \}$. With no global constraints this can be formulated as the following ILP:
-
 \begin{align}
+\vspace{-3mm}
 \argmax_{\by} \sum_{ijr} \theta_{ijr} y_{ijr} \\
 \mbox{s.t.} \forall_{i,j} \sum_r y_{ijr}=1 \nonumber
-% \forall_{i,j,r} \ y_{ijr} \in \{0,1\} \nonumber
+\vspace{-3mm}
 \end{align}
-
 \noindent where the constraint ensures each trigger pair is assigned exactly one relation. We now describe constraints that result in a process with a coherent global structure:
 
 \paragraph{Connectivity} 
 Our formulation for enforcing connectivity is a minor variation of the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we want $\sP$ to be a connected undirected graph, and not a directed tree. However, an undirected graph $\sP$ is connected iff there is a directed tree that is a subgraph of $\sP$ when edge directions are ignored. Thus the resulting formulation is almost identical. This formulation is based on flow constraints that ensure that there is a path from a designated root in the graph to all other nodes.
 
  Let $\bar{\sR}$ be the set $\sR \setminus \mbox{\textsc{None}}$. An edge $(t_i,t_j)$ is in $E$ if there is some non-\textsc{None} relation between $t_i$ and $t_j$: $y_{ij}=\sum_{r \in \bar{\sR}} y_{ijr}=1$. For each variable $y_{ij}$ we define two auxiliary binary variables $z_{ij}$ and $z_{ji}$ that correspond to edges of the directed tree that is a subgraph of $\sP$. We ensure that the edges in the tree exist also in $\sP$ by tying each auxiliary variable to its corresponding ILP variable:
- 
 \begin{align}
+\vspace{-3mm}
 \forall_{i<j} \ z_{ij} \leq y_{ij}, z_{ji} \leq y_{ij}
+\vspace{-3mm}
 \end{align}
 
 Next, we add constraints that enforce the graph structure induced by the auxiliary variables is a tree rooted in an arbitrary node $1$ (The choice of root doesn't affect connectivity). We add for every $i \neq j$ a flow variable $\phi_{ij}$ which specifies the amount of flow on the directed edge $z_{ij}$.
-
 \begin{align}
+\vspace{-3mm}
 \small &\sum_{i} z_{i1} =0, \forall_{j \neq 1} \sum_{i} z_{ij}=1 \label{eq:oneparent} \\ 
 &\sum_{i} \phi_{1i}=n-1 \label{eq:rootflow} \\ 
 &\forall_{j \neq 1} \ \sum_{i} \phi_{ij} - \sum_{k} \phi_{jk}=1 \label{eq:flow} \\
@@ -100,27 +102,11 @@ Since graph structures are not always chains we add this as a soft constraint, t
 A relation triangle for any three triggers $t_{i}, t_{j} and t_{k}$ in a process is a 3-tuple of relations $(f(t_i, t_j),f(t_j, t_k),f(t_i, t_k))$. Clearly, some triangles are impossible while others are quite common. In order to look for triangles that could potentially improve process extraction, we counted the frequency of all possible triangles in both the training data and the output of our pairwise classifier, and focused on those for which the classifier and the gold standard disagreed. We are interested in triangles that never occur in the training data but are predicted by the classifier, and vice versa. Figure~\ref{fig:triad} illustrates some of the triangles found and Equations~\ref{eq:sametransitivity}-\ref{eq:prev} provide the corresponding ILP formulations. Soft constraints were incorporated by defining a reward $\alpha_k$ for each triangle type and expanding the set $\sK$ accordingly\footnote{We experimented with a reward for certain triangles or a penalty for others and empirically found that using rewards results in better performance on the development set.}. 
 
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
-\item \textsc{Same} transitivity (Figure~\ref{fig:triad}a, Eqn.~\ref{eq:sametransitivity}): Co-reference transitivity has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint that encourages triangles that respect transitivity: 
-
-
-\item \textsc{Cause}-\textsc{Cotemp} (Figure~\ref{fig:triad}b, Eqn.~\ref{eq:causecotemp}): If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", a single event causes two subsequent events that occur simultaneously. We formulate this as a soft constraint:
-%\begin{align}
-%y_{ijCAUSES} + y_{ikCAUSES} + y_{jkCOTEMP} \geq 3 \label{eq:causecotemp}
-%\end{align}
-
-\item \textsc{Cotemp} transitivity (Figure~\ref{fig:triad}c, Eqn.~\ref{eq:cotemptransitivity}):  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event. We formulate this as a soft constraint:
-%\begin{multline}
-%y_{ijCOTEMP} + y_{jkCOTEMP}  +y_{ikCOTEMP} \\ + y_{ikSAME} \geq 3 \label{eq:cotemptransitivity}
-%\end{multline}
-
+\item \textsc{Same} transitivity (Figure~\ref{fig:triad}a, Eqn.~\ref{eq:sametransitivity}): Co-reference transitivity has been used in past work \cite{Finkel08} and we incorporate it as a soft constraint that encourages triangles that respect transitivity.
+\item \textsc{Cause}-\textsc{Cotemp} (Figure~\ref{fig:triad}b, Eqn.~\ref{eq:causecotemp}): If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of harmful alleles", a single event causes two subsequent events that occur simultaneously. We formulate this as a soft constraint.
+\item \textsc{Cotemp} transitivity (Figure~\ref{fig:triad}c, Eqn.~\ref{eq:cotemptransitivity}):  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event. We formulate this as a soft constraint.
 \item \textsc{Same} contradiction (Figure~\ref{fig:triad}d, Eqn.~\ref{eq:samecontradiction}): if $t_i$ is the same event as  $t_k$, then their temporal ordering with respect to a third trigger $t_j$ may result in a contradiction, e.g., if $t_i$ is before $t_j$, but $t_k$ is after $t_j$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint. Note that this constraint depends on co-reference and temporal relations being predicted jointly.
-%\begin{align}
-%y_{ijPREV} + y_{jkPREV} + y_{ikSAME} \leq 2 \label{eq:samecontradiction}
-%\end{align}
 \item \textsc{Prev} contradiction (Figure~\ref{fig:triad}e, Eqn.~\ref{eq:prev}): As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then $t_i$ is not immediately before $t_k$ (hard constraint).
-%\begin{align} 
-%y_{ijPREV} + y_{jkPREV} - y_{ikNONE} \leq 1 \label{eq:prev}
-%\end{align}
 \end{enumerate}.
 \vspace{-4mm}
 \begin{flalign}

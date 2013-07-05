@@ -2,7 +2,7 @@
 
 A \emph{process} is defined as a series of inter-related events that involve multiple entities and lead to an end result. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the event \textit{`enter'}, \textit{causes} the event \textit{`changing'}). 
 
-\FigStar{figures/process5}{0.8}{process}{Partial annotation of the ATP synthesis process}
+\FigStar{figures/process5}{0.82}{process}{Partial annotation of the ATP synthesis process}
 
 Automatically extracting the structure of processes from text is crucial for applications that require reasoning such as non-factoid QA. For instance, answering a question on ATP synthesis such as \emph{``How do H+ ions contribute to the production of ATP?"} requires a structure that links \emph{H+ ions} (Figure~\ref{fig:process}, sentence 1) to \emph{ATP} (Figure~\ref{fig:process}, sentence 4) through a sequence of intermediate events. Such ``how" questions are common on FAQ websites \cite{Surdeanu:2011}, which further supports the importance of process extraction.
 
@@ -29,7 +29,7 @@ For example, in processes, all events are somehow connected to one another, and 
 We show that by incorporating global properties into our model and performing joint inference over the extracted relations, we can significantly improve the quality of process structures predicted.  
 Our empirical experiments are performed over a novel data set of 148 process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not require any domain-specific knowledge and can be easily adapted for domains other than Biology.
 
-The three main contributions of this paper are:
+The main contributions of this paper are:
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
 \item We define process extraction and characterize processes' structural properties.
 \item We show that modeling global structural properties significantly improves extraction accuracy.
