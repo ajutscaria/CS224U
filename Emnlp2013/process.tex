@@ -38,12 +38,12 @@ We have annotated 148 process descriptions based on the aforementioned definitio
 %\hline
 \end{tabular}}
 \hfill{}
-\caption{Process statistics over 148 process descriptions.}
+\caption{Process statistics over 148 process descriptions. \textsc{None} is used to indicate no relation.}
 \label{tab:datastats}
 \end{table}
 
 \paragraph{Structural properties of processes} 
-Naturally, coherent processes exhibit many structural properties. For example, two argument mentions related to the same event can not overlap -- a constraint that has been used in the past in SRL \cite{Toutanova08}. In this paper we focus on three main structural properties of the graph $\sP$. First, in a coherent process all events mentioned are related to one another, and hence the graph $\sP$ must be connected. Second, processes tend to have a ``chain-like" structure where one event follows another, and thus we expect node degree to generally be $\leq 2$. Indeed, 90\% of event mentions have degree $\leq2$, as is demonstrated by the first column of Table~\ref{tab:degree}. Last, if we consider relations between all possible triple of events in a process, clearly some configurations are impossible, while others are quite common (illustrated in Figure~\ref{fig:triad}). In Section~\ref{subsec:global}, we show that modeling these properties using a joint inference framework can improve the quality of process extraction significantly.
+Naturally, coherent processes exhibit many structural properties. For example, two argument mentions related to the same event can not overlap -- a constraint that has been used in the past in SRL \cite{Toutanova08}. In this paper we focus on three main structural properties of the graph $\sP$. First, in a coherent process all events mentioned are related to one another, and hence the graph $\sP$ must be connected. Second, processes tend to have a ``chain-like" structure where one event follows another, and thus we expect node degree to generally be $\leq 2$. Indeed, 90\% of event mentions have degree $\leq2$, as is demonstrated by the second column of Table~\ref{tab:degree}. Last, if we consider relations between all possible triple of events in a process, clearly some configurations are impossible, while others are quite common (illustrated in Figure~\ref{fig:triad}). In Section~\ref{subsec:global}, we show that modeling these properties using a joint inference framework can improve the quality of process extraction significantly.
 
 \begin{table}[t]
 {\small
