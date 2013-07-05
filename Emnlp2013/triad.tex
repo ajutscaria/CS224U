@@ -21,7 +21,7 @@
   \path[every node/.style={font=\sffamily\footnotesize}]
     (a1) edge[-] node [right] {\textsc{Same}} (a3)
     (a2) edge[-] node [left] {\textsc{Same}} (a1)
-    (a3) edge[-] node [] {\textsc{Same}} (a2);        
+    (a3) edge[-] node [above] {\textsc{Same}} (a2);        
         
   \node[good node, right = 3.5cm of a1] (b1) {i};
   \node[good node, below left = 1.732cm and 1cm of b1] (b2) {j};
@@ -31,7 +31,7 @@
   \path[every node/.style={font=\sffamily\footnotesize}]
     (b1) edge[] node [right] {\textsc{Causes}} (b3)
            edge[] node [left] {\textsc{Causes}} (b2)
-    (b3) edge[-] node [] {\textsc{Cotemp}} (b2);       
+    (b3) edge[-] node [above] {\textsc{Cotemp}} (b2);       
     
             
   \node[good node, right = 3.5cm of b1] (c1) {i};
@@ -42,7 +42,7 @@
   \path[every node/.style={font=\sffamily\footnotesize}]
     (c1) edge[-] node [right] {\textsc{Cotemp}} (c3)
     (c2) edge[-] node [left] {\textsc{Cotemp}} (c1)
-    (c3) edge[-] node [] {\textsc{Cotemp} or \textsc{Same}} (c2);       
+    (c3) edge[-] node [above] {\textsc{Cotemp} / \textsc{Same}} (c2);       
     
     %%%%%%%%% bad %%%%%
     
@@ -54,7 +54,7 @@
   \path[every node/.style={font=\sffamily\footnotesize}]
     (d1) edge[red] node [right] {\textsc{Prev}} (d3)
       (d2) edge[red] node [left] {\textsc{Prev}} (d1)
-    (d3) edge[-] node [] {\textsc{Same}} (d2);       
+    (d3) edge[-] node [above] {\textsc{Same}} (d2);       
         
         
   \node[good node, right = 3.5cm of d1] (e1) {i};
@@ -65,7 +65,7 @@
   \path[every node/.style={font=\sffamily\footnotesize}]
     (e1) edge[] node [right] {\textsc{Prev}} (e3)
       (e2) edge[] node [left] {\textsc{Prev}} (e1)
-             edge[red, dashed] node [] {\textsc{Prev}} (e3);           
+             edge[red, dashed] node [above] {\textsc{Prev}} (e3);           
         
 \end{tikzpicture}
 }
