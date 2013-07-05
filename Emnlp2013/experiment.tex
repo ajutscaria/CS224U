@@ -15,12 +15,13 @@ To evaluate system performance we compare the set of predictions on all trigger 
 \subsection{Results} \label{subsec:results}
 
 \begin{table}[t]
+\setlength{\tabcolsep}{5pt}
 {\footnotesize
-\begin{tabular}{| l | c | c | c | c | c | c |}
-\hline
-    & \multicolumn{3}{c|}{\textbf{Temporal}} & \multicolumn{3}{c|}{\textbf{Full}} \\
+\begin{tabular}{  l | l | l | l | l | l | l  }
+%\hline
+    & \multicolumn{3}{c|}{\textbf{Temporal}} & \multicolumn{3}{c}{\textbf{Full}} \\
     & P & R & F$_1$ & P & R & F$_1$ \\
-\hline
+%\hline
 \hline
 \emph{All-Prev} & 62.2 & 58.3 & 60.2 & 34.1 & 32.0 & 33.0 \\
 %\emph{Local$_{base}$} & 65.7 & 49.6 & 56.5 &  51.7 & 39.0 & 44.5\\
@@ -28,10 +29,10 @@ To evaluate system performance we compare the set of predictions on all trigger 
 \emph{Local} & 66.2 & 58.3 & 62.0 & 54.7 & 48.3 & 51.3 \\
 %\emph{Local} & 50.3 & \textbf{67.8} & 52.6 & 59.3 & \textbf{57.6} & 44.7 \\
 %\emph{Local$_{chain}$} & 65.0 & 60.1 & 62.9 & 52.8 & 49.6  & 51.1 \\
-\emph{Global} & \textbf{67.1} & \textbf{64.5*} & \textbf{65.8*} & \textbf{56.2} & \textbf{54.0*} & \textbf{55.0*} \\
-\hline
+\emph{Global} & \textbf{67.1} & \textbf{64.5$^{\dagger\ddagger}$} & \textbf{65.8$^{\dagger\ddagger}$} & \textbf{56.2} & \textbf{54.0$^{\dagger\ddagger}$} & \textbf{55.0$^{\dagger\ddagger}$} 
+%\hline
 \end{tabular}}
-\caption{Test set results on all experiments. Asterisk (*) denotes statistical significance ($p<0.01$) against all other baselines. \textcolor{red}{TODO} compute stat significant for real}
+\caption{Test set results on all experiments. $\dagger$ and $\ddagger$ denote statistical significance ($p<0.02$) against \emph{Local$_{base}$} and \emph{Local} baselines, respectively.}
 \label{tab:results}
 \end{table}
 
@@ -47,10 +48,10 @@ Table~\ref{tab:paramtuning} presents the order in which global constraints were 
 
 \begin{table}[t]
 {\footnotesize
-\begin{tabular}{| l | c | c | c |}
-\hline
+\begin{tabular}{ l | l | l | l }
+%\hline
     \textbf{Order} & \textbf{Parameter name} & \textbf{Value} ($\alpha$)& \textbf{F$_1$ score} \\
-\hline
+%\hline
 \hline
 - & \emph{Local model} & - & 49.9 \\
 1 & Connectivity constraint & $\infty$ & 51.2 \\
@@ -58,9 +59,8 @@ Table~\ref{tab:paramtuning} presents the order in which global constraints were 
 3 & Chain constraint & -0.5 & 53.3\\
 4 & \textsc{Cause}-\textsc{Cotemp} & 1.0 & 53.7\\
 6 & \textsc{Prev} contradiction & $\infty$ & 53.8\\
-7 & \textsc{Same} contradiction & $\infty$ & 53.9\\
-
-\hline
+7 & \textsc{Same} contradiction & $\infty$ & 53.9
+%\hline
 \end{tabular}}
 \caption{Order by which constraint parameters were set using coordinate ascent on the development set. For each parameter, the value chosen and F$_1$ score after including the constraint are provided. Negative values correspond to penalties, positive values to rewards, and a value of $\infty$ indicates a hard constraint.}
 \label{tab:paramtuning}
