@@ -20,20 +20,20 @@ Traditional event extraction focuses on identifying a closed set of events withi
 For example, the BioNLP 2009 and 2011 shared tasks \cite{kim09,kim11} consider nine events types related to proteins. In practice, events are currently almost always extracted from a single sentence.
 Process extraction, on the other hand, is centered around discovering \emph{relations} between events that span \emph{multiple} sentences. The set of possible event types in process extraction is also much larger. 
 
-Timeline construction involves identifying temporal relations between events \cite{Do12,Mcclosky12,DSouzaNg:13a}, and is thus related to process extraction as both focus on event-event relations that span multiple sentences. However, events in processes are tightly coupled in ways that go beyond simple temporal ordering, and these dependencies are central for the task of process extraction. Consequently, capturing process structure requires modeling a larger set of relations that includes temporal, causal and coreference relations.
+Timeline construction involves identifying temporal relations between events \cite{Do12,Mcclosky12,DSouzaNg:13a}, and is thus related to process extraction as both focus on event-event relations spanning multiple sentences. However, events in processes are tightly coupled in ways that go beyond simple temporal ordering, and these dependencies are central for the process extraction task. Hence, capturing process structure requires modeling a larger set of relations that includes temporal, causal and coreference relations.
 
 %However, fully capturing process structure requires handling a rich set of relations such as \textsc{Causes} and \textsc{SuperEvent} (see Section~\ref{sec:process}), which are often not addressed in timeline construction. Moreover, events in processes exhibit much higher degrees of dependencies, for example, in general all events in a process are related to one another. This property does not hold in temporal ordering. 
 
 In this paper, we formally define the task of process extraction and present automatic extraction methods. 
-Our approach works over multiple sentences and extracts a rich set of event-event relations, where the set of possible event types is open ended. 
+Our approach handles an open set of event types and works over multiple sentences, extracting a rich set of event-event relations.
 Furthermore, we characterize a set of global properties of process structure that can be utilized during process extraction. 
-For example, in processes, all events are somehow connected to one another, and in addition processes usually exhibit a ``chain-like" structure corresponding to process progression over time. 
-We show that by incorporating such global properties into our model and performing joint inference over the extracted relations, we can significantly improve the quality of process structures predicted.  
+For example, all events in a process are somehow connected to one another. Also, processes usually exhibit a ``chain-like" structure as it progresses over time. 
+We show that incorporating such global properties into our model and performing joint inference over the extracted relations can significantly improve the quality of process structures predicted.  
 We conducted experiments on a novel dataset of 148 process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not require any domain-specific knowledge and can be easily adapted to non-niology domains.
 
 The main contributions of this paper are:
 \begin{enumerate}[itemsep=0pt,topsep=0pt] 
 \item We define process extraction and characterize processes' structural properties.
 \item We model global structural properties in processes and significantly improve extraction accuracy.
-\item  We publicly release a novel data set of 148 fully annotated biological process descriptions.
+\item We publicly release a novel data set of 148 fully annotated biological process descriptions.
 \end{enumerate}

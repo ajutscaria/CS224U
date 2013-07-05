@@ -54,7 +54,7 @@
   \path[every node/.style={font=\sffamily\footnotesize}]
     (d1) edge[red] node [right] {\textsc{Prev}} (d3)
       (d2) edge[red] node [left] {\textsc{Prev}} (d1)
-    (d3) edge[-] node [above] {\textsc{Same}} (d2);       
+    (d3) edge[-,red] node [above] {\textsc{Same}} (d2);       
         
         
   \node[good node, right = 3.5cm of d1] (e1) {i};
@@ -63,8 +63,8 @@
   \node[below = 2.732cm of e1] (e4) {(e) \textsc{Prev} contradiction};
 
   \path[every node/.style={font=\sffamily\footnotesize}]
-    (e1) edge[] node [right] {\textsc{Prev}} (e3)
-      (e2) edge[] node [left] {\textsc{Prev}} (e1)
+    (e1) edge[red] node [right] {\textsc{Prev}} (e3)
+      (e2) edge[red] node [left] {\textsc{Prev}} (e1)
              edge[red] node [above] {\textsc{Prev}} (e3);           
         
 \end{tikzpicture}
