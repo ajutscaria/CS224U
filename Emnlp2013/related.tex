@@ -1,6 +1,6 @@
 \section{Related Work}
 As  previously mentioned, a related line of work is biomedical event extraction in recent BioNLP shared tasks \cite{kim09,kim11}. 
-Earlier work employed a pipeline architecture where first events are found, and then their arguments are identified \cite{Miwa10,Bjorne11}. Subsequent methods proposed to predict events and arguments jointly using Markov logic \cite{Poon10} and dependency parsing algorithms \cite{Mcclosky11}. \newcite{riedel11fast} further improved performance by by capturing correlations between events and enforcing consistency across arguments.
+Earlier work employed a pipeline architecture where first events are found, and then their arguments are identified \cite{Miwa10,Bjorne11}. Subsequent methods proposed to predict events and arguments jointly using Markov logic \cite{Poon10} and dependency parsing algorithms \cite{Mcclosky11}. \newcite{riedel11fast} further improved performance by capturing correlations between events and enforcing consistency across arguments.
 
 %To capture the rich relations and complex nested event types annotated in BioNLP dataset, \newcite{Miwa10} proposed a classification approach with a rich set of features specifically designed for complex relations. 
 %Traditional event extraction employs a pipeline architecture where events are identified first, typically done using classifiers with rich set of features \cite{Miwa10}, arguments of the candidate events are then identified next \cite{Bjorne11}. 
@@ -18,5 +18,5 @@ Temporal event-event relations have been extensively studied \cite{Chambers08,Yo
 We showed in this paper that global structural properties lead to significant improvements in extraction accuracy, and ILP is an effective framework for modeling global constraints. Similar observations and techniques have been proposed in other information extraction tasks. 
 \newcite{Reichart12} tied information from multiple sequence models that describe the same event by using global higher-order potentials. 
 \newcite{CLBerant} proposed a global inference algorithm to identify entailment relations. 
-\newcite{Do12} modeedl a set of global temporal order constraints also using ILP for timeline construction. 
+\newcite{Do12} modeled a set of global temporal order constraints also using ILP for timeline construction. 
 There is abundance of examples of enforcing global constraints in other NLP tasks, such as in coreference resolution \cite{Finkel08}, parsing \cite{Rush12} and named entity recognition \cite{Wang13}.
