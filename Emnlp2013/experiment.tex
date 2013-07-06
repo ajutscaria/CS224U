@@ -1,13 +1,11 @@
-\section{Experimental Evaluation}
+\section{Experimental Evaluation} \label{subsec:setup}
 
-\subsection{Experimental setup} \label{subsec:setup}
-
-Our data set consists of 148 process descriptions annotated by a biologist. The annotator was presented with annotation guidelines, annotated 20 descriptions and then annotations were discussed with the authors, after which all process descriptions were annotated. After training a second biologist, we measured inter-annotator agreement on 30 random process descriptions, resulting in agreement $\kappa=0.69$. 
+Our data set consists of 148 process descriptions annotated by a biologist. The annotator was presented with annotation guidelines and annotated 20 descriptions. The annotations were then discussed with the authors, after which all process descriptions were annotated. After training a second biologist, we measured inter-annotator agreement $\kappa=0.69$, on 30 random process descriptions. 
 
 Process descriptions were parsed with Stanford constituency and dependency parsers \cite{Klein03,Marneffe06}, and 35 process descriptions were set aside as a test set (\# of training set trigger pairs: 1932, \# of test set trigger pairs: 906). We performed 10-fold cross validation over the training set for feature selection and tuning of constraint parameters. For each constraint type (connectivity, chain-structure, and five triad constraints) we introduced a parameter and tuned the seven parameters by coordinate-wise ascent, where for hard constraints a binary parameter controls whether the constraint is used, and for soft constraints we attempted 10 different reward/penalty values. Last, for our global model we defined $\theta_{ijr}=\log p_{ijr}$, where $p_{ijr}$ is the marginal probability at edge $(i,j)$ of label $r$.
 
 
-We test the following systems: (a) \emph{All-Prev}: since the most common process structure is a chain of consecutive events we simply predict \textsc{Prev} for every two adjacent triggers in text. (b) \emph{Local$_{base}$}: A pairwise classifier with features from previous work (Section~\ref{subsec:pairwise}) (c) \emph{Local}: A pairwise classifier with all features (Section~\ref{subsec:pairwise-novel}) (d) \emph{Global}: Our full model that uses ILP inference.
+We test the following systems: (a) \emph{All-Prev}: Since the most common process structure was chain-like, we simply predict \textsc{Prev} for every two adjacent triggers in text. (b) \emph{Local$_{base}$}: A pairwise classifier with features from previous work (Section~\ref{subsec:pairwise}) (c) \emph{Local}: A pairwise classifier with all features (Section~\ref{subsec:pairwise-novel}) (d) \emph{Global}: Our full model that uses ILP inference.
 
 %(d) \emph{Local$_{chain}$}: For every two adjacent triggers we pick the highest probability non-\textsc{None} relation using the local classifier. Again, this uses the assumption that many processes have a chain-structure.
 

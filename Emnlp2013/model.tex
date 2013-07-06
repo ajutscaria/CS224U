@@ -1,6 +1,6 @@
 \section{Joint Model for Process Extraction}
 
-Given a paragraph $\bx$ and a trigger set $\sT$ we wish to extract all event-event relations $E$. Similar to Do et al. \shortcite{Do12} our model consists of a local pairwise classifier and global constraints. We first introduce a classifier that is based on features from previous work (Section~\ref{subsec:pairwise}). Next, we describe novel features specific for process extraction (Section~\ref{subsec:pairwise-novel}). Last, we incorporate global constraints into our model using ILP formulations (Section~\ref{subsec:global}).
+Given a paragraph $\bx$ and a trigger set $\sT$ we wish to extract all event-event relations $E$. Similar to Do et al. \shortcite{Do12} our model consists of a local pairwise classifier and global constraints. We first introduce a classifier that is based on features from previous work. Next, we describe novel features specific for process extraction. Last, we incorporate global constraints into our model using ILP formulations.
 
 \subsection{Local pairwise classifier} \label{subsec:pairwise}
 
@@ -73,15 +73,15 @@ Our ILP formulation for enforcing connectivity is a minor variation of the one s
 
  Let $\bar{\sR}$ be the set $\sR \setminus \mbox{\textsc{None}}$. An edge $(t_i,t_j)$ is in $E$ iff there is some non-\textsc{None} relation between $t_i$ and $t_j$, i.e. iff $y_{ij}:=\sum_{r \in \bar{\sR}} y_{ijr}$ is equal to $1$. For each variable $y_{ij}$ we define two auxiliary binary variables $z_{ij}$ and $z_{ji}$ that correspond to edges of the directed tree that is a subgraph of $\sP$. We ensure that the edges in the tree exist also in $\sP$ by tying each auxiliary variable to its corresponding ILP variable:
 \begin{align}
-\vspace{-3mm}
+\vspace{-5mm}
 \forall_{i<j} \ z_{ij} \leq y_{ij}, z_{ji} \leq y_{ij}
-\vspace{-3mm}
+\vspace{-5mm}
 \end{align}
 
 Next, we add constraints that ensure the graph structure induced by the auxiliary variables is a tree rooted in an arbitrary node $1$ (The choice of root does not affect connectivity). We add for every $i \neq j$ a flow variable $\phi_{ij}$ which specifies the amount of flow on the directed edge $z_{ij}$.
 
 \begin{align}
-\vspace{-3mm}
+\vspace{-30pt}
 \small &\sum_{i} z_{i1} =0, \forall_{j \neq 1} \sum_{i} z_{ij}=1 \label{eq:oneparent} \\ 
 &\sum_{i} \phi_{1i}=n-1 \label{eq:rootflow} \\ 
 &\forall_{j \neq 1} \ \sum_{i} \phi_{ij} - \sum_{k} \phi_{jk}=1 \label{eq:flow} \\
@@ -119,7 +119,7 @@ A relation triad (or a relation triangle) for any three triggers $t_{i}$, $t_{j}
   y_{ij\mathsf{\textsc{Prev}}} + y_{jk\mathsf{\textsc{Prev}}} - y_{ik\mathsf{\textsc{None}}} \leq 1& \label{eq:prev}
 \end{flalign}
 
-We used the Gurobi optimization package\footnote{\url{www.gurobi.com}} to find an exact solution for our ILP, which contains $O(n^2|\sR|)$ variables and $O(n^3)$ constraints. We also developed an equivalent formulation amenable to dual decomposition \cite{dualdecomp}, which is a faster approximation method. But practically, solving the ILP exactly with Gurobi is quite fast (average/median time per process: 0.294 sec/0.152 sec).
+We used the Gurobi optimization package to find an exact solution for our ILP, which contains $O(n^2|\sR|)$ variables and $O(n^3)$ constraints. We also developed an equivalent formulation amenable to dual decomposition \cite{dualdecomp}, which is a faster approximation method. But practically, solving the ILP exactly with Gurobi is quite fast (average/median time per process: 0.294 sec/0.152 sec).
 
 
 
