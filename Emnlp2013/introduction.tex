@@ -1,8 +1,13 @@
 \section{Introduction}
 
-A \emph{process} is defined as a series of inter-related events that involve multiple entities and lead to an end result. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. On top of that, it describes the role of each entity in each event, and the relationship between events (e.g., the second occurrence of the event \textit{`enter'}, causes the event \textit{`changing'}). 
+A \emph{process} is defined as a series of inter-related events that involve multiple entities and lead to an end result. Product manufacturing, economical developments, and various phenomena in life and social sciences can all be viewed as types of processes. Processes are complicated objects; consider for example the biological process of ATP synthesis described in Figure~\ref{fig:process}. This process involves 12 entities and 8 events. Additionally, it describes relations between events and entities, and the relationship between events (e.g., the second occurrence of the event \textit{`enter'}, causes the event \textit{`changing'}). 
 
-\FigStar{figures/process5}{0.82}{process}{Partial annotation of the ATP synthesis process.}
+\begin{figure*}[ht]
+\centering
+\fbox{ \includegraphics[width=0.98\textwidth]{figures/process5}}
+\caption{Partial annotation of the ATP synthesis process. Most of the semantic roles have been removed for simplicity.}
+\label{fig:process}
+\end{figure*}
 
 Automatically extracting the structure of processes from text is crucial for applications that require reasoning such as non-factoid QA. For instance, answering a question on ATP synthesis such as \emph{``How do H+ ions contribute to the production of ATP?"} requires a structure that links \emph{H+ ions} (Figure~\ref{fig:process}, sentence 1) to \emph{ATP} (Figure~\ref{fig:process}, sentence 4) through a sequence of intermediate events. Such ``how" questions are common on FAQ websites \cite{Surdeanu:2011}, which further supports the importance of process extraction.
 
