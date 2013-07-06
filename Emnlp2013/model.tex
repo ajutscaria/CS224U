@@ -108,7 +108,7 @@ A relation triad (or a relation triangle) for any three triggers $t_{i}$, $t_{j}
 \item \textsc{Cotemp} transitivity (Figure~\ref{fig:triad}c, Eqn.~\ref{eq:cotemptransitivity}):  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event. 
 \item \textsc{Same} contradiction (Figure~\ref{fig:triad}d, Eqn.~\ref{eq:samecontradiction}): if $t_i$ is the same event as  $t_k$, then their temporal ordering with respect to a third trigger $t_j$ may result in a contradiction, e.g., if $t_j$ is after $t_i$, but before $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint. This constraint depends on prediction temporal and co-reference relations jointly.
 \item \textsc{Prev} contradiction (Figure~\ref{fig:triad}e, Eqn.~\ref{eq:prev}): As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then $t_i$ cannot be immediately before $t_k$.
-\end{enumerate}.
+\end{enumerate}
 \vspace{-4mm}
 \begin{flalign}
  y_{ij\mathsf{\textsc{Same}}}     + y_{jk\mathsf{\textsc{Same}}} + y_{ik\mathsf{\textsc{Same}}} \geq 3  &  \label{eq:sametransitivity} \\
