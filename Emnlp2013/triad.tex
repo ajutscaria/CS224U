@@ -13,9 +13,9 @@
 \begin{tikzpicture}[->,>=stealth',shorten >=1pt,auto,node distance=3cm,
   thick, good node/.style={circle,fill=blue!20,draw,font=\sffamily\Large}, bad node/.style={circle,fill=red!40,draw,font=\sffamily\Large\bfseries}]
 
-  \node[good node] (a1) {i};
-  \node[good node, below left = 1.732cm and 1cm of a1] (a2) {j};
-  \node[good node, below right = 1.732cm and 1cm of a1] (a3) {k};
+  \node[good node] (a1) {$t_j$};
+  \node[good node, below left = 1.732cm and 1cm of a1] (a2) {$t_i$};
+  \node[good node, below right = 1.732cm and 1cm of a1] (a3) {$t_k$};
   \node[below = 2.732cm of a1] (a4) {(a) \textsc{same} transitivity};
 
   \path[every node/.style={font=\sffamily\footnotesize}]
@@ -23,20 +23,20 @@
     (a2) edge[-] node [left] {\textsc{Same}} (a1)
     (a3) edge[-] node [above] {\textsc{Same}} (a2);        
         
-  \node[good node, right = 3.5cm of a1] (b1) {i};
-  \node[good node, below left = 1.732cm and 1cm of b1] (b2) {j};
-  \node[good node, below right = 1.732cm and 1cm of b1] (b3) {k};
+  \node[good node, right = 3.5cm of a1] (b1) {$t_j$};
+  \node[good node, below left = 1.732cm and 1cm of b1] (b2) {$t_i$};
+  \node[good node, below right = 1.732cm and 1cm of b1] (b3) {$t_k$};
   \node[below = 2.732cm of b1] (b4) {(b) \textsc{Cause-Cotemp}};
 
   \path[every node/.style={font=\sffamily\footnotesize}]
-    (b1) edge[] node [right] {\textsc{Causes}} (b3)
-           edge[] node [left] {\textsc{Causes}} (b2)
-    (b3) edge[-] node [above] {\textsc{Cotemp}} (b2);       
+    (b2) edge[] node [above] {\textsc{Causes}} (b3)
+           edge[] node [left] {\textsc{Causes}} (b1)
+    (b3) edge[-] node [right] {\textsc{Cotemp}} (b1);       
     
             
-  \node[good node, right = 3.5cm of b1] (c1) {i};
-  \node[good node, below left = 1.732cm and 1cm of c1] (c2) {j};
-  \node[good node, below right = 1.732cm and 1cm of c1] (c3) {k};
+  \node[good node, right = 3.5cm of b1] (c1) {$t_j$};
+  \node[good node, below left = 1.732cm and 1cm of c1] (c2) {$t_i$};
+  \node[good node, below right = 1.732cm and 1cm of c1] (c3) {$t_k$};
   \node[below = 2.732cm of c1] (c4) {(c) \textsc{Cotemp} transitivity};
   
   \path[every node/.style={font=\sffamily\footnotesize}]
@@ -46,9 +46,9 @@
     
     %%%%%%%%% bad %%%%%
     
-  \node[good node, right = 3.5cm of c1] (d1) {i};
-  \node[good node, below left = 1.732cm and 1cm of d1] (d2) {j};
-  \node[good node, below right = 1.732cm and 1cm of d1] (d3) {k};
+  \node[good node, right = 3.5cm of c1] (d1) {$t_j$};
+  \node[good node, below left = 1.732cm and 1cm of d1] (d2) {$t_i$};
+  \node[good node, below right = 1.732cm and 1cm of d1] (d3) {$t_k$};
   \node[below = 2.732cm of d1] (d4) {(d) \textsc{Same} contradiction};
 
   \path[every node/.style={font=\sffamily\footnotesize}]
@@ -57,9 +57,9 @@
     (d3) edge[-,red] node [above] {\textsc{Same}} (d2);       
         
         
-  \node[good node, right = 3.5cm of d1] (e1) {i};
-  \node[good node, below left = 1.732cm and 1cm of e1] (e2) {j};
-  \node[good node, below right = 1.732cm and 1cm of e1] (e3) {k};
+  \node[good node, right = 3.5cm of d1] (e1) {$t_j$};
+  \node[good node, below left = 1.732cm and 1cm of e1] (e2) {$t_i$};
+  \node[good node, below right = 1.732cm and 1cm of e1] (e3) {$t_k$};
   \node[below = 2.732cm of e1] (e4) {(e) \textsc{Prev} contradiction};
 
   \path[every node/.style={font=\sffamily\footnotesize}]
