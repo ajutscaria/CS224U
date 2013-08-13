@@ -1,0 +1,20 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "transcribed_0"]
+node1 [label = "repeated_1"]
+node2 [label = "help_2"]
+node3 [label = "make_3"]
+node4 [label = "cleaved_4"]
+node5 [label = "combine_5"]
+node0 -> node1 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node0 -> node1 [ label = "NextEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node0 -> node2 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "SameEvent" fontcolor="black" dir = "both" color = "Black"];
+node2 -> node3 [ label = "Causes" fontcolor="black"  color = "Black"];
+node2 -> node3 [ label = "Enables" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "SuperEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node4 -> node5 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node4 -> node5 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "Causes" fontcolor="darkgreen"  color = "darkgreen"];
+}

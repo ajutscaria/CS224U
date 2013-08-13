@@ -1,0 +1,11 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "activate_0"]
+node1 [label = "activated_1"]
+node2 [label = "release_2"]
+node0 -> node1 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node0 -> node1 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node1 -> node2 [ label = "Causes" fontcolor="black"  color = "Black"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+}

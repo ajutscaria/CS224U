@@ -1,0 +1,11 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "higher_0"]
+node1 [label = "leave_1"]
+node2 [label = "accumulation_2"]
+node0 -> node1 [ label = "Causes" fontcolor="black"  color = "Black"];
+node0 -> node1 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "Causes" fontcolor="black"  color = "Black"];
+node1 -> node2 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+}

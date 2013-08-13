@@ -1,0 +1,51 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "cycle_0"]
+node1 [label = "incorporating_1"]
+node2 [label = "incorporation_2"]
+node3 [label = "fixation_3"]
+node4 [label = "cycle_4"]
+node5 [label = "reduces_5"]
+node6 [label = "addition_6"]
+node7 [label = "convert_7"]
+node8 [label = "cycle_8"]
+node9 [label = "cycle_9"]
+node10 [label = "cycle_10"]
+node11 [label = "cycle_11"]
+node0 -> node1 [ label = "SuperEvent" fontcolor="black"  color = "Black"];
+node0 -> node1 [ label = "SuperEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node0 -> node4 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node0 -> node8 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node0 -> node9 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node0 -> node10 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node0 -> node11 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node1 -> node2 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node1 -> node3 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node2 -> node3 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node3 -> node4 [ label = "SameEvent" fontcolor="black" dir = "both" color = "Black"];
+node3 -> node5 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node4 -> node5 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node4 -> node5 [ label = "SuperEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node4 -> node8 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node4 -> node9 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node4 -> node10 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node4 -> node11 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node5 -> node6 [ label = "Causes" fontcolor="black"  color = "Black"];
+node5 -> node6 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node5 -> node7 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node6 -> node7 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node7 -> node8 [ label = "Causes" fontcolor="black"  color = "Black"];
+node7 -> node8 [ label = "SubEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node8 -> node9 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node8 -> node9 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node8 -> node10 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node8 -> node11 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node9 -> node10 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node9 -> node10 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node9 -> node11 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node10 -> node11 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node10 -> node11 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node2 -> node3 [ label = "Causes" fontcolor="darkgreen"  color = "darkgreen"];
+}

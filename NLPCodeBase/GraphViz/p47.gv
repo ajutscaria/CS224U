@@ -1,0 +1,8 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "speciation_0"]
+node1 [label = "blocked_1"]
+node0 -> node1 [ label = "Caused" fontcolor="black"  color = "Black"];
+node0 -> node1 [ label = "Caused" fontcolor="goldenrod3"  color = "goldenrod3"];
+}

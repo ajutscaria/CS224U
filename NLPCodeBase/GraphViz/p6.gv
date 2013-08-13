@@ -1,0 +1,39 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "substitution_0"]
+node1 [label = "low_1"]
+node2 [label = "aggregate_2"]
+node3 [label = "deform_3"]
+node4 [label = "clump_4"]
+node5 [label = "symptoms_5"]
+node6 [label = "weakness_6"]
+node7 [label = "pain_7"]
+node8 [label = "damage_8"]
+node9 [label = "paralysis_9"]
+node0 -> node1 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node0 -> node2 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node1 -> node2 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node2 -> node3 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node3 -> node4 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node4 -> node5 [ label = "Causes" fontcolor="black"  color = "Black"];
+node4 -> node5 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node5 -> node6 [ label = "SuperEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node6 -> node7 [ label = "SameEvent" fontcolor="black" dir = "both" color = "Black"];
+node6 -> node7 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node6 -> node8 [ label = "SameEvent" fontcolor="black" dir = "both" color = "Black"];
+node6 -> node8 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node6 -> node9 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node7 -> node8 [ label = "SameEvent" fontcolor="black" dir = "both" color = "Black"];
+node7 -> node8 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node7 -> node9 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node8 -> node9 [ label = "CotemporalEvent" fontcolor="black" dir = "both" color = "Black"];
+node8 -> node9 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node6 -> node9 [ label = "SameEvent" fontcolor="darkgreen" dir = "both" color = "darkgreen"];
+node8 -> node9 [ label = "SameEvent" fontcolor="darkgreen" dir = "both" color = "darkgreen"];
+node5 -> node6 [ label = "PreviousEvent" fontcolor="darkgreen"  color = "darkgreen"];
+node7 -> node9 [ label = "SameEvent" fontcolor="darkgreen" dir = "both" color = "darkgreen"];
+}

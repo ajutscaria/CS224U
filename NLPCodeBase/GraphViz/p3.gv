@@ -1,0 +1,21 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "crossing_0"]
+node1 [label = "cohesion_1"]
+node2 [label = "formation_2"]
+node3 [label = "hold_3"]
+node4 [label = "forms_4"]
+node5 [label = "division_5"]
+node0 -> node1 [ label = "CotemporalEvent" fontcolor="black" dir = "both" color = "Black"];
+node0 -> node1 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node0 -> node2 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "CotemporalEvent" fontcolor="black" dir = "both" color = "Black"];
+node1 -> node2 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node4 -> node5 [ label = "CotemporalEvent" fontcolor="black" dir = "both" color = "Black"];
+node4 -> node5 [ label = "SubEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "CotemporalEvent" fontcolor="darkgreen" dir = "both" color = "darkgreen"];
+}

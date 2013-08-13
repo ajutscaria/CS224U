@@ -1,0 +1,17 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "transfer_0"]
+node1 [label = "move_1"]
+node2 [label = "losing_2"]
+node3 [label = "passed_3"]
+node4 [label = "reducing_4"]
+node0 -> node1 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node0 -> node1 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node1 -> node2 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "Causes" fontcolor="black"  color = "Black"];
+node3 -> node4 [ label = "CotemporalEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="darkgreen"  color = "darkgreen"];
+}

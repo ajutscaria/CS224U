@@ -1,0 +1,23 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "produced_0"]
+node1 [label = "copied_1"]
+node2 [label = "processed_2"]
+node3 [label = "associate_3"]
+node4 [label = "targeting_4"]
+node5 [label = "recruit_5"]
+node6 [label = "modify_6"]
+node0 -> node1 [ label = "CotemporalEvent" fontcolor="black" dir = "both" color = "Black"];
+node0 -> node1 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node3 -> node4 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node4 -> node5 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node4 -> node5 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node5 -> node6 [ label = "CotemporalEvent" fontcolor="black" dir = "both" color = "Black"];
+node5 -> node6 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+}

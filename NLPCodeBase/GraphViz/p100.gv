@@ -1,0 +1,24 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "respiration_0"]
+node1 [label = "released_1"]
+node2 [label = "transported_2"]
+node3 [label = "lose_3"]
+node4 [label = "fall_4"]
+node5 [label = "harnesses_5"]
+node6 [label = "synthesize_6"]
+node0 -> node1 [ label = "SuperEvent" fontcolor="black"  color = "Black"];
+node0 -> node2 [ label = "SuperEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node1 -> node2 [ label = "Caused" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node3 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node2 -> node4 [ label = "SameEvent" fontcolor="goldenrod3" dir = "both" color = "goldenrod3"];
+node3 -> node4 [ label = "Caused" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node5 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node4 -> node5 [ label = "CotemporalEvent" fontcolor="black" dir = "both" color = "Black"];
+node5 -> node6 [ label = "Causes" fontcolor="black"  color = "Black"];
+node5 -> node6 [ label = "Causes" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "CotemporalEvent" fontcolor="darkgreen" dir = "both" color = "darkgreen"];
+}

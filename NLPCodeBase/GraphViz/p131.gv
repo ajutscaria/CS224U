@@ -1,0 +1,17 @@
+digraph finite_state_machine { 
+	rankdir=LR;
+	size="50,50";
+node0 [label = "sequencing_0"]
+node1 [label = "cut_1"]
+node2 [label = "assemble_2"]
+node3 [label = "sequence_3"]
+node4 [label = "complete_4"]
+node0 -> node1 [ label = "NextEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node0 -> node2 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node1 -> node2 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node2 -> node3 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node3 -> node4 [ label = "PreviousEvent" fontcolor="black"  color = "Black"];
+node3 -> node4 [ label = "PreviousEvent" fontcolor="goldenrod3"  color = "goldenrod3"];
+node0 -> node1 [ label = "SuperEvent" fontcolor="darkgreen"  color = "darkgreen"];
+}

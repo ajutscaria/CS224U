@@ -810,6 +810,7 @@ public static List<Example> readFile(String fileName) {
 					nominalization.add(splits[2].trim());
 				}
 			}
+			reader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -821,13 +822,14 @@ public static List<Example> readFile(String fileName) {
     public static Set<String> getNominalizedVerbs() {
     	Set<String> nominalization = new HashSet<String>();
     	try {
-			BufferedReader reader = new BufferedReader(new FileReader("nomlex.txt"));
+			BufferedReader reader = new BufferedReader(new FileReader("lib/data/nomlex.txt"));
 			String line;
 			while((line = reader.readLine()) != null){
 				if(!line.startsWith("(NOM :ORTH "))
 					continue;
 				nominalization.add(line.replace("(NOM :ORTH ", "").replace("\"", ""));
 			}
+			reader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -839,7 +841,7 @@ public static List<Example> readFile(String fileName) {
     public static HashMap<String, String> getVerbForms() {
     	HashMap<String, String> nominalization = new HashMap<String, String>();
     	try {
-			BufferedReader reader = new BufferedReader(new FileReader("derivation.txt"));
+			BufferedReader reader = new BufferedReader(new FileReader("lib/data/derivation.txt"));
 			String line;
 			while((line = reader.readLine()) != null){
 				String[] splits = line.split("\t");
@@ -850,6 +852,7 @@ public static List<Example> readFile(String fileName) {
 					nominalization.put(splits[2].trim(), splits[0].trim());
 				}
 			}
+			reader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -908,13 +911,14 @@ public static List<Example> readFile(String fileName) {
 	public static HashMap<String, Integer> loadClustering() {
 		HashMap<String, Integer> map = new HashMap<String, Integer>();
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader("word_cluster_clark_m_5_i_20_cl_25"));
+			BufferedReader reader = new BufferedReader(new FileReader("lib/data/word_cluster_clark_m_5_i_20_cl_25"));
 			String line;
 			while((line = reader.readLine()) != null){
 				String[] splits = line.trim().split(" ");
 				if(splits.length == 3)
 					map.put(splits[0].trim(), Integer.parseInt(splits[1].trim()));
 			}
+			reader.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
