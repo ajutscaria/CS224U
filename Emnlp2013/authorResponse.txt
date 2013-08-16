@@ -9,19 +9,19 @@ Reviewer 1
 Figure 1 the trigger "spin" in sentence 3 is co-referent with the trigger
 "Turning" in sentence 4, as denoted by the "same" relation.
 2. Regarding event extraction - we have implemented some simple systems that
-extract the triggers and performance is in the low 70's. We have focused on
+extract triggers and performance is in the low 70's. We have focused on
 event-event relations in this paper but combining the systems is simple and as
-the reviewer points would result in a decrease in performance compared to
+the reviewer points out would result in a decrease in performance compared to
 using gold standard triggers.
 3. We agree that adding average precision/recall across processes is
-interesting. This score should be higher since the weight for simple processes will be equal to the weight of
-complex processes.
+interesting. This score should be higher since the weight for simple processes
+will be equal to the weight of more complex processes.
 4. We will elaborate on relation sets used in temporal reasoning. Allen, 1983,
 had 13 temporal relations and most past work used a coarser relation set.
 Reducing the number of relations simplifies annotation and learning and
 we chose a minimal set that we found expressive enough to model relations in
 processes.
-5. We can add more concrete suggestions for improving the local classifier, e.g., using
+5. We will add more concrete suggestions for improving the local classifier, e.g., using
 background knowledge about the typical order of triggers ("opening" usually
 happens before "entering") to improve local predictions. This background knowledge can be obtained in an unsupervised
 manner using narrative chain methods (Chambers et al.) or
@@ -36,7 +36,7 @@ Reviewer 2
 on the dev and were therefore omitted (e.g., Wordnet synonyms). We note
 that Table Table 3 describes exactly the set of features used by local_base.
 2. We will add the 30 connectives, and also plan to release the code with the
-data which should allow for complete reproducibility.
+data which should allow for reproducibility.
 3. In some cases parsing errors result in errors related to the syntactic
 features that rely on a correct parse, as described in Section 3.2.
 However, we found this is not a major cause of error.
@@ -48,3 +48,4 @@ overview (since this is a textbook there is no "method" section usually).
 Reviewer 3
 The units used in re-sampling are the relation prediction for each pair of
 events.
+
