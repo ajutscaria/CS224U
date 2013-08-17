@@ -46,6 +46,5 @@ In general, processes come from the body of the chapter rather than the
 overview (since this is a textbook there is no "method" section usually).
 
 Reviewer 3
-The units used in re-sampling are the relation prediction for each pair of
-events.
+The units used in the pair-wise re-sampling are the event-relation-event triplets. There are 906 points to be sampled in each iteration.
 
