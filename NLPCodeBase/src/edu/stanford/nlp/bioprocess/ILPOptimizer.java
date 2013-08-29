@@ -741,7 +741,8 @@ public class ILPOptimizer {
 	
 	private void addSameEventContradictionHardConstarints() {
 		try {
-			//Constraints for Past: Prev, Causes, Enables
+			//There are 5 categories: Past, Future, Sub, Super and Present.
+			//Defining variables
 			for(int i=0; i<numEvents; i++) {
 				for(int j=i+1; j<numEvents; j++) {
 					GRBLinExpr sumRelationsPair = new GRBLinExpr();
@@ -759,14 +760,17 @@ public class ILPOptimizer {
 					sumRelationsPair.addTerm(-1.0, C_ijFuture.get(String.format("%d,%d", i, j)));
 					model.addConstr(sumRelationsPair, GRB.EQUAL, 0.0, String.format("c2_%d,%d", i,j));
 					
+					sumRelationsPair = new GRBLinExpr();
 					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, superEventIndex)));
 					sumRelationsPair.addTerm(-1.0, C_ijSuper.get(String.format("%d,%d", i, j)));
 					model.addConstr(sumRelationsPair, GRB.EQUAL, 0.0, String.format("c2_%d,%d", i,j));
 					
+					sumRelationsPair = new GRBLinExpr();
 					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, subEventIndex)));
 					sumRelationsPair.addTerm(-1.0, C_ijSub.get(String.format("%d,%d", i, j)));
 					model.addConstr(sumRelationsPair, GRB.EQUAL, 0.0, String.format("c2_%d,%d", i,j));
 					
+					sumRelationsPair = new GRBLinExpr();
 					sumRelationsPair.addTerm(1.0, X_ijr.get(String.format("%d,%d,%d", i, j, cotemporalEventIndex)));
 					sumRelationsPair.addTerm(-1.0, C_ijPresent.get(String.format("%d,%d", i, j)));
 					model.addConstr(sumRelationsPair, GRB.EQUAL, 0.0, String.format("c2_%d,%d", i,j));

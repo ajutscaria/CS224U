@@ -1030,7 +1030,7 @@ public static List<Example> readFile(String fileName) {
 			for(int i = 0; i < relations.size(); i++) {
 				builder.append("\n" + relations.get(i) );
 				for(int j = 0; j < relations.size(); j++) {
-					builder.append("," + confusionMatrix[i][j]);
+					builder.append("," + (confusionMatrix[i][j] + confusionMatrix[j][i]));
 				}
 			}
 			writer.write(builder.toString());
@@ -1039,7 +1039,22 @@ public static List<Example> readFile(String fileName) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+		int[] fractions = new int[relations.size()];
+		int total = 0;
+		for(int i = 1; i < relations.size(); i++) {
+			int actual = 0, predicted = 0, correct = 0;
+			for(int j = 0; j < relations.size(); j++) {
+				actual += confusionMatrix[i][j];
+				predicted += confusionMatrix[j][i];
+			}
+			fractions[i] = actual;
+			total+= actual;
+			double prec = (double)confusionMatrix[i][i] / predicted, rec = (double) confusionMatrix[i][i] / actual; 
+			LogInfo.logs(relations.get(i) + ":" + 2*prec*rec/(prec + rec));
+		}
+		for(int i=1;i<relations.size();i++) {
+			LogInfo.logs(relations.get(i) + ":"+ (double)fractions[i]/total);
+		}
 	}
 	
 	public static void writeStringToFile(String content, String fileName) {

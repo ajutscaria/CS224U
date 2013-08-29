@@ -234,9 +234,9 @@ public class Scorer {
 		PreviousEventCluster.add("Enables");
 		
 		List<String> NextEventCluster = new ArrayList<String>();
-		PreviousEventCluster.add("NextEvent");
-		PreviousEventCluster.add("Caused");
-		PreviousEventCluster.add("Enabled");
+		NextEventCluster.add("NextEvent");
+		NextEventCluster.add("Caused");
+		NextEventCluster.add("Enabled");
 		
 		for(BioDatum d:predictedRelations) {
 			if(d.predictedLabel().equals(d.label()) && d.predictedLabel().equals("NONE")) {
@@ -253,7 +253,7 @@ public class Scorer {
 				falsePos.incrementCount(d.predictedLabel());
 				falseNeg.incrementCount(d.label);
 			}
-			else if(!d.label().equals("NONE")){
+			else{
 				fn++;
 				if(!d.predictedLabel().equals("NONE"))
 					fp++;

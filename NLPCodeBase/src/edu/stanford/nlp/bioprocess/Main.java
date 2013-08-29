@@ -23,7 +23,7 @@ import fig.exec.Execution;
 
 public class Main implements Runnable {
 	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalModel = true;
-	boolean runEventRelationTest = false;
+	boolean runEventRelationTest = true;
 	
 	//public static class Options {
 		@Option(gloss="Where to read the property file from") public String propertyFile;
@@ -451,7 +451,9 @@ public class Main implements Runnable {
 		List<BioDatum> result = null;
 		if(runLocalModel) {
 			result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
-				true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0.25);
+				//true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0.25);
+				 // true, false, false, false, 0.0,0.0,0,0,0.0,0.0,0.25);
+					  true, true, true, true, 0.0,0.5,0,0,1.0,0.0,0.5);
 		}
 		else if(runPrevBaseline) {
 			result = inferer.BaselineInfer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory);
@@ -463,7 +465,7 @@ public class Main implements Runnable {
 		
 		BufferedWriter writer;
 		try {
-			writer = new BufferedWriter(new FileWriter("localBase.txt"));
+			writer = new BufferedWriter(new FileWriter("Global.txt"));
 		
 			for(BioDatum d:result) {
 				writer.write("G:" + d.label + "," + "P:" + d.guessLabel+"\n");
@@ -504,6 +506,12 @@ public class Main implements Runnable {
 		LogInfo.logs("Recall    : " + pairTriple.second.second);
 		LogInfo.logs("F1 score  : " + pairTriple.second.third);
 		*/
+		
+		//LogInfo.logs("Total time:" + EventRelationInferer.runtime);
+		//LogInfo.logs("Total time:" + EventRelationInferer.totalRuns);
+		//LogInfo.logs("Average time:" + EventRelationInferer.runtime / EventRelationInferer.totalRuns);
+		//LogInfo.logs("All times: " + EventRelationInferer.runTimes);
+		
 	}
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
@@ -871,7 +879,8 @@ public class Main implements Runnable {
 					List<BioDatum> result = null;
 					if(runLocalModel) {
 						result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
-								true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0);
+								  true, true, true, true, 0.0,0.5,0,0,1.0,0.0,0.5);
+						          //true, false, false, false, 0.0,0.00,0,0,0.00,0.0,0.00);
 					}
 					else if(runPrevBaseline) {
 						result = inferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory);
@@ -960,7 +969,10 @@ public class Main implements Runnable {
 			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
 			
-
+			//LogInfo.logs("Total time:" + EventRelationInferer.runtime);
+			//LogInfo.logs("Total time:" + EventRelationInferer.totalRuns);
+			//LogInfo.logs("Average time:" + EventRelationInferer.runtime / EventRelationInferer.totalRuns);
+			//LogInfo.logs("All times: " + EventRelationInferer.runTimes);
 			//Print triples
 			/*
 			List<String> allRelations = ArgumentRelation.getEventRelations();
@@ -1098,6 +1110,7 @@ public class Main implements Runnable {
 				maxEvents = 0, minEvents = Integer.MAX_VALUE;
 		List<String> testAndTrain = new ArrayList<String>();
 		testAndTrain.add("test"); testAndTrain.add("train");
+		int trainSetPairs = 0, testSetPairs = 0;
 		for(String group:testAndTrain) {
 			for(Example ex:dataset.examples(group)) {
 				int numEventsOnProcess = ex.gold.get(EventMentionsAnnotation.class).size();
@@ -1108,6 +1121,12 @@ public class Main implements Runnable {
 				if(numEventsOnProcess < minEvents) {
 					minEvents = numEventsOnProcess;
 					//LogInfo.logs("Updating minEvents - "+ ex.id);
+				}
+				if(group.equals("test")) {
+					testSetPairs += numEventsOnProcess * (numEventsOnProcess-1) / 2;
+				}
+				else if(group.equals("train")) {
+					trainSetPairs += numEventsOnProcess * (numEventsOnProcess-1) / 2;
 				}
 				numEvents += numEventsOnProcess;
 				int numRelationsOnProcess = 0;
@@ -1139,5 +1158,8 @@ public class Main implements Runnable {
 		
 		System.out.println("Avg even - " + ((float)numEvents) / BioProcessFormatReader.numFilesRead);
 		System.out.println("Avg rels - " + ((float)numRelations) / BioProcessFormatReader.numFilesRead);
+		
+		LogInfo.logs("Test set pairs: " + testSetPairs);
+		LogInfo.logs("Train set pairs: " + trainSetPairs);
 	}
 }
