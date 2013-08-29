@@ -4,10 +4,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.TreeMap;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
-import sun.security.jgss.LoginConfigImpl;
-
 import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Triple;

@@ -5,17 +5,11 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Properties;
 
-import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
-import edu.stanford.nlp.classify.GeneralDataset;
-import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.util.Pair;
-import edu.stanford.nlp.util.StringUtils;
 import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 import fig.basic.Option;
@@ -26,8 +20,8 @@ public class Main implements Runnable {
 	boolean runEventRelationTest = true;
 	
 	//public static class Options {
-		@Option(gloss="Where to read the property file from") public String propertyFile;
 		@Option(gloss="The running mode: event, entity, or em") public String mode;
+		@Option(gloss="Dataset dir") public String datasetDir;
 		@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
 	//}	
 	//public static Options opts = new Options();
@@ -154,10 +148,10 @@ public class Main implements Runnable {
 	@Override
 	public void run() {
 		LogInfo.begin_track("main");
-		Properties props = StringUtils.propFileToProperties(propertyFile);
-		String trainDirectory = props.getProperty("train.dir"), testDirectory = props.getProperty("test.dir"),
-				sampleDirectory = props.getProperty("sample.dir");
-
+		String trainDirectory = datasetDir+"/train/";
+		String testDirectory = datasetDir+"/test/";
+		String sampleDirectory = datasetDir+"/sample/";
+		
 		HashMap<String, String> folders = new HashMap<String, String>();
 		folders.put("test", testDirectory);
 		folders.put("train", trainDirectory);
@@ -897,7 +891,7 @@ public class Main implements Runnable {
 					LogInfo.end_track();
 				}
 				
-				Utils.printConfusionMatrix(confusionMatrix, relations, "ConfusionMatrix.csv");
+				Utils.printConfusionMatrix(confusionMatrix, relations, "out/ConfusionMatrix.csv");
 				
 				Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
 				

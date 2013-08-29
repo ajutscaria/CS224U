@@ -20,7 +20,6 @@ import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
-import edu.stanford.nlp.wsd.WordNet.WordNetID;
 import fig.basic.LogInfo;
 
 public class EventRelationFeatureFactory {
