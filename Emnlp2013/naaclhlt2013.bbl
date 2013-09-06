@@ -38,6 +38,12 @@ Nathanael Chambers and Dan Jurafsky.
 \newblock Template-based information extraction without the templates.
 \newblock In {\em ACL}, pages 976--986.
 
+\bibitem[\protect\citename{Chang \bgroup et al.\egroup }2012]{ChangRaRo12}
+M.~Chang, L.~Ratinov, and D.~Roth.
+\newblock 2012.
+\newblock Structured learning with constrained conditional models.
+\newblock {\em Machine Learning}, 88(3):399--431, 6.
+
 \bibitem[\protect\citename{Cheung \bgroup et al.\egroup }2013]{Cheung13}
 Jackie Chi~Kit Cheung, Hoifung Poon, and Lucy Vanderwende.
 \newblock 2013.

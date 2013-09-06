@@ -32,13 +32,13 @@ Timeline construction involves identifying temporal relations between events \ci
 In this paper, we formally define the task of process extraction and present automatic extraction methods. 
 Our approach handles an open set of event types and works over multiple sentences, extracting a rich set of event-event relations.
 Furthermore, we characterize a set of global properties of process structure that can be utilized during process extraction. 
-For example, all events in a process are somehow connected to one another. Also, processes usually exhibit a ``chain-like" structure reflecting process progresses over time. 
+For example, all events in a process are somehow connected to one another. Also, processes usually exhibit a ``chain-like" structure reflecting process progression over time. 
 We show that incorporating such global properties into our model and performing joint inference over the extracted relations significantly improves the quality of process structures predicted.  
 We conduct experiments on a novel dataset of process descriptions from the textbook ``Biology" \cite{CampbellReece} that were annotated by trained biologists. Our method does not require any domain-specific knowledge and can be easily adapted to non-biology domains.
 
 The main contributions of this paper are:
-\begin{enumerate}[itemsep=0pt,topsep=0pt] 
+\begin{enumerate} [itemsep=0pt] 
 \item We define process extraction and characterize processes' structural properties.
-\item We model global structural properties in processes and significantly improve extraction accuracy.
-\item We publicly release a novel data set of 148 fully annotated biological process descriptions.
+\item We model global structural properties in processes and demonstrate this significantly improve extraction accuracy.
+\item We publicly release a novel data set of 148 fully annotated biological process descriptions along with the source code for our system. The dataset and code can be downloaded from \small{\url{http://www.stanford.edu/~joberant/bioprocess/}}.
 \end{enumerate}
