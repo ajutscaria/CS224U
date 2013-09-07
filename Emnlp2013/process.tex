@@ -8,8 +8,8 @@ A natural way to break down process extraction into sub-parts is to first perfor
 
 The set $\sL$ contains standard semantic roles such as \textsc{Agent}, \textsc{Theme}, \textsc{Origin}, \textsc{Destination} and \textsc{Location}. Two additional semantic roles were employed that are relevant for biological text: \textsc{Result} corresponds to an entity that is the result of an event, and \textsc{Raw-material} describes an entity that is used or consumed during an event. For example, the last event \emph{`produce'} in Figure~\ref{fig:process}, has \emph{`ATP'} as the \textsc{Result}, and \emph{`ADP'} as the \textsc{Raw-material}.
 
-The relation set $\sR$ contains the following (assuming a labeled edge $(u,v,r)$):
-\begin{enumerate}[itemsep=0pt,topsep=0pt] 
+The event-event relation set $\sR$ contains the following (assuming a labeled edge $(u,v,r)$):
+\begin{enumerate}[itemsep=0pt] 
 \item \textsc{Prev} denotes that $u$ is an event immediately before $v$. Thus, the edges $(u,v,\mbox{\textsc{Prev}})$ and $(v,w,\mbox{\textsc{Prev}})$, preclude the edge $(u,w,\mbox{\textsc{Prev}})$. For example, in ``When a photon \emph{strikes} \ldots energy is  \emph{passed} \ldots until it \emph{reaches} \ldots'', there is no edge (\emph{strikes}, \emph{reaches}, \textsc{Prev}) due to the intervening event \emph{`passed'}.
 \item \textsc{Cotemp} denotes that events $u$ and $v$ overlap in time (e.g., the first two event mentions \emph{flowing} and \emph{enter} in Figure~\ref{fig:process}).
 \item \textsc{Super} denotes that event $u$ includes event $v$. For instance, in ``During \emph{DNA replication}, DNA polymerases \emph{proofread} each nucleotide\ldots" there is an edge (\emph{DNA replication}, \emph{proofread}, \textsc{Super}).
@@ -18,11 +18,11 @@ The relation set $\sR$ contains the following (assuming a labeled edge $(u,v,r)$
 \item \textsc{Same} denotes that $u$ and $v$  both refer to the same event (\emph{spins} and \emph{Spinning} in  Figure~\ref{fig:process}).
 \end{enumerate}
 
-Our relation set contains the relations \textsc{Causes} and \textsc{Enables}, which are important for modeling processes and go beyond just temporal ordering. The \textsc{Super} relation appears in temporal annotations such as the Timebank corpus \cite{Pustejovsky03} and in work on temporal logic \cite{Allen83}, but in practice it is not considered by many temporal ordering systems \cite{Chambers08,Yoshikawa09,Do12}. 
+Early work on temporal logic \cite{Allen83} contained more temporal relations than are used in our relation set $\sR$. We chose a relation set $\sR$ that captures the common and important aspects of temporal relations between events in a process, while keeping the annotation as simple as possible. For instance, we include the \textsc{Super} relation that appears in temporal annotations such as the Timebank corpus \cite{Pustejovsky03} and Allen's work, but in practice was not considered by many temporal ordering systems \cite{Chambers08,Yoshikawa09,Do12}. Importantly, our relation set also includes the relations \textsc{Causes} and \textsc{Enables}, which are fundamental to modeling processes and go beyond simple temporal ordering. 
 
 We also added event coreference (\textsc{Same}) to $\sR$. Do et al. \shortcite{Do12} used event coreference information in a temporal ordering task to modify probabilities provided by pairwise classifiers prior to joint inference. In this paper, we simply treat \textsc{Same} as another event-event relation, which allows us to easily perform joint inference and employ structural constraints that combine both coreference and temporal relations simultaneously. For example, if $u$ and $v$ are the same event, then there can exist no $w$, such that $u$ is before $w$, but $v$ is after $w$ (see Section~\ref{subsec:global})
 
-We annotated 148 process descriptions based on the aforementioned definitions, which can be downloaded from \url{http://to.be.filled.in}. Further details on annotation and data set statistics are provided in Section~\ref{subsec:setup} and Table~\ref{tab:datastats}.
+We annotated 148 process descriptions based on the aforementioned definitions. Further details on annotation and data set statistics are provided in Section~\ref{subsec:setup} and Table~\ref{tab:datastats}.
 
 \begin{table}[t]
 {\small

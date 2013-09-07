@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -26,14 +25,13 @@ public class EventRelationFeatureFactory {
 
 	private boolean printAnnotations = false, printDebug = false;
 	public static Set<String> markWords = new HashSet<String>(), advmodWords = new HashSet<String>(), eventInsidePP = new HashSet<String>();
-	private boolean useLexicalFeatures, useBaselineFeaturesOnly = true;
+	private boolean useBaselineFeaturesOnly = false;
 	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
 									"include","includes","including","included", "first", "begin","begins","began","beginning","begun","start","starts","started","starting",
 									"lead","leads","causes","cause","result","results",
 									"then", "subsequently", "previously", "next", "later", "subsequent", "previous"});
-									//"result", "results", "lead", "leads", "cause", "causes"});
 
 	List<String> diffClauseRelations = Arrays.asList(new String[]{"acomp", "advcl", "ccomp", "csubj", "infmod", "prepc", "purpcl", "xcomp"});
 	HashMap<String, String> MarkAndPPClusters = new HashMap<String, String>();
@@ -42,7 +40,6 @@ public class EventRelationFeatureFactory {
 	HashMap<String, Integer> clusters = Utils.loadClustering();
 
 	public EventRelationFeatureFactory(boolean useLexicalFeatures) {
-		this.useLexicalFeatures = useLexicalFeatures;
 		MarkAndPPClusters.put("if", RelationType.PreviousEvent.toString());
 		MarkAndPPClusters.put("until", RelationType.NextEvent.toString());
 		MarkAndPPClusters.put("after", RelationType.PreviousEvent.toString());
@@ -105,9 +102,7 @@ public class EventRelationFeatureFactory {
 		} catch (IOException | OneToOneMapException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
-		
-		// TODO Auto-generated constructor stub
+		}*/		
 	}
 	
 	private FeatureVector computeFeatures(Example example, EventMention event1, EventMention event2) {
@@ -209,8 +204,6 @@ public class EventRelationFeatureFactory {
 				if(determiner != null) {
 					if(Main.features.contains("determinerBefore2")) {
 						features.add("determinerBefore2:" + determiner);
-						if(determiner.equalsIgnoreCase("this"))
-							System.out.println();
 					}
 				}
 			}
