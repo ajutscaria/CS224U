@@ -25,7 +25,8 @@ public class EventRelationFeatureFactory {
 
 	private boolean printAnnotations = false, printDebug = false;
 	public static Set<String> markWords = new HashSet<String>(), advmodWords = new HashSet<String>(), eventInsidePP = new HashSet<String>();
-	private boolean useBaselineFeaturesOnly = false;
+	private boolean useBaselineFeaturesOnly = false, runGlobalModel = false;
+	private String model = "";
 	//WnExpander wnLexicon;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
@@ -39,7 +40,14 @@ public class EventRelationFeatureFactory {
 	
 	HashMap<String, Integer> clusters = Utils.loadClustering();
 
-	public EventRelationFeatureFactory(boolean useLexicalFeatures) {
+	public EventRelationFeatureFactory(boolean useLexicalFeatures, String model) {
+		this.model = model;
+		if(model.equals("localbase")) {
+			useBaselineFeaturesOnly = true;
+		}
+		else if(model.equals("global")) {
+			runGlobalModel = true;
+		}
 		MarkAndPPClusters.put("if", RelationType.PreviousEvent.toString());
 		MarkAndPPClusters.put("until", RelationType.NextEvent.toString());
 		MarkAndPPClusters.put("after", RelationType.PreviousEvent.toString());
@@ -136,8 +144,8 @@ public class EventRelationFeatureFactory {
 			features.add("lemmas:" + lemma1 + "+" + lemma2);
 		
 		//Is event2 immediately after event1?
-		if(Main.features.contains("isImmediatelyAfter")) {
-			//features.add("isImmediatelyAfter:" + isImmediatelyAfter);
+		if(Main.features.contains("isImmediatelyAfter") && !runGlobalModel) {
+			features.add("isImmediatelyAfter:" + isImmediatelyAfter);
 		}
 		
 		if(isImmediatelyAfter) {

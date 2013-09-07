@@ -16,13 +16,15 @@ import fig.basic.Option;
 import fig.exec.Execution;
 
 public class Main implements Runnable {
-	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalModel = true;
+	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalBase = false, runLocalModel = false, runGlobalModel = false;
 	boolean runEventRelationTest = true;
 	
 	//public static class Options {
 		@Option(gloss="The running mode: event, entity, or em") public String mode;
 		@Option(gloss="Dataset dir") public String datasetDir;
 		@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
+		@Option(gloss="Run on dev or test") public String runOn;
+		@Option(gloss="Model to run") public String runModel;
 	//}	
 	//public static Options opts = new Options();
 	public static List<String> features; 
@@ -207,6 +209,29 @@ public class Main implements Runnable {
 		else if(mode.equals("pipeline")) {
 			runPipelinePrediction(folders);
 		}
+		else if(mode.equals("result")) {
+			if(runModel.equals("baseline")) {
+				runPrevBaseline = true;
+			}
+			else if(runModel.equals("chain")) {
+				runBetterBaseline = true;
+			}
+			else if(runModel.equals("localbase")) {
+				runLocalBase = true;
+			}
+			else if(runModel.equals("local")) {
+				runLocalModel = true;
+			}
+			else if(runModel.equals("global")) {
+				runGlobalModel = true;
+			}
+			if(runOn.equals("dev")) {
+				runEventRelationsPrediction(folders);
+			}
+			else if(runOn.equals("test")) {
+				runEventRelationsPredictionTest(folders);
+			}
+		}
 		LogInfo.end_track();
 	}
 
@@ -245,7 +270,7 @@ public class Main implements Runnable {
 		
 		Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;// = Scorer.scoreEventRelations(result);
 		
-		pairTriple = opt.runPipelinePrediction(trainDataset.examples("train"), testDataset.examples("test"), true);
+		pairTriple = opt.runPipelinePrediction(trainDataset.examples("train"), testDataset.examples("test"), true, runModel);
 		
 		LogInfo.logs("Full Micro precision");
 		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
@@ -438,13 +463,13 @@ public class Main implements Runnable {
 		BioprocessDataset testDataset = loadTestDataSet(folders, false);
 		
 		Learner eventRelationLearner = new Learner();
-		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
-		EventRelationInferer inferer = new EventRelationInferer();
+		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, runModel);
+		EventRelationInferer inferer = new EventRelationInferer(runModel);
 		
 		Params eventParam = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
 		List<BioDatum> result = null;
-		if(runLocalModel) {
-			result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory,
+		if(runLocalModel || runGlobalModel || runLocalBase) {
+			result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory, runModel,
 				//true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0.25);
 				 // true, false, false, false, 0.0,0.0,0,0,0.0,0.0,0.25);
 					  true, true, true, true, 0.0,0.5,0,0,1.0,0.0,0.5);
@@ -540,7 +565,7 @@ public class Main implements Runnable {
 		BioprocessDataset dataset = loadDataSet(folders, small, false);
 		
 		Learner eventRelationLearner = new Learner();
-		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
+		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, runModel);
 		EventRelationInferer inferer = new EventRelationInferer();
 		List<String> relations = ArgumentRelation.getEventRelations();
 		double[][] confusionMatrix = new double[relations.size()][relations.size()];
@@ -572,7 +597,7 @@ public class Main implements Runnable {
 		
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
-			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, eventRelationFeatureFactory,
+			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, eventRelationFeatureFactory, runModel,
 					false, false, false, false, 0.0,0.0,0.0, 0.0,0.0,0.0,0.0);
 			//List<BioDatum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, eventRelationFeatureFactory);
 			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple = Scorer.scoreEventRelations(predicted);
@@ -653,7 +678,7 @@ public class Main implements Runnable {
 									
 									for(int i = 1; i <= NumCrossValidation; i++) {
 										Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
-										List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
+										List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel,
 												connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
 												alpha4, alpha5, alpha6, alpha7);
 										
@@ -749,7 +774,7 @@ public class Main implements Runnable {
 										
 										for(int i = 1; i <= NumCrossValidation; i++) {
 											Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
-											List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
+											List<BioDatum> result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel,
 													connectedComponent, sameEvent, previousEvent, sameEventContradictions, alpha1, alpha2, alpha3,
 													alpha4, alpha5, alpha6, alpha7);
 											
@@ -872,7 +897,7 @@ public class Main implements Runnable {
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 					List<BioDatum> result = null;
 					if(runLocalModel) {
-						result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory,
+						result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel,
 								  true, true, true, true, 0.0,0.5,0,0,1.0,0.0,0.5);
 						          //true, false, false, false, 0.0,0.00,0,0,0.00,0.0,0.00);
 					}

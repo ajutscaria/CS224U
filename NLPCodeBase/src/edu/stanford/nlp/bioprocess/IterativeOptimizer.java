@@ -62,7 +62,7 @@ public class IterativeOptimizer {
 		return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(triple, entityTriple);
 	}
 	
-	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> runPipelinePrediction(List<Example> train, List<Example> test, boolean useLexicalFeatures) {
+	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> runPipelinePrediction(List<Example> train, List<Example> test, boolean useLexicalFeatures, String model) {
 		LogInfo.begin_track("Basiccc trigger prediction");
 		Learner eventLearner = new Learner();
 		FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
@@ -115,12 +115,12 @@ public class IterativeOptimizer {
 		LogInfo.logs("Entity prediction - " + entityTriple);
 		
 		Learner eventRelationLearner = new Learner();
-		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures);
+		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, model);
 		EventRelationInferer relationInferer = new EventRelationInferer();
 		
 		Params eventParam = eventRelationLearner.learn(train, eventRelationFeatureFactory);
 		List<BioDatum> result = null;
-		result = relationInferer.Infer(test, eventParam, eventRelationFeatureFactory,
+		result = relationInferer.Infer(test, eventParam, eventRelationFeatureFactory, model,
 				true, true, false, true, 0.0,0.75,0,0,0.75,0.0, 0.0);
 		
 		return null;

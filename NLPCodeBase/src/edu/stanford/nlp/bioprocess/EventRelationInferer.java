@@ -21,10 +21,26 @@ public class EventRelationInferer {
 	public int totalEvents = 0;
 	IntCounter<Integer> prevEvent = new IntCounter<Integer>(), superEvent = new IntCounter<Integer>(), causeEvent = new IntCounter<Integer>(), degreeDistribution = new IntCounter<Integer>();
 	IntCounter<Integer> prevEventPred = new IntCounter<Integer>(), superEventPred = new IntCounter<Integer>(),  causeEventPred = new IntCounter<Integer>(), degreeDistributionPred = new IntCounter<Integer>();
-	private boolean enforceGlobalConstraints = true;
+	private boolean enforceGlobalConstraints = false;
+	private String model = "";
 
 	public EventRelationInferer(List<BioDatum> predictions) {
 		prediction = predictions;
+	}
+	
+	public EventRelationInferer(List<BioDatum> predictions, String model) {
+		prediction = predictions;
+		this.model = model;
+		if(model.equals("global")) {
+			enforceGlobalConstraints = true;
+		}
+	}
+	
+	public EventRelationInferer(String model) {
+		this.model = model;
+		if(model.equals("global")) {
+			enforceGlobalConstraints = true;
+		}
 	}
 
 	public EventRelationInferer() {
@@ -116,7 +132,7 @@ public class EventRelationInferer {
 	}
 
 
-	public List<BioDatum> Infer(List<Example> testData, Params parameters, EventRelationFeatureFactory ff, boolean connectedComponent,
+	public List<BioDatum> Infer(List<Example> testData, Params parameters, EventRelationFeatureFactory ff, String model, boolean connectedComponent,
 			boolean sameEvent, boolean previousEvent, boolean sameEventContradiction,
 			double alpha1, double alpha2, double alpha3, double alpha4, double alpha5, double alpha6, double alpha7) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
@@ -256,7 +272,8 @@ public class EventRelationInferer {
 			buffer.append("\n}");
 			predicted.addAll(dataset);
 			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");
-			fig.basic.Utils.systemHard("/usr/local/bin/dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
+			//fig.basic.Utils.systemHard("/usr/local/bin/dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
+			fig.basic.Utils.systemHard("dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
 			
 			for(EventMention evt:eventMentions) {
 				degreeDistribution.incrementCount((int)dG.getCount(evt));
