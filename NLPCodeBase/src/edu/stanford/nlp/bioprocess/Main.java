@@ -506,24 +506,24 @@ public class Main implements Runnable {
 		
 		pairTriple = Scorer.scoreEventRelations(result);
 		
-		LogInfo.logs("Full Micro precision");
-		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
-		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
-		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		LogInfo.logs("Full Micro precision (Across all, Average over processes)");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first) + String.format(", %.4f", EventRelationInferer.avgProcessPrecisionFull));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second) + String.format(", %.4f", EventRelationInferer.avgProcessRecallFull));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Full));
 		
 		pairTriple = Scorer.scoreEventRelationsCollapsed(result);
 		
-		LogInfo.logs("Collapsed Micro precision");
-		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
-		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
-		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		LogInfo.logs("Collapsed Micro precision (Across all, Average over processes)");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first) + String.format(", %.4f", EventRelationInferer.avgProcessPrecisionCollapsed));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second) + String.format(", %.4f", EventRelationInferer.avgProcessRecallCollapsed));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Collapsed));
 		
 		pairTriple = Scorer.scoreEventRelationsStructure(result);
 		
-		LogInfo.logs("Structure Micro precision");
-		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
-		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
-		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		LogInfo.logs("Structure Micro precision (Across all, Average over processes)");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first) + String.format(", %.4f", EventRelationInferer.avgProcessPrecisionStructure));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second) + String.format(", %.4f", EventRelationInferer.avgProcessRecallStructure));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Structure));
 	
 		/*
 		LogInfo.logs("\nMacro precision");

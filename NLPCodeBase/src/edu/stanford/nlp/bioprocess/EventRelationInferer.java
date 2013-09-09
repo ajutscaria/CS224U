@@ -17,6 +17,9 @@ import fig.basic.LogInfo;
 public class EventRelationInferer {
 	List<BioDatum> prediction = null;
 	private boolean printDebugInformation = false;
+	public static double avgProcessPrecisionFull = 0.0, avgProcessRecallFull = 0.0, avgProcessF1Full = 0.0;
+	public static double avgProcessPrecisionCollapsed = 0.0, avgProcessRecallCollapsed = 0.0, avgProcessF1Collapsed = 0.0;
+	public static double avgProcessPrecisionStructure = 0.0, avgProcessRecallStructure = 0.0, avgProcessF1Structure = 0.0;
 	public IntCounter<String> countGoldTriples = new IntCounter<String>(), countPredictedTriples = new IntCounter<String>(); 
 	public int totalEvents = 0;
 	IntCounter<Integer> prevEvent = new IntCounter<Integer>(), superEvent = new IntCounter<Integer>(), causeEvent = new IntCounter<Integer>(), degreeDistribution = new IntCounter<Integer>();
@@ -85,8 +88,33 @@ public class EventRelationInferer {
 					LogInfo.logs(String.format("%-10s : %-10s - %-10s Gold:  %s Predicted: %s", "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));					
 				}
 			}
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
+			
+			pairTriple = Scorer.scoreEventRelations(test);
+			avgProcessPrecisionFull += pairTriple.first.first;
+			avgProcessRecallFull += pairTriple.first.second;
+			
+			pairTriple = Scorer.scoreEventRelationsCollapsed(test);
+			avgProcessPrecisionCollapsed += pairTriple.first.first;
+			avgProcessRecallCollapsed += pairTriple.first.second;
+			
+			pairTriple = Scorer.scoreEventRelationsStructure(test);
+			avgProcessPrecisionStructure += pairTriple.first.first;
+			avgProcessRecallStructure += pairTriple.first.second;
+			
 			predicted.addAll(test);
 		}
+		avgProcessPrecisionFull /= examples.size();
+		avgProcessRecallFull /= examples.size();
+		avgProcessF1Full = 2 * (float)avgProcessPrecisionFull * avgProcessRecallFull / (avgProcessPrecisionFull + avgProcessRecallFull);
+		
+		avgProcessPrecisionCollapsed /= examples.size();
+		avgProcessRecallCollapsed /= examples.size();
+		avgProcessF1Collapsed = 2 * (float)avgProcessPrecisionCollapsed * avgProcessRecallCollapsed / (avgProcessPrecisionCollapsed + avgProcessRecallCollapsed);
+		
+		avgProcessPrecisionStructure /= examples.size();
+		avgProcessRecallStructure /= examples.size();
+		avgProcessF1Structure = 2 * (float)avgProcessPrecisionStructure * avgProcessRecallStructure / (avgProcessPrecisionStructure + avgProcessRecallStructure);
 		return predicted;
 	}
 
@@ -268,6 +296,22 @@ public class EventRelationInferer {
 					LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", ex.id,  "Incorrect", Utils.getText(d.event1.getTreeNode()), Utils.getText(d.event2.getTreeNode()), d.label(), d.predictedLabel()));
 				}
 			}
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
+			
+			pairTriple = Scorer.scoreEventRelations(dataset);
+			avgProcessPrecisionFull += pairTriple.first.first;
+			avgProcessRecallFull += pairTriple.first.second;
+			
+			//LogInfo.logs("Avg prec" + pairTriple.first.first);
+			//LogInfo.logs("Avg prec" + pairTriple.first.second);
+			
+			pairTriple = Scorer.scoreEventRelationsCollapsed(dataset);
+			avgProcessPrecisionCollapsed += pairTriple.first.first;
+			avgProcessRecallCollapsed += pairTriple.first.second;
+			
+			pairTriple = Scorer.scoreEventRelationsStructure(dataset);
+			avgProcessPrecisionStructure += pairTriple.first.first;
+			avgProcessRecallStructure += pairTriple.first.second;
 
 			buffer.append("\n}");
 			predicted.addAll(dataset);
@@ -312,6 +356,17 @@ public class EventRelationInferer {
 
 			LogInfo.end_track();
 		}
+		avgProcessPrecisionFull /= testData.size();
+		avgProcessRecallFull /= testData.size();
+		avgProcessF1Full = 2 * (float)avgProcessPrecisionFull * avgProcessRecallFull / (avgProcessPrecisionFull + avgProcessRecallFull);
+		
+		avgProcessPrecisionCollapsed /= testData.size();
+		avgProcessRecallCollapsed /= testData.size();
+		avgProcessF1Collapsed = 2 * (float)avgProcessPrecisionCollapsed * avgProcessRecallCollapsed / (avgProcessPrecisionCollapsed + avgProcessRecallCollapsed);
+		
+		avgProcessPrecisionStructure /= testData.size();
+		avgProcessRecallStructure /= testData.size();
+		avgProcessF1Structure = 2 * (float)avgProcessPrecisionStructure * avgProcessRecallStructure / (avgProcessPrecisionStructure + avgProcessRecallStructure);
 		return predicted;
 	}
 
