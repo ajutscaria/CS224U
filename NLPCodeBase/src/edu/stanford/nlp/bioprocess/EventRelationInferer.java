@@ -154,8 +154,33 @@ public class EventRelationInferer {
 					d.guessLabel = "NONE";
 				}
 			}
+			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
+			
+			pairTriple = Scorer.scoreEventRelations(dataset);
+			avgProcessPrecisionFull += pairTriple.first.first;
+			avgProcessRecallFull += pairTriple.first.second;
+			
+			pairTriple = Scorer.scoreEventRelationsCollapsed(dataset);
+			avgProcessPrecisionCollapsed += pairTriple.first.first;
+			avgProcessRecallCollapsed += pairTriple.first.second;
+			
+			pairTriple = Scorer.scoreEventRelationsStructure(dataset);
+			avgProcessPrecisionStructure += pairTriple.first.first;
+			avgProcessRecallStructure += pairTriple.first.second;
 			predicted.addAll(dataset);
 		}
+		avgProcessPrecisionFull /= testData.size();
+		avgProcessRecallFull /= testData.size();
+		avgProcessF1Full = 2 * (float)avgProcessPrecisionFull * avgProcessRecallFull / (avgProcessPrecisionFull + avgProcessRecallFull);
+		
+		avgProcessPrecisionCollapsed /= testData.size();
+		avgProcessRecallCollapsed /= testData.size();
+		avgProcessF1Collapsed = 2 * (float)avgProcessPrecisionCollapsed * avgProcessRecallCollapsed / (avgProcessPrecisionCollapsed + avgProcessRecallCollapsed);
+		
+		avgProcessPrecisionStructure /= testData.size();
+		avgProcessRecallStructure /= testData.size();
+		avgProcessF1Structure = 2 * (float)avgProcessPrecisionStructure * avgProcessRecallStructure / (avgProcessPrecisionStructure + avgProcessRecallStructure);
+		
 		return predicted;
 	}
 
