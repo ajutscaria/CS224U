@@ -1,0 +1,11 @@
+ConnectedComponent	true
+SameEvent	true
+PreviousEvent	true
+SameEventContradiction	true
+Alpha1	0.0
+Alpha2	0.5
+Alpha3	0.0
+Alpha4	0.0
+Alpha5	1.0
+Alpha6	0.0
+Alpha7	0.5

@@ -1,7 +1,10 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,7 +21,9 @@ import fig.exec.Execution;
 public class Main implements Runnable {
 	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalBase = false, runLocalModel = false, runGlobalModel = false;
 	boolean runEventRelationTest = true;
-	
+	double alpha1_ = 0.0, alpha2_ = 0.0, alpha3_ = 0.0, alpha4_ = 0.0, alpha5_ = 0.0, alpha6_ = 0.0, alpha7_ = 0.0;
+	boolean connectedComponent_ = false, sameEvent_ = false, previousEvent_ = false, sameEventContradictions_ = false;
+	final String GlobalParamFile = "models/GlobalParameters.txt";
 	//public static class Options {
 		@Option(gloss="The running mode: event, entity, or em") public String mode;
 		@Option(gloss="Dataset dir") public String datasetDir;
@@ -469,10 +474,11 @@ public class Main implements Runnable {
 		Params eventParam = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
 		List<BioDatum> result = null;
 		if(runLocalModel || runGlobalModel || runLocalBase) {
+			loadGlobalParameterValues();
 			result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory, runModel,
 				//true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0.25);
 				 // true, false, false, false, 0.0,0.0,0,0,0.0,0.0,0.25);
-					  true, true, true, true, 0.0,0.5,0,0,1.0,0.0,0.5);
+					connectedComponent_, sameEvent_, previousEvent_, sameEventContradictions_, alpha1_, alpha2_, alpha3_, alpha4_, alpha5_, alpha6_, alpha7_);
 		}
 		else if(runPrevBaseline) {
 			result = inferer.BaselineInfer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory);
@@ -500,24 +506,24 @@ public class Main implements Runnable {
 		
 		pairTriple = Scorer.scoreEventRelations(result);
 		
-		LogInfo.logs("Full Micro precision");
-		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
-		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
-		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		LogInfo.logs("Full Micro precision (Across all, Average over processes)");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first) + String.format(", %.4f", EventRelationInferer.avgProcessPrecisionFull));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second) + String.format(", %.4f", EventRelationInferer.avgProcessRecallFull));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Full));
 		
 		pairTriple = Scorer.scoreEventRelationsCollapsed(result);
 		
-		LogInfo.logs("Collapsed Micro precision");
-		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
-		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
-		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		LogInfo.logs("Collapsed Micro precision (Across all, Average over processes)");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first) + String.format(", %.4f", EventRelationInferer.avgProcessPrecisionCollapsed));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second) + String.format(", %.4f", EventRelationInferer.avgProcessRecallCollapsed));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Collapsed));
 		
 		pairTriple = Scorer.scoreEventRelationsStructure(result);
 		
-		LogInfo.logs("Structure Micro precision");
-		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
-		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
-		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+		LogInfo.logs("Structure Micro precision (Across all, Average over processes)");
+		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first) + String.format(", %.4f", EventRelationInferer.avgProcessPrecisionStructure));
+		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second) + String.format(", %.4f", EventRelationInferer.avgProcessRecallStructure));
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Structure));
 	
 		/*
 		LogInfo.logs("\nMacro precision");
@@ -566,7 +572,7 @@ public class Main implements Runnable {
 		
 		Learner eventRelationLearner = new Learner();
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, runModel);
-		EventRelationInferer inferer = new EventRelationInferer();
+		EventRelationInferer inferer = new EventRelationInferer(runModel);
 		List<String> relations = ArgumentRelation.getEventRelations();
 		double[][] confusionMatrix = new double[relations.size()][relations.size()];
 		
@@ -882,6 +888,19 @@ public class Main implements Runnable {
 						writer.flush();
 					}
 					writer.close();
+					BufferedWriter paramWriter = new BufferedWriter(new FileWriter(GlobalParamFile));
+					paramWriter.write(String.format("%s\t%s", "ConnectedComponent", connectedComponent));
+					paramWriter.write(String.format("%s\t%s", "SameEvent", sameEvent));
+					paramWriter.write(String.format("%s\t%s", "PreviousEvent", previousEvent));
+					paramWriter.write(String.format("%s\t%s", "SameEventContradiction", sameEventContradictions));
+					paramWriter.write(String.format("%s\t%s", "Alpha1", alpha1));
+					paramWriter.write(String.format("%s\t%s", "Alpha2", alpha2));
+					paramWriter.write(String.format("%s\t%s", "Alpha3", alpha3));
+					paramWriter.write(String.format("%s\t%s", "Alpha4", alpha4));
+					paramWriter.write(String.format("%s\t%s", "Alpha5", alpha5));
+					paramWriter.write(String.format("%s\t%s", "Alpha6", alpha6));
+					paramWriter.write(String.format("%s\t%s", "Alpha7", alpha7));
+					paramWriter.close();
 				}
 				catch(Exception ex) {
 					ex.printStackTrace();
@@ -896,9 +915,10 @@ public class Main implements Runnable {
 					
 					Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory);
 					List<BioDatum> result = null;
-					if(runLocalModel) {
+					if(runLocalModel || runGlobalModel || runLocalBase)  {
+						loadGlobalParameterValues();
 						result = inferer.Infer(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel,
-								  true, true, true, true, 0.0,0.5,0,0,1.0,0.0,0.5);
+								  connectedComponent_, sameEvent_, previousEvent_, sameEventContradictions_, alpha1_, alpha2_, alpha3_, alpha4_, alpha5_, alpha6_, alpha7_);
 						          //true, false, false, false, 0.0,0.00,0,0,0.00,0.0,0.00);
 					}
 					else if(runPrevBaseline) {
@@ -1109,6 +1129,55 @@ public class Main implements Runnable {
 			dataset.read("sample");
 		}
 		return dataset;
+	}
+	
+	private void loadGlobalParameterValues() {
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader(GlobalParamFile));
+			String line = "";
+			while((line = reader.readLine()) != null) {
+				String paramName = line.trim().split("\t")[0];
+				String paramValue = line.trim().split("\t")[1];
+				switch(paramName) {
+				case "ConnectedComponent":
+					connectedComponent_ = paramValue.equals("true") ? true : false;
+					break;
+				case "SameEvent":
+					sameEvent_ = paramValue.equals("true") ? true : false;
+					break;
+				case "PreviousEvent":
+					previousEvent_ = paramValue.equals("true") ? true : false;
+					break;
+				case "SameEventContradiction":
+					sameEventContradictions_ = paramValue.equals("true") ? true : false;
+					break;
+				case "Alpha1":
+					alpha1_ = Double.parseDouble(paramValue);
+					break;
+				case "Alpha2":
+					alpha2_ = Double.parseDouble(paramValue);
+					break;
+				case "Alpha3":
+					alpha3_ = Double.parseDouble(paramValue);
+					break;
+				case "Alpha4":
+					alpha4_ = Double.parseDouble(paramValue);
+					break;
+				case "Alpha5":
+					alpha5_ = Double.parseDouble(paramValue);
+					break;
+				case "Alpha6":
+					alpha6_ = Double.parseDouble(paramValue);
+					break;
+				case "Alpha7":
+					alpha7_ = Double.parseDouble(paramValue);
+					break;
+				}
+			}
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 	
 	private void computeStats(HashMap<String, String> groups) {
