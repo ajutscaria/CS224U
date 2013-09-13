@@ -6,7 +6,7 @@ Given a paragraph $\bx$ and a trigger set $\sT$, we wish to extract all event-ev
 
 The local pairwise classifier predicts relations between all event mention pairs. In order to model the direction of relations, we expand the set $\sR$ to include the reverse of four directed relations: \textsc{Prev}-\textsc{Next},  \textsc{Super}- \textsc{Sub}, \textsc{Causes}-\textsc{Caused}, \textsc{Enables}-\textsc{Enabled}. After adding \textsc{None} to indicate no relation, and including the undirected relations \textsc{Cotemp} and \textsc{Same}, $\sR$ contains 11 relations. The classifier is hence a function $f:\sT \times \sT \rightarrow \sR$. As an example, $f(t_i,t_j)=\mbox{\textsc{Prev}}$ iff $f(t_j,t_i)=\mbox{\textsc{Next}}$. Let $n$ be the number of triggers in a process, and $t_i$ be the $i$-th trigger in its description. Since $f(t_i,t_j)$ completely determines $f(t_j,t_i)$, it suffices to consider only pairs with $i<j$. Note that the process graph $\sP$ is undirected under the new definition of $\sR$.
 
-Table~\ref{tab:features} describes features from previous work~\cite{Chambers08,Do12} extracted for a trigger pair $(t_i,t_j)$. Some features were omitted since they did not yield improvement in performance on a development set (e.g., lemmas and part-of-speech tags of tokens preceding $t_i$ or following $t_j$), or they require gold annotations provided in TimeBank, which we do not have (e.g., \emph{tense} and \emph{aspect} of triggers). To reduce sparseness, we convert nominalizations into their verbal forms when computing word lemmas, using WordNet's \cite{Fellbaum1998} derivation links.
+Table~\ref{tab:features} describes features from previous work~\cite{Chambers08,Do12} extracted for a trigger pair $(t_i,t_j)$. Some features were omitted since they did not yield improvement in performance on a development set (e.g., lemmas and part-of-speech tags of context words surrounding $t_i$ and $t_j$), or they require gold annotations provided in TimeBank, which we do not have (e.g., \emph{tense} and \emph{aspect} of triggers). To reduce sparseness, we convert nominalizations into their verbal forms when computing word lemmas, using WordNet's \cite{Fellbaum1998} derivation links.
 
 \begin{table}[t]
 \setlength{\tabcolsep}{5pt}
@@ -37,7 +37,7 @@ Temp. btw. & \scriptsize{For adjacent triggers, temporal connectives (from a sma
 
 \subsection{Classifier extensions} \label{subsec:pairwise-novel}
 
-A central source of information to extract event-event relations from text are \emph{connectives} such as \emph{after}, \emph{during}, etc. However, there is variability in the occurrence of these connectives as demonstrated by the following two sentences (connectives in bold, triggers in italics):
+A central source of information to extract event-event relations from text are \emph{connectives} such as \emph{after}, \emph{during}, etc. However, there is variability in the occurrence of these connectives as demonstrated by the following two sentences (connectives in boldface, triggers in italics):
 
 \begin{enumerate} \small{
 \item \textbf{Because} alleles are \emph{exchanged} during \emph{gene flow}, genetic differences are \emph{reduced}. \label{sent:1}
@@ -56,7 +56,7 @@ We further extend our features to handle the rich relation set necessary for pro
 For our pairwise classifier, we train a maximum entropy classifier that computes a probability $p_{ijr}$ for every trigger pair $(t_i,t_j)$ and relation $r$. Hence, $f(t_i,t_j)= \arg\max_r p_{ijr}$.
 
 \subsection{Global Constraints} \label{subsec:global}
-Naturally, pairwise classifiers are local models that can violate global properties in process structure. Figure~\ref{fig:graph} (left) presents an example for predictions made by the pairwise classifier, which result in two triggers (\emph{deleted} and \emph{depleted}) that are isolated from the rest of the triggers. In this section, we discuss how we incorporate constraints into our model to generate coherent global process structures.
+Naturally, pairwise classifiers are local models that can violate global properties in the process structure. Figure~\ref{fig:graph} (left) presents an example for predictions made by the pairwise classifier, which result in two triggers (\emph{deleted} and \emph{depleted}) that are isolated from the rest of the triggers. In this section, we discuss how we incorporate constraints into our model to generate coherent global process structures.
 
 Let $\theta_{ijr}$ be the score for a relation $r$ between the trigger pair $(t_i,t_j)$ (e.g., $\theta_{ijr}=\log p_{ijr}$), and $y_{ijr}$ be the corresponding indicator variable. Our goal is to find an assignment for the indicators $\by=\{y_{ijr} \ | \ 1 \leq i < j \leq n, r \in \sR \}$. With no global constraints this can be formulated as the following ILP:
 
@@ -101,7 +101,7 @@ A relation triad (or a relation triangle) for any three triggers $t_{i}$, $t_{j}
 \item \textsc{Same} transitivity (Figure~\ref{fig:triad}a, Eqn.~\ref{eq:sametransitivity}): Co-reference transitivity has been used in past work \cite{Finkel08} and we incorporate it by a constraint that encourages triads that respect transitivity.
 \item \textsc{Cause}-\textsc{Cotemp} (Figure~\ref{fig:triad}b, Eqn.~\ref{eq:causecotemp}): If $t_i$ causes both $t_j$ and $t_k$, then often $t_j$ and $t_k$ are co-temporal. E.g, in ``\emph{genetic drift} has led to a \emph{loss} of genetic variation and an \emph{increase} in the frequency of $\ldots$", a single event causes two subsequent events that occur simultaneously. 
 \item \textsc{Cotemp} transitivity (Figure~\ref{fig:triad}c, Eqn.~\ref{eq:cotemptransitivity}):  If $t_i$ is co-temporal with $t_j$ and $t_j$ is co-temporal with $t_k$, then usually $t_i$ and $t_k$ are either co-temporal or denote the same event. 
-\item \textsc{Same} contradiction (Figure~\ref{fig:triad}d, Eqn.~\ref{eq:samecontradiction}): if $t_i$ is the same event as  $t_k$, then their temporal ordering with respect to a third trigger $t_j$ may result in a contradiction, e.g., if $t_j$ is after $t_i$, but before $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint. This constraint depends on prediction temporal and co-reference relations jointly.
+\item \textsc{Same} contradiction (Figure~\ref{fig:triad}d, Eqn.~\ref{eq:samecontradiction}): if $t_i$ is the same event as  $t_k$, then their temporal ordering with respect to a third trigger $t_j$ may result in a contradiction, e.g., if $t_j$ is after $t_i$, but before $t_k$. We define 5 temporal categories that generate $5 \choose 2$ possible contradictions, but for brevity present just one representative hard constraint. This constraint depends on prediction of temporal and co-reference relations jointly.
 \item \textsc{Prev} contradiction (Figure~\ref{fig:triad}e, Eqn.~\ref{eq:prev}): As mentioned (Section~\ref{sec:model}), if $t_i$ is immediately before $t_j$, and $t_j$ is immediately before $t_k$, then $t_i$ cannot be immediately before $t_k$.
 \end{enumerate}
 \begin{flalign}
@@ -113,7 +113,7 @@ A relation triad (or a relation triangle) for any three triggers $t_{i}$, $t_{j}
   y_{ij\mathsf{\textsc{Prev}}} + y_{jk\mathsf{\textsc{Prev}}} - y_{ik\mathsf{\textsc{None}}} \leq 1& \label{eq:prev}
 \end{flalign}
 
-We used the Gurobi optimization package\footnote{www.gurobi.com} to find an exact solution for our ILP, which contains $O(n^2|\sR|)$ variables and $O(n^3)$ constraints. We also developed an equivalent formulation amenable to dual decomposition \cite{dualdecomp}, which is a faster approximation method. But practically, solving the ILP exactly with Gurobi was quite fast (average/median time per process: 0.294 sec/0.152 sec).
+We used the Gurobi optimization package\footnote{www.gurobi.com} to find an exact solution for our ILP, which contains $O(n^2|\sR|)$ variables and $O(n^3)$ constraints. We also developed an equivalent formulation amenable to dual decomposition \cite{dualdecomp}, which is a faster approximation method. But practically, solving the ILP exactly with Gurobi was quite fast (average/median time per process: 0.294 sec/0.152 sec on a standard laptop).
 
 
 
