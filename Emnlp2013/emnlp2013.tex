@@ -1,0 +1,60 @@
+
+% File naaclhlt2013.tex
+%
+
+\documentclass[11pt,letterpaper]{article}
+\usepackage{naaclhlt2013}
+\usepackage{times}
+\usepackage{latexsym}
+\setlength\titlebox{3.5cm}    % Expanding the titlebox
+
+%%packaging we are adding
+\usepackage{amsmath,amssymb}
+\usepackage{amsthm}
+\usepackage{ifthen}
+\usepackage{graphicx}
+\usepackage{stmaryrd}
+\usepackage{enumitem}
+\usepackage{multicol}
+\usepackage{lipsum}
+\usepackage{tikz}
+\usepackage{url}
+%\usepackage{flalign}
+\usepackage{verbatim}
+%\usepackage[active,tightpage]{preview}
+%\PreviewEnvironment{tikzpicture}
+%\setlength\PreviewBorder{5pt}%
+\usetikzlibrary{arrows}
+\usetikzlibrary{positioning}
+
+\input macros
+\newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
+\title{Learning Biological Processes with Global Constraints}
+
+ \author{\small{Aju Thalappillil Scaria\thanks{\hspace{5pt}Both authors equally contributed to the paper}, Jonathan Berant\samethanks, Mengqiu Wang and Christopher D. Manning}  \\
+ 			\small{Stanford University, Stanford, CA 94305, USA} \\ 
+			\small{\textbf{Justin Lewis, Brittany Harding and Peter Clark}} \\
+			\small{Vulcan Inc., Seattle, WA 98104, USA} \\
+}
+
+\begin{document}
+\maketitle
+
+\input{abstract} 
+\input{introduction} \label{sec:intro}
+\input{process} \label{sec:process}
+\input{model} \label{sec:model}
+\input{experiment} \label{sec:experiment}
+\input{related} \label{sec:related}
+\input{conclusion} \label{sec:conclusion}
+
+\section*{Acknowledgments}
+The authors would like to thank Roi Reichart for fruitful discussion and 
+the anonymous reviewers for their constructive feedback.
+The authors also acknowledge the support of Vulcan Inc. to this project.
+The second author was sponsored by a Rothschild fellowship. 
+
+\bibliographystyle{emnlp2013}
+\bibliography{emnlp2013}
+
+\end{document}
