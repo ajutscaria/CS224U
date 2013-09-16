@@ -16,9 +16,9 @@
 \usepackage{stmaryrd}
 \usepackage{enumitem}
 \usepackage{multicol}
-\usepackage{hyperref}
 \usepackage{lipsum}
 \usepackage{tikz}
+\usepackage{url}
 %\usepackage{flalign}
 \usepackage{verbatim}
 %\usepackage[active,tightpage]{preview}
@@ -31,11 +31,16 @@
 \newcommand*\samethanks[1][\value{footnote}]{\footnotemark[#1]}
 \title{Learning Biological Processes with Global Constraints}
 
- \author{\small{Aju Thalappillil Scaria\thanks{\hspace{5pt}Both authors equally contributed to the paper}, Jonathan Berant\samethanks, Mengqiu Wang and Christopher D. Manning}  \\
- 			\small{Stanford University, Stanford, CA 94305, USA} \\ 
-			\small{\textbf{Justin Lewis, Brittany Harding and Peter Clark}} \\
-			\small{Vulcan Inc., Seattle, WA 98104, USA} \\
-}
+\author{\small{Aju Thalappillil Scaria\thanks{\hspace{5pt}Both authors equally contributed to the paper}, Jonathan Berant\samethanks, Mengqiu Wang and Christopher D. Manning} \\ \small{Stanford University, Stanford}
+         \AND
+         \small{Justin Lewis and Brittany Harding} \\ \small{University of Washington, Seattle}
+         \And
+         \small{Peter Clark} \\ \small{Allen Institute for Artificial Intelligence, Seattle}}
+
+% \author{\small{Aju Thalappillil Scaria\thanks{\hspace{5pt}Both authors equally contributed to the paper}, Jonathan Berant\samethanks, Mengqiu Wang and Christopher D. Manning}  \\
+% 			\small{Stanford University, Stanford, CA 94305, USA} \\ 
+%			\small{\textbf{Justin Lewis, Brittany Harding and Peter Clark}} \\
+%			\small{Allen Institute for Artificial Intelligence, Seattle, WA 98104, USA} \\
 
 \begin{document}
 \maketitle
@@ -51,10 +56,10 @@
 \section*{Acknowledgments}
 The authors would like to thank Roi Reichart for fruitful discussion and 
 the anonymous reviewers for their constructive feedback.
-The authors also acknowledge the support of Vulcan Inc. to this project.
+This work was partially funded by Vulcan Inc. 
 The second author was sponsored by a Rothschild fellowship. 
 
-\bibliographystyle{naaclhlt2013}
-\bibliography{naaclhlt2013}
+\bibliographystyle{emnlp2013}
+\bibliography{emnlp2013}
 
 \end{document}

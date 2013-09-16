@@ -222,3 +222,17 @@ NLPCodeBase/state/
 
 NLPCodeBase/out/*
 NLPCodeBase/classes/*
+
+
+Emnlp2013/EMNLP2013.pdf
+Emnlp2013/dataset/*
+Emnlp2013/dataset/Dataset/
+Emnlp2013/emnlp2013.aux
+Emnlp2013/emnlp2013.bbl
+Emnlp2013/emnlp2013.blg
+Emnlp2013/emnlp2013.out
+Emnlp2013/emnlp2013.synctex.gz
+NLPCodeBase/Global.txt
+NLPCodeBase/localBase.txt
+
+
