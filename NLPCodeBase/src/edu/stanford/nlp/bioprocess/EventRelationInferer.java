@@ -395,4 +395,96 @@ public class EventRelationInferer {
 		return predicted;
 	}
 
+	public List<BioDatum> PipelineInfer(Example testExample, List<EventMention> eventsPredicted, Params parameters, EventRelationFeatureFactory ff, String model, boolean connectedComponent,
+			boolean sameEvent, boolean previousEvent, boolean sameEventContradiction,
+			double alpha1, double alpha2, double alpha3, double alpha4, double alpha5, double alpha6, double alpha7) {
+		HashMap<String, Pair<String,String>> labelings = new HashMap<String, Pair<String,String>>();
+		LogInfo.begin_track("Example %s",testExample.id);
+
+		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+		
+		List<BioDatum> dataset = ff.setFeaturesTest(testExample, eventsPredicted);
+
+		StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\";");
+		int count = 0;
+		List<EventMention> eventMentions = eventsPredicted;
+		//System.out.println(eventMentions);
+
+		for(EventMention evtMention:eventMentions) {
+			buffer.append(String.format("\nnode%s [label = \"%s\"]", count, Utils.getText(evtMention.getTreeNode()) + "_" + count));
+			count++;
+			//System.out.println(evtMention.getTreeNode());
+		}
+
+		IntCounter<EventMention> dG = new IntCounter<EventMention>(), sG = new IntCounter<EventMention>(), pG = new IntCounter<EventMention>(), cG = new IntCounter<EventMention>();
+		IntCounter<EventMention> dP = new IntCounter<EventMention>(), sP = new IntCounter<EventMention>(), pP = new IntCounter<EventMention>(), cP = new IntCounter<EventMention>();
+
+		HashMap<String, Double> weights = new HashMap<String, Double>();
+		List<String> labelsInClassifier = (List<String>) classifier.labels();
+
+
+		//Ensuring that 'NONE' is always at index 0
+		labelsInClassifier.remove("NONE");
+		labelsInClassifier.add(0, "NONE");
+
+		//for(String l:labelsInClassifier)
+		//	LogInfo.logs(l);
+
+		for(BioDatum d:dataset) {
+			//System.out.println(d.event1.getTreeNode() + "-" + d.event2.getTreeNode());
+			Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+			d.setPredictedLabel(classifier.classOf(newDatum));
+
+			for(String possibleLabel:labelsInClassifier)
+				weights.put(String.format("%d,%d,%d", eventMentions.indexOf(d.event1), eventMentions.indexOf(d.event2),
+						labelsInClassifier.indexOf(possibleLabel)), 
+						classifier.logProbabilityOf(newDatum).getCount(possibleLabel));
+			//classifier.probabilityOf(newDatum).getCount(possibleLabel));
+
+		}
+		//System.out.println(weights);
+
+		for(BioDatum d:dataset) {		
+			//dot -o file.png -Tpng file.gv
+			if(!d.predictedLabel().equals("NONE")) {
+				buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"black\" %s color = \"%s\"];", "node"+eventMentions.indexOf(d.event1), "node"+eventMentions.indexOf(d.event2), d.predictedLabel(),
+						//If Cotemporal or same event, put bi-directional edges
+						(d.predictedLabel().equals("CotemporalEvent") || d.predictedLabel().equals("SameEvent")) ? "dir = \"both\"" : "", "Black")) ;
+			}
+			if(!d.label().equals("NONE")) {
+				buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"goldenrod3\" %s color = \"%s\"];", "node"+eventMentions.indexOf(d.event1), "node"+eventMentions.indexOf(d.event2), d.label(),
+						//If Cotemporal or same event, put bi-directional edges
+						(d.label().equals("CotemporalEvent") || d.label().equals("SameEvent")) ? "dir = \"both\"" : "", "goldenrod3")) ;
+			}
+		}
+
+		if(enforceGlobalConstraints) {
+			ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier, 
+					connectedComponent, sameEvent, previousEvent, sameEventContradiction, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7);
+			HashMap<Pair<Integer,Integer>, Integer> best = opt.OptimizeEventRelation();
+
+
+			for(Pair<Integer,Integer> p:best.keySet()) {
+				for(BioDatum d:dataset) {
+					if(eventMentions.indexOf(d.event1) == p.first() && 
+							eventMentions.indexOf(d.event2) == p.second() && !d.predictedLabel().equals(labelsInClassifier.get(best.get(p)))) {
+						d.setPredictedLabel(labelsInClassifier.get(best.get(p)));
+						buffer.append(String.format("\n%s -> %s [ label = \"%s\" fontcolor=\"darkgreen\" %s color = \"%s\"];", "node"+p.first(), "node"+p.second(), labelsInClassifier.get(best.get(p)),
+								//If Cotemporal or same event, put bi-directional edges
+								(labelsInClassifier.get(best.get(p)).equals("CotemporalEvent") || labelsInClassifier.get(best.get(p)).equals("SameEvent")) ? "dir = \"both\"" : "", "darkgreen")) ;
+					}
+				}
+			}
+		}
+
+		buffer.append("\n}");
+		Utils.writeStringToFile(buffer.toString(), "GraphViz/" + testExample.id + ".gv");
+		//fig.basic.Utils.systemHard("/usr/local/bin/dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
+		fig.basic.Utils.systemHard("dot -o GraphViz/" + testExample.id + ".png -Tpng GraphViz/" + testExample.id + ".gv");
+		
+
+		LogInfo.end_track();
+		
+		return dataset;
+	}
 }

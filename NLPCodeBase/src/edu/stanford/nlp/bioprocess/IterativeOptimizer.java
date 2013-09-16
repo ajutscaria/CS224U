@@ -1,7 +1,13 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.ie.machinereading.structure.Span;
+import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.IntPair;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
@@ -119,10 +125,37 @@ public class IterativeOptimizer {
 		EventRelationInferer relationInferer = new EventRelationInferer();
 		
 		Params eventParam = eventRelationLearner.learn(train, eventRelationFeatureFactory);
-		List<BioDatum> result = null;
-		result = relationInferer.Infer(test, eventParam, eventRelationFeatureFactory, model,
-				true, true, false, true, 0.0,0.75,0,0,0.75,0.0, 0.0);
+		List<BioDatum> result = new ArrayList<BioDatum>();
 		
-		return null;
+		for(Example ex:test) {
+			LogInfo.logs("Example" + ex.id);
+			LogInfo.logs("Gold Events");
+			for(EventMention m:ex.gold.get(EventMentionsAnnotation.class)) {
+				LogInfo.logs(m.getTreeNode() + ":" + m.getExtent());
+			}
+			List<EventMention> eventsInExample = new ArrayList<EventMention>();
+			LogInfo.logs("Predicted Events:");
+			for(BioDatum d:predicted) {
+				if(d.getExampleID().equals(ex.id) && d.guessLabel.equals("E")) {
+					IntPair span = d.eventNode.getSpan();
+					Span evtSpan = new Span(span.getSource(), span.getTarget() + 1);
+					System.out.println(d.eventNode);
+					ArgumentMention mention = new EventMention(Utils.getText(d.eventNode) + "_" + eventsInExample.size(), d.sentence, evtSpan);
+	                IndexedWord head = Utils.findDependencyNode(d.sentence, d.eventNode);
+	              
+	                mention.setHeadInDependencyTree(head);
+	                mention.setTreeNode(d.eventNode);
+					eventsInExample.add((EventMention)mention);
+				}
+			}
+			
+			result.addAll(relationInferer.PipelineInfer(ex, eventsInExample, eventParam, eventRelationFeatureFactory, model,
+					true, true, true, true, 0.0,0.5,0,0,1.0,0.0, 0.5));
+		}
+		Triple<Double, Double, Double> resultTriple;
+		
+		resultTriple = Scorer.scoreEventRelationsPipeline(test, result);
+		
+		return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(resultTriple, new Triple<Double, Double, Double>(0.0,0.0,0.0));
 	}
 }

@@ -12,5 +12,5 @@ public abstract class FeatureExtractor {
 		this.useLexicalFeatures = useLexicalFeatures;
 	}
 	public abstract List<BioDatum> setFeaturesTrain(List<Example> data);
-	public abstract List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedNodes);
+	public abstract List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedNodes, String exampleID);
 }

@@ -26,7 +26,8 @@ public class ILPOptimizer {
 	private double alpha6 = 0;
 	private double alpha7 = 0;
 	private boolean includeConnectedComponentConstraint = false,  
-					includeSameEventHardConstraint = false, includePreviousHardConstraint = false, includeSameEventContradictionsHardConstraint = false;
+					includeSameEventHardConstraint = false, includePreviousHardConstraint = false, 
+					includeSameEventContradictionsHardConstraint = false;
 	List<String> labels;
 	IntCounter<String> goldTripleCounts;	
 	Triple<String, String, String> causesCausesCotemporalTriple = new Triple<String, String, String>("Causes", "CotemporalEvent", "Causes");
@@ -255,6 +256,7 @@ public class ILPOptimizer {
 			for(int i=0; i<numEvents; i++) {
 				for(int j=i+1; j<numEvents; j++) {
 					for(int r=0;r<numLabels; r++) {
+						//System.out.println(i + "," + j + "," + r);
 						expr.addTerm(weights.get(String.format("%d,%d,%d", i, j, r)), 
 										X_ijr.get(String.format("%d,%d,%d", i, j, r)));
 					}

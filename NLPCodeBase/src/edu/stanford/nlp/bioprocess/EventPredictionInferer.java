@@ -32,7 +32,7 @@ public class EventPredictionInferer extends Inferer {
 		//EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example example:examples) {
 			for(CoreMap sentence: example.gold.get(SentencesAnnotation.class)) {
-				List<BioDatum> test = ff.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence));
+				List<BioDatum> test = ff.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence), example.id);
 				
 				for(BioDatum d:test)
 					if(d.entityNode.isPreTerminal() && d.entityNode.value().startsWith("VB"))
@@ -58,7 +58,7 @@ public class EventPredictionInferer extends Inferer {
 					entityNodes = Utils.getEntityNodesForSentenceFromDatum(prediction, sentence);
 				
 				LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
-				List<BioDatum> dataset = ff.setFeaturesTest(sentence, entityNodes);
+				List<BioDatum> dataset = ff.setFeaturesTest(sentence, entityNodes, ex.id);
 
 				for(BioDatum d:dataset) {
 					Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());

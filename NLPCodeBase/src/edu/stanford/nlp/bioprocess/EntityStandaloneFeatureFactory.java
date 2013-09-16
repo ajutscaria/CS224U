@@ -99,7 +99,7 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 					
 					String type = entityNodes.contains(node) ? "E" : "O";
 					
-					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null);
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null, ex.id);
 					newDatum.features = computeFeatures(sentence, node, null);
 					if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 					newData.add(newDatum);
@@ -113,7 +113,7 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
     }
     
     
-    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents, String exampleID) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<BioDatum> newData = new ArrayList<BioDatum>();
@@ -133,7 +133,7 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 			
 			String type = entityNodes.contains(node) ? "E" : "O";
 			
-			BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null);
+			BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, null, exampleID);
 			newDatum.features = computeFeatures(sentence, node, null);
 			newData.add(newDatum);
 	    }

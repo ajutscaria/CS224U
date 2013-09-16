@@ -142,7 +142,7 @@ public class SRLFeatureFactory extends FeatureExtractor {
     }
     
     
-    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents, String exampleID) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<BioDatum> newData = new ArrayList<BioDatum>();

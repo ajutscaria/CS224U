@@ -3,10 +3,10 @@ package edu.stanford.nlp.bioprocess;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -24,15 +24,15 @@ public class Main implements Runnable {
 	double alpha1_ = 0.0, alpha2_ = 0.0, alpha3_ = 0.0, alpha4_ = 0.0, alpha5_ = 0.0, alpha6_ = 0.0, alpha7_ = 0.0;
 	boolean connectedComponent_ = false, sameEvent_ = false, previousEvent_ = false, sameEventContradictions_ = false;
 	final String GlobalParamFile = "models/GlobalParameters.txt";
-	//public static class Options {
-		@Option(gloss="The running mode: event, entity, or em") public String mode;
-		@Option(gloss="Dataset dir") public String datasetDir;
-		@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
-		@Option(gloss="Run on dev or test") public String runOn;
-		@Option(gloss="Model to run") public String runModel;
-	//}	
-	//public static Options opts = new Options();
-	public static List<String> features; 
+	final String EVENT_RELATION_MODEL = "models/EventRelation_model.ser", EVENT_STANDALONE_MODEL = "models/EventStandalone_model.ser",
+			ENTITY_STANDALONE_MODEL = "models/EntityStandalone_model.ser", EVENT_MODEL = "models/Event_model.ser",
+			ENTITY_MODEL = "models/Entity_model.ser";
+
+	@Option(gloss="The running mode: event, entity, or em") public String mode;
+	@Option(gloss="Dataset dir") public String datasetDir;
+	@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
+	@Option(gloss="Run on dev or test") public String runOn;
+	@Option(gloss="Model to run") public String runModel;	
 
 	public void runPrediction(HashMap<String, String> groups, FeatureExtractor featureFactory, Learner learner, Inferer inferer, Scorer scorer) {
 		int NumCrossValidation = 10;
@@ -214,6 +214,10 @@ public class Main implements Runnable {
 		else if(mode.equals("pipeline")) {
 			runPipelinePrediction(folders);
 		}
+		else if(mode.equals("interactive")) {
+			LogInfo.logs("Running interactive mode.");
+			runInteractiveMode(folders);
+		}
 		else if(mode.equals("result")) {
 			if(runModel.equals("baseline")) {
 				runPrevBaseline = true;
@@ -240,32 +244,19 @@ public class Main implements Runnable {
 		LogInfo.end_track();
 	}
 
+	private void runInteractiveMode(HashMap<String, String> folders) {
+		System.out.print("\n\nEnter paragraph:");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		try {
+			String input = reader.readLine();
+			System.out.println("Out-" + input);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+	}
+
 	private void runPipelinePrediction(HashMap<String, String> folders) {
-		features = new ArrayList<String>();
-		
-		features.add("isImmediatelyAfter");
-		features.add("isAfter");
-		features.add("wordsInBetween");
-		features.add("temporalConnective");
-		features.add("closeAndInBetween");
-		features.add("POS");
-		features.add("lemma");
-		features.add("eventLemmasSame");
-		features.add("numSentencesInBetween");
-		features.add("numWordsInBetween");
-		features.add("lowestCommonAncestor");
-		features.add("1partOfPP");
-		features.add("2partOfPP");
-		features.add("deppath");
-		features.add("1dominates2");
-		features.add("2dominates1");
-		features.add("markRelationEvent1");
-		features.add("advmodRelationEvent1");
-		features.add("markRelationEvent2");
-		features.add("advmodRelationEvent2");
-		features.add("determinerBefore2");
-		features.add("shareChild");
-		
 		Utils.clearFolderContent("GraphViz");
 		BioprocessDataset trainDataset = loadDataSet(folders, false, false);
 		
@@ -333,7 +324,6 @@ public class Main implements Runnable {
 		SRLFeatureFactory featureFactory = new SRLFeatureFactory(useLexicalFeatures);
 		Learner learner = new Learner();
 		SRLPredictionInferer inferer = new SRLPredictionInferer(); 
-		Scorer scorer = new Scorer();
 		if (small) {
 			Params param = learner.learn(dataset.examples("sample"), featureFactory);
 			//featureFactory = new SRLFeatureFactory(param.labelIndex);
@@ -362,7 +352,6 @@ public class Main implements Runnable {
 
 	private void runEntityStandalonePrediction(HashMap<String, String> folders) {
 		int NumCrossValidation = 10;
-		IterativeOptimizer opt = new IterativeOptimizer();
 		BioprocessDataset dataset = loadDataSet(folders, false, false);
 		CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
 		double[] precisionDev = new double[NumCrossValidation], recallDev = new double[NumCrossValidation], f1Dev = new double[NumCrossValidation];
@@ -433,51 +422,20 @@ public class Main implements Runnable {
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 		}
-		printScores("Dev", precisionDev, recallDev, f1Dev);
+		printScores("Dev Event standalone prediction", precisionDev, recallDev, f1Dev);
 	}
 	
 	private void runEventRelationsPredictionTest(HashMap<String, String> folders) {
-		features = new ArrayList<String>();
-		
-		features.add("isImmediatelyAfter");
-		features.add("isAfter");
-		features.add("wordsInBetween");
-		features.add("temporalConnective");
-		features.add("closeAndInBetween");
-		features.add("POS");
-		features.add("lemma");
-		features.add("eventLemmasSame");
-		features.add("numSentencesInBetween");
-		features.add("numWordsInBetween");
-		features.add("lowestCommonAncestor");
-		features.add("1partOfPP");
-		features.add("2partOfPP");
-		features.add("deppath");
-		features.add("1dominates2");
-		features.add("2dominates1");
-		features.add("markRelationEvent1");
-		features.add("advmodRelationEvent1");
-		features.add("markRelationEvent2");
-		features.add("advmodRelationEvent2");
-		features.add("determinerBefore2");
-		features.add("shareChild");
-		
 		Utils.clearFolderContent("GraphViz");
-		BioprocessDataset trainDataset = loadDataSet(folders, false, false);
-		
 		BioprocessDataset testDataset = loadTestDataSet(folders, false);
-		
-		Learner eventRelationLearner = new Learner();
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, runModel);
 		EventRelationInferer inferer = new EventRelationInferer(runModel);
 		
-		Params eventParam = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
+		Params eventParam =  (Params) Utils.readObject(EVENT_RELATION_MODEL);
 		List<BioDatum> result = null;
 		if(runLocalModel || runGlobalModel || runLocalBase) {
 			loadGlobalParameterValues();
 			result = inferer.Infer(testDataset.examples("test"), eventParam, eventRelationFeatureFactory, runModel,
-				//true, true, false, true, 0.0,0.75,0,0,0.75,0.0,0.25);
-				 // true, false, false, false, 0.0,0.0,0,0,0.0,0.0,0.25);
 					connectedComponent_, sameEvent_, previousEvent_, sameEventContradictions_, alpha1_, alpha2_, alpha3_, alpha4_, alpha5_, alpha6_, alpha7_);
 		}
 		else if(runPrevBaseline) {
@@ -575,31 +533,6 @@ public class Main implements Runnable {
 		EventRelationInferer inferer = new EventRelationInferer(runModel);
 		List<String> relations = ArgumentRelation.getEventRelations();
 		double[][] confusionMatrix = new double[relations.size()][relations.size()];
-		
-		features = new ArrayList<String>();
-		
-		features.add("isImmediatelyAfter");
-		features.add("isAfter");
-		features.add("wordsInBetween");
-		features.add("temporalConnective");
-		features.add("closeAndInBetween");
-		features.add("POS");
-		features.add("lemma");
-		features.add("eventLemmasSame");
-		features.add("numSentencesInBetween");
-		features.add("numWordsInBetween");
-		features.add("lowestCommonAncestor");
-		features.add("1partOfPP");
-		features.add("2partOfPP");
-		features.add("deppath");
-		features.add("1dominates2");
-		features.add("2dominates1");
-		features.add("markRelationEvent1");
-		features.add("advmodRelationEvent1");
-		features.add("markRelationEvent2");
-		features.add("advmodRelationEvent2");
-		features.add("determinerBefore2");
-		features.add("shareChild");
 		
 		if(small) {
 			Params param = eventRelationLearner.learn(dataset.examples("sample"), eventRelationFeatureFactory);
@@ -1069,7 +1002,7 @@ public class Main implements Runnable {
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 			LogInfo.end_track();
 		}
-		printScores("Dev", precisionDev, recallDev, f1Dev);
+		printScores("Dev Event trigger prediction", precisionDev, recallDev, f1Dev);
 	}
 
 	private void runIterativeOptimization(HashMap<String, String> folders) {

@@ -42,7 +42,7 @@ public class EntityPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
 				else
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
-				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes);
+				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes, example.id);
 				for(Tree event:eventNodes) {
 					LogInfo.logs("******************Event " + Utils.getText(event)+ 
 								"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
@@ -98,7 +98,7 @@ public class EntityPredictionInferer extends Inferer {
 					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
 				else
 					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
-				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes);
+				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes, ex.id);
 				
 				for(Tree event:eventNodes) {
 					LogInfo.logs("******************Event " + Utils.getText(event)+ 

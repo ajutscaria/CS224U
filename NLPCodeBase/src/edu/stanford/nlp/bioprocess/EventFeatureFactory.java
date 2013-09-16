@@ -159,7 +159,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 						continue;
 					
 					String type = eventNodes.keySet().contains(node) ? "E" : "O";
-					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node);
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, ex.id);
 					newDatum.features = computeFeatures(sentence, node);
 					dataset.add(newDatum);
 					//if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
@@ -171,7 +171,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		return dataset;
     }
     
-    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities, String exampleID) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
     	IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
 		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
@@ -181,7 +181,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 			
 			String type = eventNodes.keySet().contains(node) ? "E" : "O";
 
-			BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node);
+			BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, exampleID);
 			newDatum.features = computeFeatures(sentence, node);
 			dataset.add(newDatum);
 		}

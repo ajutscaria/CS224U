@@ -1,9 +1,15 @@
 package edu.stanford.nlp.bioprocess;
 
+import java.io.Serializable;
+
 import edu.stanford.nlp.util.Index;
 
-public class Params {
-  double[][] weights;
+public class Params implements Serializable {
+  /**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+double[][] weights;
   Index<String> featureIndex, labelIndex;
   int numUpdates;
   

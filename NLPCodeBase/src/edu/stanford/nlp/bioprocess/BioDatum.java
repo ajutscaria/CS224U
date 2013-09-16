@@ -13,7 +13,7 @@ import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.Pair;
 
 public class BioDatum {
-  CoreMap sentence;
+  public CoreMap sentence;
   public final String word;
   public final String label;
   public final String role;
@@ -41,27 +41,29 @@ public class BioDatum {
   List<Pair<String, Double>> rankedRoleProbs = new ArrayList<Pair<String, Double>>();
   HashMap<String, Double> rankMap = new HashMap<String, Double>();
   
-  public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode) {
-	this.sentence = sentence;
+  public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode, String exampleID) {
+	this.setSentence(sentence);
     this.word = word;
     this.label = label;
     this.entityNode = entityNode;
     this.eventNode = eventNode;
     this.role = null;
+    this.setExampleID(exampleID);
   }
   
-  public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode, String role) {
-		this.sentence = sentence;
+  public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode, String role, String exampleID) {
+		this.setSentence(sentence);
 	    this.word = word;
 	    this.label = label;
 	    this.entityNode = entityNode;
 	    this.eventNode = eventNode;
 	    this.role = role;
+	    this.setExampleID(exampleID);
   }
   
   public BioDatum(CoreMap sentence, String word, String label,
 		EventMention event1, EventMention event2) {
-		this.sentence = sentence;
+		this.setSentence(sentence);
 	    this.word = word;
 	    this.label = label;
 	    this.event1 = event1;
@@ -129,5 +131,13 @@ public String getExampleID() {
 
 public void setExampleID(String exampleID) {
 	this.exampleID = exampleID;
+}
+
+CoreMap getSentence() {
+	return sentence;
+}
+
+void setSentence(CoreMap sentence) {
+	this.sentence = sentence;
 }
 }

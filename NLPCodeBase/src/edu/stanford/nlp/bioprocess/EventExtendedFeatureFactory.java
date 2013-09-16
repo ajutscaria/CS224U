@@ -63,7 +63,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 						
 						String type = eventNodes.keySet().contains(node) ? "E" : "O";
 						//if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
-						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node);
+						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, ex.id);
 						newDatum.features = computeFeatures(sentence, node);
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 						newData.add(newDatum);
@@ -76,7 +76,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 		return newData;
     }
     
-    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities) {
+    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities, String exampleID) {
     	// this is so that the feature factory code doesn't accidentally use the
     	// true label info
     	List<BioDatum> newData = new ArrayList<BioDatum>();
@@ -91,7 +91,7 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
 					
 					String type = eventNodes.keySet().contains(node) ? "E" : "O";
 					
-					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node);
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, exampleID);
 					newDatum.features = computeFeatures(sentence, node, selectedEntities);
 					newData.add(newDatum);
 					//prevLabel = newDatum.label;

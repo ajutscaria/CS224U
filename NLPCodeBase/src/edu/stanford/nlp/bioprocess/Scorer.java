@@ -388,6 +388,71 @@ public class Scorer {
 		return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(new Triple<Double, Double, Double>(precision, recall, f), new Triple<Double, Double, Double>(macroPrec, macroRec, macroF));
 	  }
   
+  public static Triple<Double, Double, Double> scoreEventRelationsPipeline(List<Example> examples, List<BioDatum> predictedRelations) {
+		
+		int tp = 0, fp = 0, fn = 0;
+
+		for(Example example:examples) {
+			LogInfo.logs("Example "+ example.id);
+			List<EventMention> mentionsPredicted = new ArrayList<EventMention>();
+			for(BioDatum dat:predictedRelations) {
+				if(dat.getExampleID().equals(example.id)) {
+					if(!mentionsPredicted.contains(dat.event1))
+						mentionsPredicted.add(dat.event1);
+					else if(!mentionsPredicted.contains(dat.event2))
+						mentionsPredicted.add(dat.event2);
+					
+					if(dat.predictedLabel().equals(dat.label()) && dat.predictedLabel().equals("NONE")) {
+						//Nothing
+					}
+					else if(dat.predictedLabel().equals(dat.label)) {
+						tp++;
+						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Correct", 
+									Utils.getText(dat.event1.getTreeNode()), Utils.getText(dat.event2.getTreeNode()), dat.label(), dat.predictedLabel()));
+					}
+					else if(dat.label().equals("NONE") && !dat.predictedLabel().equals("NONE")){
+						fp++;
+						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Extra", 
+								Utils.getText(dat.event1.getTreeNode()), Utils.getText(dat.event2.getTreeNode()), dat.label(), dat.predictedLabel()));
+					}
+					else if(!dat.label().equals("NONE")){
+						fn++;
+						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Missed", 
+								Utils.getText(dat.event1.getTreeNode()), Utils.getText(dat.event2.getTreeNode()), dat.label(), dat.predictedLabel()));
+						if(!dat.predictedLabel().equals("NONE"))
+							fp++;
+					}
+				}
+			}
+			List<EventMention> mentionsNotPredicted = new ArrayList<EventMention>();
+			for(EventMention g:example.gold.get(EventMentionsAnnotation.class)) {
+				boolean found = false;
+				for(EventMention p:mentionsPredicted) {
+					if(p.getTreeNode() == g.getTreeNode())
+						found = true;
+				}
+				if(!found)
+					mentionsNotPredicted.add(g);
+			}
+			List<EventMention> considered = new ArrayList<EventMention>();
+			for(EventMention e1:mentionsNotPredicted) {
+				for(EventMention e2:example.gold.get(EventMentionsAnnotation.class)) {
+					String relation = Utils.getEventEventRelation(example.gold, e1.getTreeNode(), e2.getTreeNode()).toString();
+					if(!considered.contains(e2) && e1 != e2 && 
+						!relation.equals("NONE")) {
+						fn++;
+						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Missed", 
+								Utils.getText(e1.getTreeNode()), Utils.getText(e2.getTreeNode()), relation, "NONE"));
+					}
+				}
+				considered.add(e1);
+			}
+			LogInfo.logs("\n\n");
+		}
+		double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
+		double f= 2 * precision * recall / (precision + recall);
+		return new Triple<Double, Double, Double>(precision, recall, f);
+  }
   /*
   public static Triple<Double, Double, Double> scoreEventRelations(List<Example> test, List<BioDatum> predictedRelations) {
 	IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs(test), predicted = findPredictedEventEventRelationPairs(predictedRelations);

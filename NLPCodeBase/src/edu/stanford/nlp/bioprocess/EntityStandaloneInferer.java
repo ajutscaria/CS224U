@@ -47,7 +47,7 @@ public class EntityStandaloneInferer extends Inferer{
 				}
 				Set<Tree> eventNodes = null;
 
-				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes);
+				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes, ex.id);
 				
 				List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
 				for(BioDatum d:test)
