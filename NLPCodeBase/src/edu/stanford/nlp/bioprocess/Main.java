@@ -19,16 +19,35 @@ import fig.basic.Option;
 import fig.exec.Execution;
 
 public class Main implements Runnable {
-	boolean runPrevBaseline = false, runBetterBaseline = false, runLocalBase = false, runLocalModel = false, runGlobalModel = false;
+	boolean runPrevBaseline = false, runBetterBaseline = false, 
+			runLocalBase = false, runLocalModel = false,
+			runGlobalModel = false, runParameterSearch = false;
 	boolean runEventRelationTest = true;
+	static final String MODELS_DIRECTORY = "models/";
 	double alpha1_ = 0.0, alpha2_ = 0.0, alpha3_ = 0.0, alpha4_ = 0.0, alpha5_ = 0.0, alpha6_ = 0.0, alpha7_ = 0.0;
 	boolean connectedComponent_ = false, sameEvent_ = false, previousEvent_ = false, sameEventContradictions_ = false;
-	final String GlobalParamFile = "models/GlobalParameters.txt";
-	public static final String EVENT_RELATION_MODEL = "models/EventRelation_model.ser", EVENT_STANDALONE_MODEL = "models/EventStandalone_model.ser",
-			ENTITY_STANDALONE_MODEL = "models/EntityStandalone_model.ser", EVENT_MODEL = "models/Event_model.ser",
-			ENTITY_MODEL = "models/Entity_model.ser";
+	final String GLOBAL_PARAM_FILE_NAME = "GlobalParameters.txt";
+	final String GLOBAL_PARAM_FILE = MODELS_DIRECTORY + GLOBAL_PARAM_FILE_NAME;
 
-	@Option(gloss="The running mode: event, entity, or em") public String mode;
+	public static final String 
+			        EVENT_RELATION_LOCAL_MODEL_FILE_NAME = "EventRelation_Local_model.ser",
+					EVENT_RELATION_LOCALBASE_MODEL_FILE_NAME = "EventRelation_LocalBase_model.ser",
+					EVENT_RELATION_GLOBAL_MODEL_FILE_NAME = "EventRelation_Global_model.ser",
+					EVENT_STANDALONE_MODEL_FILE_NAME = "EventStandalone_model.ser",
+					ENTITY_STANDALONE_MODEL_FILE_NAME =  "EntityStandalone_model.ser",
+					EVENT_MODEL_FILE_NAME = "Event_model.ser",
+					ENTITY_MODEL_FILE_NAME = "Entity_model.ser";
+	
+	public static final String 
+	                EVENT_RELATION_LOCAL_MODEL = MODELS_DIRECTORY + "EventRelation_Local_model.ser",
+					EVENT_RELATION_LOCALBASE_MODEL = MODELS_DIRECTORY + "EventRelation_LocalBase_model.ser",
+					EVENT_RELATION_GLOBAL_MODEL = MODELS_DIRECTORY + "EventRelation_Global_model.ser",
+					EVENT_STANDALONE_MODEL = MODELS_DIRECTORY +"EventStandalone_model.ser",
+					ENTITY_STANDALONE_MODEL = MODELS_DIRECTORY + "EntityStandalone_model.ser",
+					EVENT_MODEL = MODELS_DIRECTORY + "Event_model.ser",
+					ENTITY_MODEL = MODELS_DIRECTORY + "Entity_model.ser";
+
+	@Option(gloss="The running mode: event, entity, or em") public String mode = "result";
 	@Option(gloss="Dataset dir") public String datasetDir;
 	@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
 	@Option(gloss="Run on dev or test") public String runOn;
@@ -163,6 +182,16 @@ public class Main implements Runnable {
 		folders.put("test", testDirectory);
 		folders.put("train", trainDirectory);
 		folders.put("sample", sampleDirectory);
+		
+		if(mode != null) {
+			mode = mode.toLowerCase();
+		}
+		if(runModel != null) {
+			runModel = runModel.toLowerCase();
+		}
+		if(runOn != null) {
+			runOn = runOn.toLowerCase();
+		}
 
 		if(mode.equals("entity")) {
 			LogInfo.logs("Running entity prediction");
@@ -212,33 +241,52 @@ public class Main implements Runnable {
 			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
 		}
 		else if(mode.equals("pipeline")) {
-			runPipelinePrediction(folders);
+			if (runOn != null && runModel != null &&
+					!runOn.isEmpty() && !runModel.isEmpty()) {
+				System.out.println("Invalid parameters. 'runon' and 'model' are not required for pipeline mode.");
+			}
+			else {
+				runModel = "global";
+				runPipelinePrediction(folders);
+			}
+			
 		}
 		else if(mode.equals("interactive")) {
 			LogInfo.logs("Running interactive mode.");
 			runInteractiveMode(folders);
 		}
 		else if(mode.equals("result")) {
-			if(runModel.equals("baseline")) {
-				runPrevBaseline = true;
+			if (!runOn.equals("dev") && !runOn.equals("test")) {
+				System.out.println("Invalid dataset provided. Choose 'dev' or 'test'");
 			}
-			else if(runModel.equals("chain")) {
-				runBetterBaseline = true;
+			else if (!runModel.equals("baseline") && !runModel.equals("chain") &&
+					 !runModel.equals("localbase") && !runModel.equals("local") &&
+					 !runModel.equals("global")) {
+				System.out.println("Invalid model provided. Choose 'baseline', 'localbase', 'local', 'chain' or 'global'.");
 			}
-			else if(runModel.equals("localbase")) {
-				runLocalBase = true;
-			}
-			else if(runModel.equals("local")) {
-				runLocalModel = true;
-			}
-			else if(runModel.equals("global")) {
-				runGlobalModel = true;
-			}
-			if(runOn.equals("dev")) {
-				runEventRelationsPrediction(folders);
-			}
-			else if(runOn.equals("test")) {
-				runEventRelationsPredictionTest(folders);
+			else {
+				if(runModel.equals("baseline")) {
+					runPrevBaseline = true;
+				}
+				else if(runModel.equals("chain")) {
+					runBetterBaseline = true;
+				}
+				else if(runModel.equals("localbase")) {
+					runLocalBase = true;
+				}
+				else if(runModel.equals("local")) {
+					runLocalModel = true;
+				}
+				else if(runModel.equals("global")) {
+					runGlobalModel = true;
+					runParameterSearch = true;
+				}
+				if(runOn.equals("dev")) {
+					runEventRelationsPrediction(folders);
+				}
+				else if(runOn.equals("test")) {
+					runEventRelationsPredictionTest(folders);
+				}
 			}
 		}
 		LogInfo.end_track();
@@ -427,11 +475,29 @@ public class Main implements Runnable {
 	
 	private void runEventRelationsPredictionTest(HashMap<String, String> folders) {
 		Utils.clearFolderContent("GraphViz");
+		
+		//BioprocessDataset trainDataset = loadDataSet(folders, false, false);
+		
 		BioprocessDataset testDataset = loadTestDataSet(folders, false);
+		
+		//Learner eventRelationLearner = new Learner();
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, runModel);
 		EventRelationInferer inferer = new EventRelationInferer(runModel);
 		
-		Params eventParam =  (Params) Utils.readObject(EVENT_RELATION_MODEL);
+		Params eventParam;// = eventRelationLearner.learn(trainDataset.examples("train"), eventRelationFeatureFactory);
+		if(runLocalModel || runBetterBaseline) {
+			//Utils.writeFile(eventParam, EVENT_RELATION_LOCAL_MODEL);
+			eventParam =  (Params) Utils.readObject(EVENT_RELATION_LOCAL_MODEL);
+		}
+		else if(runGlobalModel) {
+			//Utils.writeFile(eventParam, EVENT_RELATION_GLOBAL_MODEL);
+			eventParam =  (Params) Utils.readObject(EVENT_RELATION_GLOBAL_MODEL);
+		}
+		else{
+			//Utils.writeFile(eventParam, EVENT_RELATION_LOCALBASE_MODEL);
+			eventParam =  (Params) Utils.readObject(EVENT_RELATION_LOCALBASE_MODEL);
+		}
+		
 		List<BioDatum> result = null;
 		if(runLocalModel || runGlobalModel || runLocalBase) {
 			loadGlobalParameterValues();
@@ -481,31 +547,13 @@ public class Main implements Runnable {
 		LogInfo.logs("Structure Micro precision (Across all, Average over processes)");
 		LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first) + String.format(", %.4f", EventRelationInferer.avgProcessPrecisionStructure));
 		LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second) + String.format(", %.4f", EventRelationInferer.avgProcessRecallStructure));
-		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Structure));
-	
-		/*
-		LogInfo.logs("\nMacro precision");
-		LogInfo.logs("Precision : " + pairTriple.second.first);
-		LogInfo.logs("Recall    : " + pairTriple.second.second);
-		LogInfo.logs("F1 score  : " + pairTriple.second.third);
-		*/
-		
-		//LogInfo.logs("Total time:" + EventRelationInferer.runtime);
-		//LogInfo.logs("Total time:" + EventRelationInferer.totalRuns);
-		//LogInfo.logs("Average time:" + EventRelationInferer.runtime / EventRelationInferer.totalRuns);
-		//LogInfo.logs("All times: " + EventRelationInferer.runTimes);
-		
+		LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third) + String.format(", %.4f", EventRelationInferer.avgProcessF1Structure));	
 	}
 	
 	private void runEventRelationsPrediction(HashMap<String, String> folders) {
-		//System.out.println(Utils.getEquivalentTriples(new Triple<String, String, String>("Causes","CotemporalEvent", "Causes")));
-		//System.out.println(Utils.getEquivalentBaseTriple(new Triple<String, String, String>("PreviousEvent", "Causes","NONE")));
-		//System.out.println(Utils.getEquivalentBaseTriple(new Triple<String, String, String>("Caused","Causes", "CotemporalEvent")));
-		//System.out.println(Utils.getEquivalentBaseTriple(new Triple<String, String, String>("CotemporalEvent","Caused", "Caused")));
-		
 		int NumCrossValidation = 10;
 		boolean small = false;
-		boolean performParameterSearch = false;
+		boolean performParameterSearch = runParameterSearch;
 		//double[] paramValues = new double[]{0.5, 10};
 		double[] paramValues = new double[]{0, 0.1, 0.25, 0.5, 0.75, 1, 2, 5, 10};
 		boolean[] paramValuesBool = new boolean[]{false, true};
@@ -520,7 +568,6 @@ public class Main implements Runnable {
 		constraintNames.put(7, "Same event triad closure : Soft, Penalize");
 		constraintNames.put(8, "Cotemporal traid closure : Soft, Reward"); 
 		constraintNames.put(9, "Causes traid closure : Soft, Reward");
-		//constraintNames.put(10, "Triad counts : Soft, Reward");
 		constraintNames.put(10, "Chain constraint : Soft, penalize");
 
 		//Clearing folder for visualization
@@ -552,10 +599,7 @@ public class Main implements Runnable {
 		else {
 			LogInfo.logs(Utils.findEventRelationDistribution(dataset.examples("train")));
 			CrossValidationSplit split = new CrossValidationSplit(dataset.examples("train"), NumCrossValidation);
-			
-			//for(int featureCounter = 0; featureCounter < features.size(); featureCounter++) {
-			//	String feature = features.get(featureCounter);
-			//	features.remove(feature);
+
 			if(performParameterSearch) {
 				try{
 					ArrayList<Integer> paramArray = new ArrayList<Integer>();
@@ -821,7 +865,8 @@ public class Main implements Runnable {
 						writer.flush();
 					}
 					writer.close();
-					BufferedWriter paramWriter = new BufferedWriter(new FileWriter(GlobalParamFile));
+					BufferedWriter paramWriter = new BufferedWriter(new FileWriter(
+							fig.exec.Execution.getActualExecDir() + "/" +  GLOBAL_PARAM_FILE_NAME));
 					paramWriter.write(String.format("%s\t%s", "ConnectedComponent", connectedComponent));
 					paramWriter.write(String.format("%s\t%s", "SameEvent", sameEvent));
 					paramWriter.write(String.format("%s\t%s", "PreviousEvent", previousEvent));
@@ -862,8 +907,7 @@ public class Main implements Runnable {
 					}
 					
 					resultsFromAllFolds.addAll(result);
-					
-					//counter.addAll(Utils.findEventRelationDistribution(split.GetTestExamples(i)));
+
 					Scorer.updateMatrix(confusionMatrix, result, relations);
 									
 					LogInfo.end_track();
@@ -893,6 +937,21 @@ public class Main implements Runnable {
 				LogInfo.logs("P : " + String.format("%.4f", pairTriple.first.first));
 				LogInfo.logs("R : " + String.format("%.4f", pairTriple.first.second));
 				LogInfo.logs("F : " + String.format("%.4f", pairTriple.first.third));
+				
+				Params eventParam= eventRelationLearner.learn(dataset.examples("train"), eventRelationFeatureFactory);
+				
+				if(runLocalModel || runBetterBaseline) {
+					Utils.writeFile(eventParam, 
+							fig.exec.Execution.getActualExecDir() + "/"  + EVENT_RELATION_LOCAL_MODEL_FILE_NAME);
+				}
+				else if(runGlobalModel) {
+					Utils.writeFile(eventParam, 
+							fig.exec.Execution.getActualExecDir() + "/"  + EVENT_RELATION_GLOBAL_MODEL_FILE_NAME);
+				}
+				else{
+					Utils.writeFile(eventParam, 
+							fig.exec.Execution.getActualExecDir() + "/"  + EVENT_RELATION_LOCALBASE_MODEL_FILE_NAME);
+				}
 				
 				/*
 				LogInfo.logs("\nFull Macro precision");
@@ -936,11 +995,11 @@ public class Main implements Runnable {
 			LogInfo.logs("Cause Event");
 			LogInfo.logs("\tActual     " + inferer.causeEvent);
 			LogInfo.logs("\tPrediction " + inferer.causeEventPred);
-			*/
+			
 			LogInfo.logs("Degree Distribution");
 			LogInfo.logs("\tActual     " + inferer.degreeDistribution);
 			LogInfo.logs("\tPrediction " + inferer.degreeDistributionPred);			
-			
+			*/
 			//LogInfo.logs("Total time:" + EventRelationInferer.runtime);
 			//LogInfo.logs("Total time:" + EventRelationInferer.totalRuns);
 			//LogInfo.logs("Average time:" + EventRelationInferer.runtime / EventRelationInferer.totalRuns);
@@ -1066,7 +1125,7 @@ public class Main implements Runnable {
 	
 	private void loadGlobalParameterValues() {
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader(GlobalParamFile));
+			BufferedReader reader = new BufferedReader(new FileReader(GLOBAL_PARAM_FILE));
 			String line = "";
 			while((line = reader.readLine()) != null) {
 				String paramName = line.trim().split("\t")[0];

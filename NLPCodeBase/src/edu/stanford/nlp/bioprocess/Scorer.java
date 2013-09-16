@@ -407,17 +407,17 @@ public class Scorer {
 					}
 					else if(dat.predictedLabel().equals(dat.label)) {
 						tp++;
-						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Correct", 
+						LogInfo.logs(String.format("\t%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Correct", 
 									Utils.getText(dat.event1.getTreeNode()), Utils.getText(dat.event2.getTreeNode()), dat.label(), dat.predictedLabel()));
 					}
 					else if(dat.label().equals("NONE") && !dat.predictedLabel().equals("NONE")){
 						fp++;
-						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Extra", 
+						LogInfo.logs(String.format("\t%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Extra", 
 								Utils.getText(dat.event1.getTreeNode()), Utils.getText(dat.event2.getTreeNode()), dat.label(), dat.predictedLabel()));
 					}
 					else if(!dat.label().equals("NONE")){
 						fn++;
-						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Missed", 
+						LogInfo.logs(String.format("\t%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Missed", 
 								Utils.getText(dat.event1.getTreeNode()), Utils.getText(dat.event2.getTreeNode()), dat.label(), dat.predictedLabel()));
 						if(!dat.predictedLabel().equals("NONE"))
 							fp++;
@@ -441,7 +441,7 @@ public class Scorer {
 					if(!considered.contains(e2) && e1 != e2 && 
 						!relation.equals("NONE")) {
 						fn++;
-						LogInfo.logs(String.format("%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Missed", 
+						LogInfo.logs(String.format("\t%s %-10s : %-10s - %-10s Gold:  %s Predicted: %s", example.id,  "Missed", 
 								Utils.getText(e1.getTreeNode()), Utils.getText(e2.getTreeNode()), relation, "NONE"));
 					}
 				}

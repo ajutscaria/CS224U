@@ -118,14 +118,14 @@ public class IterativeOptimizer {
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, model);
 		EventRelationInferer relationInferer = new EventRelationInferer("global");
 		
-		Params eventParam = (Params) Utils.readObject(Main.EVENT_RELATION_MODEL);
+		Params eventParam = (Params) Utils.readObject(Main.EVENT_RELATION_GLOBAL_MODEL);
 		List<BioDatum> result = new ArrayList<BioDatum>();
 		
 		for(Example ex:test) {
 			LogInfo.logs("Example" + ex.id);
-			LogInfo.logs("Gold Events");
+			LogInfo.logs("Gold Events:");
 			for(EventMention m:ex.gold.get(EventMentionsAnnotation.class)) {
-				LogInfo.logs(m.getTreeNode() + ":" + m.getExtent());
+				LogInfo.logs("\t" + m.getTreeNode());
 			}
 			List<EventMention> eventsInExample = new ArrayList<EventMention>();
 			LogInfo.logs("Predicted Events:");
@@ -133,7 +133,7 @@ public class IterativeOptimizer {
 				if(d.getExampleID().equals(ex.id) && d.guessLabel.equals("E")) {
 					IntPair span = d.eventNode.getSpan();
 					Span evtSpan = new Span(span.getSource(), span.getTarget() + 1);
-					System.out.println(d.eventNode);
+					LogInfo.logs("\t" + d.eventNode);
 					ArgumentMention mention = new EventMention(Utils.getText(d.eventNode) + "_" + eventsInExample.size(), d.sentence, evtSpan);
 	                IndexedWord head = Utils.findDependencyNode(d.sentence, d.eventNode);
 	              
