@@ -64,7 +64,7 @@ Let $\theta_{ijr}$ be the score for a relation $r$ between the trigger pair $(t_
 \argmax_{\by} \sum_{ijr} \theta_{ijr} y_{ijr} \\
 \mbox{s.t.} \forall_{i,j} \sum_r y_{ijr}=1 \nonumber
 \end{align}
-\noindent where the constraint ensures exactly one relation between each event pair. We now describe constraints that result in a coherent global process structure:
+\noindent where the constraint ensures exactly one relation between each event pair. We now describe constraints that result in a coherent global process structure.
 
 \paragraph{Connectivity} 
 Our ILP formulation for enforcing connectivity is a minor variation of the one suggested by Martins et al. \shortcite{Martins09} for dependency parsing. In our setup, we want $\sP$ to be a connected undirected graph, and not a directed tree. However, an undirected graph $\sP$ is connected iff there exists a directed tree that is a subgraph of $\sP$ when edge directions are ignored. Thus the resulting formulation is almost identical and is based on flow constraints which ensure that there is a path from a designated root in the graph to all other nodes.

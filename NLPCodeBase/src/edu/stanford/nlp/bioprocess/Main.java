@@ -243,7 +243,7 @@ public class Main implements Runnable {
 		else if(mode.equals("pipeline")) {
 			if (runOn != null && runModel != null &&
 					!runOn.isEmpty() && !runModel.isEmpty()) {
-				System.out.println("Invalid parameters. 'runon' and 'model' are not required for pipeline mode.");
+				System.out.println("Invalid parameters. 'runon' and 'runmodel' are not required for pipeline mode.");
 			}
 			else {
 				runModel = "global";

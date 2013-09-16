@@ -484,7 +484,7 @@ public class EventRelationInferer {
 		buffer.append("\n}");
 		Utils.writeStringToFile(buffer.toString(), "GraphViz/" + testExample.id + ".gv");
 		//fig.basic.Utils.systemHard("/usr/local/bin/dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
-		fig.basic.Utils.systemHard("dot -o GraphViz/" + testExample.id + ".png -Tpng GraphViz/" + testExample.id + ".gv");
+		//fig.basic.Utils.systemHard("dot -o GraphViz/" + testExample.id + ".png -Tpng GraphViz/" + testExample.id + ".gv");
 		
 
 		LogInfo.end_track();
