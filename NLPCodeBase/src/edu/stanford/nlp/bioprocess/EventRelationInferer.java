@@ -342,7 +342,7 @@ public class EventRelationInferer {
 			predicted.addAll(dataset);
 			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");
 			//fig.basic.Utils.systemHard("/usr/local/bin/dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
-			fig.basic.Utils.systemHard("dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
+			//fig.basic.Utils.systemHard("dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
 			
 			for(EventMention evt:eventMentions) {
 				degreeDistribution.incrementCount((int)dG.getCount(evt));

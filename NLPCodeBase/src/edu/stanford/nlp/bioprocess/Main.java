@@ -24,7 +24,7 @@ public class Main implements Runnable {
 	double alpha1_ = 0.0, alpha2_ = 0.0, alpha3_ = 0.0, alpha4_ = 0.0, alpha5_ = 0.0, alpha6_ = 0.0, alpha7_ = 0.0;
 	boolean connectedComponent_ = false, sameEvent_ = false, previousEvent_ = false, sameEventContradictions_ = false;
 	final String GlobalParamFile = "models/GlobalParameters.txt";
-	final String EVENT_RELATION_MODEL = "models/EventRelation_model.ser", EVENT_STANDALONE_MODEL = "models/EventStandalone_model.ser",
+	public static final String EVENT_RELATION_MODEL = "models/EventRelation_model.ser", EVENT_STANDALONE_MODEL = "models/EventStandalone_model.ser",
 			ENTITY_STANDALONE_MODEL = "models/EntityStandalone_model.ser", EVENT_MODEL = "models/Event_model.ser",
 			ENTITY_MODEL = "models/Entity_model.ser";
 
