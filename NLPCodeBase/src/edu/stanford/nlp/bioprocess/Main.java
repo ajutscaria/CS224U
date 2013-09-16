@@ -948,7 +948,7 @@ public class Main implements Runnable {
 					Utils.writeFile(eventParam, 
 							fig.exec.Execution.getActualExecDir() + "/"  + EVENT_RELATION_GLOBAL_MODEL_FILE_NAME);
 				}
-				else{
+				else if(runLocalBase){
 					Utils.writeFile(eventParam, 
 							fig.exec.Execution.getActualExecDir() + "/"  + EVENT_RELATION_LOCALBASE_MODEL_FILE_NAME);
 				}
