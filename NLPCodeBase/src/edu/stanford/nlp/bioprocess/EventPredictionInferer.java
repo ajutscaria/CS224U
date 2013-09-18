@@ -16,7 +16,7 @@ import edu.stanford.nlp.util.CoreMap;
 import fig.basic.LogInfo;
 
 public class EventPredictionInferer extends Inferer {
-	boolean printDebugInformation = true;
+	boolean printDebugInformation = false;
 	List<BioDatum> prediction = null;
 	
 	public EventPredictionInferer() {
@@ -48,7 +48,7 @@ public class EventPredictionInferer extends Inferer {
 	public List<BioDatum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>(); 
 		for(Example ex:testData) {
-			LogInfo.begin_track("Example %s",ex.id);
+			//LogInfo.begin_track("Example %s",ex.id);
 
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				Set<Tree> entityNodes = null;
@@ -69,9 +69,7 @@ public class EventPredictionInferer extends Inferer {
 					LogInfo.logs(sentence);
 					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
 					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
-				}
 
-				if(printDebugInformation) {
 					LogInfo.logs("\n---------GOLD EVENTS-------------------------");
 					for(EventMention m:sentence.get(EventMentionsAnnotation.class)) 
 							LogInfo.logs(m.getTreeNode());
@@ -84,7 +82,7 @@ public class EventPredictionInferer extends Inferer {
 				}
 			}
 			
-			LogInfo.end_track();
+			//LogInfo.end_track();
 		}
 		return predicted;
 	}

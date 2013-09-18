@@ -10,8 +10,10 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Properties;
 
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
@@ -297,11 +299,25 @@ public class Main implements Runnable {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		try {
 			String input = reader.readLine();
-			System.out.println("Out-" + input);
+			runModel = "global";
+			
+			Properties props = new Properties();
+			props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+			
+			BioProcessFormatReader bioReader = new BioProcessFormatReader();
+			StanfordCoreNLP  processor = new StanfordCoreNLP(props, false);
+			bioReader.setProcessor(processor);
+			
+			Example ex = bioReader.createAnnotationFromString(input);
+			
+			List<Example> examples = new ArrayList<Example>();
+			examples.add(ex);
+			
+			IterativeOptimizer optimizer = new IterativeOptimizer();
+			optimizer.runInference(examples);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
 	}
 
 	private void runPipelinePrediction(HashMap<String, String> folders) {

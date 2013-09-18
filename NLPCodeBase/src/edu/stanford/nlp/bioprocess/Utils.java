@@ -321,7 +321,7 @@ public class Utils {
 	  if(ret!=null)
 		  return ret.headPreTerminal(new CollinsHeadFinder());
 	  
-	  syntacticParse.pennPrint();
+	  //syntacticParse.pennPrint();
 	  LogInfo.logs("No EVENT match found for - " + event.getValue());
 	  return null;
   }

@@ -22,7 +22,7 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityStandaloneInferer extends Inferer{
-	private boolean printDebugInformation = true, useRule = false;
+	private boolean printDebugInformation = false, useRule = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 	@Override
 	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters,
@@ -36,7 +36,7 @@ public class EntityStandaloneInferer extends Inferer{
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
-			LogInfo.begin_track("Example %s",ex.id);
+			//LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
@@ -121,20 +121,21 @@ public class EntityStandaloneInferer extends Inferer{
 				predicted.addAll(testDataEvent);
 				
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
+				if(printDebugInformation) {
+					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
+					for(BioDatum d:testDataEvent) 
+						if(d.label.equals("E"))
+							LogInfo.logs(d.entityNode + ":" + d.label);
 					
-				LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-				for(BioDatum d:testDataEvent) 
-					if(d.label.equals("E"))
-						LogInfo.logs(d.entityNode + ":" + d.label);
-				
-				LogInfo.logs("---------PREDICTIONS-------------------------");
-				for(BioDatum d:testDataEvent)
-					if(d.guessLabel.equals("E") || d.label.equals("E"))
-						LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-				LogInfo.logs("------------------------------------------\n");
+					LogInfo.logs("---------PREDICTIONS-------------------------");
+					for(BioDatum d:testDataEvent)
+						if(d.guessLabel.equals("E") || d.label.equals("E"))
+							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+					LogInfo.logs("------------------------------------------\n");
+				}
 			}
 			
-			LogInfo.end_track();
+			//LogInfo.end_track();
 		}
 		return predicted;
 	}

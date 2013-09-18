@@ -134,7 +134,7 @@ public class ILPOptimizer {
 				}
 			}
 			*/
-			LogInfo.logs("\nGold triple count:" + goldTripleCounts.size());
+			//LogInfo.logs("\nGold triple count:" + goldTripleCounts.size());
 			//LogInfo.logs(goldTripleCounts.keySet());
 			
 			env = new GRBEnv("1.log");

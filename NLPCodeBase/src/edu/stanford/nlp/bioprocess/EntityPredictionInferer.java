@@ -19,7 +19,7 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
-	private boolean printDebugInformation = true;
+	private boolean printDebugInformation = false;
 	List<BioDatum> prediction = null;
 	
 	public EntityPredictionInferer() {
@@ -62,20 +62,21 @@ public class EntityPredictionInferer extends Inferer {
 					
 					LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
-					
-					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(BioDatum d:testDataEvent) 
-						if(d.label.equals("E"))
-							LogInfo.logs(d.entityNode + ":" + d.label);
-					
-					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(BioDatum d:testDataEvent)
-						if(d.guessLabel.equals("E") || d.label.equals("E"))
-							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-					LogInfo.logs("------------------------------------------\n");
+					if(printDebugInformation) {
+						LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
+						for(BioDatum d:testDataEvent) 
+							if(d.label.equals("E"))
+								LogInfo.logs(d.entityNode + ":" + d.label);
+						
+						LogInfo.logs("---------PREDICTIONS-------------------------");
+						for(BioDatum d:testDataEvent)
+							if(d.guessLabel.equals("E") || d.label.equals("E"))
+								LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+						LogInfo.logs("------------------------------------------\n");
+					}
 				}
 			}
-			LogInfo.end_track();
+			//LogInfo.end_track();
 		}
 		return predicted;
 	}
@@ -84,7 +85,7 @@ public class EntityPredictionInferer extends Inferer {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
-			LogInfo.begin_track("Example %s",ex.id);
+			//LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
@@ -101,8 +102,8 @@ public class EntityPredictionInferer extends Inferer {
 				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes, ex.id);
 				
 				for(Tree event:eventNodes) {
-					LogInfo.logs("******************Event " + Utils.getText(event)+ 
-							"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
+					//LogInfo.logs("******************Event " + Utils.getText(event)+ 
+					//		"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
 					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
 					for(BioDatum d:test)
 						if(d.eventNode == event) {
@@ -134,19 +135,20 @@ public class EntityPredictionInferer extends Inferer {
 					
 					predicted.addAll(testDataEvent);
 					
-					LogInfo.logs(sentence);
+					//LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
-					
-					LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-					for(BioDatum d:testDataEvent) 
-						if(d.label.equals("E"))
-							LogInfo.logs(d.entityNode + ":" + d.label);
-					
-					LogInfo.logs("---------PREDICTIONS-------------------------");
-					for(BioDatum d:testDataEvent)
-						if(d.guessLabel.equals("E") || d.label.equals("E"))
-							LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-					LogInfo.logs("------------------------------------------\n");
+					if(printDebugInformation) {
+						LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
+						for(BioDatum d:testDataEvent) 
+							if(d.label.equals("E"))
+								LogInfo.logs(d.entityNode + ":" + d.label);
+						
+						LogInfo.logs("---------PREDICTIONS-------------------------");
+						for(BioDatum d:testDataEvent)
+							if(d.guessLabel.equals("E") || d.label.equals("E"))
+								LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
+						LogInfo.logs("------------------------------------------\n");
+					}
 				}
 				for(EventMention ev:sentence.get(EventMentionsAnnotation.class))
 					if(!eventNodes.contains(ev.getTreeNode())){
@@ -157,7 +159,7 @@ public class EntityPredictionInferer extends Inferer {
 						LogInfo.logs("------------------------------------------\n");
 					}
 			}
-			LogInfo.end_track();
+			//LogInfo.end_track();
 		}
 		return predicted;
 	}

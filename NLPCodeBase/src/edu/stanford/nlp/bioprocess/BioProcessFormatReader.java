@@ -103,6 +103,32 @@ public class BioProcessFormatReader extends GenericDataSetReader {
     return examples;
   }
   
+  public Example createAnnotationFromString(String input) {
+	Annotation document = new Annotation(input);
+    processor.annotate(document);
+    List<CoreMap> sentences = document.get(SentencesAnnotation.class);
+
+    for(CoreMap sentence:sentences) {
+    	Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    	List<EventMention> eventMentions = new ArrayList<EventMention>();
+        sentence.set(EventMentionsAnnotation.class, eventMentions);
+        
+        List<EntityMention> entityMentions = new ArrayList<EntityMention>();
+        sentence.set(EntityMentionsAnnotation.class, entityMentions);
+    	syntacticParse.setSpans();
+    }
+    
+    Example example = new Example();
+    example.data = input;
+    example.id = "Interactive";
+    example.gold = document;
+    
+    example.prediction = document;
+    example.prediction.set(EntityMentionsAnnotation.class, new ArrayList<EntityMention>());
+    example.prediction.set(EventMentionsAnnotation.class, new ArrayList<EventMention>());
+    return example;
+  }
+  
   private Annotation createAnnotation(String fileName) {
     String rawText = "";
     try {

@@ -52,7 +52,7 @@ public class EventRelationInferer {
 	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters, EventRelationFeatureFactory ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>(); 
 		for(Example example:examples) {
-			LogInfo.begin_track("Example %s",example.id);
+			//LogInfo.begin_track("Example %s",example.id);
 			for(EventMention evt:example.gold.get(EventMentionsAnnotation.class)) {
 				for(ArgumentRelation rel:evt.getArguments()) {
 					if(rel.mention instanceof EventMention) { 
@@ -196,7 +196,7 @@ public class EventRelationInferer {
 
 		for(Example ex:testData) {
 			HashMap<String, Pair<String,String>> labelings = new HashMap<String, Pair<String,String>>();
-			LogInfo.begin_track("Example %s",ex.id);
+			//LogInfo.begin_track("Example %s",ex.id);
 
 			LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 			List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
@@ -403,7 +403,7 @@ public class EventRelationInferer {
 			boolean sameEvent, boolean previousEvent, boolean sameEventContradiction,
 			double alpha1, double alpha2, double alpha3, double alpha4, double alpha5, double alpha6, double alpha7) {
 		HashMap<String, Pair<String,String>> labelings = new HashMap<String, Pair<String,String>>();
-		LogInfo.begin_track("Example %s",testExample.id);
+		//LogInfo.begin_track("Example %s",testExample.id);
 
 		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 		
