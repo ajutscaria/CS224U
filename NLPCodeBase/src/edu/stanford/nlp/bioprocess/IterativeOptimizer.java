@@ -3,6 +3,8 @@ package edu.stanford.nlp.bioprocess;
 import java.util.ArrayList;
 import java.util.List;
 
+import sun.security.jgss.LoginConfigImpl;
+
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.IndexedWord;
@@ -13,6 +15,16 @@ import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 
 public class IterativeOptimizer {
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BLACK = "\u001B[30m";
+	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_GREEN = "\u001B[32m";
+	public static final String ANSI_YELLOW = "\u001B[33m";
+	public static final String ANSI_BLUE = "\u001B[34m";
+	public static final String ANSI_PURPLE = "\u001B[35m";
+	public static final String ANSI_CYAN = "\u001B[36m";
+	public static final String ANSI_WHITE = "\u001B[37m";
+	
 	public Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> optimize(List<Example> train, List<Example> test, boolean useLexicalFeatures) {
 		LogInfo.begin_track("Basiccc trigger prediction");
 		Learner eventLearner = new Learner();
@@ -209,22 +221,6 @@ public class IterativeOptimizer {
 		List<BioDatum> result = new ArrayList<BioDatum>();
 		
 		for(Example ex:examples) {
-			LogInfo.logs("Predicted Events:");
-			for(BioDatum datumEvent:predicted) {
-				if(datumEvent.guessLabel.equals("E")) {
-					if(datumEvent.getExampleID().equals(ex.id) && datumEvent.guessLabel.equals("E")) {
-						LogInfo.logs("\t" + Utils.getText(datumEvent.eventNode));
-					}
-					LogInfo.logs("\tEntities:");
-					
-					for(BioDatum datumEntity:predictedEntities) {
-						if(datumEntity.guessLabel.equals("E") &&
-								datumEntity.eventNode == datumEvent.eventNode) {
-							LogInfo.logs("\t\t" + Utils.getText(datumEntity.entityNode));
-						}
-					}
-				}
-			}
 			List<EventMention> eventsInExample = new ArrayList<EventMention>();
 			for(BioDatum d:predicted) {
 				if(d.getExampleID().equals(ex.id) && d.guessLabel.equals("E")) {
@@ -244,13 +240,33 @@ public class IterativeOptimizer {
 			result.addAll(relationInferer.PipelineInfer(ex, eventsInExample, eventParam, eventRelationFeatureFactory, model,
 					true, true, true, true, 0.0,0.5,0,0,1.0,0.0, 0.5));
 			
-			LogInfo.logs("Event Relations:");
+			LogInfo.logs("\n   Predicted " + ANSI_GREEN + "events" +
+			             ANSI_RESET + " and associated " + ANSI_BLUE + "entities" +
+					     ANSI_RESET + ":");
+			for(BioDatum datumEvent:predicted) {
+				if(datumEvent.guessLabel.equals("E")) {
+					if(datumEvent.getExampleID().equals(ex.id) && datumEvent.guessLabel.equals("E")) {
+						LogInfo.logs(ANSI_GREEN + "\t" + Utils.getText(datumEvent.eventNode));
+					}
+				
+					for(BioDatum datumEntity:predictedEntities) {
+						if(datumEntity.guessLabel.equals("E") &&
+								datumEntity.eventNode == datumEvent.eventNode) {
+							LogInfo.logs(ANSI_BLUE + "\t\t" + Utils.getText(datumEntity.entityNode));
+						}
+					}
+				}
+			}
+				
+			LogInfo.logs(ANSI_RESET + "\n   Predicted event relations:");
 			for(BioDatum eventRelation:result) {
 				if(!eventRelation.guessLabel.equals("NONE")) {
-					LogInfo.logs(Utils.getText(eventRelation.event1.getTreeNode()) + " - " +
+					LogInfo.logs(ANSI_CYAN + "\t" + Utils.getText(eventRelation.event1.getTreeNode()) + " - " +
 							Utils.getText(eventRelation.event2.getTreeNode()) + " : " + eventRelation.guessLabel);
 				}
 			}
+
+			LogInfo.logs(ANSI_RESET);
 		}
 	}
 }

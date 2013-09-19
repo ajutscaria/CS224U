@@ -21,6 +21,16 @@ import fig.basic.Option;
 import fig.exec.Execution;
 
 public class Main implements Runnable {
+	public static final String ANSI_RESET = "\u001B[0m";
+	public static final String ANSI_BLACK = "\u001B[30m";
+	public static final String ANSI_RED = "\u001B[31m";
+	public static final String ANSI_GREEN = "\u001B[32m";
+	public static final String ANSI_YELLOW = "\u001B[33m";
+	public static final String ANSI_BLUE = "\u001B[34m";
+	public static final String ANSI_PURPLE = "\u001B[35m";
+	public static final String ANSI_CYAN = "\u001B[36m";
+	public static final String ANSI_WHITE = "\u001B[37m";
+	
 	boolean runPrevBaseline = false, runBetterBaseline = false, 
 			runLocalBase = false, runLocalModel = false,
 			runGlobalModel = false, runParameterSearch = false;
@@ -295,29 +305,39 @@ public class Main implements Runnable {
 	}
 
 	private void runInteractiveMode(HashMap<String, String> folders) {
-		System.out.print("\n\nEnter paragraph:");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
-		try {
-			String input = reader.readLine();
-			runModel = "global";
-			
-			Properties props = new Properties();
-			props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
-			
-			BioProcessFormatReader bioReader = new BioProcessFormatReader();
-			StanfordCoreNLP  processor = new StanfordCoreNLP(props, false);
-			bioReader.setProcessor(processor);
-			
-			Example ex = bioReader.createAnnotationFromString(input);
-			
-			List<Example> examples = new ArrayList<Example>();
-			examples.add(ex);
-			
-			IterativeOptimizer optimizer = new IterativeOptimizer();
-			optimizer.runInference(examples);
-		} catch (IOException e) {
-			e.printStackTrace();
+		runModel = "global";
+		
+		Properties props = new Properties();
+		props.put("annotators", "tokenize, ssplit, pos, lemma, ner, parse, dcoref");
+		
+		BioProcessFormatReader bioReader = new BioProcessFormatReader();
+		StanfordCoreNLP  processor = new StanfordCoreNLP(props, false);
+		bioReader.setProcessor(processor);
+
+		System.out.println(ANSI_GREEN + "\n\nBegin by entering your input paragraph at prompt.");
+		System.out.println(ANSI_GREEN + "Type 'q' or 'quit' to exit.");
+		while(true) {
+			try {
+				System.out.print(ANSI_RESET + "\n>");
+				String input = reader.readLine();
+				if(input.equals("q") ||
+						input.equals("quit")) {
+					break;
+				}
+				Example ex = bioReader.createAnnotationFromString(input);
+				
+				List<Example> examples = new ArrayList<Example>();
+				examples.add(ex);
+				
+				IterativeOptimizer optimizer = new IterativeOptimizer();
+				optimizer.runInference(examples);
+			}
+			catch (Exception ex) {
+				System.out.println(ANSI_RED + "Sorry, could not run event extraction on the given input." + ANSI_RESET);
+			}
 		}
+		System.out.println(ANSI_RESET);
 	}
 
 	private void runPipelinePrediction(HashMap<String, String> folders) {
