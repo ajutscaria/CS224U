@@ -335,6 +335,7 @@ public class Main implements Runnable {
 			}
 			catch (Exception ex) {
 				System.out.println(ANSI_RED + "Sorry, could not run event extraction on the given input." + ANSI_RESET);
+				throw new RuntimeException(ex);
 			}
 		}
 		System.out.println(ANSI_RESET);
