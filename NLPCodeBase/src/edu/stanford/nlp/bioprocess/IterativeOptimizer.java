@@ -3,8 +3,6 @@ package edu.stanford.nlp.bioprocess;
 import java.util.ArrayList;
 import java.util.List;
 
-import sun.security.jgss.LoginConfigImpl;
-
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.IndexedWord;

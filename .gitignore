@@ -15,6 +15,7 @@ local.properties
 .classpath
 .settings/
 .loadpath
+*.class
 
 # External tool builders
 .externalToolBuilders/
@@ -222,7 +223,7 @@ NLPCodeBase/state/
 
 NLPCodeBase/out/*
 NLPCodeBase/classes/*
-
+NLPCodeBase/classes/
 
 Emnlp2013/EMNLP2013.pdf
 Emnlp2013/dataset/*
