@@ -487,7 +487,7 @@ public class EventRelationInferer {
 		//fig.basic.Utils.systemHard("dot -o GraphViz/" + testExample.id + ".png -Tpng GraphViz/" + testExample.id + ".gv");
 		
 
-		LogInfo.end_track();
+		//LogInfo.end_track();
 		
 		return dataset;
 	}
