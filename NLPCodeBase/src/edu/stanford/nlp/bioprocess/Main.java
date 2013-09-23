@@ -334,7 +334,7 @@ public class Main implements Runnable {
 				optimizer.runInference(examples);
 			}
 			catch (Exception ex) {
-				ex.printStackTrace();
+				//ex.printStackTrace();
 				System.out.println(ANSI_RED + "Sorry, could not run event extraction on the given input." + ANSI_RESET);
 				throw new RuntimeException(ex);
 			}

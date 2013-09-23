@@ -238,8 +238,6 @@ public class IterativeOptimizer {
 				result.addAll(relationInferer.PipelineInfer(ex, eventsInExample, eventParam, eventRelationFeatureFactory, model,
 						true, true, true, true, 0.0,0.5,0,0,1.0,0.0, 0.5));
 				
-				System.out.println("Done with optimization.");
-				
 				System.out.println("\n   Predicted " + ANSI_GREEN + "events" +
 				             ANSI_RESET + " and associated " + ANSI_BLUE + "entities" +
 						     ANSI_RESET + ":");
