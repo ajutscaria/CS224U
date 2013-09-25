@@ -430,33 +430,31 @@ public class EventRelationFeatureFactory {
 				String markerName = e.getTarget().lemma().toLowerCase();
 				
 				//Check if the source of incoming edge (advcl, ccmod, dep) is same as indexedWordThat or parent of indexedWordThat
-				SemanticGraphEdge edge = graph.getIncomingEdgesSorted(indexedWordThis).get(0);
-						
-				IndexedWord parent = edge.getSource();
-
-				if(parent.index() == indexedWordThat.index() || isInSameDependencyClauseAndChild(graph, parent, indexedWordThat)) {
-					if(Utils.isFirstEventInSentence(mentions, eventMention1) && markIndex < event1Index) {
-						//LogInfo.logs("Marker before :" +markerName);
-						if(MarkAndPPClusters.containsKey(markerName))
-							return new Pair<String, String>(markerName, MarkAndPPClusters.get(markerName));
-						else
-							return new Pair<String, String>(markerName, "");
-					}
-					else if(markIndex < event2Index) {
-						//LogInfo.logs("Marker between :" +markerName);
-						if(MarkAndPPClusters.containsKey(markerName))
-							return new Pair<String, String>(markerName, Utils.getInverseRelation(MarkAndPPClusters.get(markerName)));
-						else
-							return new Pair<String, String>(markerName, "");
-					}
-					else {
-						LogInfo.logs("Marker after");
+				if (graph.getIncomingEdgesSorted(indexedWordThis).size() > 0) {
+					SemanticGraphEdge edge = graph.getIncomingEdgesSorted(indexedWordThis).get(0);
+							
+					IndexedWord parent = edge.getSource();
+	
+					if(parent.index() == indexedWordThat.index() || isInSameDependencyClauseAndChild(graph, parent, indexedWordThat)) {
+						if(Utils.isFirstEventInSentence(mentions, eventMention1) && markIndex < event1Index) {
+							//LogInfo.logs("Marker before :" +markerName);
+							if(MarkAndPPClusters.containsKey(markerName))
+								return new Pair<String, String>(markerName, MarkAndPPClusters.get(markerName));
+							else
+								return new Pair<String, String>(markerName, "");
+						}
+						else if(markIndex < event2Index) {
+							//LogInfo.logs("Marker between :" +markerName);
+							if(MarkAndPPClusters.containsKey(markerName))
+								return new Pair<String, String>(markerName, Utils.getInverseRelation(MarkAndPPClusters.get(markerName)));
+							else
+								return new Pair<String, String>(markerName, "");
+						}
+						else {
+							LogInfo.logs("Marker after");
+						}
 					}
 				}
-				else {
-					//LogInfo.logs("Marker not added: " + indexedWordThis + " " + indexedWordThat +" "+  markerName);
-				}
-				
 			}
 		}
 		return null;
