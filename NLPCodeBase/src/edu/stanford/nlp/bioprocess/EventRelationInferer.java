@@ -52,7 +52,7 @@ public class EventRelationInferer {
 	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters, EventRelationFeatureFactory ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>(); 
 		for(Example example:examples) {
-			//LogInfo.begin_track("Example %s",example.id);
+			LogInfo.begin_track("Example %s",example.id);
 			for(EventMention evt:example.gold.get(EventMentionsAnnotation.class)) {
 				for(ArgumentRelation rel:evt.getArguments()) {
 					if(rel.mention instanceof EventMention) { 
@@ -124,7 +124,7 @@ public class EventRelationInferer {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 
 		for(Example ex:testData) {
-			//LogInfo.begin_track("Example %s",ex.id);
+			LogInfo.begin_track("Example %s",ex.id);
 			//HashMap<String, Pair<String,String>> labelings = new HashMap<String, Pair<String,String>>();
 			LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 			List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
@@ -171,7 +171,7 @@ public class EventRelationInferer {
 			avgProcessPrecisionStructure += pairTriple.first.first;
 			avgProcessRecallStructure += pairTriple.first.second;
 			predicted.addAll(dataset);
-			//LogInfo.end_track();
+			LogInfo.end_track();
 		}
 		avgProcessPrecisionFull /= testData.size();
 		avgProcessRecallFull /= testData.size();
@@ -196,7 +196,7 @@ public class EventRelationInferer {
 
 		for(Example ex:testData) {
 			HashMap<String, Pair<String,String>> labelings = new HashMap<String, Pair<String,String>>();
-			//LogInfo.begin_track("Example %s",ex.id);
+			LogInfo.begin_track("Example %s",ex.id);
 
 			LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 			List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
