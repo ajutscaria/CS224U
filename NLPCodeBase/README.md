@@ -6,16 +6,19 @@ The quality of the code is "academic", but running it should be quite easy!
 
 Prerequisites:
 We use the optimization package Gurobi and so you need to install it (www.gurobi.com) on your machine.
-You might have to replace the jar in lib/data/gurobi.jar with the jar from the Gurobi package you downloaded.
 
-To start simply type:
+Installing:
+1. copy gurobi.jar from your installation to the project's lib/ directory
+2. type:
     make
+
+To run, simply type:
     ./bioprocess.sh
 
 This will give you a commnad line interface where you can enter process descriptions and get as output
 and analysis of the process.
 
-Thas it! If you want to reproduce the results from the paper you should read on.
+That's it! If you want to reproduce the results from the paper you should read on.
 
 The paper presented five systems. To run the global system type:
 
