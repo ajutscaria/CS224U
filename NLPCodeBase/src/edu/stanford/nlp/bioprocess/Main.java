@@ -59,7 +59,7 @@ public class Main implements Runnable {
 					EVENT_MODEL = MODELS_DIRECTORY + "Event_model.ser",
 					ENTITY_MODEL = MODELS_DIRECTORY + "Entity_model.ser";
 
-	@Option(gloss="The running mode: event, entity, or em") public String mode = "result";
+	@Option(gloss="The running mode") public String mode = "result";
 	@Option(gloss="Dataset dir") public String datasetDir;
 	@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
 	@Option(gloss="Run on dev or test") public String runOn;
@@ -194,10 +194,7 @@ public class Main implements Runnable {
 		folders.put("test", testDirectory);
 		folders.put("train", trainDirectory);
 		folders.put("sample", sampleDirectory);
-		
-		if(mode != null) {
-			mode = mode.toLowerCase();
-		}
+	
 		if(runModel != null) {
 			runModel = runModel.toLowerCase();
 		}
@@ -205,54 +202,51 @@ public class Main implements Runnable {
 			runOn = runOn.toLowerCase();
 		}
 
-		if(mode.equals("entity")) {
+		if(mode.equalsIgnoreCase("entity")) {
 			LogInfo.logs("Running entity prediction");
 			runEntityPrediction(folders);
 		}
-		else if(mode.equals("entitygold")) {
+		else if(mode.equalsIgnoreCase("entitygold")) {
 			LogInfo.logs("Running entity prediction from GOLD events");
 			runPrediction(folders, new EntityFeatureFactory(useLexicalFeatures), new Learner(), new EntityPredictionInferer(), new Scorer());
 		}
-		else if(mode.equals("entitystandalone")) {
+		else if(mode.equalsIgnoreCase("entitystandalone")) {
 			LogInfo.logs("Running entity standalone");
 			runEntityStandalonePrediction(folders);
 		}
-		else if(mode.equals("eventstandalone")) {
+		else if(mode.equalsIgnoreCase("eventstandalone")) {
 			LogInfo.logs("Running event standalone prediction");
 			runEventStandalonePrediction(folders);
 		}
-		else if(mode.equals("eventgold")) {
+		else if(mode.equalsIgnoreCase("eventgold")) {
 			LogInfo.logs("Running event prediction with GOLD entities");
 			runPrediction(folders, new EventExtendedFeatureFactory(useLexicalFeatures), new Learner(), new EventPredictionInferer(), new Scorer());
 		}
-		else if(mode.equals("event")) {
+		else if(mode.equalsIgnoreCase("event")) {
 			LogInfo.logs("Running event prediction");
 			runEventPrediction(folders);
 		}
-		else if(mode.equals("io")) {
+		else if(mode.equalsIgnoreCase("io")) {
 			LogInfo.logs("Running iterative optimization");
 			runIterativeOptimization(folders);
 		}
-		else if(mode.equals("srl")) {
+		else if(mode.equalsIgnoreCase("srl")) {
 			LogInfo.logs("Running SRL");
 			runSRLPrediction(folders);
 		}
-		else if(mode.equals("all")) {
+		else if(mode.equalsIgnoreCase("all")) {
 			LogInfo.logs("Run all");
 			runAll(folders);
 		}
-		else if(mode.equals("eventrelation")) {
+		else if(mode.equalsIgnoreCase("eventrelation")) {
 			LogInfo.logs("Running event relation");
-			//computeStats(folders);
 			
 			if(!runEventRelationTest)
 				runEventRelationsPrediction(folders);
 			else
-				runEventRelationsPredictionTest(folders);
-			
-			//Utils.getEquivalentTriples(new Triple<String, String, String>("PreviousEvent", "SuperEvent", "Causes"));
+				runEventRelationsPredictionTest(folders);			
 		}
-		else if(mode.equals("pipeline")) {
+		else if(mode.equalsIgnoreCase("pipeline")) {
 			if (runOn != null && runModel != null &&
 					!runOn.isEmpty() && !runModel.isEmpty()) {
 				System.out.println("Invalid parameters. 'runon' and 'runmodel' are not required for pipeline mode.");
@@ -263,11 +257,11 @@ public class Main implements Runnable {
 			}
 			
 		}
-		else if(mode.equals("interactive")) {
+		else if(mode.equalsIgnoreCase("interactive")) {
 			LogInfo.logs("Running interactive mode.");
 			runInteractiveMode(folders);
 		}
-		else if(mode.equals("result")) {
+		else if(mode.equalsIgnoreCase("result")) {
 			if (!runOn.equals("dev") && !runOn.equals("test")) {
 				System.out.println("Invalid dataset provided. Choose 'dev' or 'test'");
 			}
@@ -611,7 +605,7 @@ public class Main implements Runnable {
 		//Clearing folder for visualization
 		Utils.moveFolderContent("GraphViz", "GraphVizPrev");
 		Utils.clearFolderContent("GraphViz");
-		BioprocessDataset dataset = loadDataSet(folders, small, false);
+		BioprocessDataset dataset = loadDataSet(folders, small, true);
 		
 		Learner eventRelationLearner = new Learner();
 		EventRelationFeatureFactory eventRelationFeatureFactory = new EventRelationFeatureFactory(useLexicalFeatures, runModel);
