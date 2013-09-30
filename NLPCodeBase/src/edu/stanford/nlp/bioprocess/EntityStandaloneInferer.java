@@ -25,14 +25,14 @@ public class EntityStandaloneInferer extends Inferer{
 	private boolean printDebugInformation = false, useRule = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 	@Override
-	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters,
+	public List<BioDatum> baselineInfer(List<Example> examples, Params parameters,
 			FeatureExtractor ff) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
-	public List<BioDatum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
+	public List<BioDatum> infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {

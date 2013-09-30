@@ -6,8 +6,6 @@ import java.util.*;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
-import edu.stanford.nlp.classify.GeneralDataset;
-import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.stats.IntCounter;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.IdentityHashSet;
@@ -16,31 +14,6 @@ import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
 
 public class Scorer {
-/*
-  public static Triple<Double, Double, Double> score(List<edu.stanford.nlp.bioprocess.Datum> data) {
-    int tp = 0, fp = 0, fn = 0;
-
-    for (Datum d:data) {
-    	if(d.label.equals("E")) {
-    		if(d.guessLabel.equals("E"))
-    			tp++;
-    		else
-    			fn++;
-    	}
-    	if(d.label.equals("O")) {
-    		if(d.guessLabel.equals("E"))
-    			fp++;
-    	}
-    }
-    double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
-    double f= 2 * precision * recall / (precision + recall);
-    
-    //LogInfo.logs("precision = "+precision);
-    //LogInfo.logs("recall = "+recall);
-    //LogInfo.logs("F1 = "+f);
-    
-    return new Triple<Double, Double, Double>(precision, recall, f);
-  }*/
   
   public static Triple<Double, Double, Double> score(List<BioDatum> dataset) {
 	    int tp = 0, fp = 0, fn = 0;
@@ -59,11 +32,7 @@ public class Scorer {
 	    }
 	    double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
 	    double f= 2 * precision * recall / (precision + recall);
-	    
-	    //LogInfo.logs("precision = "+precision);
-	    //LogInfo.logs("recall = "+recall);
-	    //LogInfo.logs("F1 = "+f);
-	    
+	    	    
 	    return new Triple<Double, Double, Double>(precision, recall, f);
 	  }
   

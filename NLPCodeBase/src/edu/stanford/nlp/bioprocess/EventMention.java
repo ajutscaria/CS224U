@@ -9,7 +9,6 @@ import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.util.CoreMap;
 
 /**
- * Each entity mention is described by a span of text
  * 
  * @author Aju
  */

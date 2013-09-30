@@ -30,7 +30,7 @@ public class EntityPredictionInferer extends Inferer {
 		this.prediction = predictions;
 	}
 
-	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
+	public List<BioDatum> baselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example example:examples) {
@@ -81,7 +81,7 @@ public class EntityPredictionInferer extends Inferer {
 		return predicted;
 	}
 	
-	public List<BioDatum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
+	public List<BioDatum> infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {

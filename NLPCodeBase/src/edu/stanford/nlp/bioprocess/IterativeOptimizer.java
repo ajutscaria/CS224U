@@ -29,7 +29,7 @@ public class IterativeOptimizer {
 		FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 		Inferer inferer = new EventPredictionInferer();
 		Params param = eventLearner.learn(train, eventFeatureFactory);
-		List<BioDatum> predicted = inferer.Infer(test, param, eventFeatureFactory);
+		List<BioDatum> predicted = inferer.infer(test, param, eventFeatureFactory);
 		Triple<Double, Double, Double> triple = Scorer.score(predicted);
 
 		LogInfo.logs("Score: Basic trigger prediction - " + triple);
@@ -41,14 +41,14 @@ public class IterativeOptimizer {
 		Inferer entityInferer = new EntityStandaloneInferer();
 		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 		Params entityStandaloneParams = entityLearner.learn(train, entityStandaloneFeatureFactory);
-		List<BioDatum> predictedStandaloneEntities = entityInferer.Infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
+		List<BioDatum> predictedStandaloneEntities = entityInferer.infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
 
 		Triple<Double, Double, Double> entityTriple = null;
 		for(int i = 0; i < 1; i++) {
 			LogInfo.begin_track("Entity prediction");
 			entityInferer = new EntityPredictionInferer(predicted);
 			Params entityParams = entityLearner.learn(train, entityFeatureFactory);
-			List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.infer(test, entityParams, entityFeatureFactory);
 			entityTriple = Scorer.scoreEntities(test, predictedEntities);
 
 			LogInfo.logs("Score: Entity prediction - " + entityTriple);
@@ -60,7 +60,7 @@ public class IterativeOptimizer {
 			inferer = new EventPredictionInferer(predictedEntities);
 			eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
 			param = eventLearner.learn(train, eventFeatureFactory);
-			predicted = inferer.Infer(test, param, eventFeatureFactory);
+			predicted = inferer.infer(test, param, eventFeatureFactory);
 			triple = Scorer.score(predicted);
 
 			LogInfo.logs("Score: Extended trigger prediction - " + triple);
@@ -70,7 +70,7 @@ public class IterativeOptimizer {
 
 		entityInferer = new EntityPredictionInferer(predicted);
 		Params entityParams = entityLearner.learn(train, entityFeatureFactory);
-		List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+		List<BioDatum> predictedEntities = entityInferer.infer(test, entityParams, entityFeatureFactory);
 		entityTriple = Scorer.scoreEntities(test, predictedEntities);
 
 		LogInfo.logs("Entity prediction - " + entityTriple);
@@ -82,7 +82,7 @@ public class IterativeOptimizer {
 		FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 		Inferer inferer = new EventPredictionInferer();
 		Params param = (Params) Utils.readObject(Main.EVENT_STANDALONE_MODEL);
-		List<BioDatum> predicted = inferer.Infer(test, param, eventFeatureFactory);
+		List<BioDatum> predicted = inferer.infer(test, param, eventFeatureFactory);
 		Triple<Double, Double, Double> triple = Scorer.score(predicted);
 
 		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
@@ -90,14 +90,14 @@ public class IterativeOptimizer {
 		Inferer entityInferer = new EntityStandaloneInferer();
 		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 		Params entityStandaloneParams = (Params) Utils.readObject(Main.ENTITY_STANDALONE_MODEL);
-		List<BioDatum> predictedStandaloneEntities = entityInferer.Infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
+		List<BioDatum> predictedStandaloneEntities = entityInferer.infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
 
 		Triple<Double, Double, Double> entityTriple = null;
 		for(int i = 0; i < 1; i++) {
 			LogInfo.begin_track("Entity prediction");
 			entityInferer = new EntityPredictionInferer(predicted);
 			Params entityParams = (Params) Utils.readObject(Main.ENTITY_MODEL);
-			List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.infer(test, entityParams, entityFeatureFactory);
 			entityTriple = Scorer.scoreEntities(test, predictedEntities);
 
 			LogInfo.logs("Score: Entity prediction - " + entityTriple);
@@ -109,7 +109,7 @@ public class IterativeOptimizer {
 			inferer = new EventPredictionInferer(predictedEntities);
 			eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
 			param = (Params) Utils.readObject(Main.EVENT_MODEL);
-			predicted = inferer.Infer(test, param, eventFeatureFactory);
+			predicted = inferer.infer(test, param, eventFeatureFactory);
 			triple = Scorer.score(predicted);
 
 			LogInfo.logs("Score: Extended trigger prediction - " + triple);
@@ -119,7 +119,7 @@ public class IterativeOptimizer {
 
 		entityInferer = new EntityPredictionInferer(predicted);
 		Params entityParams = (Params) Utils.readObject(Main.ENTITY_MODEL);
-		List<BioDatum> predictedEntities = entityInferer.Infer(test, entityParams, entityFeatureFactory);
+		List<BioDatum> predictedEntities = entityInferer.infer(test, entityParams, entityFeatureFactory);
 		entityTriple = Scorer.scoreEntities(test, predictedEntities);
 
 		LogInfo.logs("Entity prediction - " + entityTriple);
@@ -169,7 +169,7 @@ public class IterativeOptimizer {
 		FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 		Inferer inferer = new EventPredictionInferer();
 		Params param = (Params) Utils.readObject(Main.EVENT_STANDALONE_MODEL);
-		List<BioDatum> predicted = inferer.Infer(examples, param, eventFeatureFactory);
+		List<BioDatum> predicted = inferer.infer(examples, param, eventFeatureFactory);
 		//Triple<Double, Double, Double> triple = Scorer.score(predicted);
 
 		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
@@ -177,14 +177,14 @@ public class IterativeOptimizer {
 		Inferer entityInferer = new EntityStandaloneInferer();
 		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 		Params entityStandaloneParams = (Params) Utils.readObject(Main.ENTITY_STANDALONE_MODEL);
-		List<BioDatum> predictedStandaloneEntities = entityInferer.Infer(examples, entityStandaloneParams, entityStandaloneFeatureFactory);
+		List<BioDatum> predictedStandaloneEntities = entityInferer.infer(examples, entityStandaloneParams, entityStandaloneFeatureFactory);
 
 		Triple<Double, Double, Double> entityTriple = null;
 		for(int i = 0; i < 1; i++) {
 			//LogInfo.begin_track("Entity prediction");
 			entityInferer = new EntityPredictionInferer(predicted);
 			Params entityParams = (Params) Utils.readObject(Main.ENTITY_MODEL);
-			List<BioDatum> predictedEntities = entityInferer.Infer(examples, entityParams, entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.infer(examples, entityParams, entityFeatureFactory);
 			entityTriple = Scorer.scoreEntities(examples, predictedEntities);
 
 			//LogInfo.logs("Score: Entity prediction - " + entityTriple);
@@ -196,7 +196,7 @@ public class IterativeOptimizer {
 			inferer = new EventPredictionInferer(predictedEntities);
 			eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
 			param = (Params) Utils.readObject(Main.EVENT_MODEL);
-			predicted = inferer.Infer(examples, param, eventFeatureFactory);
+			predicted = inferer.infer(examples, param, eventFeatureFactory);
 			//triple = Scorer.score(predicted);
 
 			//LogInfo.logs("Score: Extended trigger prediction - " + triple);
@@ -206,7 +206,7 @@ public class IterativeOptimizer {
 
 		entityInferer = new EntityPredictionInferer(predicted);
 		Params entityParams = (Params) Utils.readObject(Main.ENTITY_MODEL);
-		List<BioDatum> predictedEntities = entityInferer.Infer(examples, entityParams, entityFeatureFactory);
+		List<BioDatum> predictedEntities = entityInferer.infer(examples, entityParams, entityFeatureFactory);
 		entityTriple = Scorer.scoreEntities(examples, predictedEntities);
 
 		//LogInfo.logs("Entity prediction - " + entityTriple);

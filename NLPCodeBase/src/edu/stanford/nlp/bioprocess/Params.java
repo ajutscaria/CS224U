@@ -3,7 +3,10 @@ package edu.stanford.nlp.bioprocess;
 import java.io.Serializable;
 
 import edu.stanford.nlp.util.Index;
-
+/**
+ * The parameters of the model
+ * @author jonathanberant
+ */
 public class Params implements Serializable {
   /**
 	 * 

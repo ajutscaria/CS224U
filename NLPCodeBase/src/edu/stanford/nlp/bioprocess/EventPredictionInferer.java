@@ -27,7 +27,7 @@ public class EventPredictionInferer extends Inferer {
 		prediction = predictions;
 	}
 	
-	public List<BioDatum> BaselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
+	public List<BioDatum> baselineInfer(List<Example> examples, Params parameters, FeatureExtractor ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>(); 
 		//EventFeatureFactory ff = new EventFeatureFactory();
 		for(Example example:examples) {
@@ -45,7 +45,7 @@ public class EventPredictionInferer extends Inferer {
 		return predicted;
 	}
 	
-	public List<BioDatum> Infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
+	public List<BioDatum> infer(List<Example> testData, Params parameters, FeatureExtractor ff) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>(); 
 		for(Example ex:testData) {
 			//LogInfo.begin_track("Example %s",ex.id);

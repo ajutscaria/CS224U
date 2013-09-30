@@ -84,7 +84,7 @@ public class Main implements Runnable {
 		
 		if(useSmallSample) {
 			Params param = learner.learn(dataset.examples("sample"), featureFactory);
-			List<BioDatum> predicted = inferer.Infer(dataset.examples("sample"), param, featureFactory);
+			List<BioDatum> predicted = inferer.infer(dataset.examples("sample"), param, featureFactory);
 			Triple<Double, Double, Double> triple = Scorer.score(predicted);
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);
@@ -103,21 +103,21 @@ public class Main implements Runnable {
 				LogInfo.begin_track("Inference");
 				if(evaluateTrain) {	
 					LogInfo.begin_track("Train");
-					predicted = inferer.Infer(split.GetTrainExamples(i), param, featureFactory);
+					predicted = inferer.infer(split.GetTrainExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionTrain[i-1] = triple.first; recallTrain[i-1] = triple.second; f1Train[i-1] = triple.third;
 					LogInfo.end_track();
 				}
 				if(evaluateBaseline) {
 					LogInfo.begin_track("baseline");
-					predicted = inferer.BaselineInfer(split.GetTestExamples(i), param, featureFactory);
+					predicted = inferer.baselineInfer(split.GetTestExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
 					LogInfo.end_track();
 				}
 				if(evaluateDev) {
 					LogInfo.begin_track("Dev");
-					predicted = inferer.Infer(split.GetTestExamples(i), param, featureFactory);
+					predicted = inferer.infer(split.GetTestExamples(i), param, featureFactory);
 					triple = Scorer.score(predicted);
 					precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
 					LogInfo.end_track();
@@ -371,7 +371,7 @@ public class Main implements Runnable {
 			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			List<BioDatum> result = eventInferer.infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 
 			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
 			precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
@@ -381,7 +381,7 @@ public class Main implements Runnable {
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(result);
 			
-			List<BioDatum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			List<BioDatum> entityPredicted = entityInferer.infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
 			triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 			precisionEntBasic[i-1] = triple.first; recallEntBasic[i-1] = triple.second; f1EntBasic[i-1] = triple.third;
 			
@@ -407,7 +407,7 @@ public class Main implements Runnable {
 		if (small) {
 			Params param = learner.learn(dataset.examples("sample"), featureFactory);
 			//featureFactory = new SRLFeatureFactory(param.labelIndex);
-			List<BioDatum> predicted = inferer.BaselineInfer(dataset.examples("sample"), param, featureFactory);
+			List<BioDatum> predicted = inferer.baselineInfer(dataset.examples("sample"), param, featureFactory);
 			Triple<Double, Double, Double> triple = Scorer.scoreSRL(dataset.examples("sample"), predicted);
 			LogInfo.logs("Precision : " + triple.first);
 			LogInfo.logs("Recall    : " + triple.second);
@@ -420,7 +420,7 @@ public class Main implements Runnable {
 				LogInfo.begin_track("Iteration " + i);
 				Params param = learner.learn(split.GetTrainExamples(i), featureFactory);
 				//featureFactory = new SRLFeatureFactory(param.labelIndex);
-				List<BioDatum> predicted = inferer.Infer(split.GetTestExamples(i), param, featureFactory);
+				List<BioDatum> predicted = inferer.infer(split.GetTestExamples(i), param, featureFactory);
 				Triple<Double, Double, Double> triple = Scorer.scoreSRL(split.GetTestExamples(i), predicted);
 				precisionBaseline[i-1] = triple.first; recallBaseline[i-1] = triple.second; f1Baseline[i-1] = triple.third;
 				LogInfo.end_track();
@@ -443,7 +443,7 @@ public class Main implements Runnable {
 
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
-			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
 			Triple<Double, Double, Double> entityTriple = Scorer.score(predictedEntities);
 
 			precisionDev[i-1] = entityTriple.first; recallDev[i-1] = entityTriple.second; f1Dev[i-1] = entityTriple.third;
@@ -466,14 +466,14 @@ public class Main implements Runnable {
 			FeatureExtractor eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			Inferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-			List<BioDatum> predicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			List<BioDatum> predicted = eventInferer.infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 			
 			Learner entityLearner = new Learner();
 			FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 			Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
 			EntityPredictionInferer entityInferer = new EntityPredictionInferer(predicted);
 			
-			List<BioDatum> entityPredicted = entityInferer.Infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
+			List<BioDatum> entityPredicted = entityInferer.infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
 			//List<BioDatum> entityPredicted = entityInferer.BaselineInfer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
 			Triple<Double, Double, Double> triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 			precisionDev[i-1] = triple.first; recallDev[i-1] = triple.second; f1Dev[i-1] = triple.third;
@@ -495,7 +495,7 @@ public class Main implements Runnable {
 			EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 			EventPredictionInferer eventInferer = new EventPredictionInferer();
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-			List<BioDatum> result = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			List<BioDatum> result = eventInferer.infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 			//List<BioDatum> result = eventInferer.BaselineInfer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 
 			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), result);
@@ -1080,13 +1080,13 @@ public class Main implements Runnable {
 			FeatureExtractor entityFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 			Inferer entityInferer = new EntityStandaloneInferer();
 			Params entityStandaloneParams = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);
-			List<BioDatum> predictedEntities = entityInferer.Infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
+			List<BioDatum> predictedEntities = entityInferer.infer(split.GetTestExamples(i), entityStandaloneParams, entityFeatureFactory);
 			
 			Learner eventLearner = new Learner();
 			FeatureExtractor eventFeatureFactory = new EventExtendedFeatureFactory(useLexicalFeatures);
 			Inferer eventInferer = new EventPredictionInferer(predictedEntities);
 			Params eventParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-			List<BioDatum> eventPredicted = eventInferer.Infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
+			List<BioDatum> eventPredicted = eventInferer.infer(split.GetTestExamples(i), eventParam, eventFeatureFactory);
 			
 			
 			Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);
