@@ -20,9 +20,11 @@ public class UniqueLabelConstraint extends ILPConstraintGenerator {
 	public List<ILPConstraint> getILPConstraints(IInstance arg0,
 			InferenceVariableLexManager lexicon) {
 
-		Input input = (Input) arg0;
+		ExampleInput input = (ExampleInput) arg0;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
 		for (int slotId = 0; slotId < input.slots; slotId++) {
+			
+			
 			int[] vars = new int[Inference.validLabels.length];
 			double[] coefficients = new double[Inference.validLabels.length];
 

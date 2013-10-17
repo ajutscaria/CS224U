@@ -11,7 +11,7 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 
-public class Inference extends AbstractILPInference<Structure> {
+public class Inference extends AbstractILPInference<ExampleStructure> {
 
 	public static final String[] validLabels = { "A", "B", "C", "D", "E" };
 
@@ -20,9 +20,10 @@ public class Inference extends AbstractILPInference<Structure> {
 	public final static int B_ID = 1;
 
 	private List<ILPConstraintGenerator> constraints;
-	private Input input;
+	private ExampleInput input;
 
-	public Inference(Input input, ILPSolverFactory solverFactory, boolean debug) {
+	public Inference(ExampleInput input, ILPSolverFactory solverFactory,
+			boolean debug) {
 		super(solverFactory, debug);
 		this.input = input;
 
@@ -34,6 +35,7 @@ public class Inference extends AbstractILPInference<Structure> {
 	@Override
 	protected void addConstraints(ILPSolver solver,
 			InferenceVariableLexManager lexicon) {
+
 		for (ILPConstraintGenerator c : constraints) {
 			for (ILPConstraint constraint : c.getILPConstraints(input, lexicon))
 				this.addConstraint(solver, constraint);
@@ -47,11 +49,16 @@ public class Inference extends AbstractILPInference<Structure> {
 
 		for (int slotId = 0; slotId < input.slots; slotId++) {
 			for (int labelId = 0; labelId < validLabels.length; labelId++) {
+
+				// get the variable objective coefficient for the variable to be added
 				double score = getLabelScore(slotId, labelId);
 
+				// create a boolean variable with this score
 				int var = solver.addBooleanVariable(score);
-				String varName = getVariableName(slotId, labelId);
 
+				// the next two steps will help to remember this variable in the lexicon
+				// for later use.
+				String varName = getVariableName(slotId, labelId);
 				lexicon.addVariable(varName, var);
 			}
 		}
@@ -67,7 +74,7 @@ public class Inference extends AbstractILPInference<Structure> {
 	}
 
 	@Override
-	protected Structure getOutput(ILPSolver solver,
+	protected ExampleStructure getOutput(ILPSolver solver,
 			InferenceVariableLexManager lexicon) throws Exception {
 
 		String[] labels = new String[input.slots];
@@ -79,10 +86,11 @@ public class Inference extends AbstractILPInference<Structure> {
 
 				if (solver.getBooleanValue(var)) {
 					labels[slotId] = validLabels[labelId];
+					break;
 				}
 			}
 		}
 
-		return new Structure(input, labels);
+		return new ExampleStructure(input, labels);
 	}
 }

@@ -6,13 +6,13 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory.SolverType;
 public class ILPSolverExample {
 
 	public void run() throws Exception {
-		Input input = new Input("some input", 10);
+		ExampleInput input = new ExampleInput("some input", 10);
 
 		ILPSolverFactory solverFactory = new ILPSolverFactory(
 				SolverType.CuttingPlaneGurobi);
 
 		Inference inference = new Inference(input, solverFactory, false);
 
-		Structure output = inference.runInference();
+		ExampleStructure output = inference.runInference();
 	}
 }

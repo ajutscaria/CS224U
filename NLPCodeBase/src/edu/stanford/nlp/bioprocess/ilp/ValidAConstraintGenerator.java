@@ -18,7 +18,7 @@ public class ValidAConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance x,
 			InferenceVariableLexManager lexicon) {
-		Input input = (Input) x;
+		ExampleInput input = (ExampleInput) x;
 
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
 

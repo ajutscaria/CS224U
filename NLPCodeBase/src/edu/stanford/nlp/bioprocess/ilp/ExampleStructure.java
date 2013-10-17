@@ -3,13 +3,15 @@ package edu.stanford.nlp.bioprocess.ilp;
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
 import edu.illinois.cs.cogcomp.indsup.learning.FeatureVector;
 
-public class Structure implements IStructure {
+public class ExampleStructure implements IStructure {
 
 	public final String[] label;
-	public Input input;
+	public ExampleInput input;
 
-	public Structure(Input input, String[] label) {
+	public ExampleStructure(ExampleInput input, String[] label) {
 		this.input = input;
+		assert input.slots == label.length;
+		
 		this.label = label;
 	}
 
@@ -17,6 +19,7 @@ public class Structure implements IStructure {
 	public FeatureVector getFeatureVector() {
 		// this is where the feature vector for the structure will go.
 
-		return null;
+		throw new RuntimeException("Not implemented!");
+
 	}
 }
