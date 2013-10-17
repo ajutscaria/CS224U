@@ -22,6 +22,7 @@ public class UniqueLabelConstraint extends ILPConstraintGenerator {
 
 		ExampleInput input = (ExampleInput) arg0;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
+		
 		for (int slotId = 0; slotId < input.slots; slotId++) {
 			
 			

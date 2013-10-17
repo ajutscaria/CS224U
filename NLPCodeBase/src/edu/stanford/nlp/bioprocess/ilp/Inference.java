@@ -48,6 +48,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		// each label can take one of the five values
 
 		for (int slotId = 0; slotId < input.slots; slotId++) {
+			
 			for (int labelId = 0; labelId < validLabels.length; labelId++) {
 
 				// get the variable objective coefficient for the variable to be added
@@ -61,6 +62,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 				String varName = getVariableName(slotId, labelId);
 				lexicon.addVariable(varName, var);
 			}
+			
+			
 		}
 	}
 
