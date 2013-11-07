@@ -1,10 +1,12 @@
 package edu.stanford.nlp.bioprocess;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.ling.BasicDatum;
@@ -13,7 +15,6 @@ import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
-
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
@@ -21,6 +22,7 @@ import fig.basic.LogInfo;
 public class EntityPredictionInferer extends Inferer {
 	private boolean printDebugInformation = false;
 	List<BioDatum> prediction = null;
+	public static double eventSize = 0;
 	
 	public EntityPredictionInferer() {
 		
@@ -95,10 +97,38 @@ public class EntityPredictionInferer extends Inferer {
 					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 				}
 				Set<Tree> eventNodes = null;
-				if(prediction == null)
-					eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
-				else
-					eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
+				if(prediction == null){
+					if(Main.mode.equalsIgnoreCase("allnew") || (Main.mode.equalsIgnoreCase("result") && Main.runModel.equals("ilp"))){
+			    		//System.out.println("\nall event nodes!!!!!!!!!!!");
+			    		//eventNodes = new IdentityHashMap<Tree>();
+			    		IdentityHashMap<Tree, EventType> map = new IdentityHashMap<Tree, EventType>();
+			    		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+			    			if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
+			    					!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+			    				continue;
+			    			map.put(node, null);
+			    		}
+			    		eventNodes = map.keySet();
+			    	}
+			    	//eventSize+=eventNodes.size();
+					else{
+						//System.out.println("\nUse gold event nodes");
+						eventNodes = Utils.getEventNodesFromSentence(sentence).keySet();
+					}
+					eventSize += eventNodes.size();
+				}
+				else{
+					//System.out.println("\nprediction not none");
+					//System.out.println("Event size passed in: "+prediction.size());
+					if(Main.mode.equalsIgnoreCase("allnew") || (Main.mode.equalsIgnoreCase("result") && Main.runModel.equals("ilp"))){
+						//System.out.println("\nGet events with theta >="+Main.theta);
+						eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence, Main.theta);
+					}else{
+						//System.out.println("\nGet events predicted as events");
+						eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence);
+					}
+					eventSize += eventNodes.size();
+				}
 				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes, ex.id);
 				
 				for(Tree event:eventNodes) {
@@ -130,8 +160,13 @@ public class EntityPredictionInferer extends Inferer {
 						}
 					}
 					
-					DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataEvent);
-					dynamicProgrammer.calculateLabels();
+					//@heather
+					//System.out.println(Main.mode);
+					if(!(Main.mode.equalsIgnoreCase("allnew") || (Main.mode.equalsIgnoreCase("result") && Main.runModel.equals("ilp")))){
+						//System.out.println("run dynamic programming");
+						DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataEvent);
+						dynamicProgrammer.calculateLabels();
+					}
 					
 					predicted.addAll(testDataEvent);
 					
@@ -161,6 +196,7 @@ public class EntityPredictionInferer extends Inferer {
 			}
 			//LogInfo.end_track();
 		}
+		System.out.println("\nevent size from entity inferer: "+eventSize);
 		return predicted;
 	}
 	

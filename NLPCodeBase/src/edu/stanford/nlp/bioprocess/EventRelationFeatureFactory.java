@@ -4,13 +4,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
+import edu.stanford.nlp.classify.LinearClassifier;
+import edu.stanford.nlp.ling.BasicDatum;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.ling.IndexedWord;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.trees.Trees;
@@ -27,6 +33,8 @@ public class EventRelationFeatureFactory {
 	public static Set<String> markWords = new HashSet<String>(), advmodWords = new HashSet<String>(), eventInsidePP = new HashSet<String>();
 	private boolean useBaselineFeaturesOnly = false, runGlobalModel = false;
 	private String model = "";
+	public static Integer globalcounter = 0;
+	public static Integer traincounter = 0;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
 									"include","includes","including","included", "first", "begin","begins","began","beginning","begun","start","starts","started","starting",
@@ -117,6 +125,12 @@ public class EventRelationFeatureFactory {
 		CoreLabel event1CoreLabel = Utils.findCoreLabelFromTree(event1.getSentence(), event1.getTreeNode()),
 				event2CoreLabel = Utils.findCoreLabelFromTree(event2.getSentence(), event2.getTreeNode());
 		boolean isImmediatelyAfter = Utils.isEventNextInOrder(mentions, event1, event2);
+		
+		//@heather
+		//isImmediatelyAfter = false;
+		//String type = Utils.getEventEventRelation(example.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
+		//features.add("truelabel:" + type);
+		
 		List<Pair<String, String>> wordsInBetween = Utils.findWordsInBetween(example, event1, event2);
 		//Number of sentences and words between two event mentions. Quantized to 'Low', 'Medium', 'High' etc.
 		Pair<Integer, Integer> countsSentenceAndWord =  Utils.findNumberOfSentencesAndWordsBetween(example, event1, event2);
@@ -341,7 +355,9 @@ public class EventRelationFeatureFactory {
 
 	public List<BioDatum> setFeaturesTrain(List<Example> data) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
+		
 		for (Example ex : data) {
+			//System.out.println("Process: "+ex.id);
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			if(printDebug) LogInfo.logs(ex.id);
 			if(printAnnotations) {
@@ -354,6 +370,7 @@ public class EventRelationFeatureFactory {
 					}
 				}
 			}
+						
 			List<EventMention> list = ex.gold.get(EventMentionsAnnotation.class);
 			List<EventMention> alreadyConsidered = new ArrayList<EventMention>();
 			for(EventMention event1: list) {
@@ -373,6 +390,90 @@ public class EventRelationFeatureFactory {
 		return dataset;
 	}
 
+	public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameters) {
+    	List<BioDatum> dataset = new ArrayList<BioDatum>();
+    	HashMap<String, Integer> relationType = new HashMap<String, Integer>();
+    	double theta = Main.theta;
+    	System.out.println("\n\nTheta: "+theta);
+    	EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
+		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+    	//int eventMentioncount = 0;
+		
+		for (Example ex : data) {
+			//System.out.println("Process: "+ex.id);
+			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
+			if(printDebug) LogInfo.logs(ex.id);
+			if(printAnnotations) {
+				LogInfo.logs("---Events-Event--");
+				for(EventMention evt:ex.gold.get(EventMentionsAnnotation.class)) {
+					for(ArgumentRelation rel:evt.getArguments()) {
+						  if(rel.mention instanceof EventMention) { 
+							  LogInfo.logs(evt.getTreeNode() + "-" + rel.mention.getTreeNode() + "-->" + rel.type);
+						  }
+					}
+				}
+			}
+			//@heather
+			List<EventMention> list = new ArrayList<EventMention>();
+	    	for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
+	    		List<BioDatum> dataforsentence = eventFeatureFactory.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence), ex.id);
+				
+	    		for(BioDatum d:dataforsentence) {
+					Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+					double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+					scoreE = (Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+					if(scoreE >= theta){
+						d.setPredictedLabel("E");
+						EventMention em = new EventMention(traincounter.toString(), sentence, null);
+						em.setTreeNode(d.eventNode);
+						traincounter++;
+						list.add(em);
+					} 
+				}
+	    		
+	    		/*for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
+							!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+						continue;
+					EventMention em = new EventMention(traincounter.toString(), sentence, null);
+					em.setTreeNode(node);
+					traincounter++;
+					list.add(em);
+				}*/
+			}
+	    	//System.out.println("event mention count: "+list.size());
+	    	List<EventMention> alreadyConsidered = new ArrayList<EventMention>();
+			for(EventMention event1: list) {
+				alreadyConsidered.add(event1);
+			    for(EventMention event2: list) {
+					if(!alreadyConsidered.contains(event2)) { //list.get(i) = event2
+						String type = Utils.getEventEventRelation(ex.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
+						//System.out.println("Event1:"+event1.getTreeNode().toString()+", Event2:"+event2.getTreeNode().toString()+"-> True Relation:"+type);
+						if(!relationType.containsKey(type)){
+							relationType.put(type, 1);
+						}else{
+							int original = relationType.get(type);
+							original++;
+							relationType.put(type, original);
+						}
+						BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
+						newDatum.features = computeFeatures(ex, list, event1, event2);
+						newDatum.setExampleID(ex.id);
+						dataset.add(newDatum);
+					}
+			    }
+			}
+			
+			if(printDebug) LogInfo.logs("\n------------------------------------------------");
+		}
+	
+		for(String key: relationType.keySet()){
+			System.out.println("Relation: "+key+", Counts: "+relationType.get(key));
+		}
+		System.out.println("\n======================================\n");
+		return dataset;
+	}
+	
 	/*
 	 * We order events in the same order as in they appear in the paragraph (This is done while the data is read in).
 	 * Now, for each unique events ei, ej, where i<j always, we store the relation in gold labels
@@ -389,7 +490,8 @@ public class EventRelationFeatureFactory {
 					String type = Utils.getEventEventRelation(example.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
 					BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
 					newDatum.features = computeFeatures(example, list, event1, event2);
-					
+					//System.out.println(type+": "+event1.getTreeNode().toString()+","+event2.getTreeNode().toString());
+					//System.out.println(event2.getTreeNode().toString());
 					newDatum.setExampleID(example.id);
 					newData.add(newDatum);
 				}
@@ -398,14 +500,70 @@ public class EventRelationFeatureFactory {
     	return newData;
 	}
 	
+	public List<BioDatum> setFeaturesTestILP(Example example, Params eventParam) {
+		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(eventParam.weights, eventParam.featureIndex, eventParam.labelIndex);
+    	//int eventMentioncount = 0;
+		EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
+		double theta = Main.theta;
+		//original
+		
+		List<EventMention> list = new ArrayList<EventMention>();
+		int start = globalcounter;
+    	for(CoreMap sentence:example.gold.get(SentencesAnnotation.class)) {
+    	    int count = 0;
+    	    List<BioDatum> dataforsentence = eventFeatureFactory.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence), example.id);
+			
+    	    for(BioDatum d:dataforsentence) {
+				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+				double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+				scoreE = (Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+				if(scoreE >= theta){
+					d.setPredictedLabel("E");
+					EventMention em = new EventMention(globalcounter.toString(), sentence, null);
+					em.setTreeNode(d.eventNode);
+					globalcounter++;
+					list.add(em);
+				} 
+			}
+    	    
+		}
+		//System.out.println("eventmention list size: " + list.size());
+    	List<BioDatum> newData = new ArrayList<BioDatum>();
+    	List<EventMention> alreadyConsidered = new ArrayList<EventMention>();
+		//for(EventMention event1: list) {
+		for(int h=0; h<list.size();h++){//list.get(h) = event1
+			alreadyConsidered.add(list.get(h));
+			//for(EventMention event2: list) {
+			for(int i=0; i<list.size();i++){
+				if(!alreadyConsidered.contains(list.get(i))) { //list.get(i) = event2
+					String type = Utils.getEventEventRelation(example.gold, list.get(h).getTreeNode(), list.get(i).getTreeNode()).toString();
+					BioDatum newDatum = new BioDatum(null, Utils.getText(list.get(h).getTreeNode()) + "-" + Utils.getText(list.get(i).getTreeNode()), type, list.get(h), list.get(i));
+					//System.out.println(type+": "+list.get(h).getTreeNode().toString()+","+list.get(i).getTreeNode().toString());
+					newDatum.features = computeFeatures(example, list, list.get(h), list.get(i));
+					newDatum.setEventIndex(start+h, start+i);
+					newDatum.setExampleID(example.id);
+					newData.add(newDatum);
+				}
+		    }
+		}
+		//System.out.println("#relations in one process: " + newData.size());
+    	return newData;
+	}
+	
 	private List<Pair<String, String>> extractMarkRelation(List<EventMention> mentions, EventMention eventMention1, EventMention eventMention2){
 		CoreMap sentence = eventMention1.getSentence();
 		Tree event1 = eventMention1.getTreeNode(), event2 = eventMention2.getTreeNode();
 		SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord1 = Utils.findDependencyNode(sentence, event1), indexedWord2 = Utils.findDependencyNode(sentence, event2) ;
+		//ystem.out.println(sentence+", "+event1.toString()+", "+event2.toString());
+		//System.out.println("indexed words:" + indexedWord1 + ", "+ indexedWord2);
+		List<Pair<String, String>> markRelations = new ArrayList<Pair<String,String>>();
+		if(indexedWord1 == null || indexedWord2 == null){
+			return markRelations;
+		}
 		int event1Index = indexedWord1.index(), event2Index = indexedWord2.index();
 		
-		List<Pair<String, String>> markRelations = new ArrayList<Pair<String,String>>();
+		//List<Pair<String, String>> markRelations = new ArrayList<Pair<String,String>>();
 		
 		Pair<String, String> markRelation1 = extractMarkRelation(mentions, graph, eventMention1,
 																					indexedWord1, indexedWord2, event1Index, event2Index);
@@ -480,9 +638,12 @@ public class EventRelationFeatureFactory {
 		SemanticGraph graph1 = sentence1.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		SemanticGraph graph2 = sentence2.get(CollapsedCCProcessedDependenciesAnnotation.class);
 		IndexedWord indexedWord1 = Utils.findDependencyNode(sentence1, event1), indexedWord2 = Utils.findDependencyNode(sentence2, event2) ;
-		int event1Index = indexedWord1.index(), event2Index = indexedWord2.index();
-
 		List<Pair<String, String>> advModRelations = new ArrayList<Pair<String,String>>();
+		if(indexedWord1 == null || indexedWord2 == null){
+			return advModRelations;
+		}
+		int event1Index = indexedWord1.index(), event2Index = indexedWord2.index();
+			
 		
 		Pair<String, String> advModRelation1 = extractAdvModRelation(mentions, graph1, eventMention1,
 				indexedWord1, indexedWord2, event1Index, event2Index);

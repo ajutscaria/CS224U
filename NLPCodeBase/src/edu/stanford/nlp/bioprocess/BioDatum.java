@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 
+import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.Tree;
@@ -15,7 +16,7 @@ import edu.stanford.nlp.util.Pair;
 public class BioDatum {
   public CoreMap sentence;
   public final String word;
-  public final String label;
+  public final String label;//true label E, O
   public final String role;
   
   FeatureVector features;
@@ -27,19 +28,40 @@ public class BioDatum {
 	this.features = features;
   }
  
-  private String exampleID;
-  public String guessLabel;
+  
+  /*for event
+   * String type = eventNodes.keySet().contains(node) ? "E" : "O";
+			BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, exampleID);
+			newDatum.features = computeFeatures(sentence, node);
+   */
+  /*for entity ?? exampleID?
+   * String type = (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) ? "E" : "O";
+	BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, eventNode, Utils.getArgumentMentionRelation(sentence, eventNode, node).toString());
+	newDatum.features = computeFeatures(sentence, node, eventNode);
+   */
+  /*for event-event
+   * String type = Utils.getEventEventRelation(ex.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
+	BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
+   */
+  
+  public String exampleID; //sentence ID?
+  public String guessLabel; //predicted label, E, O (E is yes, O is not, for both entity and event)
   public String guessRole;
   public int bestRoleIndex;
   public double bestRoleProbability;
-  Tree entityNode, eventNode;
-  EventMention event1, event2;
+  public Tree entityNode;
+  public Tree eventNode;
+  public EventMention event1, event2;
   IndexedWord entityHead, eventHead;
-  double probEntity;
+  public int event1_index, event2_index;//for event-event relation
+  public int eventId;//for entity prediction
+  double probEntity; //probability of being an entity (E, O)
+  double probEvent; //probability of being an event (E, O)
   //double[] probSRL = new double[ArgumentRelation.getSemanticRoles().size()];
   Counter<String> probSRL;
   List<Pair<String, Double>> rankedRoleProbs = new ArrayList<Pair<String, Double>>();
   HashMap<String, Double> rankMap = new HashMap<String, Double>();
+  public HashMap<String, Double> rankRelation = new HashMap<String, Double>();
   
   public BioDatum(CoreMap sentence, String word, String label, Tree entityNode, Tree eventNode, String exampleID) {
 	this.setSentence(sentence);
@@ -71,9 +93,22 @@ public class BioDatum {
 	    this.role = null;
 }
 
-public void setPredictedLabel(String predictedLabel) {
+  public void setPredictedLabel(String predictedLabel) {
 	this.guessLabel = predictedLabel;	
   }
+  
+  public void setEventIndex(int event1_index, int event2_index) {
+		this.event1_index = event1_index;
+		this.event2_index = event2_index;
+	  }
+
+  public void setRankRelation(HashMap<String, Double> rankRelation) {
+	this.rankRelation = rankRelation;	
+  }
+  
+  public Double getRelationProb(String relation) {
+		return this.rankRelation.get(relation);
+	  }
   
   public String label() {
 	return label;
@@ -85,6 +120,14 @@ public void setPredictedLabel(String predictedLabel) {
 
   public void setProbability(double prob) {
 	  probEntity = prob;
+  }
+  
+  public void setEventProbability(double prob) {
+	  probEvent = prob;
+  }
+  
+  public double getEventProbability() {
+	  return probEvent;
   }
   
   public double getProbability() {
@@ -133,7 +176,7 @@ public void setExampleID(String exampleID) {
 	this.exampleID = exampleID;
 }
 
-CoreMap getSentence() {
+public CoreMap getSentence() {
 	return sentence;
 }
 

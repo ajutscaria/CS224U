@@ -141,6 +141,9 @@ public class EventFeatureFactory extends FeatureExtractor {
 		return fv;
     }
 
+	public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameterss) {
+		return null;
+	}
     public List<BioDatum> setFeaturesTrain(List<Example> data) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
 		for (Example ex : data) {
@@ -156,7 +159,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 				for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 					if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
 							!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
-						continue;
+						continue; //exclude illegal nodes
 					
 					String type = eventNodes.keySet().contains(node) ? "E" : "O";
 					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, ex.id);
@@ -174,17 +177,22 @@ public class EventFeatureFactory extends FeatureExtractor {
     public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> selectedEntities, String exampleID) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
     	IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
+    	//int count = 0;
 		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 			if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-					!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
+					!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||
+							node.value().startsWith("NN") || node.value().equals("JJ") ||
+							node.value().startsWith("VB")))
 				continue;
-			
+			//count++;
 			String type = eventNodes.keySet().contains(node) ? "E" : "O";
-
+			//System.out.println(node.toString());
 			BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, exampleID);
 			newDatum.features = computeFeatures(sentence, node);
 			dataset.add(newDatum);
 		}
+		//System.out.println(exampleID+":"+sentence);
+		//System.out.println("Number of events: "+count + "\n");
     	return dataset;
     }
 }

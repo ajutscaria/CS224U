@@ -63,6 +63,11 @@ public class EventPredictionInferer extends Inferer {
 				for(BioDatum d:dataset) {
 					Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 					d.setPredictedLabel(classifier.classOf(newDatum));
+					
+					//@ heather 
+					double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+					d.setEventProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+					 
 				}
 				predicted.addAll(dataset);
 				if(printDebugInformation) {
@@ -84,6 +89,62 @@ public class EventPredictionInferer extends Inferer {
 			
 			//LogInfo.end_track();
 		}
+		return predicted;
+	}
+	
+	public List<BioDatum> inferilp(List<Example> testData, Params parameters, FeatureExtractor ff) {
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
+		double theta = Main.theta;
+		int counter = 0;
+		for(Example ex:testData) {
+			//LogInfo.begin_track("Example %s",ex.id);
+
+			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
+				Set<Tree> entityNodes = null;
+				if(prediction == null)
+					entityNodes = Utils.getEntityNodesFromSentence(sentence);
+				else
+					entityNodes = Utils.getEntityNodesForSentenceFromDatum(prediction, sentence);
+				
+				LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+				List<BioDatum> dataset = ff.setFeaturesTest(sentence, entityNodes, ex.id);
+
+				for(BioDatum d:dataset) {
+					Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+					d.setPredictedLabel(classifier.classOf(newDatum));
+					
+					//@ heather 
+					double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
+					scoreE = (Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
+					d.setEventProbability(scoreE);
+					if(scoreE >= theta){
+						predicted.add(d);
+					} else{
+						counter++;
+					}
+					 
+				}
+				//predicted.addAll(dataset);
+				if(printDebugInformation) {
+					LogInfo.logs(sentence);
+					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
+					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
+
+					LogInfo.logs("\n---------GOLD EVENTS-------------------------");
+					for(EventMention m:sentence.get(EventMentionsAnnotation.class)) 
+							LogInfo.logs(m.getTreeNode());
+					
+					LogInfo.logs("---------PREDICTIONS-------------------------");
+					for(BioDatum d:dataset)
+						if(d.predictedLabel().equals("E") || d.label().equals("E"))
+							LogInfo.logs(String.format("%-30s Gold:  %s Predicted: %s", d.word, d.label(), d.predictedLabel()));
+					LogInfo.logs("------------------------------------------\n");
+				}
+			}
+			
+			//LogInfo.end_track();
+		}
+		System.out.println("Not added due to theta: "+counter);
 		return predicted;
 	}
 }

@@ -77,6 +77,10 @@ public class SRLFeatureFactory extends FeatureExtractor {
 		return fv;
     }
 
+	public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameterss) {
+		return null;
+	}
+	
     public List<BioDatum> setFeaturesTrain(List<Example> data) {
     	System.out.println("In setfeatures train");
     	List<BioDatum> newData = new ArrayList<BioDatum>();

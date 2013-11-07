@@ -101,6 +101,10 @@ public class EventExtendedFeatureFactory extends FeatureExtractor {
     	return newData;
     }
     
+    public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameterss) {
+		return null;
+	}
+    
     public FeatureVector computeFeatures(CoreMap sentence, Tree event, Set<Tree> entityNodes) {
 		List<String> features = new ArrayList<String>();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);

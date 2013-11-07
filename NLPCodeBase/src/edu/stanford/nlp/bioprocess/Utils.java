@@ -868,6 +868,18 @@ public static List<Example> readFile(String fileName) {
 				set.add(d.eventNode);
 		return set;
 	}
+	
+	public static Set<Tree> getEventNodesForSentenceFromDatum(List<BioDatum> prediction, CoreMap sentence, double theta) {
+		IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+		//System.out.println("theta in geteventnode: "+theta);
+		for(BioDatum d:prediction){
+			//double eventProb = d.getEventProbability();
+			if(d.sentence.equals(sentence)){
+				set.add(d.eventNode);
+			}
+		}
+		return set;
+	}
 
 	public static Set<Tree> getEntityNodesForSentenceFromDatum(List<BioDatum> prediction, CoreMap sentence) {
 		IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();

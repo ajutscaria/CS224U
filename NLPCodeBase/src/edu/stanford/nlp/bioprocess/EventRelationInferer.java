@@ -229,7 +229,8 @@ public class EventRelationInferer {
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 				d.setPredictedLabel(classifier.classOf(newDatum));
-
+				//if(!d.label().equals("NONE"))
+				//	   System.out.println("True:"+d.label()+", predicted:"+classifier.classOf(newDatum));
 				for(String possibleLabel:labelsInClassifier)
 					weights.put(String.format("%d,%d,%d", eventMentions.indexOf(d.event1), eventMentions.indexOf(d.event2),
 							labelsInClassifier.indexOf(possibleLabel)), 
@@ -399,6 +400,54 @@ public class EventRelationInferer {
 		return predicted;
 	}
 
+	public List<BioDatum> Inferilp(List<Example> testData, Params parameters, EventRelationFeatureFactory ff, String model, Params eventParam) {
+		List<BioDatum> predicted = new ArrayList<BioDatum>();
+		HashMap<String, Integer> relationType = new HashMap<String, Integer>();
+		System.out.println("\nTesting....");
+		for(Example ex:testData) {
+			LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+			//List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
+			List<BioDatum> dataset = ff.setFeaturesTestILP(ex, eventParam);
+            int counter = 0;
+			List<String> labelsInClassifier = (List<String>) classifier.labels();
+
+
+			//Ensuring that 'NONE' is always at index 0
+			labelsInClassifier.remove("NONE");
+			labelsInClassifier.add(0, "NONE");
+			//System.out.println("-----------");
+			for(BioDatum d:dataset) {
+				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
+				//if(!d.label().equals("NONE"))
+				String type = d.label();
+				if(!relationType.containsKey(type)){
+					relationType.put(type, 1);
+				}else{
+					int original = relationType.get(type);
+					original++;
+					relationType.put(type, original);
+				}
+				//System.out.println(counter+": True: "+d.label()+", predicted: "+classifier.classOf(newDatum));
+				counter++;
+				d.setPredictedLabel(classifier.classOf(newDatum));
+				HashMap<String, Double> rankRelation = new HashMap<String, Double>();
+				for(String possibleLabel:labelsInClassifier){
+					rankRelation.put(possibleLabel, classifier.logProbabilityOf(newDatum).getCount(possibleLabel));
+				}
+				//classifier.probabilityOf(newDatum).getCount(possibleLabel));
+                d.setRankRelation(rankRelation);
+			}
+			//System.out.println("-----------");
+			predicted.addAll(dataset);
+		}
+		
+		for(String key: relationType.keySet()){
+			System.out.println("Relation: "+key+", Counts: "+relationType.get(key));
+		}
+		System.out.println("\n======================================\n");
+		return predicted;
+	}
+	
 	public List<BioDatum> PipelineInfer(Example testExample, List<EventMention> eventsPredicted, Params parameters, EventRelationFeatureFactory ff, String model, boolean connectedComponent,
 			boolean sameEvent, boolean previousEvent, boolean sameEventContradiction,
 			double alpha1, double alpha2, double alpha3, double alpha4, double alpha5, double alpha6, double alpha7) {
@@ -462,6 +511,10 @@ public class EventRelationInferer {
 			}
 		}
 
+		//@heather   
+		enforceGlobalConstraints = true;
+		//
+		
 		if(enforceGlobalConstraints) {
 			ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier, 
 					connectedComponent, sameEvent, previousEvent, sameEventContradiction, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7);

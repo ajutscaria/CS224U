@@ -112,6 +112,9 @@ public class EntityStandaloneFeatureFactory extends FeatureExtractor {
 	return newData;
     }
     
+    public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameterss) {
+		return null;
+	}
     
     public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents, String exampleID) {
     	// this is so that the feature factory code doesn't accidentally use the

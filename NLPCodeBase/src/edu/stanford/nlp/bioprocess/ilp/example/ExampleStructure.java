@@ -1,4 +1,4 @@
-package edu.stanford.nlp.bioprocess.ilp;
+package edu.stanford.nlp.bioprocess.ilp.example;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
 import edu.illinois.cs.cogcomp.indsup.learning.FeatureVector;
