@@ -37,7 +37,7 @@ public class Main implements Runnable {
 	public static final String ANSI_CYAN = "\u001B[36m";
 	public static final String ANSI_WHITE = "\u001B[37m";
 	
-	public static double theta = 0.25;
+	//public static double theta = 0.25;
 	public static Map<Tree, Integer> EventID;
 	boolean runPrevBaseline = false, runBetterBaseline = false, 
 			runLocalBase = false, runLocalModel = false,
@@ -72,6 +72,7 @@ public class Main implements Runnable {
 	@Option(gloss="Should we include lexical features?") public boolean useLexicalFeatures = true;
 	@Option(gloss="Run on dev or test") public String runOn;
 	@Option(gloss="Model to run") public static String runModel;	
+	@Option(gloss="Theta for training/testing") public static double theta = 0.25;	
 
 	public void runPrediction(HashMap<String, String> groups, FeatureExtractor featureFactory, Learner learner, Inferer inferer, Scorer scorer) {
 		int NumCrossValidation = 10;
@@ -162,9 +163,13 @@ public class Main implements Runnable {
 
 	public void printScores(String category, double[] precision, double[] recall, double[] f1) {
 		LogInfo.logs(String.format("\n------------------------------------------" + category + "-------------------------------------------"));
+		System.out.println(String.format("\n------------------------------------------" + category + "-------------------------------------------"));
 		LogInfo.logs(printScore("Precision", precision));
+		System.out.println(printScore("Precision", precision));
 		LogInfo.logs(printScore("Recall   ", recall));
+		System.out.println(printScore("Recall   ", recall));
 		LogInfo.logs(printScore("F1       ", f1));
+		System.out.println(printScore("F1       ", f1));
 	}
 
 	public String printScore(String scoreType, double[] scores) {
@@ -1083,48 +1088,52 @@ public class Main implements Runnable {
 					//tryone.add(testDataset.examples("test").get(1));
 					boolean debug = true;
 					
-					for(int i = 1; i <= 8; i++) {//?
-					    theta = 0.5;	
+					for(int i = 1; i <= NumCrossValidation; i++) {//?
+					    theta = 0.05;	
 						System.out.println("Iteration "+i);
 						LogInfo.begin_track("Iteration " + i);
 						Learner eventLearner = new Learner();
 						EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 						EventPredictionInferer eventInferer = new EventPredictionInferer();
 						Params eventonlyParam = eventLearner.learn(split.GetTrainExamples(i), eventFeatureFactory);
-						theta = 0.5;
+						//theta = 0.1;
 						List<BioDatum> eventPredicted = eventInferer.inferilp(split.GetTestExamples(i), eventonlyParam, eventFeatureFactory);//*inferilp or infer, replace split.GetTestExamples(i) with split.GetTestExamples(i)			
 						Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);
 						precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
 						
-						theta = 0.5;
+						//theta = 0.1;
 						Learner entityLearner = new Learner();
 						FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 						//^^
 						Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);//, eventonlyParam);//?
 						//
 						EntityPredictionInferer entityInferer = new EntityPredictionInferer(eventPredicted);
-						theta = 0.5;
+						//theta = 0.1;
 						List<BioDatum> entityPredicted = entityInferer.infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
 						triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 						precisionEntBasic[i-1] = triple.first; recallEntBasic[i-1] = triple.second; f1EntBasic[i-1] = triple.third;
 						
-						theta = 0.5;
+						//theta = 0.1;
 						loadGlobalParameterValues();
 						Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory, eventonlyParam);
 						List<BioDatum> result = null;
 						EventRelationFeatureFactory.globalcounter = 0;
-						theta = 0.5;
+						//theta = 0.1;
 						result = inferer.Inferilp(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
 						
 						Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
-						pairTriple = Scorer.scoreEventRelations(split.GetTrainExamples(i),result);
+						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result);
 						precisionRelBasic[i-1] = pairTriple.first.first; recallRelBasic[i-1] = pairTriple.first.second; f1RelBasic[i-1] = pairTriple.first.third;
-						
+						/*System.out.println("Iteration "+i);
+						System.out.println("Event P:"+precisionEvtBasic[i-1]+",  Entity P:"+precisionEntBasic[i-1]+",  Relation P:"+precisionRelBasic[i-1]);
+						System.out.println("Event R:"+recallEvtBasic[i-1]+",  Entity R:"+recallEntBasic[i-1]+",  Relation R:"+recallRelBasic[i-1]);
+						System.out.println("Event F1:"+f1EvtBasic[i-1]+",  Entity F1:"+f1EntBasic[i-1]+",  Relation F1:"+f1RelBasic[i-1]);*/
+						//System.out.println("+++++++++++++++++++\nHow many processes in one fold:"+split.GetTestExamples(i).size());
 						/*if(debug){
-							for(int k=1; k<=10; k++){
+							for(int k=1; k<=11; k++){
 								List<Example> tryone = new ArrayList<Example>();
-								System.out.println(split.GetTestExamples(i).get(k).id);
-							    tryone.add(split.GetTestExamples(i).get(k));	
+								System.out.println(split.GetTestExamples(i).get(k-1).id);
+							    tryone.add(split.GetTestExamples(i).get(k-1));	
 							    List<BioDatum> eventPredicted = eventInferer.inferilp(tryone, eventonlyParam, eventFeatureFactory);
 								System.out.println("Number of possible events: "+eventPredicted.size());
 								double eventcounter = 0;
@@ -1185,7 +1194,7 @@ public class Main implements Runnable {
 							}
 							
 						}*/
-						/*System.out.println("*****number of events from event relation: " + EventRelationFeatureFactory.globalcounter);
+						System.out.println("*****number of events from event relation: " + EventRelationFeatureFactory.globalcounter);
 						System.out.println("*****true number of events: " + eventPredicted.size());
 						
 						ILPSolverFactory solverFactory = new ILPSolverFactory(SolverType.CuttingPlaneGurobi);
@@ -1198,7 +1207,7 @@ public class Main implements Runnable {
 							e.printStackTrace();
 						}
 						
-						pairTriple = Scorer.scoreEventRelations(split.GetTrainExamples(i),result);
+						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result);
 						precisionRelILP[i-1] = pairTriple.first.first; recallRelILP[i-1] = pairTriple.first.second; f1RelILP[i-1] = pairTriple.first.third;
 						
 						//Triple<Double, Double, Double> triple = Scorer.scoreEvents(testDataset.examples("test"), eventPredicted);
@@ -1206,17 +1215,28 @@ public class Main implements Runnable {
 						precisionEvtILP[i-1] = triple.first; recallEvtILP[i-1] = triple.second; f1EvtILP[i-1] = triple.third;
 						//triple = Scorer.scoreEntities(testDataset.examples("test"), entityPredicted);
 						triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
-						precisionEntILP[i-1] = triple.first; recallEntILP[i-1] = triple.second; f1EntILP[i-1] = triple.third;*/
+						precisionEntILP[i-1] = triple.first; recallEntILP[i-1] = triple.second; f1EntILP[i-1] = triple.third;
 					}	
 					
-					System.out.println("finished");
+					/*System.out.println("finished");
+					for(int i=1; i<=NumCrossValidation; i++){
+						System.out.println("Iteration "+i);
+						System.out.println("Event P:"+precisionEvtBasic[i-1]+",  Entity P:"+precisionEntBasic[i-1]+",  Relation P:"+precisionRelBasic[i-1]);
+						System.out.println("Event R:"+recallEvtBasic[i-1]+",  Entity R:"+recallEntBasic[i-1]+",  Relation R:"+recallRelBasic[i-1]);
+						System.out.println("Event F1:"+f1EvtBasic[i-1]+",  Entity F1:"+f1EntBasic[i-1]+",  Relation F1:"+f1RelBasic[i-1]); 
+						//printScores("Event Local", precisionEvtBasic, recallEvtBasic, f1EvtBasic);
+						//printScores("Entity Local", precisionEntBasic, recallEntBasic, f1EntBasic);
+						//printScores("Relation Local", precisionRelBasic, recallRelBasic, f1RelBasic);
+					}*/
+					//System.out.println("Event:");
 					printScores("Event Local", precisionEvtBasic, recallEvtBasic, f1EvtBasic);
+					//System.out.println("Entity:");
 					printScores("Entity Local", precisionEntBasic, recallEntBasic, f1EntBasic);
-					
+					//System.out.println("Relation:");
 					printScores("Relation Local", precisionRelBasic, recallRelBasic, f1RelBasic);
-					//printScores("Event ILP", precisionEvtILP, recallEvtILP, f1EvtILP);
-					//printScores("Entity ILP", precisionEntILP, recallEntILP, f1EntILP);
-					//printScores("Relation ILP", precisionRelILP, recallRelILP, f1RelILP);
+					printScores("Event ILP", precisionEvtILP, recallEvtILP, f1EvtILP);
+					printScores("Entity ILP", precisionEntILP, recallEntILP, f1EntILP);
+					printScores("Relation ILP", precisionRelILP, recallRelILP, f1RelILP);
 					
 					/*Utils.printConfusionMatrix(confusionMatrix, relations, "out/ConfusionMatrix.csv");
 					
