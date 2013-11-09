@@ -1089,6 +1089,7 @@ public class Main implements Runnable {
 					boolean debug = false;
 					System.out.println("Theta:"+theta);	
 					for(int i = 1; i <= NumCrossValidation; i++) {//?
+					//for(int i=1; i<=10; i++){
 					    System.out.println(theta);	
 						System.out.println("Iteration "+i);
 						LogInfo.begin_track("Iteration " + i);
@@ -1099,11 +1100,13 @@ public class Main implements Runnable {
 						List<BioDatum> eventPredicted = eventInferer.inferilp(split.GetTestExamples(i), eventonlyParam, eventFeatureFactory);//*inferilp or infer, replace split.GetTestExamples(i) with split.GetTestExamples(i)			
 						Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);
 						precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
-						
+						//System.out.println("event predicted:"+eventPredicted.size());
+						//System.out.println("Main event parameters length:"+eventonlyParam.weights.length);
 						Learner entityLearner = new Learner();
 						FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 						//^^
-						Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory);//, eventonlyParam);//?
+						Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory, eventonlyParam);//?
+						//Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory, eventonlyParam);//?
 						//
 						EntityPredictionInferer entityInferer = new EntityPredictionInferer(eventPredicted);
 						
@@ -1167,26 +1170,36 @@ public class Main implements Runnable {
 								System.out.println("==============================\n"
 										+ "Entity precision: "+debugtriple.first+", Entity recall: "+debugtriple.second+", Entity F1: "+debugtriple.third);
 								
-								result = inferer.Inferilp(tryone, eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
-								System.out.println("Number of event-event relations predicted: "+result.size());
+								EventRelationFeatureFactory.globalcounter = 0;
+								List<BioDatum> debugresult = inferer.Inferilp(tryone, eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
+								System.out.println("Number of event-event relations predicted: "+debugresult.size());
 								double relationcount = 0;
-								for(int j=0; j<result.size();j++){
+								for(int j=0; j<debugresult.size();j++){
 									
-									System.out.println(result.get(j).event1.getTreeNode().toString()+" - "+result.get(j).event2.getTreeNode().toString()+
-											", predicted: "+result.get(j).guessLabel
-											+", true: "+result.get(j).label);
-									if(result.get(j).guessLabel.equals(result.get(j).label)){
+									System.out.println(debugresult.get(j).event1.getTreeNode().toString()+" - "+debugresult.get(j).event2.getTreeNode().toString()+
+											", predicted: "+debugresult.get(j).guessLabel
+											+", true: "+debugresult.get(j).label);
+									if(debugresult.get(j).guessLabel.equals(debugresult.get(j).label)){
 										relationcount++;
 									}
 								}
-								//System.out.println("Correctly predicted relations: "+relationcount/result.size());
+								//System.out.println("Correctly predicted relations: "+relationcount/debugresult.size());
 								
 								Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> debugpairTriple;
-								debugpairTriple = Scorer.scoreEventRelations(tryone, result);
+								debugpairTriple = Scorer.scoreEventRelations(tryone, debugresult);
 								System.out.println("==============================\n"
 										+ "Relation precision: "+debugpairTriple.first.first+", Relation recall: "+debugpairTriple.first.second+", Relation F1: "+debugpairTriple.first.third);
+								
+								ILPSolverFactory solverFactory = new ILPSolverFactory(SolverType.CuttingPlaneGurobi);
+								Inference inference = new Inference(debugeventPredicted, debugentityPredicted, debugresult, solverFactory, false);
+								try {
+									inference.runInference();
+								} catch (Exception e) {
+									// TODO Auto-generated catch block
+									System.out.println("**************************************");
+									e.printStackTrace();
+								}
 							}
-							
 						}
 						
 						System.out.println("*****number of events from event relation: " + EventRelationFeatureFactory.globalcounter);
@@ -1201,6 +1214,8 @@ public class Main implements Runnable {
 							System.out.println("**************************************");
 							e.printStackTrace();
 						}
+						
+						
 						
 						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result);
 						precisionRelILP[i-1] = pairTriple.first.first; recallRelILP[i-1] = pairTriple.first.second; f1RelILP[i-1] = pairTriple.first.third;

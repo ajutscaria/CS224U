@@ -137,10 +137,13 @@ public class EntityFeatureFactory extends FeatureExtractor {
     	EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
 		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 		double theta = Main.theta;
+		int eventcount = 0;
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
 				IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+				IdentityHashMap<Tree, EventMention> goldeventmentions = Utils.getEventNodeAndMentionFromSentence(sentence);
+
 				if(printDebug){
 					LogInfo.logs(sentence);
 					sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
@@ -165,9 +168,17 @@ public class EntityFeatureFactory extends FeatureExtractor {
 					double scoreE = classifier.scoreOf(eventDatum, "E"), scoreO = classifier.scoreOf(eventDatum, "O");
 					scoreE = (Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
 					if(scoreE < theta)continue;
-					EventMention event = new EventMention(globalcounter.toString(), sentence, null);
-					event.setTreeNode(d.eventNode);
-					globalcounter++;
+					//System.out.println(scoreE);
+					EventMention event;
+					if(goldeventmentions.containsKey(d.eventNode)){
+						event = goldeventmentions.get(d.eventNode);
+					}else{
+						event = new EventMention(globalcounter.toString(), sentence, null);
+						event.setTreeNode(d.eventNode);
+						globalcounter++;
+					}
+					
+					eventcount++;
 					
 				//SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 				//LogInfo.logs(dependencies);
@@ -196,6 +207,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 						
 						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 							type = "E";
+							//System.out.println("E");
 						}
 						if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
 	//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
@@ -211,7 +223,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		}
 		if(printDebug) LogInfo.logs("\n------------------------------------------------");
 	}
-
+    System.out.println("event size for entities:"+eventcount);
 	return newData;
     }
     

@@ -15,6 +15,7 @@ public class ExampleInput implements IInstance {
     public List<BioDatum> data;
     public HashMap<Integer, HashSet<Integer>> map;
     public HashMap<Integer, HashSet<Integer>> map2;
+    public HashMap<String, List<Integer>> processRelation;
 	public ExampleInput(String name, int slots, int labels, List<BioDatum> data) {
 		this.name = name;
 		this.slots = slots;

@@ -130,7 +130,11 @@ public class EntityPredictionInferer extends Inferer {
 					eventSize += eventNodes.size();
 				}
 				List<BioDatum> test = ff.setFeaturesTest(sentence, eventNodes, ex.id);
-				
+				LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+				/*System.out.println("Entity Parameter length:"+parameters.weights.length);
+				if(test.size()>0)
+				   System.out.println("Entity Feature length:"+test.get(0).getFeatures().size());
+				*/
 				for(Tree event:eventNodes) {
 					//LogInfo.logs("******************Event " + Utils.getText(event)+ 
 					//		"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
@@ -140,9 +144,10 @@ public class EntityPredictionInferer extends Inferer {
 							//LogInfo.logs(d.entityNode);
 							testDataEvent.add(d);
 						}
-					LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
+					//LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 					
 					for(BioDatum d:testDataEvent) {
+						
 						Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 						d.setPredictedLabel(classifier.classOf(newDatum));
 						double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");

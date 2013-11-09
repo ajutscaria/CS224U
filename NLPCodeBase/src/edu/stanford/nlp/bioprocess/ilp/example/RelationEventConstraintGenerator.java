@@ -37,23 +37,25 @@ public class RelationEventConstraintGenerator extends ILPConstraintGenerator {
 				StringBuilder print = new StringBuilder();
 				int[] var = new int[2];
 				double[] coef = new double[2];
-				var[0] = lexicon.getVariable(Inference.getVariableName(Id, labelId, "relation"));
+				int event1 = relationPredicted.get(Id).event1_index;
+				int event2 = relationPredicted.get(Id).event2_index;
+				var[0] = lexicon.getVariable(Inference.getVariableName(event1, event2, labelId, "relation"));
 				coef[0] = -1;
 				print.append("-");
-				print.append(Inference.getVariableName(Id, labelId, "relation"));
+				print.append(Inference.getVariableName(event1, event2, labelId, "relation"));
 				print.append("+");
 				// -A + B >= 0
-				var[1] = lexicon.getVariable(Inference.getVariableName(relationPredicted.get(Id).event1_index, Inference.E_ID, "event"));
+				var[1] = lexicon.getVariable(Inference.getVariableName(event1, Inference.E_ID, "event"));
 				coef[1] = 1;
 				constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.GREATER_THAN));
-				print.append(Inference.getVariableName(relationPredicted.get(Id).event1_index, Inference.E_ID, "event"));
+				print.append(Inference.getVariableName(event1, Inference.E_ID, "event"));
 				print.append(">=0");
 				//System.out.println(print);
 				// -A + C >= 0
-				var[1] = lexicon.getVariable(Inference.getVariableName(relationPredicted.get(Id).event2_index, Inference.E_ID, "event"));
+				var[1] = lexicon.getVariable(Inference.getVariableName(event2, Inference.E_ID, "event"));
 				coef[1] = 1;
 				constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.GREATER_THAN));
-				print.append(Inference.getVariableName(relationPredicted.get(Id).event2_index, Inference.E_ID, "event"));
+				print.append(Inference.getVariableName(event2, Inference.E_ID, "event"));
 				print.append(">=0");
 				//System.out.println(print);
 				
