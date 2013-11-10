@@ -84,6 +84,7 @@ public class IterativeOptimizer {
 		Params param = (Params) Utils.readObject(Main.EVENT_STANDALONE_MODEL);
 		List<BioDatum> predicted = inferer.infer(test, param, eventFeatureFactory);
 		Triple<Double, Double, Double> triple = Scorer.score(predicted);
+		LogInfo.logs("event standalone p/r/f=%s",triple);
 
 		FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
 
@@ -91,6 +92,8 @@ public class IterativeOptimizer {
 		FeatureExtractor entityStandaloneFeatureFactory = new EntityStandaloneFeatureFactory(useLexicalFeatures);
 		Params entityStandaloneParams = (Params) Utils.readObject(Main.ENTITY_STANDALONE_MODEL);
 		List<BioDatum> predictedStandaloneEntities = entityInferer.infer(test, entityStandaloneParams, entityStandaloneFeatureFactory);
+		LogInfo.logs("entity standalone p/r/f=%s",Scorer.score(predictedStandaloneEntities));
+
 
 		Triple<Double, Double, Double> entityTriple = null;
 		for(int i = 0; i < 1; i++) {

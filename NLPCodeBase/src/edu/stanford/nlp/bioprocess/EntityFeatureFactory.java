@@ -11,6 +11,8 @@ import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.ling.BasicDatum;
 import edu.stanford.nlp.ling.Datum;
 import edu.stanford.nlp.ling.CoreAnnotations.*;
+import edu.stanford.nlp.stats.ClassicCounter;
+import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
@@ -24,11 +26,11 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		super(useLexicalFeatures);
 	}
 
-    public static Integer globalcounter = 0;
+	public static Integer globalcounter = 0;
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 
-    public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
-	    //Tree event = eventMention.getTreeNode();
+	public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
+		//Tree event = eventMention.getTreeNode();
 		List<String> features = new ArrayList<String>();
 		//List<Tree> leaves = entity.getLeaves();
 		Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
@@ -40,7 +42,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 			parentCFGRule += n.value() + "|";
 		}
 		parentCFGRule = parentCFGRule.trim();
-		
+
 		//features.add("dep="+dependencyExists);
 		//features.add("EntCat="+entity.value());
 		//features.add("EntHead=" + entity.headTerminal(new CollinsHeadFinder()));
@@ -54,7 +56,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		//features.add("parentrule=" + parentCFGRule);
 		//USE LEMMA everywhere.
 		//Try before/after
-		
+
 		//features.add("EntPOSEntHeadEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
 		//features.add("EntPOSEvtPOSDepRel=" + entity.value() + "," +event.preTerminalYield().get(0).value() + ","  + dependencyExists);
 		//features.add("EntPOSEntParentPOSEvtPOS=" + entity.value() + "," + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
@@ -62,9 +64,9 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		//features.add("PathEntToAncestor="+Trees.pathNodeToNode(entity, Trees.getLowestCommonAncestor(entity, event, root), root));
 		//features.add("PathEntToRoot="+Trees.pathNodeToNode(entity, root, root));
 		//features.add("EntParentPOSEvtPOS=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.preTerminalYield().get(0).value());
-		
-		
-		
+
+
+
 		//This feature did not work surprisingly. Maybe because the path from ancestor to event might lead to a lot of different variations.
 		//features.add("PathAncestorToEvt="+Trees.pathNodeToNode(Trees.getLowestCommonAncestor(entity, event, root), event, root));
 		//This is a bad feature too.
@@ -74,11 +76,11 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		features.add("bias");
 		FeatureVector fv = new FeatureVector(features);
 		return fv;
-    }
+	}
 
-    public List<BioDatum> setFeaturesTrain(List<Example> data) {
-    	List<BioDatum> newData = new ArrayList<BioDatum>();
-	
+	public List<BioDatum> setFeaturesTrain(List<Example> data) {
+		List<BioDatum> newData = new ArrayList<BioDatum>();
+
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
@@ -101,40 +103,42 @@ public class EntityFeatureFactory extends FeatureExtractor {
 				}
 				//SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
 				//LogInfo.logs(dependencies);
-				
+
 				for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
 					if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 						if(node.isLeaf()||node.value().equals("ROOT"))
 							continue;
-						
+
 						String type = "O";
-						
+
 						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
 							type = "E";
 						}
 						if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
-	//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
-	//						type = "E";
-	//					}
-						
+						//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
+						//						type = "E";
+						//					}
+
 						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, event.getTreeNode(), Utils.getArgumentMentionRelation(event, node).toString());
 						newDatum.features = computeFeatures(sentence, node, event.getTreeNode());
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
 						newData.add(newDatum);
+					}
 				}
 			}
+			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
-		if(printDebug) LogInfo.logs("\n------------------------------------------------");
+
+		return newData;
 	}
 
-	return newData;
-    }
-    
-    
-    public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameters) {
-    	List<BioDatum> newData = new ArrayList<BioDatum>();
-    	EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
+
+	public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameters) {
+
+		Counter<String> labelCounts = new ClassicCounter<String>();
+		List<BioDatum> newData = new ArrayList<BioDatum>();
+		EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
 		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 		double theta = Main.theta;
 		int eventcount = 0;
@@ -160,9 +164,9 @@ public class EntityFeatureFactory extends FeatureExtractor {
 							LogInfo.logs("Couldn't find node:" + entity.getValue());
 					}
 				}
-				
+
 				//Integer traincounter = 0;
-                List<BioDatum> dataforsentence = eventFeatureFactory.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence), ex.id);
+				List<BioDatum> dataforsentence = eventFeatureFactory.setFeaturesTest(sentence, Utils.getEntityNodesFromSentence(sentence), ex.id);
 				for(BioDatum d:dataforsentence) {
 					Datum<String, String> eventDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 					double scoreE = classifier.scoreOf(eventDatum, "E"), scoreO = classifier.scoreOf(eventDatum, "O");
@@ -177,21 +181,21 @@ public class EntityFeatureFactory extends FeatureExtractor {
 						event.setTreeNode(d.eventNode);
 						globalcounter++;
 					}
-					
+
 					eventcount++;
-					
-				//SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
-				//LogInfo.logs(dependencies);
-				
-				/*for(BioDatum d: events){
+
+					//SemanticGraph dependencies = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
+					//LogInfo.logs(dependencies);
+
+					/*for(BioDatum d: events){
 					if(!d.exampleID.equals(ex.id))continue;
 				    Tree eventNode = d.eventNode;
 				    EventMention event = new EventMention(globalcounter.toString(), sentence, null);
 					globalcounter++;
 					event.setTreeNode(eventNode);*/
-				//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
-				//@heather
-				/*for(Tree eventnode: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+					//for(EventMention event: sentence.get(EventMentionsAnnotation.class)) {
+					//@heather
+					/*for(Tree eventnode: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 					if(eventnode.isLeaf() || eventnode.value().equals("ROOT") || !eventnode.isPreTerminal() || 
 							!(eventnode.value().startsWith("JJR") || eventnode.value().startsWith("JJS") ||eventnode.value().startsWith("NN") || eventnode.value().equals("JJ") || eventnode.value().startsWith("VB")))
 						continue;
@@ -202,38 +206,40 @@ public class EntityFeatureFactory extends FeatureExtractor {
 					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 						if(node.isLeaf()||node.value().equals("ROOT"))
 							continue;
-						
-						String type = "O";
-						
+
+						String label = "O";
+
 						if ((entityNodes.contains(node) && Utils.getArgumentMentionRelation(event, node) != RelationType.NONE)) {// || Utils.isChildOfEntity(entityNodes, node)) {
-							type = "E";
+							label = "E";
 							//System.out.println("E");
 						}
-						if(printDebug) LogInfo.logs(type + " : " + node + ":" + node.getSpan());
-	//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
-	//						type = "E";
-	//					}
-						
-						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, event.getTreeNode(), Utils.getArgumentMentionRelation(event, node).toString());
+						if(printDebug) LogInfo.logs(label + " : " + node + ":" + node.getSpan());
+						//					if((entityNodes.contains(node))){// || (Utils.isChildOfEntity(entityNodes, node) && node.value().startsWith("NN"))) {
+						//						type = "E";
+						//					}
+
+						BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), label, node, event.getTreeNode(), Utils.getArgumentMentionRelation(event, node).toString());
 						newDatum.features = computeFeatures(sentence, node, event.getTreeNode());
 						if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features);
 						newData.add(newDatum);
+						labelCounts.incrementCount(label);
+					}
 				}
 			}
+			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
-		if(printDebug) LogInfo.logs("\n------------------------------------------------");
+		LogInfo.logs("Event training set label distribution=%s",labelCounts);
+		System.out.println("event size for entities:"+eventcount);
+		return newData;
 	}
-    System.out.println("event size for entities:"+eventcount);
-	return newData;
-    }
-    
-    
-    public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents, String exampleID) {
-    	// this is so that the feature factory code doesn't accidentally use the
-    	// true label info
-    	
-    	//@heather replace gold predicted Events by all possible even nodes
-    	/*if(Main.mode.equalsIgnoreCase("allnew") || Main.runModel.equals("ilp")){
+
+
+	public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents, String exampleID) {
+		// this is so that the feature factory code doesn't accidentally use the
+		// true label info
+
+		//@heather replace gold predicted Events by all possible even nodes
+		/*if(Main.mode.equalsIgnoreCase("allnew") || Main.runModel.equals("ilp")){
     		System.out.println("all event nodes!!!!!!!!!!!");
     		predictedEvents = new HashSet<Tree>();
     		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
@@ -244,27 +250,27 @@ public class EntityFeatureFactory extends FeatureExtractor {
     		}
     	}
     	EntityPredictionInferer.eventSize+=predictedEvents.size();*/
-    	//
-    	
-    	
-    	List<BioDatum> newData = new ArrayList<BioDatum>();
+		//
 
-    	IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
+
+		List<BioDatum> newData = new ArrayList<BioDatum>();
+
+		IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 		for(Tree eventNode: predictedEvents) {
 			//int whichEvent = Main.EventID.get(eventNode);
 			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				if(node.isLeaf() || node.value().equals("ROOT"))
 					continue;
 				String type = (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) ? "E" : "O";
-				
+
 				BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, eventNode, Utils.getArgumentMentionRelation(sentence, eventNode, node).toString());
 				newDatum.features = computeFeatures(sentence, node, eventNode);
 				newDatum.setExampleID(exampleID);
 				//newDatum.eventId = whichEvent;
 				newData.add(newDatum);
-				
-		    }
+
+			}
 		}
-    	return newData;
-    }
+		return newData;
+	}
 }

@@ -16,7 +16,7 @@ import edu.stanford.nlp.util.CoreMap;
 import fig.basic.LogInfo;
 
 public class EventPredictionInferer extends Inferer {
-	boolean printDebugInformation = false;
+	boolean printDebugInformation = true;
 	List<BioDatum> prediction = null;
 	
 	public EventPredictionInferer() {
@@ -97,7 +97,7 @@ public class EventPredictionInferer extends Inferer {
 		double theta = Main.theta;
 		int counter = 0;
 		for(Example ex:testData) {
-			//LogInfo.begin_track("Example %s",ex.id);
+			LogInfo.begin_track("Example %s",ex.id);
 
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				Set<Tree> entityNodes = null;
@@ -137,12 +137,12 @@ public class EventPredictionInferer extends Inferer {
 					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(BioDatum d:dataset)
 						if(d.predictedLabel().equals("E") || d.label().equals("E"))
-							LogInfo.logs(String.format("%-30s Gold:  %s Predicted: %s", d.word, d.label(), d.predictedLabel()));
+							LogInfo.logs(String.format("%-30s Gold=%s, Predicted=%s, predictedProb=%s", d.word, d.label(), d.predictedLabel(),d.probEvent));
 					LogInfo.logs("------------------------------------------\n");
 				}
 			}
 			
-			//LogInfo.end_track();
+			LogInfo.end_track();
 		}
 		System.out.println("Not added due to theta: "+counter);
 		return predicted;

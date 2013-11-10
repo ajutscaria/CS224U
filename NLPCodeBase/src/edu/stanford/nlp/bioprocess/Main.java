@@ -163,13 +163,9 @@ public class Main implements Runnable {
 
 	public void printScores(String category, double[] precision, double[] recall, double[] f1) {
 		LogInfo.logs(String.format("\n------------------------------------------" + category + "-------------------------------------------"));
-		System.out.println(String.format("\n------------------------------------------" + category + "-------------------------------------------"));
 		LogInfo.logs(printScore("Precision", precision));
-		System.out.println(printScore("Precision", precision));
 		LogInfo.logs(printScore("Recall   ", recall));
-		System.out.println(printScore("Recall   ", recall));
 		LogInfo.logs(printScore("F1       ", f1));
-		System.out.println(printScore("F1       ", f1));
 	}
 
 	public String printScore(String scoreType, double[] scores) {
@@ -1082,17 +1078,15 @@ public class Main implements Runnable {
 				if(runILPModel){
 					useLexicalFeatures = true;
 					
-					//for(int i = 1; i <= NumCrossValidation; i++) {
-					
 					//tryone.add(testDataset.examples("test").get(0));
 					//tryone.add(testDataset.examples("test").get(1));
 					boolean debug = false;
-					System.out.println("Theta:"+theta);	
-					for(int i = 1; i <= NumCrossValidation; i++) {//?
-					//for(int i=1; i<=10; i++){
-					    System.out.println(theta);	
-						System.out.println("Iteration "+i);
+					LogInfo.logs("Theta:"+theta);	
+					for(int i = 1; i <= NumCrossValidation; i++) {
+
 						LogInfo.begin_track("Iteration " + i);
+						
+						LogInfo.begin_track("Training event classifier");
 						Learner eventLearner = new Learner();
 						EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(useLexicalFeatures);
 						EventPredictionInferer eventInferer = new EventPredictionInferer();
@@ -1100,28 +1094,33 @@ public class Main implements Runnable {
 						List<BioDatum> eventPredicted = eventInferer.inferilp(split.GetTestExamples(i), eventonlyParam, eventFeatureFactory);//*inferilp or infer, replace split.GetTestExamples(i) with split.GetTestExamples(i)			
 						Triple<Double, Double, Double> triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);
 						precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
+						LogInfo.logs("Event p/r/f=%s",triple);
+						LogInfo.end_track();
 						//System.out.println("event predicted:"+eventPredicted.size());
 						//System.out.println("Main event parameters length:"+eventonlyParam.weights.length);
+						
+						LogInfo.begin_track("Training entity classifier");
 						Learner entityLearner = new Learner();
 						FeatureExtractor entityFeatureFactory = new EntityFeatureFactory(useLexicalFeatures);
-						//^^
-						Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory, eventonlyParam);//?
-						//Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory, eventonlyParam);//?
-						//
+						Params entityParam = entityLearner.learn(split.GetTrainExamples(i), entityFeatureFactory, eventonlyParam);
 						EntityPredictionInferer entityInferer = new EntityPredictionInferer(eventPredicted);
-						
 						List<BioDatum> entityPredicted = entityInferer.infer(split.GetTestExamples(i), entityParam, entityFeatureFactory);
 						triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 						precisionEntBasic[i-1] = triple.first; recallEntBasic[i-1] = triple.second; f1EntBasic[i-1] = triple.third;
+						LogInfo.logs("Entity p/r/f=%s",triple);
+						LogInfo.end_track();
+						
+						LogInfo.begin_track("Training event-event classifier");
 						loadGlobalParameterValues();
 						Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory, eventonlyParam);
 						List<BioDatum> result = null;
 						EventRelationFeatureFactory.globalcounter = 0;
-						result = inferer.Inferilp(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
-						
+						result = inferer.Inferilp(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);						
 						Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
-						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result);
+						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result); //WHY TWICE THE SAME THING? JONATHAN
 						precisionRelBasic[i-1] = pairTriple.first.first; recallRelBasic[i-1] = pairTriple.first.second; f1RelBasic[i-1] = pairTriple.first.third;
+						LogInfo.logs("Event-event p/r/f=%s",pairTriple);
+						LogInfo.end_track();
 						
 						if(debug){
 							for(int k=1; k<=5; k++){//5 processes
@@ -1202,30 +1201,36 @@ public class Main implements Runnable {
 							}
 						}
 						
-						System.out.println("*****number of events from event relation: " + EventRelationFeatureFactory.globalcounter);
-						System.out.println("*****true number of events: " + eventPredicted.size());
+						LogInfo.logs("*****number of events from event relation: " + EventRelationFeatureFactory.globalcounter);
+						LogInfo.logs("*****true number of events: " + eventPredicted.size());
 						
+						LogInfo.begin_track_printAll("Classifying with ILP");
 						ILPSolverFactory solverFactory = new ILPSolverFactory(SolverType.CuttingPlaneGurobi);
 						Inference inference = new Inference(eventPredicted, entityPredicted, result, solverFactory, false);
 						try {
 							inference.runInference();
 						} catch (Exception e) {
-							// TODO Auto-generated catch block
 							System.out.println("**************************************");
 							e.printStackTrace();
+							throw new RuntimeException(e);
 						}
-						
-						
 						
 						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result);
 						precisionRelILP[i-1] = pairTriple.first.first; recallRelILP[i-1] = pairTriple.first.second; f1RelILP[i-1] = pairTriple.first.third;
+						LogInfo.logs("ILP event-event p/r/f=%s",pairTriple);
 						
 						//Triple<Double, Double, Double> triple = Scorer.scoreEvents(testDataset.examples("test"), eventPredicted);
 						triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);
 						precisionEvtILP[i-1] = triple.first; recallEvtILP[i-1] = triple.second; f1EvtILP[i-1] = triple.third;
+						LogInfo.logs("ILP event p/r/f=%s",triple);
+
 						//triple = Scorer.scoreEntities(testDataset.examples("test"), entityPredicted);
 						triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 						precisionEntILP[i-1] = triple.first; recallEntILP[i-1] = triple.second; f1EntILP[i-1] = triple.third;
+						LogInfo.logs("ILP entity p/r/f=%s",triple);
+						LogInfo.end_track();
+						
+						LogInfo.end_track();
 					}	
 					
 					/*System.out.println("finished");

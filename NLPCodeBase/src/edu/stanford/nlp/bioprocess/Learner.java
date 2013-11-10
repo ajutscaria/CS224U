@@ -7,6 +7,7 @@ import edu.stanford.nlp.classify.GeneralDataset;
 import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.classify.LinearClassifierFactory;
 import edu.stanford.nlp.ling.BasicDatum;
+import fig.basic.LogInfo;
 
 
 /***
@@ -37,7 +38,6 @@ public class Learner {
    */
 	public Params learn(List<Example> dataset, FeatureExtractor ff) {
 		List<BioDatum> data = ff.setFeaturesTrain(dataset);
-		//System.out.println("dataset size:"+data.size());
 		GeneralDataset<String, String> dd = new Dataset<String, String>();
 		for(BioDatum d:data) {
 			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.label()));
