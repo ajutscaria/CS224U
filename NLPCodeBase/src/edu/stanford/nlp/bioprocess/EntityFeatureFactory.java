@@ -203,9 +203,12 @@ public class EntityFeatureFactory extends FeatureExtractor {
 					globalcounter++;
 					event.setTreeNode(eventnode);*/
 					if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
-					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+				    List<Tree> candidates = pruning(d.eventNode, sentence);
+					//for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+					for(Tree node: candidates) {	
 						if(node.isLeaf()||node.value().equals("ROOT"))
 							continue;
+						
 
 						String label = "O";
 
@@ -232,7 +235,70 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		System.out.println("event size for entities:"+eventcount);
 		return newData;
 	}
-
+	
+	public List<Tree> pruning(Tree event, CoreMap sentence){
+		List<Tree> sisters = new ArrayList<Tree>();
+		Tree current = event;
+		if(!event.value().startsWith("VB")){
+			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)){
+				sisters.add(node);
+			}
+			return sisters;
+		}
+		
+		while(true){
+			if(current.value().equals("ROOT"))break;
+			//System.out.println("current:"+current.toString());
+			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)){
+				if(node.getChildrenAsList().contains(current)){ //found parent
+					//System.out.println("found parent:"+node.toString());
+					boolean ccflag = false;
+					for(Tree sis:node.getChildrenAsList()){
+						if(sis.value().equals("CC")){
+							ccflag = true;
+						}
+					}
+					if(!ccflag){
+						for(Tree sis:node.getChildrenAsList()){
+							if(!sis.equals(current)){
+							   
+							   sisters.add(sis);
+							   if(sis.value().equals("PP")){
+								   //System.out.println("PP!!");
+								   sisters.addAll(Arrays.asList(sis.children()));	
+							   }
+							}
+						}
+					}
+					current = node;
+					break;
+				}
+			}
+		}
+		/*while(true){
+			if(current == null || current.value().equals("ROOT"))break;
+			System.out.println("\ncurrent:"+current.toString());
+			List<Tree> sisters = current.siblings(current);
+			if(sisters!=null)
+				for(Tree node:sisters){
+					System.out.println("sister:"+node.toString());
+					if(node.value().equals("CC")){
+						sisters = null;
+						break;
+					}
+				}
+			if(sisters!=null){
+				candidates.addAll(sisters);
+				for(Tree node:sisters){
+					if(node.value().equals("PP")){
+						candidates.addAll(Arrays.asList(node.children()));
+					}
+				}
+			}
+			current = current.parent(current);
+		}*/
+		return sisters;
+	}
 
 	public List<BioDatum> setFeaturesTest(CoreMap sentence, Set<Tree> predictedEvents, String exampleID) {
 		// this is so that the feature factory code doesn't accidentally use the
@@ -240,7 +306,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 
 		//@heather replace gold predicted Events by all possible even nodes
 		/*if(Main.mode.equalsIgnoreCase("allnew") || Main.runModel.equals("ilp")){
-    		System.out.println("all event nodes!!!!!!!!!!!");
+    		System.out.println("all event nodes!!");
     		predictedEvents = new HashSet<Tree>();
     		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
     			if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
@@ -258,7 +324,9 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);
 		for(Tree eventNode: predictedEvents) {
 			//int whichEvent = Main.EventID.get(eventNode);
-			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+			List<Tree> candidates = pruning(eventNode, sentence);
+			//for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+			for(Tree node:candidates){
 				if(node.isLeaf() || node.value().equals("ROOT"))
 					continue;
 				String type = (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) ? "E" : "O";

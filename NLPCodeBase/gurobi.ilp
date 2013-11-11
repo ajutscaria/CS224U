@@ -1,0 +1,12 @@
+Maximize
+ 
+Subject To
+ c177895: x3665 + x3697 + x3713 = 0
+ c177898: x3665 + x3697 + x3713 = 1
+Bounds
+ x3665 free
+ x3697 free
+ x3713 free
+Generals
+ x3665 x3697 x3713
+End

@@ -564,7 +564,7 @@ public class Scorer {
 		}
 
 		LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp+", fn_null:"+fn_null+", fn_diff:"+fn_diff);
-		System.out.println("tp fn fp " + tp + ":" + fn + ":" + fp+", fn_null:"+fn_null+", fn_diff:"+fn_diff);
+		//System.out.println("tp fn fp " + tp + ":" + fn + ":" + fp+", fn_null:"+fn_null+", fn_diff:"+fn_diff);
 
 		double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
 		double f;

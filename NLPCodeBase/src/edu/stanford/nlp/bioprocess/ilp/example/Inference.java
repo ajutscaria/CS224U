@@ -188,6 +188,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		RelationEventConstraintGenerator relation = new RelationEventConstraintGenerator();
 		SameRelationConstraintGenerator same = new SameRelationConstraintGenerator();
 		PrevRelationConstraintGenerator prev = new PrevRelationConstraintGenerator();
+		ConnectivityConstraintGenerator conn = new ConnectivityConstraintGenerator();
+		
 		ExampleInput eventinput = new ExampleInput("event", eventPredicted.size(), eventLabels.length, eventPredicted);
 		ExampleInput entityinput = new ExampleInput("entity", entityPredicted.size(), entityLabels.length, entityPredicted);
 		ExampleInput relationinput = new ExampleInput("relation", relationPredicted.size(), relationLabels.length, relationPredicted);
@@ -227,6 +229,11 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		for (ILPConstraint constraint : prev.getILPConstraints(relationinput, lexicon))
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding prev contradiction constraints");
+		
+		System.out.println("Start adding connectivity constraints");
+		for (ILPConstraint constraint : conn.getILPConstraints(relationinput, lexicon))
+			this.addConstraint(solver, constraint);
+		System.out.println("finish adding connectivity constraints");
 		
 		System.out.println("done adding constraints");
 	}
@@ -276,16 +283,40 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
         for (int Id = 0; Id < relationPredicted.size(); Id++) {
         	int event1 = relationPredicted.get(Id).event1_index;
 			int event2 = relationPredicted.get(Id).event2_index;
+			double score;
+			int var;
+			String varName;
+			//connectivity 
+			score = 0; //? Yij
+			var = solver.addBooleanVariable(score);
+			varName = getVariableName(event1, event2, "edge", "connectivity");
+			lexicon.addVariable(varName, var);
+			
+			score = 0;//? Zij
+			var = solver.addBooleanVariable(score);
+			varName = getVariableName(event1, event2, "aux", "connectivity");
+			lexicon.addVariable(varName, var);
+			score = 0;//? PHIij
+			var = solver.addBooleanVariable(score);
+			varName = getVariableName(event1, event2, "flow", "connectivity");
+			lexicon.addVariable(varName, var);
+			
+			score = 0;//? Zji
+			var = solver.addBooleanVariable(score);
+			varName = getVariableName(event2, event1, "aux", "connectivity");
+			lexicon.addVariable(varName, var);
+			score = 0;//? PHIji
+			var = solver.addBooleanVariable(score);
+			varName = getVariableName(event2, event1, "flow", "connectivity");
+			lexicon.addVariable(varName, var);
+				
+			
 			//System.out.println("Relation "+Id+" - Event1:"+event1+", Event2:"+event2);
 			for (int labelId = 0; labelId < relationLabels.length; labelId++) {
- 
-				// get the variable objective coefficient for the variable to be added
-				double score = relationPredicted.get(Id).getRelationProb(relationLabels[labelId]);
+				score = relationPredicted.get(Id).getRelationProb(relationLabels[labelId]);
 				//System.out.println("Score of "+relationLabels[labelId]+ " for relation "+ Id + ": " + score);
-				// create a boolean variable with this score
-				
-				int var = solver.addBooleanVariable(score);
-				String varName = getVariableName(event1, event2, labelId, "relation");
+				var = solver.addBooleanVariable(score);
+				varName = getVariableName(event1, event2, labelId, "relation");
 				lexicon.addVariable(varName, var);
 
 			}			
@@ -295,6 +326,10 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 
 	public static String getVariableName(int eventId, int labelId, String type) {
 		return type + eventId + ",label" + labelId;
+	}
+	
+	public static String getVariableName(int event1, int event2, String type, String special) {
+		return type + event1 + event2;
 	}
 	
 	public static String getVariableName(int event1, int event2, int labelId, String type) {

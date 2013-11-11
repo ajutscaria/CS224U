@@ -1082,7 +1082,9 @@ public class Main implements Runnable {
 					//tryone.add(testDataset.examples("test").get(1));
 					boolean debug = false;
 					LogInfo.logs("Theta:"+theta);	
-					for(int i = 1; i <= NumCrossValidation; i++) {
+					//for(int i = 1; i <= NumCrossValidation; i++) 
+					for(int i=1;i<=1;i++)
+					{
 
 						LogInfo.begin_track("Iteration " + i);
 						
