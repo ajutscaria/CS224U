@@ -130,9 +130,10 @@ public class EventPredictionInferer extends Inferer {
 					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
 					LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 
-					LogInfo.logs("\n---------GOLD EVENTS-------------------------");
-					for(EventMention m:sentence.get(EventMentionsAnnotation.class)) 
-							LogInfo.logs(m.getTreeNode());
+					//JONATHAN _ commented out since seems redundant with PREDICTIONS that also prints gold labels
+//					LogInfo.logs("\n---------GOLD EVENTS-------------------------");
+//					for(EventMention m:sentence.get(EventMentionsAnnotation.class)) 
+//							LogInfo.logs(m.getTreeNode());
 					
 					LogInfo.logs("---------PREDICTIONS-------------------------");
 					for(BioDatum d:dataset)

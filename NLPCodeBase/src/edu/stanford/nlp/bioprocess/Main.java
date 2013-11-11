@@ -664,7 +664,7 @@ public class Main implements Runnable {
 			//result = inferer.Inferilp(testDataset.examples("test"), eventParam, eventRelationFeatureFactory, runModel);
 			//result = inferer.Infer(tryone, eventParam, eventRelationFeatureFactory, runModel,
 			//		connectedComponent_, sameEvent_, previousEvent_, sameEventContradictions_, alpha1_, alpha2_, alpha3_, alpha4_, alpha5_, alpha6_, alpha7_);
-			result = inferer.Inferilp(tryone, eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
+			result = inferer.inferIlp(tryone, eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
 			System.out.println("*****number of events from event relation: " + EventRelationFeatureFactory.globalcounter);
 			ILPSolverFactory solverFactory = new ILPSolverFactory(SolverType.CuttingPlaneGurobi);
 			Inference inference = new Inference(eventPredicted, entityPredicted, result, solverFactory, false);
@@ -1075,6 +1075,7 @@ public class Main implements Runnable {
 				double[] precisionRelILP = new double[NumCrossValidation], recallRelILP = new double[NumCrossValidation], f1RelILP = new double[NumCrossValidation];
 				double[] precisionEntILP = new double[NumCrossValidation], recallEntILP = new double[NumCrossValidation], f1EntILP = new double[NumCrossValidation];
 				double[] precisionEvtILP = new double[NumCrossValidation], recallEvtILP = new double[NumCrossValidation], f1EvtILP = new double[NumCrossValidation];
+				
 				if(runILPModel){
 					useLexicalFeatures = true;
 					
@@ -1098,8 +1099,6 @@ public class Main implements Runnable {
 						precisionEvtBasic[i-1] = triple.first; recallEvtBasic[i-1] = triple.second; f1EvtBasic[i-1] = triple.third;
 						LogInfo.logs("Event p/r/f=%s",triple);
 						LogInfo.end_track();
-						//System.out.println("event predicted:"+eventPredicted.size());
-						//System.out.println("Main event parameters length:"+eventonlyParam.weights.length);
 						
 						LogInfo.begin_track("Training entity classifier");
 						Learner entityLearner = new Learner();
@@ -1115,11 +1114,11 @@ public class Main implements Runnable {
 						LogInfo.begin_track("Training event-event classifier");
 						loadGlobalParameterValues();
 						Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory, eventonlyParam);
-						List<BioDatum> result = null;
+						List<BioDatum> relationsPredicted = null;
 						EventRelationFeatureFactory.globalcounter = 0;
-						result = inferer.Inferilp(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);						
+						relationsPredicted = inferer.inferIlp(split.GetTestExamples(i), eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);						
 						Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
-						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result); //WHY TWICE THE SAME THING? JONATHAN
+						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),relationsPredicted); //WHY TWICE THE SAME THING? JONATHAN
 						precisionRelBasic[i-1] = pairTriple.first.first; recallRelBasic[i-1] = pairTriple.first.second; f1RelBasic[i-1] = pairTriple.first.third;
 						LogInfo.logs("Event-event p/r/f=%s",pairTriple);
 						LogInfo.end_track();
@@ -1172,7 +1171,7 @@ public class Main implements Runnable {
 										+ "Entity precision: "+debugtriple.first+", Entity recall: "+debugtriple.second+", Entity F1: "+debugtriple.third);
 								
 								EventRelationFeatureFactory.globalcounter = 0;
-								List<BioDatum> debugresult = inferer.Inferilp(tryone, eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
+								List<BioDatum> debugresult = inferer.inferIlp(tryone, eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);
 								System.out.println("Number of event-event relations predicted: "+debugresult.size());
 								double relationcount = 0;
 								for(int j=0; j<debugresult.size();j++){
@@ -1208,7 +1207,7 @@ public class Main implements Runnable {
 						
 						LogInfo.begin_track_printAll("Classifying with ILP");
 						ILPSolverFactory solverFactory = new ILPSolverFactory(SolverType.CuttingPlaneGurobi);
-						Inference inference = new Inference(eventPredicted, entityPredicted, result, solverFactory, false);
+						Inference inference = new Inference(eventPredicted, entityPredicted, relationsPredicted, solverFactory, false);
 						try {
 							inference.runInference();
 						} catch (Exception e) {
@@ -1216,10 +1215,6 @@ public class Main implements Runnable {
 							e.printStackTrace();
 							throw new RuntimeException(e);
 						}
-						
-						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),result);
-						precisionRelILP[i-1] = pairTriple.first.first; recallRelILP[i-1] = pairTriple.first.second; f1RelILP[i-1] = pairTriple.first.third;
-						LogInfo.logs("ILP event-event p/r/f=%s",pairTriple);
 						
 						//Triple<Double, Double, Double> triple = Scorer.scoreEvents(testDataset.examples("test"), eventPredicted);
 						triple = Scorer.scoreEvents(split.GetTestExamples(i), eventPredicted);
@@ -1230,10 +1225,16 @@ public class Main implements Runnable {
 						triple = Scorer.scoreEntities(split.GetTestExamples(i), entityPredicted);
 						precisionEntILP[i-1] = triple.first; recallEntILP[i-1] = triple.second; f1EntILP[i-1] = triple.third;
 						LogInfo.logs("ILP entity p/r/f=%s",triple);
+						
+						pairTriple = Scorer.scoreEventRelations(split.GetTestExamples(i),relationsPredicted);
+						precisionRelILP[i-1] = pairTriple.first.first; recallRelILP[i-1] = pairTriple.first.second; f1RelILP[i-1] = pairTriple.first.third;
+						LogInfo.logs("ILP event-event p/r/f=%s",pairTriple);
+						
+						
 						LogInfo.end_track();
 						
 						LogInfo.end_track();
-					}	
+					}
 					
 					/*System.out.println("finished");
 					for(int i=1; i<=NumCrossValidation; i++){

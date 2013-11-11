@@ -23,6 +23,8 @@ import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.stats.ClassicCounter;
+import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
@@ -355,7 +357,7 @@ public class EventRelationFeatureFactory {
 
 	public List<BioDatum> setFeaturesTrain(List<Example> data) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
-		
+		Counter<String> labelCounter = new ClassicCounter<String>();
 		for (Example ex : data) {
 			//System.out.println("Process: "+ex.id);
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
@@ -377,24 +379,26 @@ public class EventRelationFeatureFactory {
 				alreadyConsidered.add(event1);
 				for(EventMention event2:list) {	
 					if(!alreadyConsidered.contains(event2)) {
-						String type = Utils.getEventEventRelation(ex.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
-						BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
+						String label = Utils.getEventEventRelation(ex.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
+						BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), label, event1, event2);
 						newDatum.features = computeFeatures(ex, ex.gold.get(EventMentionsAnnotation.class), event1, event2);
 						dataset.add(newDatum);
+						labelCounter.incrementCount(label);
 					}
 				}
 			}
 			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
-	
+		LogInfo.logs("Event training set label distribution=%s",labelCounter);
 		return dataset;
 	}
 
 	public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameters) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
+		Counter<String> labelCounter = new ClassicCounter<String>();
+    	
     	HashMap<String, Integer> relationType = new HashMap<String, Integer>();
     	double theta = Main.theta;
-    	System.out.println("\n\nTheta: "+theta);
     	EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
 		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
     	//int eventMentioncount = 0;
@@ -447,30 +451,28 @@ public class EventRelationFeatureFactory {
 				alreadyConsidered.add(event1);
 			    for(EventMention event2: list) {
 					if(!alreadyConsidered.contains(event2)) { //list.get(i) = event2
-						String type = Utils.getEventEventRelation(ex.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
+						String label = Utils.getEventEventRelation(ex.gold, event1.getTreeNode(), event2.getTreeNode()).toString();
 						//System.out.println("Event1:"+event1.getTreeNode().toString()+", Event2:"+event2.getTreeNode().toString()+"-> True Relation:"+type);
-						if(!relationType.containsKey(type)){
-							relationType.put(type, 1);
+						if(!relationType.containsKey(label)){
+							relationType.put(label, 1);
 						}else{
-							int original = relationType.get(type);
+							int original = relationType.get(label);
 							original++;
-							relationType.put(type, original);
+							relationType.put(label, original);
 						}
-						BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), type, event1, event2);
+						BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), label, event1, event2);
 						newDatum.features = computeFeatures(ex, list, event1, event2);
 						newDatum.setExampleID(ex.id);
 						dataset.add(newDatum);
+						labelCounter.incrementCount(label);
 					}
 			    }
 			}
 			
 			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
-	
-		for(String key: relationType.keySet()){
-			System.out.println("Relation: "+key+", Counts: "+relationType.get(key));
-		}
-		System.out.println("\n======================================\n");
+
+		LogInfo.logs("Event training set label distribution=%s",labelCounter);
 		return dataset;
 	}
 	
