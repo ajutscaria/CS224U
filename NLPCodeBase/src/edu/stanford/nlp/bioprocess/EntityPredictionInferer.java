@@ -20,7 +20,7 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
-	private boolean printDebugInformation = false;
+	private boolean printDebugInformation = true;
 	List<BioDatum> prediction = null;
 	public static double eventSize = 0;
 	
@@ -87,7 +87,7 @@ public class EntityPredictionInferer extends Inferer {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
-			//LogInfo.begin_track("Example %s",ex.id);
+			LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
@@ -136,8 +136,6 @@ public class EntityPredictionInferer extends Inferer {
 				   System.out.println("Entity Feature length:"+test.get(0).getFeatures().size());
 				*/
 				for(Tree event:eventNodes) {
-					//LogInfo.logs("******************Event " + Utils.getText(event)+ 
-					//		"[" + (Utils.getEventNodesFromSentence(sentence).containsKey(event)?"Correct":"Wrong") +"]**********************");
 					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
 					for(BioDatum d:test)
 						if(d.eventNode == event) {
@@ -178,30 +176,31 @@ public class EntityPredictionInferer extends Inferer {
 					//LogInfo.logs(sentence);
 					//sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennPrint();
 					if(printDebugInformation) {
-						LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
-						for(BioDatum d:testDataEvent) 
-							if(d.label.equals("E"))
-								LogInfo.logs(d.entityNode + ":" + d.label);
+						//JONATHAN - commented out since it seems redundant with PREDICTIONS
+//						LogInfo.logs("\n---------GOLD ENTITIES-------------------------");
+//						for(BioDatum d:testDataEvent) 
+//							if(d.label.equals("E"))
+//								LogInfo.logs(d.entityNode + ":" + d.label);
 						
-						LogInfo.logs("---------PREDICTIONS-------------------------");
-						for(BioDatum d:testDataEvent)
-							if(d.guessLabel.equals("E") || d.label.equals("E"))
-								LogInfo.logs(String.format("%-30s [%s], Gold:  %s Predicted: %s", d.word, d.entityNode.getSpan(), d.label, d.guessLabel));
-						LogInfo.logs("------------------------------------------\n");
+						
+						for(BioDatum d:testDataEvent) {
+							if(d.guessLabel.equals("E") || d.label.equals("E")) {
+								LogInfo.logs(String.format("EventPredictionInferer.infer: Event=%s, Entity=%-30s [%s], Gold=%s, Predicted=%s, Prob=%s ", event, d.word, d.entityNode.getSpan(), d.label, d.guessLabel,d.probEntity));
+							}
+						}
+						
 					}
 				}
 				for(EventMention ev:sentence.get(EventMentionsAnnotation.class))
 					if(!eventNodes.contains(ev.getTreeNode())){
-						LogInfo.logs("||||||||||||||||||||||Event " +ev.getTreeNode()+ "[Missed]||||||||||||||");
-						LogInfo.logs("\n---------Missed entities-------------------------");
+						LogInfo.logs("EntityPredictionInferer.infer: missed event=%s",ev.getTreeNode());
 						for(ArgumentRelation m:ev.getArguments())
-							LogInfo.logs(m.mention.getTreeNode());
-						LogInfo.logs("------------------------------------------\n");
+							LogInfo.logs("EntityPredictionInferer.infer: missed event dependents=%s",m.mention.getTreeNode());
 					}
 			}
-			//LogInfo.end_track();
+			LogInfo.end_track();
 		}
-		System.out.println("\nevent size from entity inferer: "+eventSize);
+		LogInfo.logs("\nevent size from entity inferer: "+eventSize);
 		return predicted;
 	}
 	
