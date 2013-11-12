@@ -30,7 +30,7 @@ public class EventRelationInferer {
 	public EventRelationInferer(List<BioDatum> predictions) {
 		prediction = predictions;
 	}
-	
+
 	public EventRelationInferer(List<BioDatum> predictions, String model) {
 		prediction = predictions;
 		this.model = model;
@@ -38,7 +38,7 @@ public class EventRelationInferer {
 			enforceGlobalConstraints = true;
 		}
 	}
-	
+
 	public EventRelationInferer(String model) {
 		this.model = model;
 		if(model.equals("global")) {
@@ -90,30 +90,30 @@ public class EventRelationInferer {
 				}
 			}
 			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
-			
+
 			pairTriple = Scorer.scoreEventRelations(test);
 			avgProcessPrecisionFull += pairTriple.first.first;
 			avgProcessRecallFull += pairTriple.first.second;
-			
+
 			pairTriple = Scorer.scoreEventRelationsCollapsed(test);
 			avgProcessPrecisionCollapsed += pairTriple.first.first;
 			avgProcessRecallCollapsed += pairTriple.first.second;
-			
+
 			pairTriple = Scorer.scoreEventRelationsStructure(test);
 			avgProcessPrecisionStructure += pairTriple.first.first;
 			avgProcessRecallStructure += pairTriple.first.second;
-			
+
 			predicted.addAll(test);
 			LogInfo.end_track();
 		}
 		avgProcessPrecisionFull /= examples.size();
 		avgProcessRecallFull /= examples.size();
 		avgProcessF1Full = 2 * (float)avgProcessPrecisionFull * avgProcessRecallFull / (avgProcessPrecisionFull + avgProcessRecallFull);
-		
+
 		avgProcessPrecisionCollapsed /= examples.size();
 		avgProcessRecallCollapsed /= examples.size();
 		avgProcessF1Collapsed = 2 * (float)avgProcessPrecisionCollapsed * avgProcessRecallCollapsed / (avgProcessPrecisionCollapsed + avgProcessRecallCollapsed);
-		
+
 		avgProcessPrecisionStructure /= examples.size();
 		avgProcessRecallStructure /= examples.size();
 		avgProcessF1Structure = 2 * (float)avgProcessPrecisionStructure * avgProcessRecallStructure / (avgProcessPrecisionStructure + avgProcessRecallStructure);
@@ -158,15 +158,15 @@ public class EventRelationInferer {
 				}
 			}
 			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
-			
+
 			pairTriple = Scorer.scoreEventRelations(dataset);
 			avgProcessPrecisionFull += pairTriple.first.first;
 			avgProcessRecallFull += pairTriple.first.second;
-			
+
 			pairTriple = Scorer.scoreEventRelationsCollapsed(dataset);
 			avgProcessPrecisionCollapsed += pairTriple.first.first;
 			avgProcessRecallCollapsed += pairTriple.first.second;
-			
+
 			pairTriple = Scorer.scoreEventRelationsStructure(dataset);
 			avgProcessPrecisionStructure += pairTriple.first.first;
 			avgProcessRecallStructure += pairTriple.first.second;
@@ -176,15 +176,15 @@ public class EventRelationInferer {
 		avgProcessPrecisionFull /= testData.size();
 		avgProcessRecallFull /= testData.size();
 		avgProcessF1Full = 2 * (float)avgProcessPrecisionFull * avgProcessRecallFull / (avgProcessPrecisionFull + avgProcessRecallFull);
-		
+
 		avgProcessPrecisionCollapsed /= testData.size();
 		avgProcessRecallCollapsed /= testData.size();
 		avgProcessF1Collapsed = 2 * (float)avgProcessPrecisionCollapsed * avgProcessRecallCollapsed / (avgProcessPrecisionCollapsed + avgProcessRecallCollapsed);
-		
+
 		avgProcessPrecisionStructure /= testData.size();
 		avgProcessRecallStructure /= testData.size();
 		avgProcessF1Structure = 2 * (float)avgProcessPrecisionStructure * avgProcessRecallStructure / (avgProcessPrecisionStructure + avgProcessRecallStructure);
-		
+
 		return predicted;
 	}
 
@@ -327,18 +327,18 @@ public class EventRelationInferer {
 				}
 			}
 			Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
-			
+
 			pairTriple = Scorer.scoreEventRelations(dataset);
 			avgProcessPrecisionFull += pairTriple.first.first;
 			avgProcessRecallFull += pairTriple.first.second;
-			
+
 			//LogInfo.logs("Avg prec" + pairTriple.first.first);
 			//LogInfo.logs("Avg prec" + pairTriple.first.second);
-			
+
 			pairTriple = Scorer.scoreEventRelationsCollapsed(dataset);
 			avgProcessPrecisionCollapsed += pairTriple.first.first;
 			avgProcessRecallCollapsed += pairTriple.first.second;
-			
+
 			pairTriple = Scorer.scoreEventRelationsStructure(dataset);
 			avgProcessPrecisionStructure += pairTriple.first.first;
 			avgProcessRecallStructure += pairTriple.first.second;
@@ -348,7 +348,7 @@ public class EventRelationInferer {
 			Utils.writeStringToFile(buffer.toString(), "GraphViz/" + ex.id + ".gv");
 			//fig.basic.Utils.systemHard("/usr/local/bin/dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
 			//fig.basic.Utils.systemHard("dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
-			
+
 			for(EventMention evt:eventMentions) {
 				degreeDistribution.incrementCount((int)dG.getCount(evt));
 				prevEvent.incrementCount((int)pG.getCount(evt));
@@ -389,65 +389,77 @@ public class EventRelationInferer {
 		avgProcessPrecisionFull /= testData.size();
 		avgProcessRecallFull /= testData.size();
 		avgProcessF1Full = 2 * (float)avgProcessPrecisionFull * avgProcessRecallFull / (avgProcessPrecisionFull + avgProcessRecallFull);
-		
+
 		avgProcessPrecisionCollapsed /= testData.size();
 		avgProcessRecallCollapsed /= testData.size();
 		avgProcessF1Collapsed = 2 * (float)avgProcessPrecisionCollapsed * avgProcessRecallCollapsed / (avgProcessPrecisionCollapsed + avgProcessRecallCollapsed);
-		
+
 		avgProcessPrecisionStructure /= testData.size();
 		avgProcessRecallStructure /= testData.size();
 		avgProcessF1Structure = 2 * (float)avgProcessPrecisionStructure * avgProcessRecallStructure / (avgProcessPrecisionStructure + avgProcessRecallStructure);
 		return predicted;
 	}
 
-	public List<BioDatum> Inferilp(List<Example> testData, Params parameters, EventRelationFeatureFactory ff, String model, Params eventParam) {
+	public List<BioDatum> inferIlp(List<Example> testData, Params parameters, EventRelationFeatureFactory ff, String model, Params eventParam) {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		HashMap<String, Integer> relationType = new HashMap<String, Integer>();
-		System.out.println("\nTesting....");
 		for(Example ex:testData) {
+			LogInfo.begin_track("Inference: process %s",ex.id);
+			LogInfo.begin_track("Predicted");
 			LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 			//List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
 			List<BioDatum> dataset = ff.setFeaturesTestILP(ex, eventParam);
-            int counter = 0;
+			int counter = 0;
 			List<String> labelsInClassifier = (List<String>) classifier.labels();
-
 
 			//Ensuring that 'NONE' is always at index 0
 			labelsInClassifier.remove("NONE");
 			labelsInClassifier.add(0, "NONE");
-			//System.out.println("-----------");
 			for(BioDatum d:dataset) {
 				Datum<String, String> newDatum = new BasicDatum<String, String>(d.getFeatures(),d.label());
 				//if(!d.label().equals("NONE"))
-				String type = d.label();
-				if(!relationType.containsKey(type)){
-					relationType.put(type, 1);
+				String label = d.label();
+				if(!relationType.containsKey(label)){
+					relationType.put(label, 1);
 				}else{
-					int original = relationType.get(type);
+					int original = relationType.get(label);
 					original++;
-					relationType.put(type, original);
+					relationType.put(label, original);
 				}
 				//System.out.println(counter+": True: "+d.label()+", predicted: "+classifier.classOf(newDatum));
 				counter++;
-				d.setPredictedLabel(classifier.classOf(newDatum));
+				String predictedRelation = classifier.classOf(newDatum);
+				d.setPredictedLabel(predictedRelation);
+				if(!"NONE".equals(predictedRelation)) {
+					LogInfo.logs("EventRelationInferer.infer: %s-->%s==%s",d.event1.getTreeNode(),d.event2.getTreeNode(),predictedRelation);
+				}
+				
 				HashMap<String, Double> rankRelation = new HashMap<String, Double>();
 				for(String possibleLabel:labelsInClassifier){
 					rankRelation.put(possibleLabel, classifier.logProbabilityOf(newDatum).getCount(possibleLabel));
 				}
-				//classifier.probabilityOf(newDatum).getCount(possibleLabel));
-                d.setRankRelation(rankRelation);
+				d.setRankRelation(rankRelation);
 			}
-			//System.out.println("-----------");
 			predicted.addAll(dataset);
+			LogInfo.end_track();
+			
+			LogInfo.begin_track("Gold");
+			List<EventMention> mentions = ex.gold.get(EventMentionsAnnotation.class);
+			for(int i = 0; i < mentions.size()-1; ++i) {
+				for(int j = i+1; j < mentions.size(); ++j) {
+					String relation = Utils.getEventEventRelation(ex.gold, mentions.get(i).getTreeNode(),
+							mentions.get(j).getTreeNode()).toString();
+					if(!"NONE".equals(relation))
+						LogInfo.logs("EventRelationInferer.infer: %s-->%s==%s",mentions.get(i).getTreeNode(),mentions.get(j).getTreeNode(),relation);
+				}
+			}
+			LogInfo.end_track();
+			
+			LogInfo.end_track();
 		}
-		
-		for(String key: relationType.keySet()){
-			System.out.println("Relation: "+key+", Counts: "+relationType.get(key));
-		}
-		System.out.println("\n======================================\n");
 		return predicted;
 	}
-	
+
 	public List<BioDatum> PipelineInfer(Example testExample, List<EventMention> eventsPredicted, Params parameters, EventRelationFeatureFactory ff, String model, boolean connectedComponent,
 			boolean sameEvent, boolean previousEvent, boolean sameEventContradiction,
 			double alpha1, double alpha2, double alpha3, double alpha4, double alpha5, double alpha6, double alpha7) {
@@ -455,7 +467,7 @@ public class EventRelationInferer {
 		//LogInfo.begin_track("Example %s",testExample.id);
 
 		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
-		
+
 		List<BioDatum> dataset = ff.setFeaturesTest(testExample, eventsPredicted);
 
 		StringBuilder buffer = new StringBuilder("digraph finite_state_machine { \n\trankdir=LR;\n\tsize=\"50,50\";");
@@ -514,7 +526,7 @@ public class EventRelationInferer {
 		//@heather   
 		enforceGlobalConstraints = true;
 		//
-		
+
 		if(enforceGlobalConstraints) {
 			ILPOptimizer opt = new ILPOptimizer(weights, eventMentions.size(), labelsInClassifier, 
 					connectedComponent, sameEvent, previousEvent, sameEventContradiction, alpha1, alpha2, alpha3, alpha4, alpha5, alpha6, alpha7);
@@ -538,10 +550,10 @@ public class EventRelationInferer {
 		Utils.writeStringToFile(buffer.toString(), "GraphViz/" + testExample.id + ".gv");
 		//fig.basic.Utils.systemHard("/usr/local/bin/dot -o GraphViz/" + ex.id + ".png -Tpng GraphViz/" + ex.id + ".gv");
 		//fig.basic.Utils.systemHard("dot -o GraphViz/" + testExample.id + ".png -Tpng GraphViz/" + testExample.id + ".gv");
-		
+
 
 		//LogInfo.end_track();
-		
+
 		return dataset;
 	}
 }

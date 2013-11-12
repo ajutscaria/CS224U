@@ -11,6 +11,7 @@ import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.Triple;
 import fig.basic.LogInfo;
+import fig.basic.MapUtils;
 
 public class Scorer {
 
@@ -37,58 +38,69 @@ public class Scorer {
 
 	public static Triple<Double, Double, Double> scoreEvents(List<Example> test, List<BioDatum> predictedEvents) {
 
-		IdentityHashSet<Tree> actual = findActualEvents(test), predicted = findPredictedEvents(predictedEvents);
+		LogInfo.begin_track("Scoring events");
 		int tp = 0, fp = 0, fn = 0;
-		for(Tree p:actual) {
-			if(predicted.contains(p)) {
-				tp++;
-				//LogInfo.logs("Correct - " + p) ;
+		Map<String,List<BioDatum>> processToDataMap = groupByExampleId(predictedEvents);
+		for(Example testEx: test) {
+			LogInfo.begin_track("Process %s",testEx.id);
+			IdentityHashSet<Tree> actual = findActualEvents(Collections.singletonList(testEx)), 
+					predicted = findPredictedEvents(MapUtils.get(processToDataMap, testEx.id, new ArrayList<BioDatum>()));
+			for(Tree p:actual) {
+				if(predicted.contains(p)) {
+					tp++;
+					LogInfo.logs("Correct - " + p) ;
+				}
+				else {
+					fn++;
+					LogInfo.logs("Not predicted - " + p);
+				}
 			}
-			else {
-				fn++;
-				//LogInfo.logs("Not predicted - " + p);
+			for(Tree p:predicted) {
+				if(!actual.contains(p)) {
+					fp++;
+					LogInfo.logs("Extra - " + p);
+				}
 			}
+			LogInfo.end_track();
 		}
-		for(Tree p:predicted) {
-			if(!actual.contains(p)) {
-				fp++;
-				//LogInfo.logs("Extra - " + p);
-			}
-		}
-
-		//LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
 
 		double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
 		double f= 2 * precision * recall / (precision + recall);
-
+		LogInfo.end_track();
 		return new Triple<Double, Double, Double>(precision, recall, f);
 	}
 
 	public static Triple<Double, Double, Double> scoreEntities(List<Example> test, List<BioDatum> predictedEntities) {
-		IdentityHashMap<Pair<Tree, Tree>, Integer> actual = findActualEventEntityPairs(test), predicted = findPredictedEventEntityPairs(predictedEntities);
-		int tp = 0, fp = 0, fn = 0;
-		for(Pair<Tree, Tree> p:actual.keySet()) {
-			if(checkContainment(predicted.keySet(),p)) {
-				tp++;
-				//LogInfo.logs("Correct - " + p.first + ":" + p.second);
-			}
-			else {
-				fn++;
-				//LogInfo.logs("Not predicted - " + p.first + ":" + p.second);
-			}
-		}
-		for(Pair<Tree, Tree> p:predicted.keySet()) {
-			if(!checkContainment(actual.keySet(),p)) {
-				fp++;
-				//LogInfo.logs("Extra - " + p.first + ":" + p.second);
-			}
-		}
 
-		//LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp);
+		LogInfo.begin_track("Scoring entities");
+		Map<String,List<BioDatum>> processToDataMap = groupByExampleId(predictedEntities);
+		int tp = 0, fp = 0, fn = 0;
+		for(Example testEx: test) {
+			LogInfo.begin_track("Process %s",testEx.id);
+			IdentityHashMap<Pair<Tree, Tree>, Integer> actual = findActualEventEntityPairs(Collections.singletonList(testEx)),
+					predicted = findPredictedEventEntityPairs(MapUtils.get(processToDataMap, testEx.id, new ArrayList<BioDatum>()));
+			for(Pair<Tree, Tree> p:actual.keySet()) {
+				if(checkContainment(predicted.keySet(),p)) {
+					tp++;
+					LogInfo.logs("Correct - " + p.first + ":" + p.second);
+				}
+				else {
+					fn++;
+					LogInfo.logs("Not predicted - " + p.first + ":" + p.second);
+				}
+			}
+			for(Pair<Tree, Tree> p:predicted.keySet()) {
+				if(!checkContainment(actual.keySet(),p)) {
+					fp++;
+					LogInfo.logs("Extra - " + p.first + ":" + p.second);
+				}
+			}
+			LogInfo.end_track();
+		}
 
 		double precision = (double)tp/(tp+fp), recall = (double)tp/(tp+fn);
 		double f= 2 * precision * recall / (precision + recall);
-
+		LogInfo.end_track();
 		return new Triple<Double, Double, Double>(precision, recall, f);
 	}
 
@@ -527,40 +539,43 @@ public class Scorer {
 	}
 
 	public static Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> scoreEventRelations(List<Example> test, List<BioDatum> predictedRelations) {
-		//IdentityHashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs(test), predicted = findPredictedEventEventRelationPairs(predictedRelations);
-		HashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs2(test), predicted = findPredictedEventEventRelationPairs2(predictedRelations);
+
+		LogInfo.begin_track("Scoring relations");
+		Map<String,List<BioDatum>> processToDataMap = groupByExampleId(predictedRelations);
 		int tp = 0, fp = 0, fn = 0;
-		int fn_null = 0, fn_diff = 0; 
-		//System.out.println("Actual:");
-		for(Pair<Tree, Tree> p : actual.keySet()) {
-			//System.out.println(p.first.toString()+", "+p.second.toString()+":"+actual.get(p));
-			Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists2(predicted.keySet(),p);
-			/*if(pairObjPredicted == null){
-			System.out.println("Not found in prediction at all!!!");
-		}else{
-			System.out.println(predicted.get(pairObjPredicted));
-		}*/
-			if( pairObjPredicted != null && predicted.get(pairObjPredicted).equals(actual.get(p))) {
-				tp++;
-				//LogInfo.logs("Correct - " + p.first + ":" + p.second + "-->" + actual.get(p));
-			}
-			else {
-				if(pairObjPredicted == null){
-					fn_null++;
+		int fn_null = 0, fn_diff = 0;
+		for(Example testEx: test) {
+			LogInfo.begin_track("Process id=%s",testEx.id);
+
+			HashMap<Pair<Tree, Tree>, String> actual = findActualEventEventRelationPairs2(Collections.singletonList(testEx)), 
+					predicted = findPredictedEventEventRelationPairs2(MapUtils.get(processToDataMap, testEx.id, new ArrayList<BioDatum>()));
+
+			for(Pair<Tree, Tree> p : actual.keySet()) {
+				Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists2(predicted.keySet(),p);
+
+				if( pairObjPredicted != null && predicted.get(pairObjPredicted).equals(actual.get(p))) {
+					tp++;
+					LogInfo.logs("Correct - " + p.first + ":" + p.second + "-->" + actual.get(p));
 				}
-				else if(!predicted.get(pairObjPredicted).equals(actual.get(p)))fn_diff++;
-				fn++;
-				//LogInfo.logs("Not predicted - " + p.first + ":" + p.second+ "-->" + actual.get(p));
+				else {
+					if(pairObjPredicted == null){
+						fn_null++;
+					}
+					else if(!predicted.get(pairObjPredicted).equals(actual.get(p)))fn_diff++;
+					fn++;
+					LogInfo.logs("Not predicted - " + p.first + ":" + p.second+ "-->" + actual.get(p));
+				}
 			}
-		}
-		//System.out.println("Predicted:");
-		for(Pair<Tree, Tree> p:predicted.keySet()) {
-			//System.out.println(p.first.toString()+", "+p.second.toString()+":"+predicted.get(p));
-			Pair<Tree, Tree> pairObjActual = returnTreePairIfExists2(actual.keySet(),p);
-			if(pairObjActual == null || !predicted.get(p).equals(actual.get(pairObjActual))) {
-				fp++;
-				//LogInfo.logs("Extra - " + p.first + ":" + p.second+ "-->" + predicted.get(p));
+			//System.out.println("Predicted:");
+			for(Pair<Tree, Tree> p:predicted.keySet()) {
+				//System.out.println(p.first.toString()+", "+p.second.toString()+":"+predicted.get(p));
+				Pair<Tree, Tree> pairObjActual = returnTreePairIfExists2(actual.keySet(),p);
+				if(pairObjActual == null || !predicted.get(p).equals(actual.get(pairObjActual))) {
+					fp++;
+					LogInfo.logs("Extra - " + p.first + ":" + p.second+ "-->" + predicted.get(p));
+				}
 			}
+			LogInfo.end_track();
 		}
 
 		LogInfo.logs("tp fn fp " + tp + ":" + fn + ":" + fp+", fn_null:"+fn_null+", fn_diff:"+fn_diff);
@@ -572,9 +587,9 @@ public class Scorer {
 		else
 			f= 2 * precision * recall / (precision + recall);
 
+		LogInfo.end_track();
 		return new Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>>(new Triple<Double, Double, Double>(precision, recall, f), 
 				new Triple<Double, Double, Double>(precision, recall, f));   
-		// return new Triple<Double, Double, Double>(precision, recall, f);
 	}
 
 	private static IdentityHashMap<Pair<Tree, Tree>, String> findPredictedEventEntityRelationPairs(
@@ -799,5 +814,12 @@ public class Scorer {
 			int actualIndex = relations.indexOf(d.label), predictedIndex = relations.indexOf(d.predictedLabel());
 			confusionMatrix[actualIndex][predictedIndex] += 1;
 		}
+	}
+
+	public static Map<String,List<BioDatum>> groupByExampleId(List<BioDatum> data) {
+		Map<String,List<BioDatum>> res = new HashMap<String, List<BioDatum>>();
+		for(BioDatum datum: data)
+			MapUtils.addToList(res, datum.exampleID, datum);
+		return res;
 	}
 }

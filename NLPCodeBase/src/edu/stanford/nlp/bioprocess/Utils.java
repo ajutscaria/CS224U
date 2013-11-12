@@ -442,6 +442,13 @@ public class Utils {
 	  return map;
   }
   
+  public static IdentityHashMap<Tree, EventMention> getEventNodeAndMentionFromSentence(CoreMap sentence) {
+	  IdentityHashMap<Tree, EventMention> map = new IdentityHashMap<Tree, EventMention>();
+	  for(EventMention event : sentence.get(EventMentionsAnnotation.class))
+  		map.put(event.getTreeNode(), event);
+	  return map;
+  }
+  
   public static IdentityHashSet<Tree> getEntityNodesFromSentence(CoreMap sentence) {
 	  IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
 	  for(EntityMention entity : sentence.get(EntityMentionsAnnotation.class))

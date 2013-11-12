@@ -25,22 +25,45 @@ public class UniqueLabelConstraint extends ILPConstraintGenerator {
 		List<BioDatum> data = input.data; 
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
 		int labelLength = input.labels;
-		for (int eventId = 0; eventId < data.size(); eventId++) {
-			int[] vars = new int[labelLength];
-			double[] coefficients = new double[labelLength];
-            StringBuilder print = new StringBuilder();
-			for (int labelId = 0; labelId < labelLength; labelId++) {
-				vars[labelId] = lexicon.getVariable(Inference.getVariableName(eventId,labelId, input.name));
-				coefficients[labelId] = 1.0;
-				print.append(Inference.getVariableName(eventId,labelId, input.name));
-				print.append("+");
+		if(!input.name.equals("relation")){
+			for (int eventId = 0; eventId < data.size(); eventId++) {
+				int[] vars = new int[labelLength];
+				double[] coefficients = new double[labelLength];
+	            StringBuilder print = new StringBuilder();
+				for (int labelId = 0; labelId < labelLength; labelId++) {
+					vars[labelId] = lexicon.getVariable(Inference.getVariableName(eventId,labelId, input.name));
+					coefficients[labelId] = 1.0;
+					print.append(Inference.getVariableName(eventId,labelId, input.name));
+					print.append("+");
+				}
+	
+				print.append("= 1\n");
+				//System.out.println(print);
+				constraints.add(new ILPConstraint(vars, coefficients, 1.0,
+						ILPConstraint.EQUAL));
+	
 			}
-
-			print.append("= 1\n");
-			//System.out.println(print);
-			constraints.add(new ILPConstraint(vars, coefficients, 1.0,
-					ILPConstraint.EQUAL));
-
+		}else{
+			for (int eventId = 0; eventId < data.size(); eventId++) { 
+				int event1 = data.get(eventId).event1_index;
+				int event2 = data.get(eventId).event2_index;
+				int[] vars = new int[labelLength];
+				double[] coefficients = new double[labelLength];
+	            StringBuilder print = new StringBuilder();
+				for (int labelId = 0; labelId < labelLength; labelId++) {
+					vars[labelId] = lexicon.getVariable(Inference.getVariableName(event1, event2, labelId, input.name));
+					coefficients[labelId] = 1.0;
+					print.append(Inference.getVariableName(event1, event2, labelId, input.name));
+					print.append("+");
+				}
+	
+				print.append("= 1\n");
+				//System.out.println(print);
+				constraints.add(new ILPConstraint(vars, coefficients, 1.0,
+						ILPConstraint.EQUAL));
+	
+			}
+			
 		}
 		
 		return constraints;

@@ -17,6 +17,8 @@ import edu.stanford.nlp.trees.Trees;
 import edu.stanford.nlp.semgraph.SemanticGraph;
 import edu.stanford.nlp.semgraph.SemanticGraphEdge;
 import edu.stanford.nlp.semgraph.SemanticGraphCoreAnnotations.CollapsedCCProcessedDependenciesAnnotation;
+import edu.stanford.nlp.stats.ClassicCounter;
+import edu.stanford.nlp.stats.Counter;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
@@ -146,6 +148,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 	}
     public List<BioDatum> setFeaturesTrain(List<Example> data) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
+    	Counter<String> labelCounts = new ClassicCounter<String>();
 		for (Example ex : data) {
 			if(printDebug || printAnnotations) LogInfo.logs("\n-------------------- " + ex.id + "---------------------");
 			for(CoreMap sentence : ex.gold.get(SentencesAnnotation.class)) {
@@ -161,16 +164,17 @@ public class EventFeatureFactory extends FeatureExtractor {
 							!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||node.value().startsWith("NN") || node.value().equals("JJ") || node.value().startsWith("VB")))
 						continue; //exclude illegal nodes
 					
-					String type = eventNodes.keySet().contains(node) ? "E" : "O";
-					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), type, node, node, ex.id);
+					String label = eventNodes.keySet().contains(node) ? "E" : "O";
+					BioDatum newDatum = new BioDatum(sentence, Utils.getText(node), label, node, node, ex.id);
 					newDatum.features = computeFeatures(sentence, node);
 					dataset.add(newDatum);
+					labelCounts.incrementCount(label);
 					//if(printFeatures) LogInfo.logs(Utils.getText(node) + ":" + newDatum.features.getFeatureString());
 				}
 			}
 			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
-	
+		LogInfo.logs("Event training set label distribution=%s",labelCounts);
 		return dataset;
     }
     

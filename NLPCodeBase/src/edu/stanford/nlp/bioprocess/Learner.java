@@ -7,6 +7,7 @@ import edu.stanford.nlp.classify.GeneralDataset;
 import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.classify.LinearClassifierFactory;
 import edu.stanford.nlp.ling.BasicDatum;
+import fig.basic.LogInfo;
 
 
 /***
@@ -37,7 +38,6 @@ public class Learner {
    */
 	public Params learn(List<Example> dataset, FeatureExtractor ff) {
 		List<BioDatum> data = ff.setFeaturesTrain(dataset);
-		
 		GeneralDataset<String, String> dd = new Dataset<String, String>();
 		for(BioDatum d:data) {
 			dd.add(new BasicDatum<String, String>(d.features.getFeatures(), d.label()));
@@ -49,11 +49,13 @@ public class Learner {
 		parameters.setWeights(classifier.weights());
 		parameters.setFeatureIndex(dd.featureIndex);
 		parameters.setLabelIndex(dd.labelIndex);
+		//System.out.println("Entity param length in learner 1:"+parameters.weights.length);
 	    return parameters;
 	}
 	
-	public Params learn(List<Example> dataset, FeatureExtractor ff, Params param) {
-		System.out.println("Learner for entity");
+	public Params learn(List<Example> dataset, FeatureExtractor ff, Params param) { //param: event parameters
+		//System.out.println("Learner for entity");
+		//System.out.println("Event parameters length:"+param.weights.length);
 		List<BioDatum> data = ff.setFeaturesTrain(dataset, param);
 		
 		GeneralDataset<String, String> dd = new Dataset<String, String>();
@@ -67,6 +69,7 @@ public class Learner {
 		parameters.setWeights(classifier.weights());
 		parameters.setFeatureIndex(dd.featureIndex);
 		parameters.setLabelIndex(dd.labelIndex);
+		//System.out.println("Entity param length in learner 2:"+parameters.weights.length);
 	    return parameters;
 	}
 	
