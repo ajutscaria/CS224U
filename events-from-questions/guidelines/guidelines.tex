@@ -1,0 +1,194 @@
+% Created 2013-10-30 Wed 16:31
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{fixltx2e}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{soul}
+\usepackage{textcomp}
+\usepackage{marvosym}
+\usepackage{wasysym}
+\usepackage{latexsym}
+\usepackage{amssymb}
+\usepackage{hyperref}
+\tolerance=1000
+\usepackage{color}
+\usepackage{listings}
+\usepackage{geometry}
+\providecommand{\alert}[1]{\textbf{#1}}
+
+\title{Creating a Corpus of Questions and Answers about Biological Processes: Annotation Guidelines}
+\author{Jonathan Berant and Vivek Srikumar}
+\date{}
+\hypersetup{
+  pdfkeywords={},
+  pdfsubject={},
+  pdfcreator={Emacs Org-mode version 7.9.2}}
+
+\begin{document}
+
+\maketitle
+
+
+
+\section{Introduction}
+\label{sec-1}
+
+  
+  We have the ability to read text that describes a biological process
+  (that is, a collection of inter-connected events that lead to an end
+  result) and answer complex questions about the relationships between
+  the events. Our goal is to develop systems that can automatically
+  answer complex biology AP style questions in such a reading
+  comprehension setting. We will use a hand created corpus of
+  questions associated with text to train and evaluate the systems.
+\section{Generating questions and answers}
+\label{sec-2}
+
+  
+  The goal is to generate multiple-choice questions about biological
+  processes that are described in a paragraph of text. The questions
+  should focus on the events and entities participating in the
+  process. Consider the following paragraph (from the textbook
+  \emph{Biology} by Campbell and Reece) as an example:
+
+\begin{quote}
+The light reactions are the steps of photosynthesis that convert solar
+energy to chemical energy. Water is split, providing a source of
+electrons and protons (hydrogen ions, $H^+$) and giving off O2 as a
+by-product. Light absorbed by chlorophyll drives a transfer of the
+electrons and hydrogen ions from water to an acceptor called $NADP^+$
+(nicotinamide adenine dinucleotide phosphate), where they are
+temporarily stored. The electron acceptor $NADP^+$ is first cousin to
+$NAD^+$, which functions as an electron carrier in cellular
+respiration; the two molecules differ only by the presence of an extra
+phosphate group in the $NADP^+$ molecule.
+\end{quote}
+
+  There are several events described in the paragraph -- splitting of
+  water, absorption of light, transfer of electrons and hydrogen ions,
+  etc. These events involve entities like water, electrons and
+  protons, chlorophyll, etc. 
+
+  We can write several questions about these. Some examples are listed
+  below, with the correct answer marked in \textbf{boldface}:
+  
+\begin{enumerate}
+\item A source of electrons and protons are provided after which
+     event?
+\begin{enumerate}
+\item \textbf{Water is split}
+\item Light is absorbed
+\end{enumerate}
+\item Which of the following events is caused by the absorption of
+     chlorophyll?
+\begin{enumerate}
+\item \textbf{Transfer of electrons and protons into} $NADP^+$
+\item The splitting of water
+\end{enumerate}
+\item What event would not happen if water does not provide electrons
+     and hydrogen ions?
+\begin{enumerate}
+\item Light absorption by chlorophyll
+\item \textbf{Transfer of ions to} $NADP^+$
+\end{enumerate}
+\end{enumerate}
+\section{Guidelines for generating questions and answers}
+\label{sec-3}
+
+  We are primarily interested in questions that depend on the
+  inter-relationships between events. An event can be a \emph{subevent} or
+  a \emph{super-event} of another one. Additionally, an event can
+  \emph{enable}, \emph{cause} or \emph{prevent} another one. Note that
+  these \textbf{event-event} relations often imply a temporal ordering
+  between them. For example, if event e$_1$ causes an event e$_2$, then
+  e$_1$ should occur before e$_2$.
+
+  Entities can play different roles in one or more events. For
+  example, an entity can be the performer of an event (or more
+  formally, the \texttt{Agent} of the event), or it can be acted upon in the
+  event (that is, the \texttt{Patient} of the event), it could be generated
+  in the event (the \texttt{Result} of the event), and so on.
+
+  We have identified the following classes of questions that verify
+  understanding of these relationships between events and entities:
+
+\begin{enumerate}
+\item For event $e$:
+\begin{enumerate}
+\item What event will be caused or prevented by $e$?
+\item If $e$ does not happen, what else will not happen?
+\item What event \emph{should} occur after/before $e$?
+\item What events are necessary for $e$ to occur?
+\end{enumerate}
+\item For events $e_1$, $e_2$:
+\begin{enumerate}
+\item Which one happens first?
+\item What is the relation between them (eg. e$_1$ causes e$_2$, e$_1$ is
+        a super event of e$_2$, and so on)?
+\item What is the sequence of events between them?
+\end{enumerate}
+\item For events e$_1$,\ldots{},e$_n$:
+\begin{enumerate}
+\item What is the correct ordering of the events?
+\item Which may simultaneously occur?
+\end{enumerate}
+\item Which entity performs a given role (eg. \texttt{Agent}, \texttt{Theme},
+     \texttt{Result}) for an event?
+\item What role does an entity perform in an event?
+\item For entity $a$:
+\begin{enumerate}
+\item What entities are necessary to produce $a$?
+\item What events are necessary to produce $a$?
+\item If $a$ is not produced what events will not happen?
+\item If $a$ is not produces what other entities will not be
+        produced?
+\end{enumerate}
+\item If a$_1$ and a$_2$ are two entities in the process, how does a$_1$ lead
+     to the production of a$_2$?
+\end{enumerate}
+
+  Note that these are only templates for types of questions and the
+  actual questions need not look like them. For example, the first
+  question in the three example questions listed above asks what
+  events are necessary to produce an entity (template 6.2). Similarly,
+  the second question belongs to the template 1.1 and the third one
+  belongs to the template 1.2.
+\subsection{Other guidelines}
+\label{sec-3-1}
+
+\begin{enumerate}
+\item Each question \textbf{should} belong to one of the templates
+      identified above.
+\item Each question should be associated with two answers, where only
+      one is unambiguously correct and the other is unambiguously
+      incorrect.
+\item It should be possible to answer the question by reasoning about
+      the events and entities and their relationships, as specified in
+      the text.
+\item Do not use background knowledge that is not present in the
+      text. In the above example, if the text did not identify that
+      protons are hydrogen ions, represented by $H^+$, we should not
+      use these names in the questions or the answers.
+\item When referring to entities and events in the questions and
+      answers, try to use their names as they appear in the paragraph.
+      However, sometimes the same entity may be referred to by
+      different names (like proton or $H^+$ in the paragraph). If
+      (and only if) this happens, you can refer to the entity by any
+      of these names.
+\item Do not use contractions or drop words in the names of entities
+      unless the text becomes awkward without doing so.
+\item We are only interested in events and entities that participate
+      in them. In the paragraph above, the last sentence says ``the two
+      molecules differ only by the presence of an extra phosphate
+      group in the $NADP^+$ molecule''. Note that this sentence does
+      not describe an event. Do not generate questions based on such
+      sentences.
+\end{enumerate}
+
+   
+
+\end{document}
