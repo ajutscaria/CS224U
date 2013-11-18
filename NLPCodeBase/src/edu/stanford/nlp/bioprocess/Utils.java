@@ -84,18 +84,27 @@ public class Utils {
 		return set;
 	}
   
-  public static void compareEvents(Annotation first, Annotation second){
+  public static void compareEvents(Annotation first, Annotation second, Annotation gold){
 	  HashMap<Tree, Double> firstRunEvents = findEvents(first);
   	  HashMap<Tree, Double> secondRunEvents = findEvents(second);
+  	  HashMap<Tree, Double> goldEvents = findEvents(gold);
 	  	for(Tree p:firstRunEvents.keySet()) {
 			if(!secondRunEvents.containsKey(p)) {
-				LogInfo.logs(String.format("%-30s Predicted=E in file1, Predicted=O in file2", p));
+				String truelabel = "O";
+				if(goldEvents.containsKey(p)){
+					truelabel = "E";
+				}
+				LogInfo.logs(String.format("%-30s Predicted=E in file1, Predicted=O in file2, Gold=%s", p, truelabel));
 			}
 		}
 	  	
 	  	for(Tree p:secondRunEvents.keySet()) {
 			if(!firstRunEvents.containsKey(p)) {
-				LogInfo.logs(String.format("%-30s Predicted=O in file1, Predicted=E in file2", p));
+				String truelabel = "O";
+				if(goldEvents.containsKey(p)){
+					truelabel = "E";
+				}
+				LogInfo.logs(String.format("%-30s Predicted=O in file1, Predicted=E in file2, Gold=%s", p, truelabel));
 			}
 		}
   	  /*for(EventMention em:first.get(EventMentionsAnnotation.class)) {
@@ -135,33 +144,42 @@ public class Utils {
 		return false;
 	}
   
-  public static void compareEntities(Annotation first, Annotation second){
+  public static void compareEntities(Annotation first, Annotation second, Annotation gold){
 	  HashMap<Pair<Tree, Tree>, Double> firstEntities = findEventEntityPairs(first),
-				secondEntities = findEventEntityPairs(second);
+				secondEntities = findEventEntityPairs(second),
+	            goldEntities = findEventEntityPairs(gold);
 	  for(Pair<Tree, Tree> p:firstEntities.keySet()) {
 			if(!checkContainment(secondEntities.keySet(),p)) {
+				String truelabel = "O";
+				if(checkContainment(goldEntities.keySet(),p)){
+					truelabel = "E";
+				}
 				LogInfo.logs(
-				  String.format("Event=%-15s Entity=%s, Predicted=E in file1, Predicted=O in file2", p.first, p.second));
+				  String.format("Event=%-15s Entity=%s, Predicted=E in file1, Predicted=O in file2, Gold=%s", p.first, p.second, truelabel));
 			}
 		}
 	  
 	  for(Pair<Tree, Tree> p:secondEntities.keySet()) {
 			if(!checkContainment(firstEntities.keySet(),p)) {
+				String truelabel = "O";
+				if(checkContainment(goldEntities.keySet(),p)){
+					truelabel = "E";
+				}
 				LogInfo.logs(
-				  String.format("Event=%-15s Entity=%s, Predicted=O in file1, Predicted=E in file2", p.first, p.second));
+				  String.format("Event=%-15s Entity=%s, Predicted=O in file1, Predicted=E in file2, Gold=%s", p.first, p.second, truelabel));
 			}
 		}
   }
   
-  private static HashMap<Pair<Tree, Tree>, String> findPredictedEventEventRelationPairs(Annotation ann) {
-		HashMap<Pair<Tree, Tree>, String> map = new HashMap<Pair<Tree, Tree>, String> ();
+  private static HashMap<Pair<Tree, Tree>, RelationType> findPredictedEventEventRelationPairs(Annotation ann) {
+		HashMap<Pair<Tree, Tree>, RelationType> map = new HashMap<Pair<Tree, Tree>, RelationType> ();
 		//LogInfo.begin_track("Gold event-entity");
 		for(EventMention em:ann.get(EventMentionsAnnotation.class)){
 			//System.out.println(em.getTreeNode().toString());
 			//System.out.println("relations:");
 			for(ArgumentRelation rel:em.getArguments()) {
 				if(rel.mention instanceof EventMention && rel.type != RelationType.NONE) {
-					map.put(new Pair<Tree, Tree>(em.getTreeNode(), rel.mention.getTreeNode()), rel.type.toString());
+					map.put(new Pair<Tree, Tree>(em.getTreeNode(), rel.mention.getTreeNode()), rel.type);
 				}
 			}
 		}
@@ -176,36 +194,63 @@ public class Utils {
 		return null;
 	}
   
-  public static void compareRelations(Annotation first, Annotation second){
-	  HashMap<Pair<Tree, Tree>, String> firstRelation = findPredictedEventEventRelationPairs(first), 
-				secondRelation = findPredictedEventEventRelationPairs(second);
+  public static RelationType flip(RelationType relation){
+	    if(relation == RelationType.Causes || relation == RelationType.Enables || relation == RelationType.CotemporalEvent ||
+				relation == RelationType.SameEvent)
+			return relation;
+		else if(relation == RelationType.NextEvent)
+			return RelationType.PreviousEvent;
+		else if(relation == RelationType.SuperEvent)
+			return RelationType.SubEvent;
+	    return RelationType.NONE;
+  }
+  
+  public static void compareRelations(Annotation first, Annotation second, Annotation gold){
+	  HashMap<Pair<Tree, Tree>, RelationType> firstRelation = findPredictedEventEventRelationPairs(first), 
+				secondRelation = findPredictedEventEventRelationPairs(second),
+				goldRelation = findPredictedEventEventRelationPairs(gold);
 	  for(Pair<Tree, Tree> p : firstRelation.keySet()) {
 			//System.out.println(p.first+","+ p.second+"->"+actual.get(p));
 			Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(secondRelation.keySet(),p);
+			RelationType truelabel = RelationType.NONE;
+			Pair<Tree, Tree> pairGoldPredicted = returnTreePairIfExists(goldRelation.keySet(),p);
+			if(pairGoldPredicted!=null){
+				truelabel = goldRelation.get(pairGoldPredicted);
+				truelabel = flip(truelabel);
+			}
 			if( pairObjPredicted == null){
+				
 				LogInfo.logs(
 					String.format("Event1=%-15s Event2=%-15s, Predicted=%s in file1,"
-							+ "Predicted=NONE in file2", p.first, p.second, firstRelation.get(p)));
+							+ "Predicted=NONE in file2, Gold=%s", p.first, p.second, firstRelation.get(p), truelabel));
 			}
 			else if (!secondRelation.get(pairObjPredicted).equals(firstRelation.get(p))) {
 				LogInfo.logs(
 				    String.format("Event1=%-15s Event2=%-15s, Predicted=%s in file1,"
-				    		+ "Predicted=%s in file2", p.first, p.second, firstRelation.get(p), secondRelation.get(pairObjPredicted)));
+				    		+ "Predicted=%s in file2, Gold=%s", p.first, p.second, firstRelation.get(p), 
+				    		secondRelation.get(pairObjPredicted), truelabel));
 			}
 		}
 	  
 	  for(Pair<Tree, Tree> p : secondRelation.keySet()) {
 			//System.out.println(p.first+","+ p.second+"->"+actual.get(p));
 			Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(firstRelation.keySet(),p);
+			RelationType truelabel = RelationType.NONE;
+			Pair<Tree, Tree> pairGoldPredicted = returnTreePairIfExists(goldRelation.keySet(),p);
+			if(pairGoldPredicted!=null){
+				truelabel = goldRelation.get(pairGoldPredicted);
+				truelabel = flip(truelabel);
+			}
 			if( pairObjPredicted == null){
 				LogInfo.logs(
 					String.format("Event1=%-15s Event2=%-15s, Predicted=NONE in file1,"
-							+ "Predicted=%s in file2", p.first, p.second, secondRelation.get(p)));
+							+ "Predicted=%s in file2, Gold=%s", p.first, p.second, secondRelation.get(p), truelabel));
 			}
 			else if (!firstRelation.get(pairObjPredicted).equals(secondRelation.get(p))) {
 				LogInfo.logs(
 				    String.format("Event1=%-15s Event2=%-15s, Predicted=%s in file1,"
-				    		+ "Predicted=%s in file2", p.first, p.second, firstRelation.get(pairObjPredicted), secondRelation.get(p)));
+				    		+ "Predicted=%s in file2, Gold=%s", p.first, p.second, firstRelation.get(pairObjPredicted), 
+				    		secondRelation.get(p), truelabel));
 			}
 		}
   }
@@ -221,15 +266,15 @@ public class Utils {
 			LogInfo.begin_track("Process "+firstRun.get(i).id);
 			LogInfo.begin_track("Event difference");
 			compareEvents(firstRun.get(i).prediction, 
-					secondRun.get(i).prediction);
+					secondRun.get(i).prediction, firstRun.get(i).gold);
 			LogInfo.end_track();
 			LogInfo.begin_track("Entity difference");
 			compareEntities(firstRun.get(i).prediction, 
-					secondRun.get(i).prediction);
+					secondRun.get(i).prediction, firstRun.get(i).gold);
 			LogInfo.end_track();
 			LogInfo.begin_track("Relation difference");
 			compareRelations(firstRun.get(i).prediction, 
-					secondRun.get(i).prediction);
+					secondRun.get(i).prediction, firstRun.get(i).gold);
 			LogInfo.end_track();
 			LogInfo.end_track();
 		}

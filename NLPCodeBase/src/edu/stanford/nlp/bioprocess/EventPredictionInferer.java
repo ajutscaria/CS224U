@@ -20,6 +20,8 @@ public class EventPredictionInferer extends Inferer {
 	boolean printDebugInformation = true;
 	List<BioDatum> prediction = null;
 	public static double eventRecall = 0;
+	public static double eventLost = 0;
+	public static double eventGold = 0;
 	
 	public EventPredictionInferer() {
 		
@@ -99,6 +101,8 @@ public class EventPredictionInferer extends Inferer {
 		double theta = Main.theta;
 		int counter = 0;
 		double globaleventLossRecall = 0;
+		int globaleventLoss = 0;
+		int globalGold = 0;
 		for(Example ex:testData) {
 			int eventLost = 0;
 			//LogInfo.begin_track("Example %s",ex.id);
@@ -167,9 +171,14 @@ public class EventPredictionInferer extends Inferer {
 			LogInfo.logs("Events lost:"+eventLost+", Total gold events:"+goldevents
 					+", Recall:"+recall);
 			globaleventLossRecall += recall;
+			globaleventLoss += eventLost;
+			globalGold += goldevents;
 		}
-		LogInfo.logs("Average Recall:"+globaleventLossRecall/testData.size());
+		LogInfo.logs("Micro Average Recall:"+globaleventLossRecall/testData.size()); //average over recalls
+		LogInfo.logs("Macro Average Recall:"+(1-(double)globaleventLoss/globalGold)); //average raw counts per process
 		eventRecall += globaleventLossRecall/testData.size();
+		eventLost += globaleventLoss;
+		eventGold += globalGold;
 		System.out.println("Not added due to theta: "+counter);
 		return predicted;
 	}

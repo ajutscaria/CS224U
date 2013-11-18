@@ -1,3 +1,4 @@
+java -Xmx3g -cp "classes:lib/*" edu.stanford.nlp.bioprocess.Main -datasetDir lib/Dataset -execPoolDir state/execs -mode result -runOn dev -runModel ilp -theta 0.3
 java -Xmx3g -cp "classes:lib/*" edu.stanford.nlp.bioprocess.Main -datasetDir lib/Dataset -execPoolDir state/execs -mode result -runOn dev -runModel ilp -theta 0.25
 java -Xmx3g -cp "classes:lib/*" edu.stanford.nlp.bioprocess.Main -datasetDir lib/Dataset -execPoolDir state/execs -mode result -runOn dev -runModel ilp -theta 0.2
 java -Xmx3g -cp "classes:lib/*" edu.stanford.nlp.bioprocess.Main -datasetDir lib/Dataset -execPoolDir state/execs -mode result -runOn dev -runModel ilp -theta 0.15

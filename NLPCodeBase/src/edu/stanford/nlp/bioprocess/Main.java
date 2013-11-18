@@ -59,7 +59,8 @@ public class Main implements Runnable {
 					EVENT_STANDALONE_MODEL_FILE_NAME = "EventStandalone_model.ser",
 					ENTITY_STANDALONE_MODEL_FILE_NAME =  "EntityStandalone_model.ser",
 					EVENT_MODEL_FILE_NAME = "Event_model.ser",
-					ENTITY_MODEL_FILE_NAME = "Entity_model.ser";
+					ENTITY_MODEL_FILE_NAME = "Entity_model.ser",
+	                EXAMPLE_LIST_FILE_NAME = "ExampleList.ser";
 	
 	public static final String 
 	                EVENT_RELATION_LOCAL_MODEL = MODELS_DIRECTORY + "EventRelation_Local_model.ser",
@@ -1206,30 +1207,32 @@ public class Main implements Runnable {
 						LogInfo.end_track();
 					}
 					
-					if(!f1.equals("")){ //write examples out
-						List<Example> allExamples = new ArrayList<Example>();
-						//for(int i = 1; i <= NumCrossValidation; i++) {
-						for(int i = 1; i <= 1; i++) {
-							tryone = split.GetTestExamples(i);
-							for(Example t:tryone){
-								allExamples.add(t);
-							}
-						}
-						try {
-							String filename = f1;
-							IOUtils.writeObjectToFile(allExamples, new File(filename));
-						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
-							throw new RuntimeException(e);
+					 //write examples out
+					List<Example> allExamples = new ArrayList<Example>();
+					//for(int i = 1; i <= NumCrossValidation; i++) {
+					for(int i = 1; i <= 1; i++) {
+						tryone = split.GetTestExamples(i);
+						for(Example t:tryone){
+							allExamples.add(t);
 						}
 					}
+					try {
+						String filename = fig.exec.Execution.getActualExecDir() + "/"  + EXAMPLE_LIST_FILE_NAME;
+						IOUtils.writeObjectToFile(allExamples, new File(filename));
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						throw new RuntimeException(e);
+					}
+					
 					
 					/*printScores("Event Local", precisionEvtBasic, recallEvtBasic, f1EvtBasic);
 					printScores("Entity Local", precisionEntBasic, recallEntBasic, f1EntBasic);
 					printScores("Relation Local", precisionRelBasic, recallRelBasic, f1RelBasic);
 					*/
-					LogInfo.logs("Event recall with theta="+theta+": "+EventPredictionInferer.eventRecall/NumCrossValidation);
+					LogInfo.logs("Micro Event recall with theta="+theta+": "+EventPredictionInferer.eventRecall/NumCrossValidation);
+					LogInfo.logs("Macro Event recall with theta="+theta+": "+(1-EventPredictionInferer.eventLost/EventPredictionInferer.eventGold));
+					LogInfo.logs("Macro Entity recall with pruning:"+EntityFeatureFactory.coveredEntities/EntityFeatureFactory.goldEntities);
 					printScores("Event all process", eval.precisionEvt, eval.recallEvt, eval.f1Evt);
 					printScores("Entity all process", eval.precisionEnt, eval.recallEnt, eval.f1Ent);
 					printScores("Relation all process", eval.precisionRel, eval.recallRel, eval.f1Rel);

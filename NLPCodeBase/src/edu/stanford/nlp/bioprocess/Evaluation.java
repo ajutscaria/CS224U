@@ -3,7 +3,7 @@ package edu.stanford.nlp.bioprocess;
 import edu.stanford.nlp.util.Triple;
 
 public class Evaluation {
-	int fold;
+	int numOfFolds;
 	int[] tpRel, fpRel, fnRel;
 	int[] tpEnt, fpEnt, fnEnt;
 	int[] tpEvt, fpEvt, fnEvt;
@@ -12,7 +12,7 @@ public class Evaluation {
 	double[] precisionEvt, recallEvt, f1Evt;
 	
 	public Evaluation(int fold){
-    	this.fold = fold;
+    	this.numOfFolds = fold;
     	tpRel = new int[fold]; fpRel = new int[fold]; fnRel = new int[fold];
     	tpEnt = new int[fold]; fpEnt = new int[fold]; fnEnt = new int[fold];
     	tpEvt = new int[fold]; fpEvt = new int[fold]; fnEvt = new int[fold];
