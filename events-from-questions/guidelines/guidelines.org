@@ -1,0 +1,165 @@
+#+TITLE:     Creating a Corpus of Questions and Answers about Biological Processes: Annotation Guidelines
+#+Author:    Jonathan Berant and Vivek Srikumar
+#+EMAIL:     
+#+DATE:      
+#+DESCRIPTION:
+#+KEYWORDS:
+#+LANGUAGE:  en
+#+OPTIONS:   H:3 num:t toc:nil \n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+#+OPTIONS:   TeX:t LaTeX:t skip:nil d:nil todo:t pri:nil tags:not-in-toc
+#+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+#+EXPORT_SELECT_TAGS: export
+#+EXPORT_EXCLUDE_TAGS: noexport
+#+LINK_UP:   
+#+LINK_HOME: 
+#+XSLT:
+#+LATEX_HEADER: \usepackage{geometry}
+
+
+* Introduction
+  
+  We have the ability to read text that describes a biological process
+  (that is, a collection of inter-connected events that lead to an end
+  result) and answer complex questions about the relationships between
+  the events. Our goal is to develop systems that can automatically
+  answer complex biology AP style questions in such a reading
+  comprehension setting. We will use a hand created corpus of
+  questions associated with text to train and evaluate the systems.
+
+* Generating questions and answers
+  
+  The goal is to generate multiple-choice questions about biological
+  processes that are described in a paragraph of text. The questions
+  should focus on the events and entities participating in the
+  process. Consider the following paragraph (from the textbook
+  /Biology/ by Campbell and Reece) as an example:
+
+#+BEGIN_QUOTE
+The light reactions are the steps of photosynthesis that convert solar
+energy to chemical energy. Water is split, providing a source of
+electrons and protons (hydrogen ions, $H^+$) and giving off O2 as a
+by-product. Light absorbed by chlorophyll drives a transfer of the
+electrons and hydrogen ions from water to an acceptor called $NADP^+$
+(nicotinamide adenine dinucleotide phosphate), where they are
+temporarily stored. The electron acceptor $NADP^+$ is first cousin to
+$NAD^+$, which functions as an electron carrier in cellular
+respiration; the two molecules differ only by the presence of an extra
+phosphate group in the $NADP^+$ molecule.
+#+END_QUOTE
+
+  There are several events described in the paragraph -- splitting of
+  water, absorption of light, transfer of electrons and hydrogen ions,
+  etc. These events involve entities like water, electrons and
+  protons, chlorophyll, etc. 
+
+  We can write several questions about these. Some examples are listed
+  below, with the correct answer marked in *boldface*:
+  
+  1. A source of electrons and protons are provided after which
+     event?
+     1. *Water is split*
+     2. Light is absorbed 
+
+  2. Which of the following events is caused by the absorption of
+     chlorophyll?
+     1. *Transfer of electrons and protons into* $NADP^+$
+     2. The splitting of water
+
+  3. What event would not happen if water does not provide electrons
+     and hydrogen ions?
+     1. Light absorption by chlorophyll 
+     2. *Transfer of ions to* $NADP^+$
+
+
+
+* Guidelines for generating questions and answers
+  We are primarily interested in questions that depend on the
+  inter-relationships between events. An event can be a /subevent/ or
+  a /super-event/ of another one. Additionally, an event can
+  /enable/, /cause/ or /prevent/ another one. Note that
+  these *event-event* relations often imply a temporal ordering
+  between them. For example, if event e_1 causes an event e_2, then
+  e_1 should occur before e_2.
+
+  Entities can play different roles in one or more events. For
+  example, an entity can be the performer of an event (or more
+  formally, the =Agent= of the event), or it can be acted upon in the
+  event (that is, the =Patient= of the event), it could be generated
+  in the event (the =Result= of the event), and so on.
+
+  We have identified the following classes of questions that verify
+  understanding of these relationships between events and entities:
+
+  1) For event $e$:
+     1. What event will be caused or prevented by $e$?
+     2. If $e$ does not happen, what else will not happen?
+     3. What event /should/ occur after/before $e$?
+     4. What events are necessary for $e$ to occur?
+
+  2) For events $e_1$, $e_2$:
+     1. Which one happens first?
+     2. What is the relation between them (eg. e_1 causes e_2, e_1 is
+        a super event of e_2, and so on)?
+     3. What is the sequence of events between them?
+
+  3) For events e_1,...,e_n:
+     1. What is the correct ordering of the events?
+     2. Which may simultaneously occur?
+
+  4) Which entity performs a given role (eg. =Agent=, =Theme=,
+     =Result=) for an event?
+
+  5) What role does an entity perform in an event?
+
+  6) For entity $a$:
+     1. What entities are necessary to produce $a$?
+     2. What events are necessary to produce $a$?
+     3. If $a$ is not produced what events will not happen?
+     4. If $a$ is not produces what other entities will not be
+        produced?
+
+  7) If a_1 and a_2 are two entities in the process, how does a_1 lead
+     to the production of a_2?
+
+  Note that these are only templates for types of questions and the
+  actual questions need not look like them. For example, the first
+  question in the three example questions listed above asks what
+  events are necessary to produce an entity (template 6.2). Similarly,
+  the second question belongs to the template 1.1 and the third one
+  belongs to the template 1.2.
+
+** Other guidelines
+   1. Each question *should* belong to one of the templates
+      identified above.
+
+   2. Each question should be associated with two answers, where only
+      one is unambiguously correct and the other is unambiguously
+      incorrect.
+
+   3. It should be possible to answer the question by reasoning about
+      the events and entities and their relationships, as specified in
+      the text.
+
+   4. Do not use background knowledge that is not present in the
+      text. In the above example, if the text did not identify that
+      protons are hydrogen ions, represented by $H^+$, we should not
+      use these names in the questions or the answers.
+
+   5. When referring to entities and events in the questions and
+      answers, try to use their names as they appear in the paragraph.
+      However, sometimes the same entity may be referred to by
+      different names (like proton or $H^+$ in the paragraph). If
+      (and only if) this happens, you can refer to the entity by any
+      of these names.
+
+   6. Do not use contractions or drop words in the names of entities
+      unless the text becomes awkward without doing so.
+
+   7. We are only interested in events and entities that participate
+      in them. In the paragraph above, the last sentence says "the two
+      molecules differ only by the presence of an extra phosphate
+      group in the $NADP^+$ molecule". Note that this sentence does
+      not describe an event. Do not generate questions based on such
+      sentences.
+
+   
