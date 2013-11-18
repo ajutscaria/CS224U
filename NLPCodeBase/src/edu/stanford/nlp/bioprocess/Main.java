@@ -1209,8 +1209,8 @@ public class Main implements Runnable {
 					
 					 //write examples out
 					List<Example> allExamples = new ArrayList<Example>();
-					//for(int i = 1; i <= NumCrossValidation; i++) {
-					for(int i = 1; i <= 1; i++) {
+					for(int i = 1; i <= NumCrossValidation; i++) {
+					//for(int i = 1; i <= 1; i++) {
 						tryone = split.GetTestExamples(i);
 						for(Example t:tryone){
 							allExamples.add(t);
