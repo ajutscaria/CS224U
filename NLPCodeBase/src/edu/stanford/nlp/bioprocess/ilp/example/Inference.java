@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.Set;
+
+
 
 
 
@@ -36,6 +39,7 @@ import edu.stanford.nlp.bioprocess.Utils;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.trees.Tree;
+import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
 
 public class Inference extends AbstractILPInference<ExampleStructure> {
@@ -375,6 +379,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		int event = 0;
 		System.out.println("getoutput");
 		System.out.println("--Events--");
+		List<BioDatum> ilpSetEvents = new ArrayList<BioDatum>();
 		for (int eventId = 0; eventId < eventPredicted.size(); eventId++) {
 			for (int labelId = 0; labelId < eventLabels.length; labelId++){
 				String varName = getVariableName(eventId, labelId, "event");
@@ -382,10 +387,11 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 
 				if (solver.getBooleanValue(var)) {
 					if(eventLabels[labelId].equals("E")){
+						ilpSetEvents.add(eventPredicted.get(eventId));
 						event++;
 					}
 					if(!eventLabels[labelId].equals(eventPredicted.get(eventId).guessLabel)){
-						flipEvent(eventPredicted.get(eventId));
+						//flipEvent(eventPredicted.get(eventId));
 						count++;
 						System.out.println(eventPredicted.get(eventId).eventNode.toString()+": original label - "
 						+eventPredicted.get(eventId).guessLabel+", after ilp - "+eventLabels[labelId]);
@@ -398,6 +404,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 				}
 			}
 		}
+		setEvents(ilpSetEvents);
 		//System.out.println("predicted event:"+event);
 		System.out.println("Different events:" + count+ ", E->O: "+ EtoO);
 		count = 0;
@@ -490,6 +497,39 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		String [] label = new String[1];
 		return new ExampleStructure(dummy, label);
 	}
+	
+	public static IdentityHashSet<Tree> findPredictedEvents(List<BioDatum> predicted) {
+		IdentityHashSet<Tree> set = new IdentityHashSet<Tree>();
+		for(BioDatum d:predicted) {
+			//if(d.guessLabel.equals("E"))
+		    set.add(d.eventNode);
+		}
+		return set;
+	}
+	
+	public void setEvents(List<BioDatum> data){
+		IdentityHashSet<Tree> ilpevents = findPredictedEvents(data);
+		
+		for(Example ex:testSet){
+			List<EventMention> events = ex.prediction.get(EventMentionsAnnotation.class);
+			List<EventMention> todelete = new ArrayList<EventMention>();
+			Iterator<EventMention> itr = events.iterator();
+			while(itr.hasNext()){
+				//Tree current = itr.next().getTreeNode();
+				if(!ilpevents.contains(itr.next().getTreeNode())){
+					itr.remove();
+				}
+			}
+			/*for(int i=0; i < events.size(); i++) {
+				if(!ilpevents.contains(events.get(i).getTreeNode())){
+					todelete.add(events.get(i));
+				}
+			}
+			for(EventMention em:todelete){
+				events.remove(em);
+			}*/
+		}
+	}
 
 	public void flipEvent(BioDatum d){
 		String id = d.exampleID;
@@ -499,6 +539,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		}
 		for(Example ex:testSet){
 			if(ex.id.equals(id)){
+				
 				if(!remove){ // add new event
 					EventMention m;
 					m = new EventMention("", d.getSentence(), null);

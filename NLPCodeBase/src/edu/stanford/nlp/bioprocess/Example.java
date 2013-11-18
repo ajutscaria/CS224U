@@ -77,7 +77,7 @@ public class Example implements Serializable {
     	tp = 0; fp = 0; fn = 0;
     	
     	for(EventMention em:prediction.get(EventMentionsAnnotation.class)) {
-			if(em.prob >= 0.5 && actual.containsKey(em.getTreeNode())){
+			/*if(em.prob >= 0.5 && actual.containsKey(em.getTreeNode())){
 				tp++;
 				LogInfo.logs("tp: "+
 						   String.format("%-30s Predicted=%s", em.getTreeNode(), "E"));
@@ -89,6 +89,16 @@ public class Example implements Serializable {
 				fn++;
 				LogInfo.logs("fn: "+
 						   String.format("%-30s Predicted=%s", em.getTreeNode(), "O"));
+			}*/
+			
+			if(actual.containsKey(em.getTreeNode())){
+				tp++;
+				LogInfo.logs("tp: "+
+						   String.format("%-30s Predicted=%s", em.getTreeNode(), "E"));
+			}else{// if(!actual.containsKey(em.getTreeNode())){
+				fp++;
+				LogInfo.logs("fp: "+
+						   String.format("%-30s Predicted=%s", em.getTreeNode(), "E"));
 			}
 		}
     	for(EventMention em:gold.get(EventMentionsAnnotation.class)) {

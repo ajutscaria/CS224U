@@ -395,6 +395,7 @@ public class EventRelationFeatureFactory {
 
 	public List<BioDatum> setFeaturesTrain(List<Example> data, Params parameters) {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
+    	List<BioDatum> NONEdata = new ArrayList<BioDatum>();
 		Counter<String> labelCounter = new ClassicCounter<String>();
     	
     	HashMap<String, Integer> relationType = new HashMap<String, Integer>();
@@ -402,6 +403,7 @@ public class EventRelationFeatureFactory {
     	EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
 		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
     	//int eventMentioncount = 0;
+		int notNONErelation = 0;
 		
 		for (Example ex : data) {
 			//System.out.println("Process: "+ex.id);
@@ -460,20 +462,35 @@ public class EventRelationFeatureFactory {
 							original++;
 							relationType.put(label, original);
 						}
+						
 						BioDatum newDatum = new BioDatum(null, Utils.getText(event1.getTreeNode()) + "-" + Utils.getText(event2.getTreeNode()), label, event1, event2);
 						newDatum.features = computeFeatures(ex, list, event1, event2);
 						newDatum.setExampleID(ex.id);
-						dataset.add(newDatum);
-						labelCounter.incrementCount(label);
+						
+						//if(!label.equals("NONE")){
+							notNONErelation++;
+							dataset.add(newDatum);
+							labelCounter.incrementCount(label);
+						/*}else{
+							NONEdata.add(newDatum);
+							labelCounter.incrementCount(label);
+						}*/	
 					}
 			    }
 			}
 			
 			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
-
+		
+		//List<BioDatum> chosen = filter(NONEdata, notNONErelation);
+        //dataset.addAll(chosen);
 		LogInfo.logs("Event training set label distribution=%s",labelCounter);
 		return dataset;
+	}
+	
+	public List<BioDatum> filter(List<BioDatum> data, int count){
+		
+		return null;
 	}
 	
 	/*
