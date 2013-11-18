@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.ling.BasicDatum;
@@ -18,6 +19,7 @@ import fig.basic.LogInfo;
 public class EventPredictionInferer extends Inferer {
 	boolean printDebugInformation = true;
 	List<BioDatum> prediction = null;
+	public static double eventRecall = 0;
 	
 	public EventPredictionInferer() {
 		
@@ -96,15 +98,20 @@ public class EventPredictionInferer extends Inferer {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		double theta = Main.theta;
 		int counter = 0;
+		double globaleventLossRecall = 0;
 		for(Example ex:testData) {
-			LogInfo.begin_track("Example %s",ex.id);
-
+			int eventLost = 0;
+			//LogInfo.begin_track("Example %s",ex.id);
+			List<BioDatum> oneprocess = new ArrayList<BioDatum>();
+			ex.prediction.set(EntityMentionsAnnotation.class, new ArrayList<EntityMention>());
+			ex.prediction.set(EventMentionsAnnotation.class, new ArrayList<EventMention>());
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				Set<Tree> entityNodes = null;
-				if(prediction == null)
+				System.out.println("\n"+sentence);
+				/*if(prediction == null)
 					entityNodes = Utils.getEntityNodesFromSentence(sentence);
 				else
-					entityNodes = Utils.getEntityNodesForSentenceFromDatum(prediction, sentence);
+					entityNodes = Utils.getEntityNodesForSentenceFromDatum(prediction, sentence);*/
 				
 				LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 				List<BioDatum> dataset = ff.setFeaturesTest(sentence, entityNodes, ex.id);
@@ -117,14 +124,25 @@ public class EventPredictionInferer extends Inferer {
 					double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
 					scoreE = (Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
 					d.setEventProbability(scoreE);
+					EventMention m;
 					if(scoreE >= theta){
 						predicted.add(d);
+						m = new EventMention("", sentence, null);
+						m.setTreeNode(d.eventNode);
+						m.setProb(scoreE);
+						//System.out.println("evenmention size:"+ex.prediction.get(EventMentionsAnnotation.class).size());
+						Utils.addAnnotation(ex.prediction, (EventMention)m, false);
+						//System.out.println("evenmention size:"+ex.prediction.get(EventMentionsAnnotation.class).size());
+						//for(EventMention em:ex.prediction.get(EventMentionsAnnotation.class))
+						//	System.out.println(em.getTreeNode().toString());
 					} else{
+						if(d.label.equals("E"))eventLost++;
 						counter++;
 					}
 					 
 				}
 				//predicted.addAll(dataset);
+				printDebugInformation = false;
 				if(printDebugInformation) {
 					LogInfo.logs(sentence);
 					LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
@@ -143,8 +161,15 @@ public class EventPredictionInferer extends Inferer {
 				}
 			}
 			
-			LogInfo.end_track();
+			//LogInfo.end_track();
+			int goldevents = ex.gold.get(EventMentionsAnnotation.class).size();
+			double recall = (double)(goldevents-eventLost)/goldevents;
+			LogInfo.logs("Events lost:"+eventLost+", Total gold events:"+goldevents
+					+", Recall:"+recall);
+			globaleventLossRecall += recall;
 		}
+		LogInfo.logs("Average Recall:"+globaleventLossRecall/testData.size());
+		eventRecall += globaleventLossRecall/testData.size();
 		System.out.println("Not added due to theta: "+counter);
 		return predicted;
 	}

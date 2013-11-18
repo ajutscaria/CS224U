@@ -1,12 +1,13 @@
 Maximize
  
 Subject To
- c177895: x3665 + x3697 + x3713 = 0
- c177898: x3665 + x3697 + x3713 = 1
+ c5689: x199 + x247 + x279 + x295 = 0
+ c5692: x199 + x247 + x279 + x295 = 1
 Bounds
- x3665 free
- x3697 free
- x3713 free
+ x199 free
+ x247 free
+ x279 free
+ x295 free
 Generals
- x3665 x3697 x3713
+ x199 x247 x279 x295
 End

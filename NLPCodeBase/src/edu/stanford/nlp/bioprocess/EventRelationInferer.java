@@ -404,8 +404,8 @@ public class EventRelationInferer {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		HashMap<String, Integer> relationType = new HashMap<String, Integer>();
 		for(Example ex:testData) {
-			LogInfo.begin_track("Inference: process %s",ex.id);
-			LogInfo.begin_track("Predicted");
+			//LogInfo.begin_track("Inference: process %s",ex.id);
+			//LogInfo.begin_track("Predicted");
 			LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(parameters.weights, parameters.featureIndex, parameters.labelIndex);
 			//List<BioDatum> dataset = ff.setFeaturesTest(ex, ex.gold.get(EventMentionsAnnotation.class));
 			List<BioDatum> dataset = ff.setFeaturesTestILP(ex, eventParam);
@@ -430,20 +430,25 @@ public class EventRelationInferer {
 				counter++;
 				String predictedRelation = classifier.classOf(newDatum);
 				d.setPredictedLabel(predictedRelation);
-				if(!"NONE".equals(predictedRelation)) {
+				/*if(!"NONE".equals(predictedRelation)) {
 					LogInfo.logs("EventRelationInferer.infer: %s-->%s==%s",d.event1.getTreeNode(),d.event2.getTreeNode(),predictedRelation);
-				}
+				}*/
 				
 				HashMap<String, Double> rankRelation = new HashMap<String, Double>();
 				for(String possibleLabel:labelsInClassifier){
 					rankRelation.put(possibleLabel, classifier.logProbabilityOf(newDatum).getCount(possibleLabel));
 				}
 				d.setRankRelation(rankRelation);
+				
+				EventMention event1 = d.event1;
+				EventMention event2 = d.event2;
+				RelationType r = chooseType(predictedRelation);
+				event1.addArgument(event2, r, classifier.logProbabilityOf(newDatum).getCount(predictedRelation));
 			}
 			predicted.addAll(dataset);
-			LogInfo.end_track();
+			//LogInfo.end_track();
 			
-			LogInfo.begin_track("Gold");
+			/*LogInfo.begin_track("Gold");
 			List<EventMention> mentions = ex.gold.get(EventMentionsAnnotation.class);
 			for(int i = 0; i < mentions.size()-1; ++i) {
 				for(int j = i+1; j < mentions.size(); ++j) {
@@ -455,9 +460,35 @@ public class EventRelationInferer {
 			}
 			LogInfo.end_track();
 			
-			LogInfo.end_track();
+			LogInfo.end_track();*/
 		}
 		return predicted;
+	}
+	
+	public static RelationType chooseType(String label){
+		if(label.equals("ContemporalEvent")){
+			return RelationType.CotemporalEvent;
+		}else if(label.equals("NextEvent")){
+			return RelationType.NextEvent;
+		}else if(label.equals("PreviousEvent")){
+			return RelationType.PreviousEvent;
+		}else if(label.equals("SameEvent")){
+			return RelationType.SameEvent;
+		}else if(label.equals("SuperEvent")){
+			return RelationType.SuperEvent;
+		}else if(label.equals("SubEvent")){
+			return RelationType.SubEvent;
+		}else if(label.equals("Causes")){
+			return RelationType.Causes;
+		}else if(label.equals("Caused")){
+			return RelationType.Caused;
+		}else if(label.equals("Enables")){
+			return RelationType.Enables;
+		}else if(label.equals("Enabled")){
+			return RelationType.Enabled;
+		}else{// if(label.equals("NONE")){
+			return RelationType.NONE;
+		}
 	}
 
 	public List<BioDatum> PipelineInfer(Example testExample, List<EventMention> eventsPredicted, Params parameters, EventRelationFeatureFactory ff, String model, boolean connectedComponent,

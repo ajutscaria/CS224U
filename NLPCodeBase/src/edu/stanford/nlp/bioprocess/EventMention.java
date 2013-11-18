@@ -17,6 +17,7 @@ public class EventMention extends ArgumentMention {
   private static final long serialVersionUID = -2745903102654191527L;
   private List<ArgumentRelation> arguments;
   public EventType eventType;
+  public double prob = 0;
  /**
   * 
   */
@@ -28,6 +29,14 @@ public class EventMention extends ArgumentMention {
   public void addArgument(ArgumentMention mention, RelationType type) {
     arguments.add(new ArgumentRelation(mention, type));
   }
+  
+  public void addArgument(ArgumentMention mention, RelationType type, double prob) {
+	    arguments.add(new ArgumentRelation(mention, type, prob));
+	  }
+  
+  public void removeArgument(int index) {
+	    arguments.remove(index);
+	  }
   
   public List<ArgumentRelation> getArguments() {
     return arguments;
@@ -43,6 +52,10 @@ public class EventMention extends ArgumentMention {
 		  }
 	  }
 	  return strBld.toString();
+  }
+  
+  public void setProb(double prob){
+	  this.prob = prob;
   }
   
   private static int MENTION_COUNTER = 0;

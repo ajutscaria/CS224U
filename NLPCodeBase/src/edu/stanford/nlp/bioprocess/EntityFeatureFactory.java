@@ -204,8 +204,8 @@ public class EntityFeatureFactory extends FeatureExtractor {
 					event.setTreeNode(eventnode);*/
 					if(printDebug) LogInfo.logs("-------Event - " + event.getTreeNode()+ "--------");
 				    List<Tree> candidates = pruning(d.eventNode, sentence);
-					//for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-					for(Tree node: candidates) {	
+					for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+					//for(Tree node: candidates) {	
 						if(node.isLeaf()||node.value().equals("ROOT"))
 							continue;
 						
@@ -325,8 +325,8 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		for(Tree eventNode: predictedEvents) {
 			//int whichEvent = Main.EventID.get(eventNode);
 			List<Tree> candidates = pruning(eventNode, sentence);
-			//for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-			for(Tree node:candidates){
+			for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+			//for(Tree node:candidates){
 				if(node.isLeaf() || node.value().equals("ROOT"))
 					continue;
 				String type = (entityNodes.contains(node) && Utils.getArgumentMentionRelation(sentence, eventNode, node) != RelationType.NONE) ? "E" : "O";

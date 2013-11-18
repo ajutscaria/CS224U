@@ -13,10 +13,8 @@ import java.io.ObjectOutputStream;
 import java.nio.file.DirectoryIteratorException;
 import java.util.ArrayList;
 import java.util.Arrays;
-
 import java.util.Collections;
 import java.util.Comparator;
-
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
@@ -30,6 +28,7 @@ import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotation;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
+import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotations.IndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentenceIndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
@@ -74,7 +73,178 @@ public class Utils {
 	  return true;
   }
   
-  /***
+  public static HashMap<Tree, Double> findEvents(Annotation ann){//linkedhashmap
+		HashMap<Tree, Double> set = new HashMap<Tree, Double>();
+			//LogInfo.logs("Example " + ex.id);
+		for(EventMention em:ann.get(EventMentionsAnnotation.class)) {
+			//LogInfo.logs(em.getTreeNode() + ":" + em.getTreeNode().getSpan() + "::" + em.getSentence());
+			set.put(em.getTreeNode(), em.prob);
+		}
+		
+		return set;
+	}
+  
+  public static void compareEvents(Annotation first, Annotation second){
+	  HashMap<Tree, Double> firstRunEvents = findEvents(first);
+  	  HashMap<Tree, Double> secondRunEvents = findEvents(second);
+	  	for(Tree p:firstRunEvents.keySet()) {
+			if(!secondRunEvents.containsKey(p)) {
+				LogInfo.logs(String.format("%-30s Predicted=E in file1, Predicted=O in file2", p));
+			}
+		}
+	  	
+	  	for(Tree p:secondRunEvents.keySet()) {
+			if(!firstRunEvents.containsKey(p)) {
+				LogInfo.logs(String.format("%-30s Predicted=O in file1, Predicted=E in file2", p));
+			}
+		}
+  	  /*for(EventMention em:first.get(EventMentionsAnnotation.class)) {
+		if(!secondRunEvents.containsKey(em.getTreeNode())){
+			LogInfo.logs(String.format("%-30s Predicted=E in file1, Predicted=O in file2", em.getTreeNode()));
+		}
+	  }
+  	  
+  	  for(EventMention em:second.get(EventMentionsAnnotation.class)) {
+		if(!firstRunEvents.containsKey(em.getTreeNode())){
+			LogInfo.logs(String.format("%-30s Predicted=O in file1, Predicted=E in file2", em.getTreeNode()));
+		}
+	 }*/
+  }
+  
+  public static HashMap<Pair<Tree, Tree>, Double> findEventEntityPairs(Annotation ann) {
+		HashMap<Pair<Tree, Tree>, Double> map = new HashMap<Pair<Tree, Tree>, Double> ();
+		//LogInfo.begin_track("Gold event-entity");
+		
+		for(EventMention em:ann.get(EventMentionsAnnotation.class)) {
+			for(ArgumentRelation rel:em.getArguments()) {
+				if(rel.mention instanceof EntityMention) {
+					map.put(new Pair(em.getTreeNode(), rel.mention.getTreeNode()), rel.getProb());
+					//LogInfo.logs(em.getTreeNode() + ":"+ rel.mention.getTreeNode());
+				}
+			}
+		}
+		
+		//LogInfo.end_track();
+		return map;
+	}
+  
+  public static boolean checkContainment(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree> element) {
+		for(Pair<Tree, Tree> keys:s)
+			if(keys.first().equals(element.first()) && keys.second().equals(element.second()))
+				return true;
+		return false;
+	}
+  
+  public static void compareEntities(Annotation first, Annotation second){
+	  HashMap<Pair<Tree, Tree>, Double> firstEntities = findEventEntityPairs(first),
+				secondEntities = findEventEntityPairs(second);
+	  for(Pair<Tree, Tree> p:firstEntities.keySet()) {
+			if(!checkContainment(secondEntities.keySet(),p)) {
+				LogInfo.logs(
+				  String.format("Event=%-15s Entity=%s, Predicted=E in file1, Predicted=O in file2", p.first, p.second));
+			}
+		}
+	  
+	  for(Pair<Tree, Tree> p:secondEntities.keySet()) {
+			if(!checkContainment(firstEntities.keySet(),p)) {
+				LogInfo.logs(
+				  String.format("Event=%-15s Entity=%s, Predicted=O in file1, Predicted=E in file2", p.first, p.second));
+			}
+		}
+  }
+  
+  private static HashMap<Pair<Tree, Tree>, String> findPredictedEventEventRelationPairs(Annotation ann) {
+		HashMap<Pair<Tree, Tree>, String> map = new HashMap<Pair<Tree, Tree>, String> ();
+		//LogInfo.begin_track("Gold event-entity");
+		for(EventMention em:ann.get(EventMentionsAnnotation.class)){
+			//System.out.println(em.getTreeNode().toString());
+			//System.out.println("relations:");
+			for(ArgumentRelation rel:em.getArguments()) {
+				if(rel.mention instanceof EventMention && rel.type != RelationType.NONE) {
+					map.put(new Pair<Tree, Tree>(em.getTreeNode(), rel.mention.getTreeNode()), rel.type.toString());
+				}
+			}
+		}
+		//LogInfo.end_track();
+		return map;
+	}
+  
+  public static Pair<Tree, Tree> returnTreePairIfExists(Set<Pair<Tree, Tree>> s, Pair<Tree, Tree> element) {
+		for(Pair<Tree, Tree> keys:s)
+			if(keys.first().equals(element.first()) && keys.second().equals(element.second()))
+				return keys;
+		return null;
+	}
+  
+  public static void compareRelations(Annotation first, Annotation second){
+	  HashMap<Pair<Tree, Tree>, String> firstRelation = findPredictedEventEventRelationPairs(first), 
+				secondRelation = findPredictedEventEventRelationPairs(second);
+	  for(Pair<Tree, Tree> p : firstRelation.keySet()) {
+			//System.out.println(p.first+","+ p.second+"->"+actual.get(p));
+			Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(secondRelation.keySet(),p);
+			if( pairObjPredicted == null){
+				LogInfo.logs(
+					String.format("Event1=%-15s Event2=%-15s, Predicted=%s in file1,"
+							+ "Predicted=NONE in file2", p.first, p.second, firstRelation.get(p)));
+			}
+			else if (!secondRelation.get(pairObjPredicted).equals(firstRelation.get(p))) {
+				LogInfo.logs(
+				    String.format("Event1=%-15s Event2=%-15s, Predicted=%s in file1,"
+				    		+ "Predicted=%s in file2", p.first, p.second, firstRelation.get(p), secondRelation.get(pairObjPredicted)));
+			}
+		}
+	  
+	  for(Pair<Tree, Tree> p : secondRelation.keySet()) {
+			//System.out.println(p.first+","+ p.second+"->"+actual.get(p));
+			Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(firstRelation.keySet(),p);
+			if( pairObjPredicted == null){
+				LogInfo.logs(
+					String.format("Event1=%-15s Event2=%-15s, Predicted=NONE in file1,"
+							+ "Predicted=%s in file2", p.first, p.second, secondRelation.get(p)));
+			}
+			else if (!firstRelation.get(pairObjPredicted).equals(secondRelation.get(p))) {
+				LogInfo.logs(
+				    String.format("Event1=%-15s Event2=%-15s, Predicted=%s in file1,"
+				    		+ "Predicted=%s in file2", p.first, p.second, firstRelation.get(pairObjPredicted), secondRelation.get(p)));
+			}
+		}
+  }
+  
+  public static void compareRuns(String file1, String file2){
+	try {
+		List<Example> firstRun = IOUtils.readObjectFromFile(new File(file1));
+		List<Example> secondRun = IOUtils.readObjectFromFile(new File(file2));
+		System.out.println(firstRun.size());
+		System.out.println(secondRun.size());
+		
+		for(int i=0; i<firstRun.size();i++){
+			LogInfo.begin_track("Process "+firstRun.get(i).id);
+			LogInfo.begin_track("Event difference");
+			compareEvents(firstRun.get(i).prediction, 
+					secondRun.get(i).prediction);
+			LogInfo.end_track();
+			LogInfo.begin_track("Entity difference");
+			compareEntities(firstRun.get(i).prediction, 
+					secondRun.get(i).prediction);
+			LogInfo.end_track();
+			LogInfo.begin_track("Relation difference");
+			compareRelations(firstRun.get(i).prediction, 
+					secondRun.get(i).prediction);
+			LogInfo.end_track();
+			LogInfo.end_track();
+		}
+		
+	} catch (ClassNotFoundException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	} catch (IOException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+	
+	  
+  }
+      /***
    * Find the list of nodes in the Semantic graph that an entity maps to.
    * @param sentence - The sentence in which we are looking for the nodes
    * @param span - The extend of the entity
@@ -373,14 +543,19 @@ public class Utils {
   }
   
   public static void addAnnotation(Annotation document, EventMention event) {
+	System.out.println("addAnnotation");
     if(document.get(EventMentionsAnnotation.class) == null) {
+      System.out.println("initialize");
       List<EventMention> mentions = new ArrayList<EventMention>();
       mentions.add(event);
       document.set(EventMentionsAnnotation.class, mentions);
     }
     else {
     	int indexToInsert = 0;
+    	System.out.println("size inside addAnnotation:"+document.get(EventMentionsAnnotation.class).size());
     	for(;indexToInsert < document.get(EventMentionsAnnotation.class).size(); indexToInsert++) {
+    		System.out.println("indexToInsert:"+indexToInsert);
+    		System.out.println(document.get(EventMentionsAnnotation.class).get(indexToInsert).getTreeNode().toString());
     		EventMention current = document.get(EventMentionsAnnotation.class).get(indexToInsert);
     		if(current.getSentence().get(CharacterOffsetBeginAnnotation.class) > event.getSentence().get(CharacterOffsetBeginAnnotation.class) || 
     				(current.getSentence().get(CharacterOffsetBeginAnnotation.class) == event.getSentence().get(CharacterOffsetBeginAnnotation.class) && current.getExtent().start() > event.getExtent().start()))
@@ -398,6 +573,43 @@ public class Utils {
     else
     	sentence.get(EventMentionsAnnotation.class).add(event);
   }
+  
+  public static void addAnnotation(Annotation document, EventMention event, boolean gold) {
+		//System.out.println("addAnnotation");
+	    if(document.get(EventMentionsAnnotation.class) == null || document.get(EventMentionsAnnotation.class).size() == 0) {
+	      //System.out.println("initialize");
+	      List<EventMention> mentions = new ArrayList<EventMention>();
+	      mentions.add(event);
+	      document.set(EventMentionsAnnotation.class, mentions);
+	    }
+	    else {
+	    	int indexToInsert = 0;
+	    	//System.out.println("size inside addAnnotation:"+document.get(EventMentionsAnnotation.class).size());
+	    	/*if(event.getSentence().get(CharacterOffsetBeginAnnotation.class)!=null)
+		    	for(;indexToInsert < document.get(EventMentionsAnnotation.class).size(); indexToInsert++) {
+		    		System.out.println("indexToInsert:"+indexToInsert);
+		    		System.out.println("inside:"+document.get(EventMentionsAnnotation.class).get(indexToInsert).getTreeNode().toString());
+		    		
+		    		EventMention current = document.get(EventMentionsAnnotation.class).get(indexToInsert);
+		    		System.out.println(current.getSentence());
+		    		
+		    		if(current.getSentence().get(CharacterOffsetBeginAnnotation.class) > event.getSentence().get(CharacterOffsetBeginAnnotation.class) || 
+		    				(current.getSentence().get(CharacterOffsetBeginAnnotation.class) == event.getSentence().get(CharacterOffsetBeginAnnotation.class) && current.getExtent().start() > event.getExtent().start()))
+		    			break;
+		    	}
+	        document.get(EventMentionsAnnotation.class).add(indexToInsert, event);*/
+	        document.get(EventMentionsAnnotation.class).add(event);
+	    }
+	    
+	    /*CoreMap sentence = event.getSentence();
+	    if (sentence.get(EventMentionsAnnotation.class) == null) {
+	    	List<EventMention> mentions = new ArrayList<EventMention>();
+	        mentions.add(event);
+	        sentence.set(EventMentionsAnnotation.class, mentions);
+	    }
+	    else
+	    	sentence.get(EventMentionsAnnotation.class).add(event);*/
+}
   
   public static void writeFile(List<Example> data, String fileName) {
 	  // Write to disk with FileOutputStream

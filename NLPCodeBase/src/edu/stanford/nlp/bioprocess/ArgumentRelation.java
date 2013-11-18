@@ -18,6 +18,7 @@ public enum EventType {
   public enum RelationType {
 	Origin,
     Agent,
+    Entity,//dummy entity
     Location,
     Destination,
     Result,
@@ -38,12 +39,23 @@ public enum EventType {
     Enabled,
     NONE
   }
-  ArgumentMention mention;
-  RelationType type;
+  public ArgumentMention mention;
+  public RelationType type;
+  double probability;
   
   public ArgumentRelation(ArgumentMention mention, RelationType type) {
     this.mention = mention;
     this.type = type;
+  }
+  
+  public ArgumentRelation(ArgumentMention mention, RelationType type, double prob) {
+	    this.mention = mention;
+	    this.type = type;
+	    this.probability = prob;
+	  }
+  
+  public double getProb(){
+	  return probability;
   }
   
   public static List<String> getSemanticRoles() {

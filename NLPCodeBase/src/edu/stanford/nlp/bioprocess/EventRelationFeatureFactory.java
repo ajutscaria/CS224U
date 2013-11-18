@@ -525,27 +525,37 @@ public class EventRelationFeatureFactory {
 					em.setTreeNode(d.eventNode);
 					globalcounter++;
 					list.add(em);
+					//LogInfo.logs(d.eventNode.toString());
 				} 
-			}
-    	    
+			}   
 		}
+    	
+    	List<EventMention> predictionlist = example.prediction.get(EventMentionsAnnotation.class);
+ 
+    	//LogInfo.logs("size of prediction:"+list.size());
 		//System.out.println("eventmention list size: " + list.size());
     	List<BioDatum> newData = new ArrayList<BioDatum>();
     	List<EventMention> alreadyConsidered = new ArrayList<EventMention>();
 		//for(EventMention event1: list) {
-		for(int h=0; h<list.size();h++){//list.get(h) = event1
-			alreadyConsidered.add(list.get(h));
+		for(int h=0; h<list.size()-1;h++){//list.get(h) = event1
+			//alreadyConsidered.add(list.get(h));
 			//for(EventMention event2: list) {
-			for(int i=0; i<list.size();i++){
-				if(!alreadyConsidered.contains(list.get(i))) { //list.get(i) = event2
+			for(int i=h+1; i<list.size();i++){
+				//if(!alreadyConsidered.contains(list.get(i))) { //list.get(i) = event2
+					
 					String type = Utils.getEventEventRelation(example.gold, list.get(h).getTreeNode(), list.get(i).getTreeNode()).toString();
-					BioDatum newDatum = new BioDatum(null, Utils.getText(list.get(h).getTreeNode()) + "-" + Utils.getText(list.get(i).getTreeNode()), type, list.get(h), list.get(i));
+					//System.out.println("event1, event2:"+list.get(h).getTreeNode()+","+list.get(i).getTreeNode()+":"+type);
+					type = Utils.getEventEventRelation(example.gold, predictionlist.get(h).getTreeNode(), predictionlist.get(i).getTreeNode()).toString();
+					//System.out.println("from prediction - event1, event2:"+predictionlist.get(h).getTreeNode()+","+
+					//predictionlist.get(i).getTreeNode()+":"+type);
+					BioDatum newDatum = new BioDatum(null, Utils.getText(list.get(h).getTreeNode()) + "-" + Utils.getText(list.get(i).getTreeNode()), type, predictionlist.get(h), predictionlist.get(i));
 					//System.out.println(type+": "+list.get(h).getTreeNode().toString()+","+list.get(i).getTreeNode().toString());
 					newDatum.features = computeFeatures(example, list, list.get(h), list.get(i));
 					newDatum.setEventIndex(start+h, start+i);
 					newDatum.setExampleID(example.id);
 					newData.add(newDatum);
-				}
+					//System.out.println(newDatum.label());
+				//}
 		    }
 		}
 		//System.out.println("#relations in one process: " + newData.size());

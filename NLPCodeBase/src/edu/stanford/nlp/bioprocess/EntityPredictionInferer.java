@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
+import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.classify.LinearClassifier;
 import edu.stanford.nlp.ling.BasicDatum;
@@ -20,7 +21,7 @@ import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 
 public class EntityPredictionInferer extends Inferer {
-	private boolean printDebugInformation = true;
+	private boolean printDebugInformation = false;
 	List<BioDatum> prediction = null;
 	public static double eventSize = 0;
 	
@@ -87,7 +88,7 @@ public class EntityPredictionInferer extends Inferer {
 		List<BioDatum> predicted = new ArrayList<BioDatum>();
 		//EntityFeatureFactory ff = new EntityFeatureFactory();
 		for(Example ex:testData) {
-			LogInfo.begin_track("Example %s",ex.id);
+			//LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
 			
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
@@ -120,7 +121,7 @@ public class EntityPredictionInferer extends Inferer {
 				else{
 					//System.out.println("\nprediction not none");
 					//System.out.println("Event size passed in: "+prediction.size());
-					if(Main.mode.equalsIgnoreCase("allnew") || (Main.mode.equalsIgnoreCase("result") && Main.runModel.equals("ilp"))){
+					if(Main.mode.equalsIgnoreCase("allnew") || Main.runModel.equals("ilp") || Main.runModel.equals("classifier")){
 						//System.out.println("\nGet events with theta >="+Main.theta);
 						eventNodes = Utils.getEventNodesForSentenceFromDatum(prediction, sentence, Main.theta);
 					}else{
@@ -137,6 +138,20 @@ public class EntityPredictionInferer extends Inferer {
 				*/
 				for(Tree event:eventNodes) {
 					List<BioDatum> testDataEvent = new ArrayList<BioDatum>();
+					EventMention m = new EventMention("", sentence, null);
+					boolean flag = false;
+					for(EventMention ev:ex.prediction.get(EventMentionsAnnotation.class)){
+						//System.out.println(ev.getTreeNode().toString());
+						if(event == ev.getTreeNode()){
+							m = ev;
+							flag = true;
+							break;
+						}
+					}
+					if(!flag){
+						//LogInfo.logs("Event node not found in predicted event mention annotations! Error!");
+						System.out.println("Event node not found in predicted event mention annotations! Error!");
+					}
 					for(BioDatum d:test)
 						if(d.eventNode == event) {
 							//LogInfo.logs(d.entityNode);
@@ -151,6 +166,13 @@ public class EntityPredictionInferer extends Inferer {
 						double scoreE = classifier.scoreOf(newDatum, "E"), scoreO = classifier.scoreOf(newDatum, "O");
 						d.setProbability(Math.exp(scoreE)/(Math.exp(scoreE) + Math.exp(scoreO)));
 						//LogInfo.logs(d.word + ":" + d.predictedLabel() + ":" + d.getProbability());
+						if(classifier.classOf(newDatum).equals("E")){
+							EntityMention entity = new EntityMention("", sentence, null);
+							entity.setTreeNode(d.entityNode);
+							entity.setProb(scoreE);
+				            Utils.addAnnotation(ex.prediction, entity);
+							m.addArgument(entity, RelationType.Entity, scoreE);
+						}
 					}
 					
 					IdentityHashMap<Tree, Pair<Double, String>> map = new IdentityHashMap<Tree, Pair<Double, String>>();
@@ -165,7 +187,7 @@ public class EntityPredictionInferer extends Inferer {
 					
 					//@heather
 					//System.out.println(Main.mode);
-					if(!(Main.mode.equalsIgnoreCase("allnew") || (Main.mode.equalsIgnoreCase("result") && Main.runModel.equals("ilp")))){
+					if(!(Main.mode.equalsIgnoreCase("allnew") || Main.runModel.equals("ilp") || Main.runModel.equals("classifier"))){
 						//System.out.println("run dynamic programming");
 						DynamicProgramming dynamicProgrammer = new DynamicProgramming(sentence, map, testDataEvent);
 						dynamicProgrammer.calculateLabels();
@@ -191,16 +213,17 @@ public class EntityPredictionInferer extends Inferer {
 						
 					}
 				}
+				if(printDebugInformation) 
 				for(EventMention ev:sentence.get(EventMentionsAnnotation.class))
 					if(!eventNodes.contains(ev.getTreeNode())){
 						LogInfo.logs("EntityPredictionInferer.infer: missed event=%s",ev.getTreeNode());
 						for(ArgumentRelation m:ev.getArguments())
 							LogInfo.logs("EntityPredictionInferer.infer: missed event dependents=%s",m.mention.getTreeNode());
-					}
+				    }
 			}
-			LogInfo.end_track();
+			//LogInfo.end_track();
 		}
-		LogInfo.logs("\nevent size from entity inferer: "+eventSize);
+		//LogInfo.logs("\nevent size from entity inferer: "+eventSize);
 		return predicted;
 	}
 	

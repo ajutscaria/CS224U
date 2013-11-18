@@ -15,6 +15,7 @@ import edu.stanford.nlp.util.CoreMap;
 public class EntityMention extends ArgumentMention {
   private static final long serialVersionUID = -2745903102654191527L;
   private List<ArgumentRelation> relations;
+  public double prob = 0;
   
   public EntityMention(String objectId, CoreMap sentence, Span span) {
    super(objectId, sentence, span);
@@ -37,6 +38,9 @@ public class EntityMention extends ArgumentMention {
   }
 
   private static int MENTION_COUNTER = 0;
+  public void setProb(double prob){
+	  this.prob = prob;
+  }
 
   /**
    * Creates a new unique id for an entity mention

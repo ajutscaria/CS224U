@@ -36,6 +36,9 @@ public class Scorer {
 		return new Triple<Double, Double, Double>(precision, recall, f);
 	}
 
+	public static Triple<Double, Double, Double> scoreAll(List<Example> test) {
+		return null;
+	}
 	public static Triple<Double, Double, Double> scoreEvents(List<Example> test, List<BioDatum> predictedEvents) {
 
 		LogInfo.begin_track("Scoring events");
