@@ -18,7 +18,7 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory.SolverType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
-import edu.stanford.nlp.bioprocess.ilp.example.Inference;
+import edu.stanford.nlp.bioprocess.ilp.Inference;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.trees.Tree;

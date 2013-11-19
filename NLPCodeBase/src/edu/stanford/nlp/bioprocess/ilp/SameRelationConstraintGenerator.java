@@ -1,10 +1,8 @@
-package edu.stanford.nlp.bioprocess.ilp.example;
+package edu.stanford.nlp.bioprocess.ilp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IInstance;
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
@@ -22,7 +20,7 @@ public class SameRelationConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance all, InferenceVariableLexManager lexicon) {
 
-		ExampleInput input = (ExampleInput)all;
+		BioprocessesInput input = (BioprocessesInput)all;
 		List<BioDatum> relationPredicted = input.data;
 		
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();

@@ -1,4 +1,4 @@
-package edu.stanford.nlp.bioprocess.ilp.example;
+package edu.stanford.nlp.bioprocess.ilp;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,6 +10,8 @@ import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraint;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
+import edu.stanford.nlp.bioprocess.ilp.example.ExampleInput;
+
 
 public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
 
@@ -20,7 +22,7 @@ public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance x, InferenceVariableLexManager lexicon) {
 		
-		ExampleInput input = (ExampleInput)x;
+		BioprocessesInput input = (BioprocessesInput)x;
 		HashMap<Integer, HashSet<Integer>> entityChildren = input.map;
         String type = input.name;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
