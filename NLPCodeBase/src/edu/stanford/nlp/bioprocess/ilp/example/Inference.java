@@ -22,11 +22,12 @@ import java.util.Set;
 
 
 //import cs224n.util.CounterMap;
-import LBJ2.infer.ILPSolver;
+
 import edu.illinois.cs.cogcomp.indsup.inference.IInstance;
 import edu.illinois.cs.cogcomp.infer.ilp.AbstractILPInference;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraint;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
+import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 import edu.stanford.nlp.bioprocess.ArgumentRelation;
