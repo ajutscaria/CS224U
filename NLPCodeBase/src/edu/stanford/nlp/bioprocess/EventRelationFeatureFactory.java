@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
+import java.util.Random;
 import java.util.Set;
 
 import edu.stanford.nlp.bioprocess.ArgumentRelation.EventType;
@@ -481,16 +482,25 @@ public class EventRelationFeatureFactory {
 			
 			if(printDebug) LogInfo.logs("\n------------------------------------------------");
 		}
+		System.out.println("Not NONE relation numbers:"+dataset.size());
 		
-		//List<BioDatum> chosen = filter(NONEdata, notNONErelation);
-        //dataset.addAll(chosen);
-		LogInfo.logs("Event training set label distribution=%s",labelCounter);
+		/*List<BioDatum> chosen = filter(NONEdata, notNONErelation);
+        dataset.addAll(chosen);
+        System.out.println("After adding NONE relation numbers:"+dataset.size());
+		LogInfo.logs("Event training set label distribution=%s",labelCounter);*/
 		return dataset;
 	}
 	
 	public List<BioDatum> filter(List<BioDatum> data, int count){
-		
-		return null;
+		Random rand = new Random();
+		List<BioDatum> chosen = new ArrayList<BioDatum>();
+		int iter = 0;
+	    while (iter < count) {
+	    	iter++;
+	        int choice = rand.nextInt(data.size());
+	        chosen.add(data.get(choice));     
+	    }
+		return chosen;
 	}
 	
 	/*

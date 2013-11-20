@@ -241,7 +241,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding event-event relation constraints");
 		
-		System.out.println("Start adding same contradiction constraints");
+		/*System.out.println("Start adding same contradiction constraints");
 		for (ILPConstraint constraint : same.getILPConstraints(relationinput, lexicon))
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding same contradiction constraints");
@@ -249,7 +249,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		System.out.println("Start adding prev contradiction constraints");
 		for (ILPConstraint constraint : prev.getILPConstraints(relationinput, lexicon))
 			this.addConstraint(solver, constraint);
-		System.out.println("finish adding prev contradiction constraints");
+		System.out.println("finish adding prev contradiction constraints");*/
 		
 		/*System.out.println("Start adding connectivity constraints");
 		for (ILPConstraint constraint : conn.getILPConstraints(relationinput, lexicon))
