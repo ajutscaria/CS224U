@@ -90,7 +90,7 @@ public class EntityPredictionInferer extends Inferer {
 		for(Example ex:testData) {
 			//LogInfo.begin_track("Example %s",ex.id);
 			//IdentityHashSet<Tree> entities = Utils.getEntityNodes(ex);
-			
+			if(Main.printFeature)LogInfo.begin_track("Event-entity features of process %s", ex.id);
 			for(CoreMap sentence:ex.gold.get(SentencesAnnotation.class)) {
 				if(printDebugInformation ) {
 					LogInfo.logs(sentence);
@@ -172,6 +172,12 @@ public class EntityPredictionInferer extends Inferer {
 							entity.setProb(scoreE);
 				            Utils.addAnnotation(ex.prediction, entity);
 							m.addArgument(entity, RelationType.Entity, scoreE);
+						}else{
+							EntityMention entity = new EntityMention("", sentence, null);
+							entity.setTreeNode(d.entityNode);
+							entity.setProb(scoreE);
+				            Utils.addAnnotation(ex.prediction, entity);
+							m.addArgument(entity, RelationType.NONE, scoreE);
 						}
 					}
 					
@@ -221,6 +227,7 @@ public class EntityPredictionInferer extends Inferer {
 							LogInfo.logs("EntityPredictionInferer.infer: missed event dependents=%s",m.mention.getTreeNode());
 				    }
 			}
+			if(Main.printFeature)LogInfo.end_track();
 			//LogInfo.end_track();
 		}
 		//LogInfo.logs("\nevent size from entity inferer: "+eventSize);

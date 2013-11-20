@@ -30,16 +30,17 @@ public class ValidAConstraintGenerator extends ILPConstraintGenerator {
         //System.out.println("eventToEntity size: "+eventToEntity.keySet().size());
 		//non-event -> non-entity
 		for (Integer eventId : eventToEntity.keySet()) {
-			int[] var = new int[2];
-			double[] coef = new double[2];
 			
-			var[0] = lexicon.getVariable(Inference.getVariableName(eventId, Inference.O_ID, "event"));
-			coef[0] = -1;
 			//System.out.println(Inference.getVariableName(eventId, Inference.O_ID, "event"));
 			//System.out.println(eventToEntity.get(eventId).size());
 			
 			
 			for(Integer entityId : eventToEntity.get(eventId)){
+				int[] var = new int[2];
+				double[] coef = new double[2];			
+				var[0] = lexicon.getVariable(Inference.getVariableName(eventId, Inference.O_ID, "event"));
+				coef[0] = -1;
+				
 				StringBuilder print = new StringBuilder();
 				print.append("-");
 				print.append(Inference.getVariableName(eventId, Inference.O_ID, "event"));

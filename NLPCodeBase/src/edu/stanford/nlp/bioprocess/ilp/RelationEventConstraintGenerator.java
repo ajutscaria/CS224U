@@ -52,6 +52,10 @@ public class RelationEventConstraintGenerator extends ILPConstraintGenerator {
 				print.append(">=0");
 				//System.out.println(print);
 				// -A + C >= 0
+				var = new int[2];
+				coef = new double[2];
+				var[0] = lexicon.getVariable(Inference.getVariableName(event1, event2, labelId, "relation"));
+				coef[0] = -1;
 				var[1] = lexicon.getVariable(Inference.getVariableName(event2, Inference.E_ID, "event"));
 				coef[1] = 1;
 				constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.GREATER_THAN));

@@ -28,7 +28,7 @@ public class Example implements Serializable {
 	 * 
 	 */
 	public static class Options {
-	    @Option public int verbose = 0; //higher verbose level -> more details
+	    @Option public int verbose = 1; //higher verbose level -> more details
 	}
 	
     public class Stat{
@@ -67,6 +67,11 @@ public class Example implements Serializable {
 				LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
 				LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 			}
+		}
+		if(opts.verbose > 0){
+			LogInfo.begin_track("Features for events:");
+			
+			LogInfo.end_track();
 		}
 	}
 	
@@ -143,7 +148,7 @@ public class Example implements Serializable {
     	
     	for(EventMention em:prediction.get(EventMentionsAnnotation.class)) {
 			for(ArgumentRelation rel:em.getArguments()) {
-				if(rel.mention instanceof EntityMention) {
+				if(rel.mention instanceof EntityMention && rel.type != RelationType.NONE) {
 					if(checkContainment(actual.keySet(),new Pair(em.getTreeNode(), rel.mention.getTreeNode()))) {
 						tp++;
 						LogInfo.logs("tp: "+
@@ -356,7 +361,7 @@ public class Example implements Serializable {
 		
 		for(EventMention em:ann.get(EventMentionsAnnotation.class)) {
 			for(ArgumentRelation rel:em.getArguments()) {
-				if(rel.mention instanceof EntityMention) {
+				if(rel.mention instanceof EntityMention && rel.type != RelationType.NONE) {
 					map.put(new Pair(em.getTreeNode(), rel.mention.getTreeNode()), rel.getProb());
 					//LogInfo.logs(em.getTreeNode() + ":"+ rel.mention.getTreeNode());
 				}

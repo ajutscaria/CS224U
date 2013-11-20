@@ -57,6 +57,8 @@ public class PrevRelationConstraintGenerator extends ILPConstraintGenerator {
     					labelId1 = 2; //PREV
         				labelId2 = 0; //PREV
         				labelId3 = 2; //NONE
+        				var = new int[3];
+        				coef = new double[3];
         				var[0] = lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId1, "relation"));
     					coef[0] = 1;
     					var[1] = lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId2, "relation"));
@@ -68,6 +70,8 @@ public class PrevRelationConstraintGenerator extends ILPConstraintGenerator {
     					labelId1 = 0; //PREV
         				labelId2 = 2; //PREV
         				labelId3 = 2; //NONE
+        				var = new int[3];
+        				coef = new double[3];
         				var[0] = lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId1, "relation"));
     					coef[0] = -1;
     					var[1] = lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId2, "relation"));

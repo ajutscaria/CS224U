@@ -79,6 +79,7 @@ public class Main implements Runnable {
 	@Option(gloss="Theta for training/testing") public static double theta = 0.25;	
 	@Option(gloss="File of the first run") public static String f1 = "";
 	@Option(gloss="File of the second run") public static String f2 = "";
+	@Option(gloss="Print Feature") public static boolean printFeature = false;
 
 	public void runPrediction(HashMap<String, String> groups, FeatureExtractor featureFactory, Learner learner, Inferer inferer, Scorer scorer) {
 		int NumCrossValidation = 10;
@@ -1096,11 +1097,12 @@ public class Main implements Runnable {
 					//tryone.add(testDataset.examples("test").get(1));
 					
 					LogInfo.logs("Theta:"+theta);	
-					for(int i = 1; i <= NumCrossValidation; i++) 
-					//for(int i=1;i<=1;i++)
+					//for(int i = 1; i <= NumCrossValidation; i++) 
+					for(int i=1;i<=1;i++)
 					{
-						//tryone.add(split.GetTestExamples(i).get(1));
-						tryone = split.GetTestExamples(i);
+						tryone.add(split.GetTestExamples(i).get(3));
+						tryone.add(split.GetTestExamples(i).get(4));
+						//tryone = split.GetTestExamples(i);
 						LogInfo.begin_track("Iteration " + i);
 						
 						//LogInfo.begin_track("Training event classifier");
@@ -1130,7 +1132,9 @@ public class Main implements Runnable {
 						Params eventParam = eventRelationLearner.learn(split.GetTrainExamples(i), eventRelationFeatureFactory, eventonlyParam);
 						List<BioDatum> relationsPredicted = null;
 						EventRelationFeatureFactory.globalcounter = 0;
+						LogInfo.begin_track("Features for event-event relation");
 						relationsPredicted = inferer.inferIlp(tryone, eventParam, eventRelationFeatureFactory, runModel, eventonlyParam);						
+						LogInfo.end_track();
 						Pair<Triple<Double, Double, Double>, Triple<Double, Double, Double>> pairTriple;
 						/*pairTriple = Scorer.scoreEventRelations(tryone,relationsPredicted); //WHY TWICE THE SAME THING? JONATHAN
 						precisionRelBasic[i-1] = pairTriple.first.first; recallRelBasic[i-1] = pairTriple.first.second; f1RelBasic[i-1] = pairTriple.first.third;
@@ -1138,12 +1142,13 @@ public class Main implements Runnable {
 						LogInfo.end_track();*/
 						
 						
+						
 						/*for(Example ex:tryone){
 							for(EventMention em:ex.prediction.get(EventMentionsAnnotation.class)){
 								System.out.println(em.getTreeNode().toString());
 								System.out.println("relations:");
 								for(ArgumentRelation rel:em.getArguments()) {
-									if(rel.mention instanceof EventMention && rel.type != RelationType.NONE) {
+									if(rel.mention instanceof EventMention){ //&& rel.type != RelationType.NONE) {
 										System.out.println(em.getTreeNode().toString()+"->"+rel.mention.getTreeNode().toString()+":"+rel.type.toString());
 									}
 								}
@@ -1209,8 +1214,8 @@ public class Main implements Runnable {
 					
 					 //write examples out
 					List<Example> allExamples = new ArrayList<Example>();
-					for(int i = 1; i <= NumCrossValidation; i++) {
-					//for(int i = 1; i <= 1; i++) {
+					//for(int i = 1; i <= NumCrossValidation; i++) {
+					for(int i = 1; i <= 1; i++) {
 						tryone = split.GetTestExamples(i);
 						for(Example t:tryone){
 							allExamples.add(t);

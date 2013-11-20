@@ -29,6 +29,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 	public static Integer globalcounter = 0;
 	public static double goldEntities = 0;
 	public static double coveredEntities = 0;
+	public static boolean test = false;
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
 
 	public FeatureVector computeFeatures(CoreMap sentence, Tree entity,  Tree event) {
@@ -76,6 +77,15 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		//Not a good feature too.
 		//features.add("EntPOSEvtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
 		features.add("bias");
+		
+		/*if(Main.printFeature && test){
+			LogInfo.begin_track("Features of %s <- %s", event.toString(), entity.toString());
+			for(String f:features){
+				LogInfo.logs(f);
+			}
+			LogInfo.end_track();
+		}*/
+		
 		FeatureVector fv = new FeatureVector(features);
 		return fv;
 	}
@@ -320,7 +330,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
     	EntityPredictionInferer.eventSize+=predictedEvents.size();*/
 		//
 
-
+        test = true;
 		List<BioDatum> newData = new ArrayList<BioDatum>();
 
 		IdentityHashSet<Tree> entityNodes = Utils.getEntityNodesFromSentence(sentence);

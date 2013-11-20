@@ -31,7 +31,7 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
         System.out.println("relationpredicted size: "+relationPredicted.size());
         HashMap<String, List<Integer>> processToEvent = Inference.processToEvent;
 		   
-        /*for (int Id = 0; Id < relationPredicted.size(); Id++) {
+        for (int Id = 0; Id < relationPredicted.size(); Id++) {
         	int event1 = relationPredicted.get(Id).event1_index;
 			int event2 = relationPredicted.get(Id).event2_index;
 			
@@ -57,10 +57,14 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
 			coef[1] = 1;
 			constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.LESS_THAN));
 			// Zji <= Yij
+			var = new int[2];
+			coef = new double[2];
+			var[0] = lexicon.getVariable(Inference.getVariableName(event1, event2, "edge", "connectivity")); //Yij
+			coef[0] = -1;
 			var[1] = lexicon.getVariable(Inference.getVariableName(event2, event1, "aux", "connectivity")); //Zji
 			coef[1] = 1;
 			constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.LESS_THAN));
-        }*/
+        }
         
         
         for(String process : processToEvent.keySet()){
@@ -79,22 +83,22 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
     			double[] coef = new double[size];
         		int counter = 0;
         		int event1 = events.get(i);
-        		System.out.println("start");
+        		//System.out.println("start");
         		for(int j=0; j<events.size();j++){
         			int event2 = events.get(j);
         			if(i==j) continue;
-        			System.out.println(Inference.getVariableName(event2, event1, "aux", "connectivity"));
+        			//System.out.println(Inference.getVariableName(event2, event1, "aux", "connectivity"));
         			var[counter] = lexicon.getVariable(Inference.getVariableName(event2, event1, "aux", "connectivity"));
           		    coef[counter] = 1;
         			counter++;
         		}
         		if(i == 0) {//root
         		   constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.EQUAL));
-        		   System.out.println("=1");
+        		   //System.out.println("=0");
         		}
         		else{
         		   constraints.add(new ILPConstraint(var, coef, 1, ILPConstraint.EQUAL));
-        		   System.out.println("=1");
+        		   //System.out.println("=1");
         		}
         	}
         	

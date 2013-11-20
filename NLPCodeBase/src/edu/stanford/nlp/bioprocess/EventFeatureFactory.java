@@ -29,6 +29,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 	}
 
 	boolean printDebug = false, printAnnotations = false, printFeatures = false;
+	public static boolean test = false;
 	Set<String> nominalizations = Utils.getNominalizedVerbs();
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> SelectedAdvMods = Arrays.asList(new String[]{"first, then, next, after, later, subsequent, before, previously"});
@@ -139,6 +140,15 @@ public class EventFeatureFactory extends FeatureExtractor {
 		//for(String feature:features)
 		//	updatedFeatures.add(classString + feature);
 		features.add("bias");
+		
+		if(Main.printFeature && test){
+			LogInfo.begin_track("Features of event %s", event.toString());
+			for(String f:features){
+				LogInfo.logs(f);
+			}
+			LogInfo.end_track();
+		}
+		
 		FeatureVector fv = new FeatureVector(features);
 		return fv;
     }
@@ -182,6 +192,7 @@ public class EventFeatureFactory extends FeatureExtractor {
     	List<BioDatum> dataset = new ArrayList<BioDatum>();
     	IdentityHashMap<Tree, EventType> eventNodes = Utils.getEventNodesFromSentence(sentence);
     	//int count = 0;
+    	test = true;
 		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 			if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
 					!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||

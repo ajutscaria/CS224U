@@ -29,15 +29,16 @@ public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
         System.out.println("entityChildren size: "+entityChildren.size());
 		//parent is entity -> child is not entity
 		for (Integer parentId : entityChildren.keySet()) {
-			int[] var = new int[2];
-			double[] coef = new double[2];
-
-			var[0] = lexicon.getVariable(Inference.getVariableName(parentId, Inference.E_ID, type));
-			coef[0] = -1;
+			
 			//System.out.println(Inference.getVariableName(parentId, Inference.E_ID, type));
 			//System.out.println(entityChildren.get(parentId).size());
 			
 			for(Integer childId : entityChildren.get(parentId)){
+				int[] var = new int[2];
+				double[] coef = new double[2];
+
+				var[0] = lexicon.getVariable(Inference.getVariableName(parentId, Inference.E_ID, type));
+				coef[0] = -1;
 				StringBuilder print = new StringBuilder();
 				print.append("-");
 				print.append(Inference.getVariableName(parentId, Inference.E_ID, type));

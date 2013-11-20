@@ -36,31 +36,34 @@ public class SameRelationConstraintGenerator extends ILPConstraintGenerator {
         	for(int i = 0; i < events.size()-2;i++){
         		for(int j = i+1; j < events.size()-1;j++){
         			for(int k = j+1; k < events.size();k++){
-        				int[] var = new int[3];
-    					double[] coef = new double[3];
+        				
     					int Id1 = events.get(i);
     					int Id2 = events.get(j);
     					int Id3 = events.get(k);
     					
         				int labelId1 = 1; //SAME
-        				var[0] = lexicon.getVariable(Inference.getVariableName(Id1, Id3, labelId1, "relation"));
-        				coef[0] = 1;
         				//int labelId2;
         				//int labelId3;
         				for (int labelId2 = 2; labelId2 < slotlength; labelId2++) { //except "NONE" and "SAME"
         					for (int labelId3 = 2; labelId3 < slotlength; labelId3++) {
+        						int[] var = new int[3];
+            					double[] coef = new double[3];
+        						var[0] = lexicon.getVariable(Inference.getVariableName(Id1, Id3, labelId1, "relation"));
+                				coef[0] = 1;
         						var[1] = lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId2, "relation"));
             					coef[1] = 1;
             					var[2] = lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId3, "relation"));
             					coef[2] = 1;
             					constraints.add(new ILPConstraint(var, coef, 2, ILPConstraint.LESS_THAN));
             				}
-        				}
+        				}	
         				
-        				var[0] = lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId1, "relation"));
-        				coef[0] = 1;
         				for (int labelId2 = 2; labelId2 < slotlength; labelId2++) { //except "NONE" and "SAME"
         					for (int labelId3 = 2; labelId3 < slotlength; labelId3++) {
+        						int[] var = new int[3];
+            					double[] coef = new double[3];
+            					var[0] = lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId1, "relation"));
+                				coef[0] = 1;
         						var[1] = lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId2, "relation"));
             					coef[1] = 1;
             					var[2] = lexicon.getVariable(Inference.getVariableName(Id1, Id3, labelId3, "relation"));
@@ -69,10 +72,13 @@ public class SameRelationConstraintGenerator extends ILPConstraintGenerator {
             				}
         				}
     					
-        				var[0] = lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId1, "relation"));
-        				coef[0] = 1;
+        				
         				for (int labelId2 = 2; labelId2 < slotlength; labelId2++) { //except "NONE" and "SAME"
         					for (int labelId3 = 2; labelId3 < slotlength; labelId3++) {
+        						int[] var = new int[3];
+            					double[] coef = new double[3];
+            					var[0] = lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId1, "relation"));
+                				coef[0] = 1;
         						var[1] = lexicon.getVariable(Inference.getVariableName(Id1, Id3, labelId2, "relation"));
             					coef[1] = 1;
             					var[2] = lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId3, "relation"));

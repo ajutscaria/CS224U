@@ -38,6 +38,7 @@ public class EventRelationFeatureFactory {
 	private String model = "";
 	public static Integer globalcounter = 0;
 	public static Integer traincounter = 0;
+	public static boolean test = false;
 	HashMap<String, String> verbForms = Utils.getVerbForms();
 	List<String> TemporalConnectives = Arrays.asList(new String[]{"before", "after", "since", "when", "meanwhile", "lately", 
 									"include","includes","including","included", "first", "begin","begins","began","beginning","begun","start","starts","started","starting",
@@ -347,6 +348,14 @@ public class EventRelationFeatureFactory {
 		}
 		features.add("bias");
 		
+		if(Main.printFeature && test){
+			LogInfo.begin_track("Features of %s - %s", event1.getTreeNode().toString(), event2.getTreeNode().toString());
+			for(String f:features){
+				LogInfo.logs(f);
+			}
+			LogInfo.end_track();
+		}
+		
 		FeatureVector fv = new FeatureVector(features);
 		if(printDebug) {
 			LogInfo.logs(String.format("\nExample : %s Event 1 - %s, Event 2 - %s", example.id, event1.getTreeNode(), event2.getTreeNode()));
@@ -468,14 +477,14 @@ public class EventRelationFeatureFactory {
 						newDatum.features = computeFeatures(ex, list, event1, event2);
 						newDatum.setExampleID(ex.id);
 						
-						//if(!label.equals("NONE")){
+						if(!label.equals("NONE")){
 							notNONErelation++;
 							dataset.add(newDatum);
 							labelCounter.incrementCount(label);
-						/*}else{
+						}else{
 							NONEdata.add(newDatum);
 							labelCounter.incrementCount(label);
-						}*/	
+						}	
 					}
 			    }
 			}
@@ -484,10 +493,10 @@ public class EventRelationFeatureFactory {
 		}
 		System.out.println("Not NONE relation numbers:"+dataset.size());
 		
-		/*List<BioDatum> chosen = filter(NONEdata, notNONErelation);
+		List<BioDatum> chosen = filter(NONEdata, notNONErelation);
         dataset.addAll(chosen);
         System.out.println("After adding NONE relation numbers:"+dataset.size());
-		LogInfo.logs("Event training set label distribution=%s",labelCounter);*/
+		LogInfo.logs("Event training set label distribution=%s",labelCounter);
 		return dataset;
 	}
 	
@@ -531,7 +540,8 @@ public class EventRelationFeatureFactory {
 	
 	public List<BioDatum> setFeaturesTestILP(Example example, Params eventParam) {
 		LinearClassifier<String, String> classifier = new LinearClassifier<String, String>(eventParam.weights, eventParam.featureIndex, eventParam.labelIndex);
-    	//int eventMentioncount = 0;
+    	test = true;
+		//int eventMentioncount = 0;
 		EventFeatureFactory eventFeatureFactory = new EventFeatureFactory(true);
 		double theta = Main.theta;
 		//original
@@ -558,7 +568,7 @@ public class EventRelationFeatureFactory {
 		}
     	
     	List<EventMention> predictionlist = example.prediction.get(EventMentionsAnnotation.class);
- 
+    	if(Main.printFeature)LogInfo.logs("Event-evnet relation features of process %s", example.id);
     	//LogInfo.logs("size of prediction:"+list.size());
 		//System.out.println("eventmention list size: " + list.size());
     	List<BioDatum> newData = new ArrayList<BioDatum>();
@@ -586,6 +596,7 @@ public class EventRelationFeatureFactory {
 		    }
 		}
 		//System.out.println("#relations in one process: " + newData.size());
+		if(Main.printFeature)LogInfo.end_track();
     	return newData;
 	}
 	
