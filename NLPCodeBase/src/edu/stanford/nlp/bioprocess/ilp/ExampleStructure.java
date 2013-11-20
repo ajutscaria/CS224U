@@ -1,4 +1,4 @@
-package edu.stanford.nlp.bioprocess.ilp.example;
+package edu.stanford.nlp.bioprocess.ilp;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
 import edu.illinois.cs.cogcomp.indsup.learning.FeatureVector;
@@ -6,9 +6,9 @@ import edu.illinois.cs.cogcomp.indsup.learning.FeatureVector;
 public class ExampleStructure implements IStructure {
 
 	public final String[] label;
-	public ExampleInput input;
+	public BioprocessesInput input;
 
-	public ExampleStructure(ExampleInput input, String[] label) {
+	public ExampleStructure(BioprocessesInput input, String[] label) {
 		this.input = input;
 		assert input.slots == label.length;
 		

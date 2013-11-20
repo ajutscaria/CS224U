@@ -1,4 +1,4 @@
-package edu.stanford.nlp.bioprocess.ilp.example;
+package edu.stanford.nlp.bioprocess.ilp;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -9,6 +9,8 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraint;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 import edu.stanford.nlp.bioprocess.BioDatum;
+import edu.stanford.nlp.bioprocess.ilp.example.ExampleInput;
+
 
 public class UniqueLabelConstraint extends ILPConstraintGenerator {
 
@@ -21,7 +23,7 @@ public class UniqueLabelConstraint extends ILPConstraintGenerator {
 	public List<ILPConstraint> getILPConstraints(IInstance arg0,
 			InferenceVariableLexManager lexicon) {
 
-		ExampleInput input = (ExampleInput) arg0;
+		BioprocessesInput input = (BioprocessesInput) arg0;
 		List<BioDatum> data = input.data; 
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
 		int labelLength = input.labels;
