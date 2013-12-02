@@ -348,13 +348,13 @@ public class EventRelationFeatureFactory {
 		}
 		features.add("bias");
 		
-		if(Main.printFeature && test){
+		/*if(Main.printFeature && test){
 			LogInfo.begin_track("Features of %s - %s", event1.getTreeNode().toString(), event2.getTreeNode().toString());
 			for(String f:features){
 				LogInfo.logs(f);
 			}
 			LogInfo.end_track();
-		}
+		}*/
 		
 		FeatureVector fv = new FeatureVector(features);
 		if(printDebug) {
@@ -477,14 +477,14 @@ public class EventRelationFeatureFactory {
 						newDatum.features = computeFeatures(ex, list, event1, event2);
 						newDatum.setExampleID(ex.id);
 						
-						if(!label.equals("NONE")){
+						//if(!label.equals("NONE")){
 							notNONErelation++;
 							dataset.add(newDatum);
 							labelCounter.incrementCount(label);
-						}else{
+						/*}else{
 							NONEdata.add(newDatum);
 							labelCounter.incrementCount(label);
-						}	
+						}*/	
 					}
 			    }
 			}
@@ -493,8 +493,8 @@ public class EventRelationFeatureFactory {
 		}
 		System.out.println("Not NONE relation numbers:"+dataset.size());
 		
-		List<BioDatum> chosen = filter(NONEdata, notNONErelation);
-        dataset.addAll(chosen);
+		//List<BioDatum> chosen = filter(NONEdata, notNONErelation);
+        //dataset.addAll(chosen);
         System.out.println("After adding NONE relation numbers:"+dataset.size());
 		LogInfo.logs("Event training set label distribution=%s",labelCounter);
 		return dataset;

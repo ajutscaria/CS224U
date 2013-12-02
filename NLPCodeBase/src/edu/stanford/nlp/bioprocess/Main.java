@@ -1097,12 +1097,12 @@ public class Main implements Runnable {
 					//tryone.add(testDataset.examples("test").get(1));
 					
 					LogInfo.logs("Theta:"+theta);	
-					//for(int i = 1; i <= NumCrossValidation; i++) 
-					for(int i=1;i<=1;i++)
+					for(int i = 1; i <= NumCrossValidation; i++) 
+					//for(int i=1;i<=1;i++)
 					{
-						tryone.add(split.GetTestExamples(i).get(3));
-						tryone.add(split.GetTestExamples(i).get(4));
-						//tryone = split.GetTestExamples(i);
+						//tryone.add(split.GetTestExamples(i).get(3));
+						//tryone.add(split.GetTestExamples(i).get(10));
+						tryone = split.GetTestExamples(i);
 						LogInfo.begin_track("Iteration " + i);
 						
 						//LogInfo.begin_track("Training event classifier");
@@ -1198,13 +1198,13 @@ public class Main implements Runnable {
 						LogInfo.begin_track("Per process information:");
 						for(Example ex:tryone){
 							LogInfo.begin_track("Example "+ex.id);
-							ex.printPrediction();
 							Example.Stat s = ex.scoreEvent();
 							eval.updateStat(i, "event", s);
 							s = ex.scoreEntity();
 							eval.updateStat(i, "entity", s);
 							s = ex.scoreRelation();
 							eval.updateStat(i, "relation", s);
+							ex.printPrediction();
 							LogInfo.end_track();
 						}
 						LogInfo.end_track();

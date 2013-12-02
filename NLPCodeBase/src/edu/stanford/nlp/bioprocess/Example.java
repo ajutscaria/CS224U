@@ -28,7 +28,7 @@ public class Example implements Serializable {
 	 * 
 	 */
 	public static class Options {
-	    @Option public int verbose = 1; //higher verbose level -> more details
+	    @Option public int verbose = 0; //higher verbose level -> more details
 	}
 	
     public class Stat{
@@ -48,9 +48,11 @@ public class Example implements Serializable {
 	public Annotation prediction;
 	public static Options opts = new Options();
 	private int tp, fp, fn;
-	public List<BioDatum> events;
-	public List<BioDatum> entities;
-	public List<BioDatum> relations;
+	public List<Pair<CoreMap,Tree>> events = new ArrayList<Pair<CoreMap, Tree>>();
+	public List<Triple<CoreMap, Tree, Tree>> entities = new ArrayList<Triple<CoreMap, Tree, Tree>>();
+	public List<Triple<Example, List<EventMention>, Pair<Tree, Tree>>> relations
+	     = new ArrayList<Triple<Example, List<EventMention>, Pair<Tree, Tree>>>();
+	public static boolean examplePrint = false;
 
 	public String getData() {
 		return data;
@@ -62,16 +64,34 @@ public class Example implements Serializable {
 	
 	public void printPrediction(){
 		for(CoreMap sentence:gold.get(SentencesAnnotation.class)){ 
-			if(opts.verbose > 0) {
+			if(Main.printFeature) {
 				LogInfo.logs(sentence);
 				LogInfo.logs(sentence.get(TreeCoreAnnotations.TreeAnnotation.class).pennString());
 				LogInfo.logs(sentence.get(CollapsedCCProcessedDependenciesAnnotation.class));
 			}
 		}
-		if(opts.verbose > 0){
+		if(Main.printFeature){
+			examplePrint = true;
 			LogInfo.begin_track("Features for events:");
-			
+			EventFeatureFactory f = new EventFeatureFactory(true);
+			for(Pair<CoreMap, Tree> p : events){
+				f.computeFeatures(p.first, p.second);
+			}
 			LogInfo.end_track();
+			
+			LogInfo.begin_track("Features for entities:");
+			EntityFeatureFactory g = new EntityFeatureFactory(true);
+			for(Triple<CoreMap, Tree, Tree> p : entities){
+				g.computeFeatures(p.first, p.second, p.third);
+			}
+			LogInfo.end_track();
+			
+			/*LogInfo.begin_track("Features for relations:");
+			EntityFeatureFactory g = new EntityFeatureFactory(true);
+			for(Triple<CoreMap, Tree, Tree> p : entities){
+				g.computeFeatures(p.first, p.second, p.third);
+			}*/
+			//LogInfo.end_track();
 		}
 	}
 	
@@ -104,6 +124,8 @@ public class Example implements Serializable {
 				fp++;
 				LogInfo.logs("fp: "+
 						   String.format("%-30s Predicted=%s", em.getTreeNode(), "E"));
+				if(events == null)events = new ArrayList<Pair<CoreMap, Tree>>();
+				events.add(new Pair<CoreMap, Tree>(em.getSentence(), em.getTreeNode()));
 			}
 		}
     	for(EventMention em:gold.get(EventMentionsAnnotation.class)) {
@@ -111,6 +133,8 @@ public class Example implements Serializable {
 				fn++;
 				LogInfo.logs("fn: "+
 						   String.format("%-30s Predicted=%s", em.getTreeNode(), "O"));
+				if(events == null)events = new ArrayList<Pair<CoreMap, Tree>>();
+				events.add(new Pair<CoreMap, Tree>(em.getSentence(), em.getTreeNode()));
 			}
     	}
     	/*for(Tree p:actual.keySet()) {
@@ -158,6 +182,8 @@ public class Example implements Serializable {
 						fp++;
 						LogInfo.logs("fp: "+
 								  String.format("Event=%-15s Entity=%s, Predicted=%s", em.getTreeNode(), rel.mention.getTreeNode(), "E"));
+						if(entities == null)entities = new ArrayList<Triple<CoreMap, Tree, Tree>>();
+						entities.add(new Triple(em.getSentence(), em.getTreeNode(), rel.mention.getTreeNode()));
 				    }
 				}
 			}
@@ -170,6 +196,8 @@ public class Example implements Serializable {
 						fn++;
 						LogInfo.logs("fn: "+
 						  String.format("Event=%-15s Entity=%s, Predicted=%s", em.getTreeNode(), rel.mention.getTreeNode(), "O"));
+						if(entities == null)entities = new ArrayList<Triple<CoreMap, Tree, Tree>>();
+						entities.add(new Triple(em.getSentence(), em.getTreeNode(), rel.mention.getTreeNode()));
 					}
 				}
 			}

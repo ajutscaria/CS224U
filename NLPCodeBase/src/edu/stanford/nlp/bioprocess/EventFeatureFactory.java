@@ -141,7 +141,7 @@ public class EventFeatureFactory extends FeatureExtractor {
 		//	updatedFeatures.add(classString + feature);
 		features.add("bias");
 		
-		if(Main.printFeature && test){
+		if(Main.printFeature && Example.examplePrint){
 			LogInfo.begin_track("Features of event %s", event.toString());
 			for(String f:features){
 				LogInfo.logs(f);

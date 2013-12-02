@@ -12,6 +12,7 @@ import java.util.Set;
 
 //import cs224n.util.CounterMap;
 
+
 import edu.illinois.cs.cogcomp.indsup.inference.IInstance;
 import edu.illinois.cs.cogcomp.infer.ilp.AbstractILPInference;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraint;
@@ -31,6 +32,7 @@ import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Pair;
+import fig.basic.LogInfo;
 
 public class Inference extends AbstractILPInference<ExampleStructure> {
 
@@ -41,7 +43,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 	// the id for A & B in the above list. This can be done better
 	public static final int E_ID = 0;
 	public final static int O_ID = 1;
-    public boolean debug = false;
+	public boolean debug = true;
 	private List<Example> testSet;
 	private List<ILPConstraintGenerator> constraints;
 	private List<BioDatum> eventPredicted;
@@ -50,9 +52,10 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 	public HashMap<Integer, HashSet<Integer>> eventToEntity = new HashMap<Integer, HashSet<Integer>>();
 	public HashMap<Integer, HashSet<Integer>> entityToEvent = new HashMap<Integer, HashSet<Integer>>();
 	public HashMap<Integer, HashSet<Integer>> entityChildren = new HashMap<Integer, HashSet<Integer>>();
+	public HashMap<Integer, HashSet<Integer>> entityOverlapEvent = new HashMap<Integer, HashSet<Integer>>();
 	public static HashMap<String, List<Integer>> processToEvent;// = new
-																															// HashMap<String,
-																															// List<Integer>>();
+																// HashMap<String,
+																// List<Integer>>();
 
 	// private CounterMap<String,String> wordToTagCounters = new
 	// CounterMap<String, String>();
@@ -70,7 +73,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		this.entityPredicted = entityPredicted;
 		this.relationPredicted = relationPredicted;
 		this.testSet = testSet;
-		relationLabels = new String[relationPredicted.get(0).rankRelation.size()];
+		relationLabels = new String[relationPredicted.get(0).rankRelation
+				.size()];
 		relationLabels[0] = "NONE";
 		relationLabels[1] = "SameEvent";
 		relationLabels[2] = "PreviousEvent";
@@ -89,8 +93,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		/*
 		 * for(int j=0; j<entityPredicted.size();j++){ int whichevent =
 		 * entityPredicted.get(j).eventId;
-		 * if(eventToEntity.containsKey(whichevent)){ //System.out.println(j); temp
-		 * = eventToEntity.get(whichevent); temp.add(j);
+		 * if(eventToEntity.containsKey(whichevent)){ //System.out.println(j);
+		 * temp = eventToEntity.get(whichevent); temp.add(j);
 		 * eventToEntity.put(whichevent, temp); }else{ temp = new
 		 * HashSet<Integer>(); temp.add(j); //System.out.println(j);
 		 * eventToEntity.put(whichevent, temp); } temp = new HashSet<Integer>();
@@ -100,8 +104,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		for (int i = 0; i < eventPredicted.size(); i++) {
 			// System.out.println("Event "+i + ":");
 			for (int j = 0; j < entityPredicted.size(); j++) {
-				if (!eventPredicted.get(i).eventNode
-						.equals(entityPredicted.get(j).eventNode)
+				if (!eventPredicted.get(i).eventNode.equals(entityPredicted
+						.get(j).eventNode)
 						|| !eventPredicted.get(i).getSentence()
 								.equals(entityPredicted.get(j).getSentence()))
 					continue;
@@ -135,19 +139,41 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 				temp.add(value);
 			}
 		}
-		System.out
-				.println("Number of entities belonging to events: " + temp.size());
+		System.out.println("Number of entities belonging to events: "
+				+ temp.size());
 		for (int i = 0; i < entityPredicted.size(); i++) {
 			List<Tree> children_original = entityPredicted.get(i).entityNode
 					.getChildrenAsList();
 			HashSet<Tree> children = new HashSet<Tree>();
 			children.addAll(children_original);
 			// System.out.println("parent: "+i);
+			for (int j = 0; j < eventPredicted.size(); j++) {
+				if (!entityPredicted.get(i).getSentence()
+								.equals(eventPredicted.get(j).getSentence())
+						|| !children
+								.contains(eventPredicted.get(j).eventNode))
+					continue;
+				else {
+					if (entityOverlapEvent.containsKey(i)) {
+						// System.out.println(j);
+						temp = entityOverlapEvent.get(i);
+						temp.add(j);
+						entityOverlapEvent.put(i, temp);
+					} else {
+						// System.out.println(j);
+						temp = new HashSet<Integer>();
+						temp.add(j);
+						entityOverlapEvent.put(i, temp);
+					}
+				}
+			}
+			
 			for (int j = 0; j < entityPredicted.size(); j++) {
 				if (j == i
 						|| !entityPredicted.get(i).getSentence()
 								.equals(entityPredicted.get(j).getSentence())
-						|| !children.contains(entityPredicted.get(j).entityNode))
+						|| !children
+								.contains(entityPredicted.get(j).entityNode))
 					continue;
 				else {
 					if (entityChildren.containsKey(i)) {
@@ -187,6 +213,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		System.out.println("eventToEntity size: " + eventToEntity.size());
 		System.out.println("entityToEvent size: " + entityToEvent.size());
 		System.out.println("entityChildren size: " + entityChildren.size());
+		//System.out.println("entityOverlapEvent size: " + entityOverlapEvent.size());
 		System.out.println("processToEvent size: " + processToEvent.size()
 				+ ", check:" + check);
 		constraints = new ArrayList<ILPConstraintGenerator>();
@@ -208,13 +235,15 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		SameRelationConstraintGenerator same = new SameRelationConstraintGenerator();
 		PrevRelationConstraintGenerator prev = new PrevRelationConstraintGenerator();
 		ConnectivityConstraintGenerator conn = new ConnectivityConstraintGenerator();
+		OverlapConstraintGenerator overlap = new OverlapConstraintGenerator();
 
-		BioprocessesInput eventinput = new BioprocessesInput("event", eventPredicted.size(),
-				eventLabels.length, eventPredicted);
+		BioprocessesInput eventinput = new BioprocessesInput("event",
+				eventPredicted.size(), eventLabels.length, eventPredicted);
 		BioprocessesInput entityinput = new BioprocessesInput("entity",
 				entityPredicted.size(), entityLabels.length, entityPredicted);
 		BioprocessesInput relationinput = new BioprocessesInput("relation",
-				relationPredicted.size(), relationLabels.length, relationPredicted);
+				relationPredicted.size(), relationLabels.length,
+				relationPredicted);
 
 		System.out.println("Start adding unique constraints");
 		for (ILPConstraint constraint : unique.getILPConstraints(eventinput,
@@ -229,10 +258,11 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		System.out.println("finish adding unique constraints");
 
 		System.out.println("Start adding entity to event constraints");
-		BioprocessesInput entitydualevent = new BioprocessesInput("", entityToEvent.size(),
-				entityLabels.length, eventToEntity, entityToEvent);
-		for (ILPConstraint constraint : valid.getILPConstraints(entitydualevent,
-				lexicon))
+		BioprocessesInput entitydualevent = new BioprocessesInput("",
+				entityToEvent.size(), entityLabels.length, eventToEntity,
+				entityToEvent);
+		for (ILPConstraint constraint : valid.getILPConstraints(
+				entitydualevent, lexicon))
 			this.addConstraint(solver, constraint);
 		System.out
 				.println("finish adding event to entity and entity to event constraints");
@@ -244,34 +274,59 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 				lexicon))
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding entity children constraints");
+		
+		System.out.println("Start adding entity event overlap constraints");
+		BioprocessesInput entityeventoverlap = new BioprocessesInput("entity",
+				entityOverlapEvent.size(), entityLabels.length, entityOverlapEvent);
+		for (ILPConstraint constraint : overlap.getILPConstraints(entityeventoverlap,
+				lexicon))
+			this.addConstraint(solver, constraint);
+		System.out.println("finish adding entity event overlap constraints");
+        
 
 		System.out.println("Start adding event-event relation constraints");
-		for (ILPConstraint constraint : relation.getILPConstraints(relationinput,
-				lexicon))
+		for (ILPConstraint constraint : relation.getILPConstraints(
+				relationinput, lexicon))
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding event-event relation constraints");
 
+	
 		/*System.out.println("Start adding same contradiction constraints");
-		for (ILPConstraint constraint : same.getILPConstraints(relationinput,
-				lexicon))
-			this.addConstraint(solver, constraint);
+	    for (ILPConstraint constraint : same.getILPConstraints(relationinput, lexicon)) 
+	    	this.addConstraint(solver, constraint);
 		System.out.println("finish adding same contradiction constraints");
-
+		 
 		System.out.println("Start adding prev contradiction constraints");
-		for (ILPConstraint constraint : prev.getILPConstraints(relationinput,
-				lexicon))
+		for (ILPConstraint constraint : prev.getILPConstraints(relationinput, lexicon)) 
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding prev contradiction constraints");
-        */
-		
-		/*System.out.println("Start adding connectivity constraints"); 
-		for(ILPConstraint constraint : conn.getILPConstraints(relationinput,
-		        lexicon)) 
+		 
+        
+		System.out.println("Start adding connectivity constraints");
+		for (ILPConstraint constraint : conn.getILPConstraints(relationinput,
+				lexicon))
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding connectivity constraints");
-		*/ 
-
+        */
+		
 		System.out.println("done adding constraints");
+
+		//printILP(solver, lexicon);
+	}
+
+	private void printILP(ILPSolver solver, InferenceVariableLexManager lexicon) {
+
+		StringBuffer sb = new StringBuffer();
+
+		for (int i = 0; i < lexicon.size(); i++) {
+			sb.append("x_" + i + "\t" + lexicon.getVariableName(i) + "\n");
+		}
+
+		solver.write(sb);
+
+		String ilp = sb.toString();
+
+		LogInfo.logs(ilp);
 	}
 
 	@Override
@@ -281,18 +336,22 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 
 		System.out.println("start adding variables");
 		for (int eventId = 0; eventId < eventPredicted.size(); eventId++) {
-			double score = Math
-					.log(eventPredicted.get(eventId).getEventProbability());
-			// System.out.println("Score of E for event "+ eventId + ": " + score);
+			double score = Math.log(eventPredicted.get(eventId)
+					.getEventProbability());
+			// System.out.println("Score of E for event "+ eventId + ": " +
+			// score);
 
 			// create a boolean variable with this score
 			int var = solver.addBooleanVariable(score);
-			String varName = getVariableName(eventId, E_ID, "event"); // 0: E, 1: O
+			String varName = getVariableName(eventId, E_ID, "event"); // 0: E,
+																		// 1: O
 			lexicon.addVariable(varName, var);
 			// System.out.println(varName);
 			// ** should use just one var!
-			score = Math.log(1 - eventPredicted.get(eventId).getEventProbability());
-			// System.out.println("Score of O for event "+ eventId + ": " + score);
+			score = Math.log(1 - eventPredicted.get(eventId)
+					.getEventProbability());
+			// System.out.println("Score of O for event "+ eventId + ": " +
+			// score);
 			var = solver.addBooleanVariable(score);
 			varName = getVariableName(eventId, O_ID, "event"); // 0: E, 1: O
 			lexicon.addVariable(varName, var);
@@ -303,8 +362,10 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 
 			// for (int labelId = 0; labelId < entityLabels.length; labelId++) {
 
-			// get the variable objective coefficient for the variable to be added
-			double score = Math.log(entityPredicted.get(entityId).getProbability());
+			// get the variable objective coefficient for the variable to be
+			// added
+			double score = Math.log(entityPredicted.get(entityId)
+					.getProbability());
 			// System.out.println("Score of E for entity "+ entityId + ": " +
 			// entityPredicted.get(entityId).getProbability());
 			// create a boolean variable with this score
@@ -312,7 +373,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 			String varName = getVariableName(entityId, E_ID, "entity");
 			lexicon.addVariable(varName, var);
 
-			score = Math.log(1 - entityPredicted.get(entityId).getProbability());
+			score = Math
+					.log(1 - entityPredicted.get(entityId).getProbability());
 			// create a boolean variable with this score
 			var = solver.addBooleanVariable(score);
 			varName = getVariableName(entityId, O_ID, "entity");
@@ -408,26 +470,36 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 				if (solver.getBooleanValue(var)) {
 					if (eventLabels[labelId].equals("E")) {
 						ilpSetEvents.add(eventPredicted.get(eventId));
-						if(debug)System.out.println(varName+"-"+eventPredicted.get(eventId).eventNode+": assigned as Event");
+						if (debug)
+							System.out.println(varName + "-"
+									+ eventPredicted.get(eventId).eventNode
+									+ ": assigned as Event");
 						event++;
-					}else{
-						if(debug)System.out.println(varName+"-"+eventPredicted.get(eventId).eventNode+": assigned as NotEvent");
+					} else {
+						if (debug)
+							System.out.println(varName + "-"
+									+ eventPredicted.get(eventId).eventNode
+									+ ": assigned as NotEvent");
 					}
-					if (!eventLabels[labelId]
-							.equals(eventPredicted.get(eventId).guessLabel)) {
+					if (!eventLabels[labelId].equals(eventPredicted
+							.get(eventId).guessLabel)) {
 						// flipEvent(eventPredicted.get(eventId));
 						count++;
-						System.out.println(eventPredicted.get(eventId).eventNode.toString()
-								+ ": original label - "
-								+ eventPredicted.get(eventId).guessLabel + ", after ilp - "
-								+ eventLabels[labelId]);
+						System.out
+								.println(eventPredicted.get(eventId).eventNode
+										.toString()
+										+ ": original label - "
+										+ eventPredicted.get(eventId).guessLabel
+										+ ", after ilp - "
+										+ eventLabels[labelId]);
 						// System.out.println("Event Different: original - "+eventPredicted.get(eventId).guessLabel
 						// + ", after - "+eventLabels[labelId]);
 						if (eventPredicted.get(eventId).guessLabel.equals("E")
 								&& eventLabels[labelId].equals("O"))
 							EtoO++;
 					}
-					eventPredicted.get(eventId).setPredictedLabel(eventLabels[labelId]);
+					eventPredicted.get(eventId).setPredictedLabel(
+							eventLabels[labelId]);
 					break;
 				}
 			}
@@ -446,28 +518,33 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 
 				if (solver.getBooleanValue(var)) {
 					if (entityLabels[labelId].equals("E")) {
-						if(debug)System.out.println(entityPredicted.get(entityId).eventNode+": "+
-					    entityPredicted.get(entityId).entityNode+": assigned as Entity");
+						if (debug)
+							System.out
+									.println(entityPredicted.get(entityId).eventNode
+											+ ": "
+											+ entityPredicted.get(entityId).entityNode
+											+ ": assigned as Entity");
 						entity++;
 					}
-					if (!entityLabels[labelId]
-							.equals(entityPredicted.get(entityId).guessLabel)) {
+					if (!entityLabels[labelId].equals(entityPredicted
+							.get(entityId).guessLabel)) {
 						// System.out.println("Entity Different: original - "+entityPredicted.get(entityId).guessLabel
 						// + ", after - "+entityLabels[labelId]);
 						flipEntity(entityPredicted.get(entityId));
 						count++;
 						/*
-						 * System.out.println(entityPredicted.get(entityId).entityNode.toString
-						 * ()+": original label - "
+						 * System.out.println(entityPredicted.get(entityId).
+						 * entityNode.toString ()+": original label - "
 						 * +entityPredicted.get(entityId).guessLabel
 						 * +", after ilp - "+entityLabels[labelId]);
 						 */
-						if (entityPredicted.get(entityId).guessLabel.equals("E")
+						if (entityPredicted.get(entityId).guessLabel
+								.equals("E")
 								&& entityLabels[labelId].equals("O"))
 							EtoO++;
 					}
-					entityPredicted.get(entityId)
-							.setPredictedLabel(entityLabels[labelId]);
+					entityPredicted.get(entityId).setPredictedLabel(
+							entityLabels[labelId]);
 					break;
 				}
 			}
@@ -482,34 +559,41 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 			for (int labelId = 0; labelId < relationLabels.length; labelId++) {
 				int event1 = relationPredicted.get(relationId).event1_index;
 				int event2 = relationPredicted.get(relationId).event2_index;
-				String varName = getVariableName(event1, event2, labelId, "relation");
+				String varName = getVariableName(event1, event2, labelId,
+						"relation");
 				int var = lexicon.getVariable(varName);
 
 				if (solver.getBooleanValue(var)) {
-					if (!relationLabels[labelId]
-							.equals(relationPredicted.get(relationId).guessLabel)) {
+					if (!relationLabels[labelId].equals(relationPredicted
+							.get(relationId).guessLabel)) {
 						// System.out.println("True: "+
-						// relationPredicted.get(relationId).label +", Original predicted: "
+						// relationPredicted.get(relationId).label
+						// +", Original predicted: "
 						// + relationPredicted.get(relationId).guessLabel +
 						// ", ILP: "+relationLabels[labelId]);
 						changeRelation(relationPredicted.get(relationId),
 								relationLabels[labelId]);
 						count++;
-						System.out.println(relationPredicted.get(relationId).event1
-								.getTreeNode().toString()
-								+ " - "
-								+ relationPredicted.get(relationId).event2.getTreeNode()
-										.toString()
-								+ ", original label - "
-								+ relationPredicted.get(relationId).guessLabel
-								+ ", after ilp - " + relationLabels[labelId]);
+						System.out
+								.println(relationPredicted.get(relationId).event1
+										.getTreeNode().toString()
+										+ " - "
+										+ relationPredicted.get(relationId).event2
+												.getTreeNode().toString()
+										+ ", original label - "
+										+ relationPredicted.get(relationId).guessLabel
+										+ ", after ilp - "
+										+ relationLabels[labelId]);
 						if (relationLabels[labelId].equals("NONE"))
 							changedtoNone++;
 					}
 					if (!relationLabels[labelId].equals("NONE")) {
-						if(debug)System.out.println(varName+": assigned as "+relationLabels[labelId]);
+						if (debug)
+							System.out.println(varName + ": assigned as "
+									+ relationLabels[labelId]);
 						// System.out.println("True: "+
-						// relationPredicted.get(relationId).label +", Original predicted: "
+						// relationPredicted.get(relationId).label
+						// +", Original predicted: "
 						// + relationPredicted.get(relationId).guessLabel +
 						// ", ILP: "+relationLabels[labelId]);
 						// System.out.println("Relation event1: "+
@@ -530,39 +614,51 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 			}
 		}
 
-		if(debug)
-		for (int relationId = 0; relationId < relationPredicted.size(); relationId++) {
-			int event1 =  relationPredicted.get(relationId).event1_index; 
-			int event2 = relationPredicted.get(relationId).event2_index; 
-			String varName = getVariableName(event1, event2, "edge", "connectivity"); 
-			int var = lexicon.getVariable(varName); 
-			if (solver.getBooleanValue(var)) {
-			       System.out.println(varName+": assigned as 1"); 
-			    }else
-			       System.out.println(varName+": assigned as 0");
-			
-			varName = getVariableName(event1, event2, "aux", "connectivity"); 
-			var = lexicon.getVariable(varName); 
-			if (solver.getBooleanValue(var)) {
-		       System.out.println(varName+": assigned as 1"); 
-		    }else
-		       System.out.println(varName+": assigned as 0");
-			
-			
-		 
-		    varName = getVariableName(event2, event1, "aux", "connectivity"); 
-		    var = lexicon.getVariable(varName); 
-		    if (solver.getBooleanValue(var)) {
-		       System.out.println(varName+": assigned as 1"); 
-		    }else
-		    System.out.println(varName+": assigned as 0");
-		 
-		}
-		 
-		System.out.println("Different relations:" + count + ", changed into NONE: "
-				+ changedtoNone);
+		if (debug)
+			for (int relationId = 0; relationId < relationPredicted.size(); relationId++) {
+				int event1 = relationPredicted.get(relationId).event1_index;
+				int event2 = relationPredicted.get(relationId).event2_index;
+				String varName = getVariableName(event1, event2, "edge",
+						"connectivity");
+				int var = lexicon.getVariable(varName);
+				if (solver.getBooleanValue(var)) {
+					System.out.println(varName + ": assigned as 1");
+				} else
+					System.out.println(varName + ": assigned as 0");
+
+				varName = getVariableName(event1, event2, "aux", "connectivity");
+				var = lexicon.getVariable(varName);
+				if (solver.getBooleanValue(var)) {
+					System.out.println(varName + ": assigned as 1");
+				} else
+					System.out.println(varName + ": assigned as 0");
+
+				varName = getVariableName(event1, event2, "flow",
+						"connectivity");
+				var = lexicon.getVariable(varName);
+				System.out.println(varName + " assigned as "
+						+ solver.getRealValue(var));
+
+				varName = getVariableName(event2, event1, "aux", "connectivity");
+				var = lexicon.getVariable(varName);
+				if (solver.getBooleanValue(var)) {
+					System.out.println(varName + ": assigned as 1");
+				} else
+					System.out.println(varName + ": assigned as 0");
+
+				varName = getVariableName(event2, event1, "flow",
+						"connectivity");
+				var = lexicon.getVariable(varName);
+				System.out.println(varName + " assigned as "
+						+ solver.getRealValue(var));
+
+			}
+
+		System.out.println("Different relations:" + count
+				+ ", changed into NONE: " + changedtoNone);
 		// System.out.println("Predicted as not none:" + notNone);
-		BioprocessesInput dummy = new BioprocessesInput("", 0, 0, new ArrayList<BioDatum>());
+		BioprocessesInput dummy = new BioprocessesInput("", 0, 0,
+				new ArrayList<BioDatum>());
 		String[] label = new String[1];
 		return new ExampleStructure(dummy, label);
 	}
@@ -620,7 +716,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 							.get(EventMentionsAnnotation.class);
 					for (int i = 0; i < events.size(); i++) {
 						if (events.get(i).getTreeNode() == d.eventNode
-								&& events.get(i).getSentence().equals(d.getSentence())) {
+								&& events.get(i).getSentence()
+										.equals(d.getSentence())) {
 							events.remove(i);
 						}
 					}
@@ -638,37 +735,36 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		}
 		for (Example ex : testSet) {
 			if (ex.id.equals(id)) {
-				for (EventMention em : ex.prediction.get(EventMentionsAnnotation.class)) {
+				for (EventMention em : ex.prediction
+						.get(EventMentionsAnnotation.class)) {
 					if (em.getTreeNode() == d.eventNode
 							&& em.getSentence().equals(d.getSentence())) {
-						//System.out.println("found event!");
+						// System.out.println("found event!");
 						List<ArgumentRelation> arguments = em.getArguments();
 						for (int i = 0; i < arguments.size(); i++) {
 							if (arguments.get(i).mention.getTreeNode() == d.entityNode) {
-							    //System.out.println("found entity!");
-							    if(remove)arguments.get(i).type = RelationType.NONE;
-							    else
-							    	arguments.get(i).type = RelationType.Entity;
+								// System.out.println("found entity!");
+								if (remove)
+									arguments.get(i).type = RelationType.NONE;
+								else
+									arguments.get(i).type = RelationType.Entity;
 								break;
 							}
 						}
-						/*if (remove) { // remove argument
-							List<ArgumentRelation> arguments = em.getArguments();
-							for (int i = 0; i < arguments.size(); i++) {
-								if (arguments.get(i).mention.getTreeNode() == d.entityNode) {
-									em.removeArgument(i);
-									System.out.println("found entity!");
-									break;
-								}
-							}
-						} else { // add argument
-							EntityMention entity = new EntityMention("", d.getSentence(),
-									null);
-							entity.setTreeNode(d.entityNode);
-							// entity.setProb(scoreE);
-							Utils.addAnnotation(ex.prediction, entity);
-							em.addArgument(entity, RelationType.Entity);
-						}*/
+						/*
+						 * if (remove) { // remove argument
+						 * List<ArgumentRelation> arguments = em.getArguments();
+						 * for (int i = 0; i < arguments.size(); i++) { if
+						 * (arguments.get(i).mention.getTreeNode() ==
+						 * d.entityNode) { em.removeArgument(i);
+						 * System.out.println("found entity!"); break; } } }
+						 * else { // add argument EntityMention entity = new
+						 * EntityMention("", d.getSentence(), null);
+						 * entity.setTreeNode(d.entityNode); //
+						 * entity.setProb(scoreE);
+						 * Utils.addAnnotation(ex.prediction, entity);
+						 * em.addArgument(entity, RelationType.Entity); }
+						 */
 						break;
 					}
 				}
@@ -682,17 +778,19 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		boolean found = false;
 		for (Example ex : testSet) {
 			if (ex.id.equals(id)) {
-				for (EventMention em : ex.prediction.get(EventMentionsAnnotation.class)) {
-					//System.out.println(em.getTreeNode());
-					//System.out.println(em.getSentence().toString());
+				for (EventMention em : ex.prediction
+						.get(EventMentionsAnnotation.class)) {
+					// System.out.println(em.getTreeNode());
+					// System.out.println(em.getSentence().toString());
 					if (em.getTreeNode() == d.event1.getTreeNode()) {
-						//System.out.println("found event1:"+em.getTreeNode());
+						// System.out.println("found event1:"+em.getTreeNode());
 						for (ArgumentRelation rel : em.getArguments()) {
 							if (rel.mention instanceof EventMention
-									&& 
-									(rel.mention.getTreeNode() == d.event2.getTreeNode() || rel.mention.getTreeNode().equals(d.event2.getTreeNode())) ) {
-								//System.out.println("found event2:"+rel.mention.getTreeNode());
-								RelationType r = EventRelationInferer.chooseType(newLabel);
+									&& (rel.mention.getTreeNode() == d.event2
+											.getTreeNode())) {
+								// System.out.println("found event2:"+rel.mention.getTreeNode());
+								RelationType r = EventRelationInferer
+										.chooseType(newLabel);
 								rel.type = r;
 								found = true;
 								break;

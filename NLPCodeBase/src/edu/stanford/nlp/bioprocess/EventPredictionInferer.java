@@ -105,7 +105,6 @@ public class EventPredictionInferer extends Inferer {
 		int globalGold = 0;
 		for(Example ex:testData) {
 			int eventLost = 0;
-			if(Main.printFeature)LogInfo.begin_track("Event features of process %s", ex.id);
 			List<BioDatum> oneprocess = new ArrayList<BioDatum>();
 			ex.prediction.set(EntityMentionsAnnotation.class, new ArrayList<EntityMention>());
 			ex.prediction.set(EventMentionsAnnotation.class, new ArrayList<EventMention>());
@@ -173,7 +172,6 @@ public class EventPredictionInferer extends Inferer {
 			globaleventLossRecall += recall;
 			globaleventLoss += eventLost;
 			globalGold += goldevents;
-			if(Main.printFeature)LogInfo.end_track();
 		}
 		LogInfo.logs("Micro Average Recall:"+globaleventLossRecall/testData.size()); //average over recalls
 		LogInfo.logs("Macro Average Recall:"+(1-(double)globaleventLoss/globalGold)); //average raw counts per process

@@ -45,10 +45,18 @@ public class EntityFeatureFactory extends FeatureExtractor {
 			parentCFGRule += n.value() + "|";
 		}
 		parentCFGRule = parentCFGRule.trim();
+		int containS = 0;
+		for(Tree node:entity.getChildrenAsList()){
+			if(node.value().equals("S") || node.value().equals("SBAR")){
+				containS = 1;
+				break;
+			}
+		}
 
 		//features.add("dep="+dependencyExists);
 		//features.add("EntCat="+entity.value());
 		//features.add("EntHead=" + entity.headTerminal(new CollinsHeadFinder()));
+		features.add("EntContainsS="+containS);
 		features.add("EvtLemma="+event.getLeaves().get(0).value());
 		features.add("EntCatDepRel=" + entity.value() + ","  + dependencyExists);
 		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
@@ -78,13 +86,13 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		//features.add("EntPOSEvtPOS=" + entity.value() + "," + event.preTerminalYield().get(0).value());
 		features.add("bias");
 		
-		/*if(Main.printFeature && test){
+		if(Main.printFeature && Example.examplePrint){
 			LogInfo.begin_track("Features of %s <- %s", event.toString(), entity.toString());
 			for(String f:features){
 				LogInfo.logs(f);
 			}
 			LogInfo.end_track();
-		}*/
+		}
 		
 		FeatureVector fv = new FeatureVector(features);
 		return fv;
