@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IInstance;
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
@@ -22,32 +23,22 @@ public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance x, InferenceVariableLexManager lexicon) {
 		
-		BioprocessesInput input = (BioprocessesInput)x;
-		HashMap<Integer, HashSet<Integer>> entityChildren = input.map;
-        String type = input.name;
+		Input input = (Input)x;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
+		Map<Integer, HashSet<Integer>> entityChildren = new HashMap<Integer, HashSet<Integer>>();
+		buildEntityChildrenMap(input, entityChildren);	
+		
         System.out.println("entityChildren size: "+entityChildren.size());
 		//parent is entity -> child is not entity
 		for (Integer parentId : entityChildren.keySet()) {
-			
-			//System.out.println(Inference.getVariableName(parentId, Inference.E_ID, type));
-			//System.out.println(entityChildren.get(parentId).size());
-			
 			for(Integer childId : entityChildren.get(parentId)){
 				int[] var = new int[2];
 				double[] coef = new double[2];
 
-				var[0] = lexicon.getVariable(Inference.getVariableName(parentId, Inference.E_ID, type));
+				var[0] = lexicon.getVariable(Inference.getVariableName(parentId, Inference.E_ID, "entity"));
 				coef[0] = -1;
-				StringBuilder print = new StringBuilder();
-				print.append("-");
-				print.append(Inference.getVariableName(parentId, Inference.E_ID, type));
-				print.append(" + ");
-				var[1] = lexicon.getVariable(Inference.getVariableName(childId, Inference.O_ID, type));
+				var[1] = lexicon.getVariable(Inference.getVariableName(childId, Inference.O_ID, "entity"));
 				coef[1] = 1;
-				print.append(Inference.getVariableName(childId, Inference.O_ID, type));
-				print.append(" >=0\n");
-				//System.out.println(print);
 				constraints.add(new ILPConstraint(var, coef, 0,
 						ILPConstraint.GREATER_THAN));
 			}
@@ -55,6 +46,32 @@ public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
 		}
 		
 		return constraints;
+	}
+
+	private void buildEntityChildrenMap(Input input,
+			Map<Integer, HashSet<Integer>> entityChildren) {
+		for (int eventId = 0; eventId < input.getNumberOfTriggers() ; eventId++) {
+			for(int entity1 = 0; entity1 < input.getNumberOfArgumentCandidates(eventId); entity1++){
+				int entity1Left = input.getArgumentCandidateSpan(eventId, entity1).getSource(); //?
+				int entity1Right = input.getArgumentCandidateSpan(eventId, entity1).getTarget(); //?
+				for(int entity2 = 0; entity2 < input.getNumberOfArgumentCandidates(eventId); entity2++){
+					if(entity1 == entity2)continue;
+					int entity2Left = input.getArgumentCandidateSpan(eventId, entity2).getSource(); //?
+					int entity2Right = input.getArgumentCandidateSpan(eventId, entity2).getTarget(); //?
+					if(entity2Left >= entity1Left && entity2Right <= entity1Right){ // entity2 is a child of entity1
+						if(entityChildren.containsKey(entity1)){
+							HashSet<Integer> temp = entityChildren.get(entity1);
+							temp.add(entity2);
+							entityChildren.put(entity1, temp);
+						}else{
+							HashSet<Integer> temp = new HashSet<Integer>();
+							temp.add(entity2);
+							entityChildren.put(entity1, temp);
+						}
+					}
+				}			
+			}			
+		}
 	}
 
 	@Override

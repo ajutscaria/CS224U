@@ -22,36 +22,22 @@ public class RelationEventConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance all, InferenceVariableLexManager lexicon) {
 
-		BioprocessesInput input = (BioprocessesInput)all;
-		List<BioDatum> relationPredicted = input.data;
-		
+		Input input = (Input)all;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
-		int slotlength = input.labels;
-		System.out.println("Inside EventRelation");
-        System.out.println("relationpredicted size: "+relationPredicted.size());
-        
-		//relation(i, j) -> event(i) ^ event(j)
-        
-        for (int Id = 0; Id < relationPredicted.size(); Id++) {
-			for (int labelId = 1; labelId < slotlength; labelId++) { //except "NONE"
-				StringBuilder print = new StringBuilder();
+		for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
+			int event1 = input.getEERelationCandidatePair(Id).getSource(); // ?
+			int event2 = input.getEERelationCandidatePair(Id).getTarget(); // ?
+			int labelLength = Inference.relationLabels.length;
+			
+			for (int labelId = 1; labelId < labelLength; labelId++) { //excluding NONE
 				int[] var = new int[2];
 				double[] coef = new double[2];
-				int event1 = relationPredicted.get(Id).event1_index;
-				int event2 = relationPredicted.get(Id).event2_index;
 				var[0] = lexicon.getVariable(Inference.getVariableName(event1, event2, labelId, "relation"));
 				coef[0] = -1;
-				print.append("-");
-				print.append(Inference.getVariableName(event1, event2, labelId, "relation"));
-				print.append("+");
-				// -A + B >= 0
 				var[1] = lexicon.getVariable(Inference.getVariableName(event1, Inference.E_ID, "event"));
 				coef[1] = 1;
 				constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.GREATER_THAN));
-				print.append(Inference.getVariableName(event1, Inference.E_ID, "event"));
-				print.append(">=0");
-				//System.out.println(print);
-				// -A + C >= 0
+				
 				var = new int[2];
 				coef = new double[2];
 				var[0] = lexicon.getVariable(Inference.getVariableName(event1, event2, labelId, "relation"));
@@ -59,14 +45,10 @@ public class RelationEventConstraintGenerator extends ILPConstraintGenerator {
 				var[1] = lexicon.getVariable(Inference.getVariableName(event2, Inference.E_ID, "event"));
 				coef[1] = 1;
 				constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.GREATER_THAN));
-				print.append(Inference.getVariableName(event2, Inference.E_ID, "event"));
-				print.append(">=0");
-				//System.out.println(print);
 				
-				//System.out.println("\n");
 			}
-        }
-
+		}
+		
 		return constraints;
 	}
 

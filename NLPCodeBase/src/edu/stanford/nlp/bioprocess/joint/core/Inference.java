@@ -15,7 +15,7 @@ import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 
 public class Inference extends AbstractILPInference<Structure> {
 	public static final String[] eventLabels = { "E", "O" };
-	public static final String[] entityLabels = {};
+	public static final String[] entityLabels = {"E", "O"}; //Can chagne into multi-class
 	public static String[] relationLabels = {};
 
 	// the id for A & B in the above list. This can be done better public static
@@ -170,7 +170,7 @@ public class Inference extends AbstractILPInference<Structure> {
 		}
 		
 		String[][] arguments = new String[input.getNumberOfTriggers()][];
-		String[][] relations;
+		String[][] relations; //?
 
 		return null;//new ExampleStructure(input, labels);
 	}

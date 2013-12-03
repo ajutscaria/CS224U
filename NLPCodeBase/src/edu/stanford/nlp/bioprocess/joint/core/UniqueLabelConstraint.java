@@ -23,52 +23,68 @@ public class UniqueLabelConstraint extends ILPConstraintGenerator {
 	public List<ILPConstraint> getILPConstraints(IInstance arg0,
 			InferenceVariableLexManager lexicon) {
 
-		BioprocessesInput input = (BioprocessesInput) arg0;
-		List<BioDatum> data = input.data; 
+		Input input = (Input) arg0;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
-		int labelLength = input.labels;
-		if(!input.name.equals("relation")){
-			for (int eventId = 0; eventId < data.size(); eventId++) {
-				int[] vars = new int[labelLength];
-				double[] coefficients = new double[labelLength];
-	            StringBuilder print = new StringBuilder();
-				for (int labelId = 0; labelId < labelLength; labelId++) {
-					vars[labelId] = lexicon.getVariable(Inference.getVariableName(eventId,labelId, input.name));
-					coefficients[labelId] = 1.0;
-					print.append(Inference.getVariableName(eventId,labelId, input.name));
-					print.append("+");
-				}
-	
-				print.append("= 1\n");
-				//System.out.println(print);
-				constraints.add(new ILPConstraint(vars, coefficients, 1.0,
-						ILPConstraint.EQUAL));
-	
-			}
-		}else{
-			for (int eventId = 0; eventId < data.size(); eventId++) { 
-				int event1 = data.get(eventId).event1_index;
-				int event2 = data.get(eventId).event2_index;
-				int[] vars = new int[labelLength];
-				double[] coefficients = new double[labelLength];
-	            StringBuilder print = new StringBuilder();
-				for (int labelId = 0; labelId < labelLength; labelId++) {
-					vars[labelId] = lexicon.getVariable(Inference.getVariableName(event1, event2, labelId, input.name));
-					coefficients[labelId] = 1.0;
-					print.append(Inference.getVariableName(event1, event2, labelId, input.name));
-					print.append("+");
-				}
-	
-				print.append("= 1\n");
-				//System.out.println(print);
-				constraints.add(new ILPConstraint(vars, coefficients, 1.0,
-						ILPConstraint.EQUAL));
-	
-			}
-			
-		}
+		
+		addEventUnique(lexicon, input, constraints);
+		addEntityUnique(lexicon, input, constraints);	
+		addRelaionUnique(lexicon, input, constraints);
 		
 		return constraints;
+	}
+
+	private void addRelaionUnique(InferenceVariableLexManager lexicon,
+			Input input, List<ILPConstraint> constraints) {
+		for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
+			int event1 = input.getEERelationCandidatePair(Id).getSource(); // ?
+			int event2 = input.getEERelationCandidatePair(Id).getTarget(); // ?
+			int labelLength = Inference.relationLabels.length;
+			int[] vars = new int[labelLength];
+			double[] coefficients = new double[labelLength];
+            
+			for (int labelId = 0; labelId < labelLength; labelId++) {
+				vars[labelId] = lexicon.getVariable(Inference.getVariableName(event1, event2, labelId, "relation"));
+				coefficients[labelId] = 1.0;
+			}
+			
+			constraints.add(new ILPConstraint(vars, coefficients, 1.0,
+					ILPConstraint.EQUAL));
+		}
+	}
+
+	private void addEntityUnique(InferenceVariableLexManager lexicon,
+			Input input, List<ILPConstraint> constraints) {
+		for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {	
+			for(int entityId = 0; entityId < input.getNumberOfArgumentCandidates(eventId); entityId++){
+				int labelLength = Inference.entityLabels.length;
+				int[] vars = new int[labelLength];
+				double[] coefficients = new double[labelLength];
+				for (int labelId = 0; labelId < labelLength; labelId++) {
+					vars[labelId] = lexicon.getVariable(Inference.getVariableName(eventId,labelId, "event"));
+					coefficients[labelId] = 1.0;
+				}
+				constraints.add(new ILPConstraint(vars, coefficients, 1.0,
+						ILPConstraint.EQUAL));
+			}			
+		}
+	}
+
+	private void addEventUnique(InferenceVariableLexManager lexicon,
+			Input input, List<ILPConstraint> constraints) {
+		for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
+			int labelLength = Inference.eventLabels.length;
+			int[] vars = new int[labelLength];
+			double[] coefficients = new double[labelLength];
+           
+			for (int labelId = 0; labelId < labelLength; labelId++) {
+				vars[labelId] = lexicon.getVariable(Inference.getVariableName(eventId,labelId, "entity"));
+				coefficients[labelId] = 1.0;
+			}
+			
+			constraints.add(new ILPConstraint(vars, coefficients, 1.0,
+					ILPConstraint.EQUAL));
+
+		}
 	}
 
 	@Override

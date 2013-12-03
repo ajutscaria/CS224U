@@ -22,9 +22,10 @@ public class OverlapConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance x, InferenceVariableLexManager lexicon) {
 		
-		BioprocessesInput input = (BioprocessesInput)x;
-		HashMap<Integer, HashSet<Integer>> entityOverlapEvent = input.map;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
+		/*
+		BioprocessesInput input = (BioprocessesInput)x;
+		HashMap<Integer, HashSet<Integer>> entityOverlapEvent = input.map;	
         
 		//entity -> overlapped event candidates should not be triggers
 		for (Integer parentId : entityOverlapEvent.keySet()) {
@@ -47,7 +48,7 @@ public class OverlapConstraintGenerator extends ILPConstraintGenerator {
 			}
 			
 		}
-		
+		*/
 		return constraints;
 	}
 

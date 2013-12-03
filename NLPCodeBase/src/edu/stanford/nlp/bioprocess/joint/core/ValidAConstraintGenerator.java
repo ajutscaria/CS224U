@@ -20,27 +20,10 @@ public class ValidAConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance all, InferenceVariableLexManager lexicon) {
 
-		BioprocessesInput input = (BioprocessesInput)all;
-		HashMap<Integer, HashSet<Integer>> eventToEntity = input.map;
-		HashMap<Integer, HashSet<Integer>> entityToEvent = input.map2;
-		
+		Input input = (Input)all;
 		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
-		System.out.println("Inside Valid");
-        System.out.println("eventToEntity size: "+eventToEntity.size());
-        //System.out.println("eventToEntity size: "+eventToEntity.keySet().size());
-		//non-event -> non-entity
-		for (Integer eventId : eventToEntity.keySet()) {
-			
-			//System.out.println(Inference.getVariableName(eventId, Inference.O_ID, "event"));
-			//System.out.println(eventToEntity.get(eventId).size());
-			//each event has at least one entity
-			int numEntities = eventToEntity.get(eventId).size() ;
-			int[] vars = new int[numEntities + 1];
-			double[] coefs = new double[numEntities + 1];			
-			vars[0] = lexicon.getVariable(Inference.getVariableName(eventId, Inference.E_ID, "event"));
-			coefs[0] = -1;
-			int counter = 1;
-			for(Integer entityId : eventToEntity.get(eventId)){
+		for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {	
+			for(int entityId = 0; entityId < input.getNumberOfArgumentCandidates(eventId); entityId++){
 				int[] var = new int[2];
 				double[] coef = new double[2];			
 				var[0] = lexicon.getVariable(Inference.getVariableName(eventId, Inference.O_ID, "event"));
@@ -51,36 +34,8 @@ public class ValidAConstraintGenerator extends ILPConstraintGenerator {
 				
 				constraints.add(new ILPConstraint(var, coef, 0,
 						ILPConstraint.GREATER_THAN));
-				
-				//each event has at least one entity
-				vars[counter] = lexicon.getVariable(Inference.getVariableName(entityId, Inference.E_ID, "entity"));
-				coefs[counter] = 1;
-			    counter++;
-			}
-			/*constraints.add(new ILPConstraint(vars, coefs, 0,
-					ILPConstraint.GREATER_THAN));*/
-			
+			}			
 		}
-		
-		//entity -> event
-		/*for (Integer entityId : entityToEvent.keySet()) {
-			int[] var = new int[2];
-			double[] coef = new double[2];
-
-			// the first var in the constraint says that eventId -> A. The other vars
-			// say that other slots map to B
-
-			var[0] = lexicon.getVariable(Inference.getVariableName(entityId, Inference.E_ID, "entity"));
-			coef[0] = -1;
-			
-			for(Integer eventId : entityToEvent.get(entityId)){
-				var[1] = lexicon.getVariable(Inference.getVariableName(eventId, Inference.E_ID, "event"));
-				coef[1] = 1;
-				constraints.add(new ILPConstraint(var, coef, 0,
-						ILPConstraint.GREATER_THAN));
-			}
-		}*/
-
 		return constraints;
 	}
 

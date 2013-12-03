@@ -22,10 +22,10 @@ public class PrevRelationConstraintGenerator extends ILPConstraintGenerator {
 	@Override
 	public List<ILPConstraint> getILPConstraints(IInstance all, InferenceVariableLexManager lexicon) {
 
-		BioprocessesInput input = (BioprocessesInput)all;
+		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
+		/*BioprocessesInput input = (BioprocessesInput)all;
 		List<BioDatum> relationPredicted = input.data;
 		
-		List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
 		int slotlength = input.labels;
 		System.out.println("Inside Prev Contradiction");
         System.out.println("relationpredicted size: "+relationPredicted.size());
@@ -83,7 +83,7 @@ public class PrevRelationConstraintGenerator extends ILPConstraintGenerator {
             	}
         	}
         }
-
+        */
 		return constraints;
 	}
 
