@@ -1098,9 +1098,9 @@ public class Main implements Runnable {
 					
 					LogInfo.logs("Theta:"+theta);	
 					for(int i = 1; i <= NumCrossValidation; i++) 
-					//for(int i=1;i<=1;i++)
+					//for(int i=1;i<=9;i++)
 					{
-						//tryone.add(split.GetTestExamples(i).get(3));
+						//tryone.add(split.GetTestExamples(i).get(1));
 						//tryone.add(split.GetTestExamples(i).get(10));
 						tryone = split.GetTestExamples(i);
 						LogInfo.begin_track("Iteration " + i);

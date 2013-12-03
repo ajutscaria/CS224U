@@ -1,4 +1,4 @@
-package edu.stanford.nlp.bioprocess.ilp;
+package edu.stanford.nlp.bioprocess.joint.core;
 
 import java.util.ArrayList;
 import java.util.Arrays;

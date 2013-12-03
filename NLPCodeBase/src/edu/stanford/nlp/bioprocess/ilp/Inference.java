@@ -275,14 +275,14 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding entity children constraints");
 		
-		System.out.println("Start adding entity event overlap constraints");
+		/*System.out.println("Start adding entity event overlap constraints");
 		BioprocessesInput entityeventoverlap = new BioprocessesInput("entity",
 				entityOverlapEvent.size(), entityLabels.length, entityOverlapEvent);
 		for (ILPConstraint constraint : overlap.getILPConstraints(entityeventoverlap,
 				lexicon))
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding entity event overlap constraints");
-        
+        */
 
 		System.out.println("Start adding event-event relation constraints");
 		for (ILPConstraint constraint : relation.getILPConstraints(
@@ -291,7 +291,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 		System.out.println("finish adding event-event relation constraints");
 
 	
-		/*System.out.println("Start adding same contradiction constraints");
+		System.out.println("Start adding same contradiction constraints");
 	    for (ILPConstraint constraint : same.getILPConstraints(relationinput, lexicon)) 
 	    	this.addConstraint(solver, constraint);
 		System.out.println("finish adding same contradiction constraints");
@@ -307,7 +307,6 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 				lexicon))
 			this.addConstraint(solver, constraint);
 		System.out.println("finish adding connectivity constraints");
-        */
 		
 		System.out.println("done adding constraints");
 
@@ -401,7 +400,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 			lexicon.addVariable(varName, var);
 
 			score = 0;// ? PHIij
-			var = solver.addRealVariable(score);
+			//var = solver.addRealVariable(score);
+			var = solver.addIntegerVariable(score);
 			varName = getVariableName(event1, event2, "flow", "connectivity");
 			lexicon.addVariable(varName, var);
 			// System.out.println(varName);
@@ -413,7 +413,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 			// System.out.println(varName);
 
 			score = 0;// ? PHIji
-			var = solver.addRealVariable(score);
+			//var = solver.addRealVariable(score);
+			var = solver.addIntegerVariable(score);
 			varName = getVariableName(event2, event1, "flow", "connectivity");
 			lexicon.addVariable(varName, var);
 			// System.out.println(varName);
