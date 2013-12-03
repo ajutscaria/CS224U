@@ -10,7 +10,6 @@ import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraint;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
-import edu.stanford.nlp.bioprocess.ilp.example.ExampleInput;
 
 
 public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
