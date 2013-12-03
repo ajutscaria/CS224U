@@ -56,7 +56,7 @@ public class EntityFeatureFactory extends FeatureExtractor {
 		//features.add("dep="+dependencyExists);
 		//features.add("EntCat="+entity.value());
 		//features.add("EntHead=" + entity.headTerminal(new CollinsHeadFinder()));
-		features.add("EntContainsS="+containS);
+		//features.add("EntContainsS="+containS);
 		features.add("EvtLemma="+event.getLeaves().get(0).value());
 		features.add("EntCatDepRel=" + entity.value() + ","  + dependencyExists);
 		features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());

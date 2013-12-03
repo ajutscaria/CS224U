@@ -589,6 +589,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 							changedtoNone++;
 					}
 					if (!relationLabels[labelId].equals("NONE")) {
+						changeRelation(relationPredicted.get(relationId),
+								relationLabels[labelId]);
 						if (debug)
 							System.out.println(varName + ": assigned as "
 									+ relationLabels[labelId]);
@@ -803,5 +805,6 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 				break;
 			}
 		}
+		System.out.println(found);
 	}
 }

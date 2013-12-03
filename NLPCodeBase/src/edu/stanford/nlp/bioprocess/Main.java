@@ -1097,12 +1097,12 @@ public class Main implements Runnable {
 					//tryone.add(testDataset.examples("test").get(1));
 					
 					LogInfo.logs("Theta:"+theta);	
-					for(int i = 1; i <= NumCrossValidation; i++) 
-					//for(int i=1;i<=9;i++)
+					//for(int i = 1; i <= NumCrossValidation; i++) 
+					for(int i=1;i<=1;i++)
 					{
 						//tryone.add(split.GetTestExamples(i).get(1));
-						//tryone.add(split.GetTestExamples(i).get(10));
-						tryone = split.GetTestExamples(i);
+						tryone.add(split.GetTestExamples(i).get(1));
+						//tryone = split.GetTestExamples(i);
 						LogInfo.begin_track("Iteration " + i);
 						
 						//LogInfo.begin_track("Training event classifier");
