@@ -9,7 +9,6 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraint;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 import edu.stanford.nlp.bioprocess.BioDatum;
-import edu.stanford.nlp.bioprocess.ilp.example.ExampleInput;
 
 
 public class UniqueLabelConstraint extends ILPConstraintGenerator {

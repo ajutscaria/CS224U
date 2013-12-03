@@ -10,7 +10,6 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
-//import edu.stanford.nlp.bioprocess.ilp.*;
 
 
 public class Inference extends AbstractILPInference<Structure> {
