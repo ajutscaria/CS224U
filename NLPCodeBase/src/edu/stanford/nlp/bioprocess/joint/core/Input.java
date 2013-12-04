@@ -11,13 +11,15 @@ import edu.stanford.nlp.util.IntPair;
  */
 public class Input implements IInstance {
   public final Annotation annotation;
-
+  public final int id;
+  
   private final int[] triggerCandidates;
   private final IntPair[][] argumentCandidates;
   private final IntPair[] relationCandidates;
 
-  public Input(Annotation annotation) {
+  public Input(Annotation annotation, int id) {
     this.annotation = annotation;
+    this.id = id;
 
     triggerCandidates = createTriggerCandidates(annotation);
 
