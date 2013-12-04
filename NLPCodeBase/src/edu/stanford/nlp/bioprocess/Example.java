@@ -243,8 +243,8 @@ public class Example implements Serializable {
 			//System.out.println("relations:");
 			for(ArgumentRelation rel:em.getArguments()) {
 				//System.out.println(em.getTreeNode()+"-"+rel.mention.getTreeNode());
-				if(rel.mention instanceof EventMention){ //&& rel.type != RelationType.NONE) {
-					System.out.println(em.getTreeNode()+"-"+rel.mention.getTreeNode());
+				if(rel.mention instanceof EventMention && rel.type != RelationType.NONE) {
+					//System.out.println(em.getTreeNode()+"-"+rel.mention.getTreeNode());
 					Pair<Tree, Tree> p = new Pair<Tree, Tree>(em.getTreeNode(), rel.mention.getTreeNode());
 					String type = returnTypeIfExists(predicted, p);
 					Pair<Tree, Tree> pairObjPredicted = returnTreePairIfExists(predicted.keySet(),p);

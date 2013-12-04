@@ -63,7 +63,7 @@ public class Inference extends AbstractILPInference<Structure> {
     System.out.println("start adding variables");
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       // adding trigger
-      double score = 0;
+      double score = 0; //getScore()
       int var = solver.addBooleanVariable(score);
       String varName = getVariableName(eventId, E_ID, "event"); // 0: E
       lexicon.addVariable(varName, var);

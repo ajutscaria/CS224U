@@ -466,7 +466,7 @@ public class EventRelationInferer {
 	}
 	
 	public static RelationType chooseType(String label){
-		if(label.equals("ContemporalEvent")){
+		if(label.equals("CotemporalEvent")){
 			return RelationType.CotemporalEvent;
 		}else if(label.equals("NextEvent")){
 			return RelationType.NextEvent;

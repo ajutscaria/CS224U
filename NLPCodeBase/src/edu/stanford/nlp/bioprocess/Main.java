@@ -52,7 +52,7 @@ public class Main implements Runnable {
 	boolean connectedComponent_ = false, sameEvent_ = false, previousEvent_ = false, sameEventContradictions_ = false;
 	final String GLOBAL_PARAM_FILE_NAME = "GlobalParameters.txt";
 	final String GLOBAL_PARAM_FILE = MODELS_DIRECTORY + GLOBAL_PARAM_FILE_NAME;
-	//GurobiHook.setTimeoutLimit(1000);
+	
 	
 	public static final String 
 			        EVENT_RELATION_LOCAL_MODEL_FILE_NAME = "EventRelation_Local_model.ser",
@@ -1099,12 +1099,12 @@ public class Main implements Runnable {
 					//tryone.add(testDataset.examples("test").get(1));
 					
 					LogInfo.logs("Theta:"+theta);	
-					//for(int i = 1; i <= NumCrossValidation; i++) 
-					for(int i=1;i<=1;i++)
+					for(int i = 1; i <= NumCrossValidation; i++) 
+					//for(int i=1;i<=1;i++)
 					{
 						//tryone.add(split.GetTestExamples(i).get(1));
-						tryone.add(split.GetTestExamples(i).get(1));
-						//tryone = split.GetTestExamples(i);
+						//tryone.add(split.GetTestExamples(i).get(1));
+						tryone = split.GetTestExamples(i);
 						LogInfo.begin_track("Iteration " + i);
 						
 						//LogInfo.begin_track("Training event classifier");
