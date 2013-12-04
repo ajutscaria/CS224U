@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
+import edu.illinois.cs.cogcomp.infer.ilp.GurobiHook;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory.SolverType;
 import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
@@ -51,7 +52,8 @@ public class Main implements Runnable {
 	boolean connectedComponent_ = false, sameEvent_ = false, previousEvent_ = false, sameEventContradictions_ = false;
 	final String GLOBAL_PARAM_FILE_NAME = "GlobalParameters.txt";
 	final String GLOBAL_PARAM_FILE = MODELS_DIRECTORY + GLOBAL_PARAM_FILE_NAME;
-
+	//GurobiHook.setTimeoutLimit(1000);
+	
 	public static final String 
 			        EVENT_RELATION_LOCAL_MODEL_FILE_NAME = "EventRelation_Local_model.ser",
 					EVENT_RELATION_LOCALBASE_MODEL_FILE_NAME = "EventRelation_LocalBase_model.ser",

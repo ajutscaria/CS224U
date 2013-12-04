@@ -791,7 +791,8 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
 							if (rel.mention instanceof EventMention
 									&& (rel.mention.getTreeNode() == d.event2
 											.getTreeNode())) {
-								// System.out.println("found event2:"+rel.mention.getTreeNode());
+								System.out.println(em.getTreeNode()+"-"+rel.mention.getTreeNode());
+								System.out.println(newLabel);
 								RelationType r = EventRelationInferer
 										.chooseType(newLabel);
 								rel.type = r;
