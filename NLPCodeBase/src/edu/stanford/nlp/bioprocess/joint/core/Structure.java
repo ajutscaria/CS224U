@@ -11,9 +11,9 @@ public class Structure implements IStructure {
   public final Input input;
   private final String[] relations;
   private final String[][] arguments;
-  private final boolean[] triggers;
+  private final String[] triggers;
 
-  public Structure(Input input, boolean[] triggers, String[][] arguments,
+  public Structure(Input input, String[] triggers, String[][] arguments,
       String[] relations) {
     this.input = input;
     this.triggers = triggers;

@@ -1,5 +1,10 @@
 package edu.stanford.nlp.bioprocess.joint.core;
 
+/**
+ * Used by feature vector to decide what features to include (good for various ablations)
+ * @author jonathanberant
+ *
+ */
 public interface FeatureMatcher {
   public boolean matches(String feature);
 }

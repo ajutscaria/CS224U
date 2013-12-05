@@ -10,16 +10,13 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.nio.file.DirectoryIteratorException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -29,8 +26,6 @@ import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EntityMentionsAnnotatio
 import edu.stanford.nlp.bioprocess.BioProcessAnnotations.EventMentionsAnnotation;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.io.IOUtils;
-import edu.stanford.nlp.ling.CoreAnnotations.IndexAnnotation;
-import edu.stanford.nlp.ling.CoreAnnotations.SentenceIndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.IndexedWord;
@@ -51,7 +46,6 @@ import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IdentityHashSet;
 import edu.stanford.nlp.util.Index;
 import edu.stanford.nlp.util.IntPair;
-import edu.stanford.nlp.util.IntTuple;
 import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 import edu.stanford.nlp.util.Triple;
@@ -127,7 +121,7 @@ public class Utils {
 		for(EventMention em:ann.get(EventMentionsAnnotation.class)) {
 			for(ArgumentRelation rel:em.getArguments()) {
 				if(rel.mention instanceof EntityMention) {
-					map.put(new Pair(em.getTreeNode(), rel.mention.getTreeNode()), rel.getProb());
+					map.put(Pair.makePair(em.getTreeNode(), rel.mention.getTreeNode()), rel.getProb());
 					//LogInfo.logs(em.getTreeNode() + ":"+ rel.mention.getTreeNode());
 				}
 			}
@@ -439,7 +433,7 @@ public class Utils {
 	  return null;  
   }
   
-  public static Tree getEntityNode(CoreMap sentence, EntityMention entity) {	  
+  public static Tree getEntityNode(CoreMap sentence, EntityMention entity) {
 	  //Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
 	  EntityMention entityNew = new EntityMention("id", entity.getSentence(), new Span(entity.getExtentTokenStart(), entity.getExtentTokenEnd()));
 	  
