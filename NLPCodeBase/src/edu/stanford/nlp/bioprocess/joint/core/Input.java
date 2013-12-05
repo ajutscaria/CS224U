@@ -11,13 +11,13 @@ import edu.stanford.nlp.util.IntPair;
  */
 public class Input implements IInstance {
   public final Annotation annotation;
-  public final int id;
+  public final String id;
   
   private final int[] triggerCandidates;
   private final IntPair[][] argumentCandidates;
   private final IntPair[] relationCandidates;
 
-  public Input(Annotation annotation, int id) {
+  public Input(Annotation annotation, String id) {
     this.annotation = annotation;
     this.id = id;
 
@@ -36,6 +36,11 @@ public class Input implements IInstance {
   public int getTriggerTokenId(int triggerId) {
     return triggerCandidates[triggerId];
   }
+  
+  public int getTriggerIndex(int tokenIndex) {
+    //TODO - implement - throw an exception if asking for token index that is not a trigger candidate
+    return -1;
+  }
 
   public int getNumberOfArgumentCandidates(int triggerId) {
     return argumentCandidates[triggerId].length;
@@ -44,6 +49,11 @@ public class Input implements IInstance {
   public IntPair getArgumentCandidateSpan(int triggerId, int candidateId) {
     return argumentCandidates[triggerId][candidateId];
   }
+  
+  public int getArgumentSpanIndex(IntPair span) {
+    //TODO - implement - throw an exception if asking for span that is not an argument candidate
+    return -1;
+  }
 
   public int getNumberOfEERelationCandidates() {
     return relationCandidates.length;
@@ -51,6 +61,11 @@ public class Input implements IInstance {
 
   public IntPair getEERelationCandidatePair(int eeRelationCandidateId) {
     return relationCandidates[eeRelationCandidateId];
+  }
+  
+  public int getEERelationIndex(int trigger1, int trigger2) {
+    //TODO - implement - throw an exception if asking for index of pair of triggers that are not candidates
+    return -1;
   }
 
   @Override
