@@ -1,7 +1,9 @@
 package edu.stanford.nlp.bioprocess.joint.reader;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Random;
 
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
@@ -12,6 +14,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IntPair;
+import fig.prob.SampleUtils;
 
 /**
  * static utils while reading the dataset
@@ -32,9 +35,9 @@ public class DatasetUtils {
       DESTINATION = "destination", LOCATION = "location", THEME = "theme", RESULT = "result", 
       AGENT = "agent", ORIGIN = "origin", TIME = "time", RAW_MATERIAL = "raw-material";
   public static final List<String> Punctuations = Arrays.asList(".", ",");
-  
+
   public static String PERMISSIBILE_SPAN="ALL";
-  
+
   public static int[] mapCharBeginOffsetToTokenIndex(List<CoreLabel> tokens) {
     int[] res = new int[tokens.get(tokens.size()-1).get(CharacterOffsetBeginAnnotation.class)];
     Arrays.fill(res, -1);
@@ -106,7 +109,18 @@ public class DatasetUtils {
     }
     throw new RuntimeException("Illegal type of permissible span: " + PERMISSIBILE_SPAN);
   }
-  
+
+  public static <V> List<V> shuffle(List<V> examples, Random rand) {
+
+    List<V> res = new ArrayList<V>();
+    int[] perm = SampleUtils.samplePermutation(rand, examples.size());
+
+    for(int i = 0 ; i < examples.size(); ++i) {
+      res.add(examples.get(perm[i]));
+    }
+    return res;
+  }
+
   //// FROM HERE COPIED AJU'S CODE ////
 
   public static Tree getEntityNodeBest(CoreMap sentence, IntPair entitySpan) {
@@ -139,7 +153,7 @@ public class DatasetUtils {
     }
     return null;  
   }
-  
+
   public static Tree getEntityNode(CoreMap sentence, IntPair entitySpan) {
 
     // Perfect Match
@@ -147,7 +161,7 @@ public class DatasetUtils {
     if (bestMatch != null) {
       return bestMatch;
     }
-  
+
     IntPair entitySpanNoLastToken = new IntPair(entitySpan.getSource(),entitySpan.getTarget()-1);
     while(entitySpanNoLastToken.getTarget() - entitySpanNoLastToken.getSource()!= 0) {
       //Remove last token
@@ -157,7 +171,7 @@ public class DatasetUtils {
       }
       entitySpanNoLastToken = new IntPair(entitySpanNoLastToken.getSource(),entitySpanNoLastToken.getTarget()-1);
     }
-    
+
     IntPair entitySpanNoFirstToken = new IntPair(entitySpan.getSource()+1,entitySpan.getTarget());
     while(entitySpanNoFirstToken.getTarget() - entitySpanNoFirstToken.getSource() != 0) {
       //Remove first token

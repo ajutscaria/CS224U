@@ -45,15 +45,8 @@ public class Dataset {
     public ArrayList<Pair<String, String>> inPaths = new ArrayList<Pair<String, String>>();
     @Option(gloss = "Maximum number of examples to read")
     public ArrayList<Pair<String, Integer>> maxExamples = new ArrayList<Pair<String, Integer>>();
-
-    // Training file gets split into:
-    // |  trainFrac  -->  |           | <-- devFrac |
-    @Option(gloss = "Fraction of trainExamples (from the beginning) to keep for training")
-    public double trainFrac = 1;
-    @Option(gloss = "Fraction of trainExamples (from the end) to keep for development")
-    public double devFrac = 0;
-    @Option(gloss = "Used to randomly divide training examples")
-    public Random splitRandom = new Random(1);
+    @Option(gloss = "Number of folds for cross validation")
+    public int numOfFolds = 2;
     @Option(gloss="verbosity") public int verbose=0;
   }
   public static Options opts = new Options();
@@ -62,6 +55,7 @@ public class Dataset {
   private LinkedHashMap<String, List<Pair<Input,Structure>>> allExamples = new LinkedHashMap<String, List<Pair<Input,Structure>>>();
   private StanfordCoreNLP processor;
   private StatFig stats = new StatFig();
+  private static Random rand = new Random();
 
   //METHODS
   public Dataset() {
@@ -84,8 +78,10 @@ public class Dataset {
     for (Pair<String, String> pathPair : opts.inPaths) {
       String group = pathPair.getFirst();
       String path = pathPair.getSecond();
-      allExamples.put(group, readFromPath(path,getMaxExamples(group)));
-    }    
+      List<Pair<Input,Structure>> examples = readFromPath(path,getMaxExamples(group));
+      examples = DatasetUtils.shuffle(examples,rand);
+      allExamples.put(group, examples);
+    }
   }
   private List<Pair<Input, Structure>> readFromPath(String path, int numOfExamples) throws IOException {
     List<Pair<Input,Structure>> res = new ArrayList<Pair<Input,Structure>>();
@@ -146,7 +142,7 @@ public class Dataset {
     String[][] arguments = new String[input.getNumberOfTriggers()][];
     for(int i = 0; i < arguments.length; ++i) 
       arguments[i] = new String[input.getNumberOfArgumentCandidates(i)];
-    
+
     //second pass - populate relations and arguments
     for(String line: IOUtils.readLines(input.id+DatasetUtils.ANNOTATION_EXTENSION)) {
       getRolesAndRelations(input, line,triggerMap,entityMap,arguments,relations);
@@ -227,6 +223,37 @@ public class Dataset {
       assert triggerMap.containsKey(eventId[1]);
       triggerMap.put(tokens[0], triggerMap.get(eventId[1]));
     }
+  }
+
+  public List<Pair<Input,Structure>> getTrainFold(int foldNum) {
+    if(foldNum>=opts.numOfFolds || foldNum < 0) 
+      throw new RuntimeException("Illegal fold num, num of folds="+opts.numOfFolds+", fold requested="+foldNum);
+   
+    List<Pair<Input,Structure>> res = new ArrayList<Pair<Input,Structure>>();
+    List<Pair<Input,Structure>> trainExamples = allExamples.get("train");
+    int startIndex = foldNum*(trainExamples.size() / opts.numOfFolds);
+    int endIndex = (foldNum+1)*(trainExamples.size() / opts.numOfFolds);
+    
+    for(int i = 0; i < startIndex; ++i)
+      res.add(trainExamples.get(i));
+    for(int i = endIndex; i < trainExamples.size(); ++i)
+      res.add(trainExamples.get(i));
+    return res;
+   
+  }
+
+  public List<Pair<Input,Structure>> getDevFold(int foldNum) {
+    if(foldNum>=opts.numOfFolds || foldNum < 0) 
+      throw new RuntimeException("Illegal fold num, num of folds="+opts.numOfFolds+", fold requested="+foldNum);
+
+    List<Pair<Input,Structure>> res = new ArrayList<Pair<Input,Structure>>();
+    List<Pair<Input,Structure>> trainExamples = allExamples.get("train");
+    int startIndex = foldNum*(trainExamples.size() / opts.numOfFolds);
+    int endIndex = (foldNum+1)*(trainExamples.size() / opts.numOfFolds);
+    
+    for(int i = startIndex; i < endIndex; ++i)
+      res.add(trainExamples.get(i));
+    return res;
   }
 
   //STATIC
