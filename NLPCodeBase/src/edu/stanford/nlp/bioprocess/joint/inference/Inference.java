@@ -61,29 +61,7 @@ public class Inference extends AbstractILPInference<Structure> {
       InferenceVariableLexManager lexicon) {
 
     System.out.println("start adding variables");
-    for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
-      // adding trigger
-      double score = 0; //getScore()
-      int var = solver.addBooleanVariable(score);
-      String varName = getVariableName(eventId, E_ID, "event"); // 0: E
-      lexicon.addVariable(varName, var);
-
-      score = 0;
-      var = solver.addBooleanVariable(score);
-      varName = getVariableName(eventId, O_ID, "event"); // 0: E, 1: O
-      lexicon.addVariable(varName, var);
-
-      // adding entities for an event
-      for (int entityId = 0; entityId < input
-          .getNumberOfArgumentCandidates(eventId); entityId++) {
-        for (int labelId = 0; labelId < entityLabels.length; labelId++) {
-          score = 0;
-          var = solver.addBooleanVariable(score);
-          varName = getVariableName(entityId, labelId, "entity");
-          lexicon.addVariable(varName, var);
-        }
-      }
-    }
+    addEventEntity(solver, lexicon);
 
     for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
       int event1 = input.getEERelationCandidatePair(Id).getSource(); // ?
@@ -131,6 +109,33 @@ public class Inference extends AbstractILPInference<Structure> {
       }
     }
     System.out.println("done adding variables");
+  }
+
+  private void addEventEntity(ILPSolver solver,
+      InferenceVariableLexManager lexicon) {
+    for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
+      // adding trigger
+      double score = 0; //getScore()
+      int var = solver.addBooleanVariable(score);
+      String varName = getVariableName(eventId, E_ID, "event"); // 0: E
+      lexicon.addVariable(varName, var);
+
+      score = 0;
+      var = solver.addBooleanVariable(score);
+      varName = getVariableName(eventId, O_ID, "event"); // 0: E, 1: O
+      lexicon.addVariable(varName, var);
+
+      // adding entities for an event
+      for (int entityId = 0; entityId < input
+          .getNumberOfArgumentCandidates(eventId); entityId++) {
+        for (int labelId = 0; labelId < entityLabels.length; labelId++) {
+          score = 0;
+          var = solver.addBooleanVariable(score);
+          varName = getVariableName(entityId, labelId, "entity");
+          lexicon.addVariable(varName, var);
+        }
+      }
+    }
   }
 
   public static String getVariableName(int slotId, int labelId) {

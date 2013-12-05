@@ -239,7 +239,7 @@ public class Example implements Serializable {
 				predicted = findPredictedEventEventRelationPairs(prediction);
 
     	for(EventMention em:prediction.get(EventMentionsAnnotation.class)){
-			System.out.println(em.getTreeNode().toString());
+			//System.out.println(em.getTreeNode().toString());
 			//System.out.println("relations:");
 			for(ArgumentRelation rel:em.getArguments()) {
 				//System.out.println(em.getTreeNode()+"-"+rel.mention.getTreeNode());

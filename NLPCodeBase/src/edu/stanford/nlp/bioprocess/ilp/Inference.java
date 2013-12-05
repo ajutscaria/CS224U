@@ -38,7 +38,7 @@ import fig.basic.LogInfo;
 public class Inference extends AbstractILPInference<ExampleStructure> {
 
   static {
-    GurobiHook.setTimeoutLimit(1000);
+    GurobiHook.setTimeoutLimit(2000);
   }
 
   public static final String[] eventLabels = { "E", "O" };
