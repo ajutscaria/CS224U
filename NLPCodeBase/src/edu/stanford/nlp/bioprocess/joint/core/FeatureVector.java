@@ -60,6 +60,15 @@ public class FeatureVector {
           add(pair.getFirst(), pair.getSecond());
     }
   }
+  
+  public ArrayList<String> getIndicateFeatures(){
+    return indicatorFeatures;
+  }
+  
+  public ArrayList<Pair<String, Double>> getGeneralFeatures(){
+    return generalFeatures;
+  }
+  
 
   // Return the dot product between this feature vector and the weight vector (parameters).
   public double dotProduct(Params params) {

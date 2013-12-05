@@ -184,7 +184,7 @@ public class FeatureExtractor {
     Tree event2 = getEventNode(sentence2, tokenId2);
     ClusterSetup();
     
-    FeatureVector fv = new FeatureVector();
+    FeatureVector fv = new FeatureVector();//TODO
     List<String> features = new ArrayList<String>();
     CoreLabel event1CoreLabel = Utils.findCoreLabelFromTree(sentence1, event1),
             event2CoreLabel = Utils.findCoreLabelFromTree(sentence2, event2);
@@ -406,15 +406,42 @@ public class FeatureExtractor {
   }
   
   public static FeatureVector getTriggerLabelFV(Input input, int trigger, boolean label){
-    return null;
+    FeatureVector fv = getTriggerFV(input, trigger);
+    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
+    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv.getGeneralFeatures();
+    for(String f:indicateFeatures){
+      f = label + "&" + f;
+    }
+    for(fig.basic.Pair<String, Double> f: generalFeatures){
+      f.setFirst(label + "&" + f.getFirst());
+    }
+    return fv;
   }
   
   public static FeatureVector getArgumentLabelFV(Input input, int trigger, int argument, String label){
-    return null;
+    FeatureVector fv = getArgumentFV(input, trigger, argument);
+    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
+    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv.getGeneralFeatures();
+    for(String f:indicateFeatures){
+      f = label + "&" + f;
+    }
+    for(fig.basic.Pair<String, Double> f: generalFeatures){
+      f.setFirst(label + "&" + f.getFirst());
+    }
+    return fv;
   }
   
   public static FeatureVector getRelationLabelFV(Input input, int trig1, int trig2, String label){
-    return null;
+    FeatureVector fv = getRelationFV(input, trig1, trig2);
+    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
+    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv.getGeneralFeatures();
+    for(String f:indicateFeatures){
+      f = label + "&" + f;
+    }
+    for(fig.basic.Pair<String, Double> f: generalFeatures){
+      f.setFirst(label + "&" + f.getFirst());
+    }
+    return fv;
   }
   
   public static CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
