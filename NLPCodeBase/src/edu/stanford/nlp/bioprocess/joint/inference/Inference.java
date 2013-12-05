@@ -10,8 +10,12 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolver;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
+import edu.stanford.nlp.bioprocess.joint.core.FeatureExtractor;
+import edu.stanford.nlp.bioprocess.joint.core.FeatureVector;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
+import edu.stanford.nlp.bioprocess.joint.core.Params;
 import edu.stanford.nlp.bioprocess.joint.core.Structure;
+import fig.basic.LogInfo;
 
 /**
  * 
@@ -60,12 +64,12 @@ public class Inference extends AbstractILPInference<Structure> {
   protected void addVariables(ILPSolver solver,
       InferenceVariableLexManager lexicon) {
 
-    System.out.println("start adding variables");
+    LogInfo.logs("start adding variables");
     addEventEntity(solver, lexicon);
 
     for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
-      int event1 = input.getEERelationCandidatePair(Id).getSource(); // ?
-      int event2 = input.getEERelationCandidatePair(Id).getTarget(); // ?
+      int event1 = input.getEERelationCandidatePair(Id).getSource(); 
+      int event2 = input.getEERelationCandidatePair(Id).getTarget(); 
       double score;
       int var;
       String varName;
@@ -102,25 +106,25 @@ public class Inference extends AbstractILPInference<Structure> {
       lexicon.addVariable(varName, var);
 
       for (int labelId = 0; labelId < relationLabels.length; labelId++) {
-        score = 0;
+        score = getRelationScore(event1, event2, relationLabels[labelId]);
         var = solver.addBooleanVariable(score);
         varName = getVariableName(event1, event2, labelId, "relation");
         lexicon.addVariable(varName, var);
       }
     }
-    System.out.println("done adding variables");
+    LogInfo.logs("done adding variables");
   }
 
   private void addEventEntity(ILPSolver solver,
       InferenceVariableLexManager lexicon) {
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       // adding trigger
-      double score = 0; //getScore()
+      double score = getEventScore(eventId, true);
       int var = solver.addBooleanVariable(score);
       String varName = getVariableName(eventId, E_ID, "event"); // 0: E
       lexicon.addVariable(varName, var);
 
-      score = 0;
+      score = getEventScore(eventId, false);
       var = solver.addBooleanVariable(score);
       varName = getVariableName(eventId, O_ID, "event"); // 0: E, 1: O
       lexicon.addVariable(varName, var);
@@ -129,7 +133,7 @@ public class Inference extends AbstractILPInference<Structure> {
       for (int entityId = 0; entityId < input
           .getNumberOfArgumentCandidates(eventId); entityId++) {
         for (int labelId = 0; labelId < entityLabels.length; labelId++) {
-          score = 0;
+          score = getEntityScore(eventId, entityId, entityLabels[labelId]);
           var = solver.addBooleanVariable(score);
           varName = getVariableName(entityId, labelId, "entity");
           lexicon.addVariable(varName, var);
@@ -156,9 +160,25 @@ public class Inference extends AbstractILPInference<Structure> {
     return type + event1 + " " + event2 + ",label" + labelId;
   }
 
-  private double getLabelScore(int slotId, int labelId) {
+  private double getEventScore(int eventId, boolean label) {
     // for now, some random scores
-    return (new Random()).nextDouble();
+    FeatureVector fv = FeatureExtractor.getTriggerLabelFV(input, eventId, label);
+    Params params = new Params();
+    return fv.dotProduct(params);
+  }
+  
+  private double getEntityScore(int eventId, int entityId, String label) {
+    // for now, some random scores
+    FeatureVector fv = FeatureExtractor.getArgumentLabelFV(input, eventId, entityId, label);
+    Params params = new Params();
+    return fv.dotProduct(params);
+  }
+  
+  private double getRelationScore(int event1, int event2, String label) {
+    // for now, some random scores
+    FeatureVector fv = FeatureExtractor.getRelationLabelFV(input, event1, event2, label);
+    Params params = new Params();
+    return fv.dotProduct(params);
   }
 
   @Override
