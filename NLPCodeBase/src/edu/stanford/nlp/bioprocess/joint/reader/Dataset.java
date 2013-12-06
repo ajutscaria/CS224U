@@ -35,9 +35,8 @@ import fig.basic.StatFig;
  * Allows to get train/dev and cross validation splits
  * TODO - discuss how the labels that I upload work with all the feature extraction (in terms of compatibility)
  * TODO - discuss the correction of spans to entity nodes
- * TODO - discuss the methods needed from Input
- * TODO - check p136.ann, p78.ann
  * TODO - fix the creation of candidates in Input
+ * TODO - serialize and load
  * @author jonathanberant
  *
  */
@@ -106,7 +105,7 @@ public class Dataset {
       Input input = generateInput(file);
       Structure structure = generateStructure(input, 
           new File(folder,fileName.replace(DatasetUtils.TEXT_EXTENSION, DatasetUtils.ANNOTATION_EXTENSION)));
-      res.add(Pair.makePair(input, structure));
+      //res.add(Pair.makePair(input, structure));
       LogInfo.end_track();
     }
     LogInfo.logs(stats);
@@ -120,18 +119,7 @@ public class Dataset {
     //get annotation
     Annotation annotation = new Annotation(text);
     //trying 5 times since for some reason the parser throws exception non-deterministically
-    for(int tries = 0; tries < 5; ++tries) {
-      try {
-        processor.annotate(annotation);
-     
-        break;
-      }
-      catch(NoSuchParseException e) {
-        LogInfo.errors("Parse failed, tries=%s",tries);
-        Thread.sleep(1000);
-        if(tries==5) throw e;
-      }
-    }
+    processor.annotate(annotation);
 
     //get some stats
     List<CoreMap> sentences = annotation.get(SentencesAnnotation.class);
@@ -286,7 +274,7 @@ public class Dataset {
 
   public static void main(String[] args) throws IOException, InterruptedException {
 
-    opts.inPaths.add(Pair.makePair("train","/Users/jonathanberant/Projects/CS224U/NLPCodeBase/lib/Dataset/train"));
+    opts.inPaths.add(Pair.makePair("train","lib/Dataset/test"));
     Dataset d = new Dataset();
     d.read();
   }
