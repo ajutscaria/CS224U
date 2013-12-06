@@ -116,8 +116,8 @@ public class Input implements IInstance {
 
 		// each relation candidate should connect two triggers
 		for (int i = 0; i < relationCandidates.length; i++) {
-			checkTriggerId(relationCandidates[i].getSource());
-			checkTriggerId(relationCandidates[i].getTarget());
+			assert isValidTriggerId(relationCandidates[i].getSource());
+			assert isValidTriggerId(relationCandidates[i].getTarget());
 		}
 
 		// TODO: Check that the relation candidates have at least one connected
@@ -129,7 +129,7 @@ public class Input implements IInstance {
 	}
 
 	public int getTriggerTokenId(int triggerId) {
-		checkTriggerId(triggerId);
+		assert isValidTriggerId(triggerId);
 		return triggerCandidates[triggerId];
 	}
 
@@ -144,7 +144,7 @@ public class Input implements IInstance {
 	}
 
 	public IntPair getArgumentCandidateSpan(int triggerId, int candidateId) {
-		checkTriggerId(triggerId);
+		assert isValidTriggerId(triggerId);
 
 		if (candidateId < 0 || candidateId >= argumentCandidates[triggerId].length)
 			throw new RuntimeException("Invalid candidate id: " + candidateId);
@@ -153,7 +153,7 @@ public class Input implements IInstance {
 	}
 
 	public int getArgumentSpanIndex(int triggerId, IntPair span) {
-		checkTriggerId(triggerId);
+		assert isValidTriggerId(triggerId);
 
 		Map<IntPair, Integer> argsForTrigger = this.argumentCandidateToId
 				.get(triggerId);
@@ -174,8 +174,8 @@ public class Input implements IInstance {
 
 	public int getEERelationIndex(int trigger1, int trigger2) {
 
-		checkTriggerId(trigger1);
-		checkTriggerId(trigger2);
+		assert isValidTriggerId(trigger1);
+		assert isValidTriggerId(trigger2);
 
 		if (this.relationCandidateToId.containsKey(new IntPair(trigger1, trigger2)))
 			return relationCandidateToId.get(new IntPair(trigger1, trigger2));
@@ -188,11 +188,6 @@ public class Input implements IInstance {
 	public String toString() {
 		// TODO Auto-generated method stub
 		throw new RuntimeException("Input.toString() not yet implemented!");
-	}
-
-	private void checkTriggerId(int triggerId) {
-		if (triggerId < 0 || triggerId >= triggerCandidates.length)
-			throw new RuntimeException("Invalid trigger id: " + triggerId);
 	}
 
 	/**
@@ -244,6 +239,16 @@ public class Input implements IInstance {
 	}
 
 	/**
+	 * Checks if the triggerId is a valid one
+	 * 
+	 * @param triggerId
+	 * @return
+	 */
+	public boolean isValidTriggerId(int triggerId) {
+		return triggerId >= 0 && triggerId < triggerCandidates.length;
+	}
+
+	/**
 	 * Check if (triggerId1, triggerId2) or (triggerId2, triggerId1) is a valid
 	 * relation candidate.
 	 * 
@@ -252,8 +257,8 @@ public class Input implements IInstance {
 	 * @return
 	 */
 	public boolean isRelationCandidate(int triggerId1, int triggerId2) {
-		checkTriggerId(triggerId1);
-		checkTriggerId(triggerId2);
+		assert isValidTriggerId(triggerId1);
+		assert isValidTriggerId(triggerId2);
 
 		return this.relationCandidateToId.containsKey(new IntPair(triggerId1,
 				triggerId2));
@@ -267,7 +272,7 @@ public class Input implements IInstance {
 	 * @return
 	 */
 	public boolean isArgumentCandidate(int triggerId, IntPair span) {
-		checkTriggerId(triggerId);
+		assert isValidTriggerId(triggerId);
 
 		Map<IntPair, Integer> argsForTrigger = this.argumentCandidateToId
 				.get(triggerId);
