@@ -16,6 +16,11 @@ import edu.stanford.nlp.bioprocess.BioDatum;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
 import fig.basic.LogInfo;
 
+/**
+ * 
+ * @author heatherchen1003
+ * Constraints that ensure the event graph is connected (each event belongs to at least one relation).
+ */
 public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
 
   public ConnectivityConstraintGenerator() {
@@ -28,14 +33,22 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
 
     Input input = (Input) all;
     List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
-    bingingRelationEdge(lexicon, input, constraints);
+    bindingRelationEdge(lexicon, input, constraints);
 
     // equation 2
     auxiliaryTying(lexicon, input, constraints);
 
     int size = input.getNumberOfTriggers() - 1;
-    int root = 0; // choose the first event as root
-
+    int root = 0;  // choose the smallest-index event in all the relations as root
+    for (int i = 0; i < input.getNumberOfTriggers(); i++) {
+      for (int j = i+1; j < input.getNumberOfTriggers(); j++) {
+        if (input.isRelationCandidate(i, j)){
+          root = i;
+          break;
+        }
+      }
+    }
+   
     // equation 3
     addOneParentConstraint(lexicon, input, constraints, size, root);
 
@@ -43,7 +56,7 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
     addRootFlowConstraint(lexicon, constraints, input, size, root);
 
     // equation 5
-    addFlowConsistencyConstraints(lexicon, constraints, input, size);
+    addFlowConsistencyConstraints(lexicon, constraints, input, size, root);
 
     // equation 6
     // System.out.println("equation 6");
@@ -54,22 +67,22 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
 
   private void addOneParentConstraint(InferenceVariableLexManager lexicon,
       Input input, List<ILPConstraint> constraints, int size, int root) {
-    for (int i = 0; i < input.getNumberOfTriggers(); i++) {
+    for (int j = 0; j < input.getNumberOfTriggers(); j++) {
       int[] var = new int[size];
       double[] coef = new double[size];
       int counter = 0;
-      int event1 = i;
+      int event2 = j;
 
-      for (int j = 0; j < input.getNumberOfTriggers(); j++) {
-        int event2 = j;
-        if (i == j)
+      for (int i = 0; i < input.getNumberOfTriggers(); i++) {
+        int event1 = i;
+        if (i == j || !input.isRelationCandidate(i, j))
           continue;
-        var[counter] = lexicon.getVariable(Inference.getVariableName(event2,
-            event1, "aux", "connectivity"));
+        var[counter] = lexicon.getVariable(Inference.getVariableName(event1,
+            event2, "aux", "connectivity"));
         coef[counter] = 1;
         counter++;
       }
-      if (i == root) {// root
+      if (j == root) {// root
         constraints.add(new ILPConstraint(var, coef, 0, ILPConstraint.EQUAL));
       } else {
         constraints.add(new ILPConstraint(var, coef, 1, ILPConstraint.EQUAL));
@@ -107,7 +120,7 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
     }
   }
 
-  private void bingingRelationEdge(InferenceVariableLexManager lexicon,
+  private void bindingRelationEdge(InferenceVariableLexManager lexicon,
       Input input, List<ILPConstraint> constraints) {
     int slotlength = Inference.relationLabels.length;
 
@@ -136,31 +149,32 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
     int counter = 0;
     int[] var = new int[size];
     double[] coef = new double[size];
-    for (int i = 1; i < input.getNumberOfTriggers(); i++) {
+    for (int i = 0; i < input.getNumberOfTriggers(); i++) {
       int event2 = i;
-
+      if(i==root || !input.isRelationCandidate(root, event2))continue;
       var[counter] = lexicon.getVariable(Inference.getVariableName(root,
           event2, "flow", "connectivity"));
       coef[counter] = 1;
       counter++;
     }
-    constraints.add(new ILPConstraint(var, coef, size, ILPConstraint.EQUAL));
+    constraints.add(new ILPConstraint(var, coef, counter, ILPConstraint.EQUAL));
   }
 
   private void addFlowConsistencyConstraints(
       InferenceVariableLexManager lexicon, List<ILPConstraint> constraints,
-      Input input, int size) {
+      Input input, int size, int root) {
     int counter;
     int[] var;
     double[] coef;
     int doublesize = 2 * size;
-    for (int j = 1; j < input.getNumberOfTriggers(); j++) {
+    for (int j = 0; j < input.getNumberOfTriggers(); j++) {
+      if(j==root)continue;
       int eventj = j;
       var = new int[doublesize];
       coef = new double[doublesize];
       counter = 0;
       for (int i = 0; i < input.getNumberOfTriggers(); i++) {
-        if (i == j)
+        if (i == j || !input.isRelationCandidate(i, j))
           continue;
         int eventi = i;
         var[counter] = lexicon.getVariable(Inference.getVariableName(eventi,
@@ -169,7 +183,7 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
         counter++;
       }
       for (int k = 0; k < input.getNumberOfTriggers(); k++) {
-        if (j == k)
+        if (j == k || !input.isRelationCandidate(j, k))
           continue;
         int eventk = k;
         var[counter] = lexicon.getVariable(Inference.getVariableName(eventj,
@@ -190,7 +204,7 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
       int eventi = i;
 
       for (int j = 0; j < n; j++) {
-        if (i == j)
+        if (i == j || !input.isRelationCandidate(i, j))
           continue;
         int eventj = j;
         int[] var = new int[2];
@@ -204,12 +218,6 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
             "connectivity");
         var[1] = lexicon.getVariable(zij); // Zij
         coef[1] = -n;
-        /*
-         * LogInfo.logs(
-         * "i=%s, j=%s, eventi=%s, eventj=%s, phiij=%s, zij=%s, var=%s,coeff=%s"
-         * , i, j, eventi, eventj, phiij, zij, Arrays.toString(var),
-         * Arrays.toString(coef));
-         */
 
         ILPConstraint constraint = new ILPConstraint(var, coef, 0,
             ILPConstraint.LESS_THAN);
@@ -217,6 +225,7 @@ public class ConnectivityConstraintGenerator extends ILPConstraintGenerator {
         // LogInfo.logs("Constraint: %s", constraint.toString());
         constraints.add(constraint);
 
+        // flow is positive
         int[] flowvar = new int[1];
         double[] flowcoef = new double[1];
         flowvar[0] = lexicon.getVariable(phiij);

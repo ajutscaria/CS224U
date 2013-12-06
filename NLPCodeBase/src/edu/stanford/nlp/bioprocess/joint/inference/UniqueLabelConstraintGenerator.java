@@ -12,6 +12,11 @@ import edu.stanford.nlp.bioprocess.BioDatum;
 import edu.stanford.nlp.bioprocess.ilp.example.ExampleInput;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
 
+/**
+ * 
+ * @author heatherchen1003
+ * Constraints that make sure each event/entity/relation only takes on one label.
+ */
 public class UniqueLabelConstraintGenerator extends ILPConstraintGenerator {
 
   public UniqueLabelConstraintGenerator() {
@@ -63,7 +68,7 @@ public class UniqueLabelConstraintGenerator extends ILPConstraintGenerator {
         double[] coefficients = new double[labelLength];
         for (int labelId = 0; labelId < labelLength; labelId++) {
           vars[labelId] = lexicon.getVariable(Inference.getVariableName(
-              eventId, labelId, "event"));
+              eventId, entityId, labelId, "entity"));
           coefficients[labelId] = 1.0;
         }
         constraints.add(new ILPConstraint(vars, coefficients, 1.0,
@@ -81,7 +86,7 @@ public class UniqueLabelConstraintGenerator extends ILPConstraintGenerator {
 
       for (int labelId = 0; labelId < labelLength; labelId++) {
         vars[labelId] = lexicon.getVariable(Inference.getVariableName(eventId,
-            labelId, "entity"));
+            labelId, "event"));
         coefficients[labelId] = 1.0;
       }
 

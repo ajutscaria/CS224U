@@ -12,6 +12,11 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
 
+/**
+ * 
+ * @author heatherchen1003
+ * Constraints that make sure only events have entities, i.e. if t is not classified as an event, it should have no entity.
+ */
 public class ValidAConstraintGenerator extends ILPConstraintGenerator {
 
   public ValidAConstraintGenerator() {
@@ -33,7 +38,7 @@ public class ValidAConstraintGenerator extends ILPConstraintGenerator {
             Inference.O_ID, "event"));
         coef[0] = -1;
 
-        var[1] = lexicon.getVariable(Inference.getVariableName(entityId,
+        var[1] = lexicon.getVariable(Inference.getVariableName(eventId, entityId,
             Inference.O_ID, "entity"));
         coef[1] = 1;
 

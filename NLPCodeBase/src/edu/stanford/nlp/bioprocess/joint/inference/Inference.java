@@ -34,10 +34,12 @@ public class Inference extends AbstractILPInference<Structure> {
 
   private List<ILPConstraintGenerator> constraints;
   private Input input;
+  private Params params;
 
-  public Inference(Input input, ILPSolverFactory solverFactory, boolean debug) {
+  public Inference(Input input, Params params, ILPSolverFactory solverFactory, boolean debug) {
     super(solverFactory, debug);
     this.input = input;
+    this.params = params;
 
     constraints = new ArrayList<ILPConstraintGenerator>();
     constraints.add(new UniqueLabelConstraintGenerator());
@@ -66,7 +68,12 @@ public class Inference extends AbstractILPInference<Structure> {
 
     LogInfo.logs("start adding variables");
     addEventEntity(solver, lexicon);
+    addEERelation(solver, lexicon);
+    LogInfo.logs("done adding variables");
+  }
 
+  private void addEERelation(ILPSolver solver,
+      InferenceVariableLexManager lexicon) {
     for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
       int event1 = input.getEERelationCandidatePair(Id).getSource(); 
       int event2 = input.getEERelationCandidatePair(Id).getTarget(); 
@@ -112,7 +119,6 @@ public class Inference extends AbstractILPInference<Structure> {
         lexicon.addVariable(varName, var);
       }
     }
-    LogInfo.logs("done adding variables");
   }
 
   private void addEventEntity(ILPSolver solver,
@@ -135,7 +141,7 @@ public class Inference extends AbstractILPInference<Structure> {
         for (int labelId = 0; labelId < entityLabels.length; labelId++) {
           score = getEntityScore(eventId, entityId, entityLabels[labelId]);
           var = solver.addBooleanVariable(score);
-          varName = getVariableName(entityId, labelId, "entity");
+          varName = getVariableName(eventId, entityId, labelId, "entity");
           lexicon.addVariable(varName, var);
         }
       }
@@ -163,21 +169,18 @@ public class Inference extends AbstractILPInference<Structure> {
   private double getEventScore(int eventId, boolean label) {
     // for now, some random scores
     FeatureVector fv = FeatureExtractor.getTriggerLabelFV(input, eventId, label);
-    Params params = new Params();
     return fv.dotProduct(params);
   }
   
   private double getEntityScore(int eventId, int entityId, String label) {
     // for now, some random scores
     FeatureVector fv = FeatureExtractor.getArgumentLabelFV(input, eventId, entityId, label);
-    Params params = new Params();
     return fv.dotProduct(params);
   }
   
   private double getRelationScore(int event1, int event2, String label) {
     // for now, some random scores
     FeatureVector fv = FeatureExtractor.getRelationLabelFV(input, event1, event2, label);
-    Params params = new Params();
     return fv.dotProduct(params);
   }
 
@@ -201,8 +204,34 @@ public class Inference extends AbstractILPInference<Structure> {
     }
 
     String[][] arguments = new String[input.getNumberOfTriggers()][];
-    String[][] relations; // ?
-
+    for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
+      arguments[eventId] = new String[input.getNumberOfArgumentCandidates(eventId)];
+      for (int entityId = 0; entityId < input
+          .getNumberOfArgumentCandidates(eventId); entityId++) {
+        for (int labelId = 0; labelId < entityLabels.length; labelId++) {
+          String varName = getVariableName(eventId, entityId, labelId, "entity");
+          int var = lexicon.getVariable(varName);
+          if (solver.getBooleanValue(var)){
+            arguments[eventId][entityId] = entityLabels[labelId];
+            break;
+          } 
+        }
+      }
+    }
+    
+    String[] relations = new String[input.getNumberOfEERelationCandidates()]; 
+    for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
+      int event1 = input.getEERelationCandidatePair(Id).getSource(); 
+      int event2 = input.getEERelationCandidatePair(Id).getTarget(); 
+      for (int labelId = 0; labelId < relationLabels.length; labelId++) {
+        String varName = getVariableName(event1, event2, labelId, "relation");
+        int var = lexicon.getVariable(varName);
+        if (solver.getBooleanValue(var)){
+          relations[Id] = relationLabels[labelId];
+          break;
+        } 
+      }
+    }
     return null;// new ExampleStructure(input, labels);
   }
 }

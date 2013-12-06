@@ -14,6 +14,11 @@ import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 import edu.stanford.nlp.bioprocess.BioDatum;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
 
+/**
+ * 
+ * @author heatherchen1003
+ * If a relation between two triggers exists, both triggers should be classified as events.  
+ */
 public class RelationEventConstraintGenerator extends ILPConstraintGenerator {
 
   public RelationEventConstraintGenerator() {

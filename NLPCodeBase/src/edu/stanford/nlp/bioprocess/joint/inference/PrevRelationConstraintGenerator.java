@@ -12,7 +12,16 @@ import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraint;
 import edu.illinois.cs.cogcomp.infer.ilp.ILPConstraintGenerator;
 import edu.illinois.cs.cogcomp.infer.ilp.InferenceVariableLexManager;
 import edu.stanford.nlp.bioprocess.BioDatum;
+import edu.stanford.nlp.bioprocess.ilp.BioprocessesInput;
+import edu.stanford.nlp.bioprocess.ilp.Inference;
+import edu.stanford.nlp.bioprocess.joint.core.Input;
 
+/**
+ * 
+ * @author heatherchen1003 PREV contradiction. If ti is immediately before tj
+ *         and tj is immediately before tk, then ti cannot be immediately before
+ *         tk
+ */
 public class PrevRelationConstraintGenerator extends ILPConstraintGenerator {
 
   public PrevRelationConstraintGenerator() {
@@ -24,51 +33,69 @@ public class PrevRelationConstraintGenerator extends ILPConstraintGenerator {
       InferenceVariableLexManager lexicon) {
 
     List<ILPConstraint> constraints = new ArrayList<ILPConstraint>();
-    /*
-     * BioprocessesInput input = (BioprocessesInput)all; List<BioDatum>
-     * relationPredicted = input.data;
-     * 
-     * int slotlength = input.labels;
-     * System.out.println("Inside Prev Contradiction");
-     * System.out.println("relationpredicted size: "+relationPredicted.size());
-     * HashMap<String, List<Integer>> processToEvent = Inference.processToEvent;
-     * //relation(i, j) -> event(i) ^ event(j)
-     * 
-     * for(String process : processToEvent.keySet()){ List<Integer> events =
-     * processToEvent.get(process); for(int i = 0; i < events.size()-2;i++){
-     * for(int j = i+1; j < events.size()-1;j++){ for(int k = j+1; k <
-     * events.size();k++){ //System.out.println(Id1+", "+Id2+", "+Id3); int[]
-     * var = new int[3]; double[] coef = new double[3]; int Id1 = events.get(i);
-     * int Id2 = events.get(j); int Id3 = events.get(k); int labelId1 = 2;
-     * //PREV int labelId2 = 2; //PREV int labelId3 = 0; //NONE var[0] =
-     * lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId1,
-     * "relation")); coef[0] = 1; var[1] =
-     * lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId2,
-     * "relation")); coef[1] = 1; var[2] =
-     * lexicon.getVariable(Inference.getVariableName(Id1, Id3, labelId3,
-     * "relation")); coef[2] = -1; constraints.add(new ILPConstraint(var, coef,
-     * 1, ILPConstraint.LESS_THAN));
-     * 
-     * labelId1 = 2; //PREV labelId2 = 0; //PREV labelId3 = 2; //NONE var = new
-     * int[3]; coef = new double[3]; var[0] =
-     * lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId1,
-     * "relation")); coef[0] = 1; var[1] =
-     * lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId2,
-     * "relation")); coef[1] = -1; var[2] =
-     * lexicon.getVariable(Inference.getVariableName(Id1, Id3, labelId3,
-     * "relation")); coef[2] = 1; constraints.add(new ILPConstraint(var, coef,
-     * 1, ILPConstraint.LESS_THAN));
-     * 
-     * labelId1 = 0; //PREV labelId2 = 2; //PREV labelId3 = 2; //NONE var = new
-     * int[3]; coef = new double[3]; var[0] =
-     * lexicon.getVariable(Inference.getVariableName(Id1, Id2, labelId1,
-     * "relation")); coef[0] = -1; var[1] =
-     * lexicon.getVariable(Inference.getVariableName(Id2, Id3, labelId2,
-     * "relation")); coef[1] = 1; var[2] =
-     * lexicon.getVariable(Inference.getVariableName(Id1, Id3, labelId3,
-     * "relation")); coef[2] = 1; constraints.add(new ILPConstraint(var, coef,
-     * 1, ILPConstraint.LESS_THAN)); } } } }
-     */
+    Input input = (Input) all;
+    for (int i = 0; i < input.getNumberOfTriggers() - 2; i++) {
+      for (int j = i + 1; j < input.getNumberOfTriggers() - 1; j++) {
+        for (int k = j + 1; k < input.getNumberOfTriggers(); k++) {
+          // System.out.println(Id1+", "+Id2+", "+Id3);
+          if (!input.isRelationCandidate(i, j)
+              || !input.isRelationCandidate(j, k)
+              || !input.isRelationCandidate(i, k))
+            continue;
+          int[] var = new int[3];
+          double[] coef = new double[3];
+          int labelId1 = 2; // PREV
+          int labelId2 = 2; // PREV
+          int labelId3 = 0; // NONE
+          var[0] = lexicon.getVariable(Inference.getVariableName(i, j,
+              labelId1, "relation"));
+          coef[0] = 1;
+          var[1] = lexicon.getVariable(Inference.getVariableName(j, k,
+              labelId2, "relation"));
+          coef[1] = 1;
+          var[2] = lexicon.getVariable(Inference.getVariableName(i, k,
+              labelId3, "relation"));
+          coef[2] = -1;
+          constraints.add(new ILPConstraint(var, coef, 1,
+              ILPConstraint.LESS_THAN));
+
+          labelId1 = 2; // PREV
+          labelId2 = 0; // PREV
+          labelId3 = 2; // NONE
+          var = new int[3];
+          coef = new double[3];
+          var[0] = lexicon.getVariable(Inference.getVariableName(i, j,
+              labelId1, "relation"));
+          coef[0] = 1;
+          var[1] = lexicon.getVariable(Inference.getVariableName(j, k,
+              labelId2, "relation"));
+          coef[1] = -1;
+          var[2] = lexicon.getVariable(Inference.getVariableName(i, k,
+              labelId3, "relation"));
+          coef[2] = 1;
+          constraints.add(new ILPConstraint(var, coef, 1,
+              ILPConstraint.LESS_THAN));
+
+          labelId1 = 0; // PREV
+          labelId2 = 2; // PREV
+          labelId3 = 2; // NONE
+          var = new int[3];
+          coef = new double[3];
+          var[0] = lexicon.getVariable(Inference.getVariableName(i, j,
+              labelId1, "relation"));
+          coef[0] = -1;
+          var[1] = lexicon.getVariable(Inference.getVariableName(j, k,
+              labelId2, "relation"));
+          coef[1] = 1;
+          var[2] = lexicon.getVariable(Inference.getVariableName(i, k,
+              labelId3, "relation"));
+          coef[2] = 1;
+          constraints.add(new ILPConstraint(var, coef, 1,
+              ILPConstraint.LESS_THAN));
+        }
+      }
+    }
+
     return constraints;
   }
 
