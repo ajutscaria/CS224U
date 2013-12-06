@@ -38,14 +38,18 @@ public class Evaluation {
 	}
 	
 	public void calcStat(int i){
+	    System.out.println("iteration:"+i);
 		precisionEvt[i-1] = (double)tpEvt[i-1]/(tpEvt[i-1]+fpEvt[i-1]); 
 		recallEvt[i-1] = (double)tpEvt[i-1]/(tpEvt[i-1]+fnEvt[i-1]);
 		f1Evt[i-1] = 2 * precisionEvt[i-1] * recallEvt[i-1] / (precisionEvt[i-1] + recallEvt[i-1]);
+		System.out.println("event: p="+ precisionEvt[i-1]+ ", r="+ recallEvt[i-1] + ", f1="+f1Evt[i-1]);
 		precisionEnt[i-1] = (double)tpEnt[i-1]/(tpEnt[i-1]+fpEnt[i-1]); 
 		recallEnt[i-1] = (double)tpEnt[i-1]/(tpEnt[i-1]+fnEnt[i-1]);
 		f1Ent[i-1] = 2 * precisionEnt[i-1] * recallEnt[i-1] / (precisionEnt[i-1] + recallEnt[i-1]);
+		System.out.println("entity: p="+ precisionEnt[i-1]+ ", r="+ recallEnt[i-1] + ", f1="+f1Ent[i-1]);
 		precisionRel[i-1] = (double)tpRel[i-1]/(tpRel[i-1]+fpRel[i-1]); 
 		recallRel[i-1] = (double)tpRel[i-1]/(tpRel[i-1]+fnRel[i-1]);
 		f1Rel[i-1] = 2 * precisionRel[i-1] * recallRel[i-1] / (precisionRel[i-1] + recallRel[i-1]);
+		System.out.println("relation: p="+ precisionRel[i-1]+ ", r="+ recallRel[i-1] + ", f1="+f1Rel[i-1]);
 	}
 }

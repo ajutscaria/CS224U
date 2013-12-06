@@ -40,6 +40,8 @@ import fig.basic.StatFig;
  */
 public class Dataset {
 
+  private static final String TRAIN = "train";
+
   public static class Options {
     @Option(gloss = "Paths to read input files (format: <group>:<file>)")
     public ArrayList<Pair<String, String>> inPaths = new ArrayList<Pair<String, String>>();
@@ -231,7 +233,7 @@ public class Dataset {
       throw new RuntimeException("Illegal fold num, num of folds="+opts.numOfFolds+", fold requested="+foldNum);
    
     List<Pair<Input,Structure>> res = new ArrayList<Pair<Input,Structure>>();
-    List<Pair<Input,Structure>> trainExamples = allExamples.get("train");
+    List<Pair<Input,Structure>> trainExamples = allExamples.get(TRAIN);
     int startIndex = foldNum*(trainExamples.size() / opts.numOfFolds);
     int endIndex = (foldNum+1)*(trainExamples.size() / opts.numOfFolds);
     
@@ -248,7 +250,7 @@ public class Dataset {
       throw new RuntimeException("Illegal fold num, num of folds="+opts.numOfFolds+", fold requested="+foldNum);
 
     List<Pair<Input,Structure>> res = new ArrayList<Pair<Input,Structure>>();
-    List<Pair<Input,Structure>> trainExamples = allExamples.get("train");
+    List<Pair<Input,Structure>> trainExamples = allExamples.get(TRAIN);
     int startIndex = foldNum*(trainExamples.size() / opts.numOfFolds);
     int endIndex = (foldNum+1)*(trainExamples.size() / opts.numOfFolds);
     
