@@ -18,6 +18,7 @@ import edu.stanford.nlp.bioprocess.joint.core.Structure;
 import edu.stanford.nlp.io.IOUtils;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.parser.lexparser.NoSuchParseException;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.trees.Tree;
@@ -30,11 +31,13 @@ import fig.basic.Pair;
 import fig.basic.StatFig;
 
 /**
- * Reads the dataset from .txt and .ann files (brat files)
+ * Reads the dataset from a directory with .txt and .ann files (brat files)
  * Allows to get train/dev and cross validation splits
- * TODO - discuss how the labels that I upload work with all the feature extraction (in terms of compaibility)
+ * TODO - discuss how the labels that I upload work with all the feature extraction (in terms of compatibility)
  * TODO - discuss the correction of spans to entity nodes
  * TODO - discuss the methods needed from Input
+ * TODO - check p136.ann, p78.ann
+ * TODO - fix the creation of candidates in Input
  * @author jonathanberant
  *
  */
@@ -68,13 +71,13 @@ public class Dataset {
   public List<Pair<Input,Structure>> examples(String group) { return allExamples.get(group); }
   public int size(String group) { return allExamples.get(group).size(); }
 
-  public void read() throws IOException {
+  public void read() throws IOException, InterruptedException {
     LogInfo.begin_track("Dataset.read");
     readFromPathPairs();
     LogInfo.end_track();
   }
 
-  private void readFromPathPairs() throws IOException {
+  private void readFromPathPairs() throws IOException, InterruptedException {
     for (Pair<String, String> pathPair : opts.inPaths) {
       String group = pathPair.getFirst();
       String path = pathPair.getSecond();
@@ -83,7 +86,7 @@ public class Dataset {
       allExamples.put(group, examples);
     }
   }
-  private List<Pair<Input, Structure>> readFromPath(String path, int numOfExamples) throws IOException {
+  private List<Pair<Input, Structure>> readFromPath(String path, int numOfExamples) throws IOException, InterruptedException {
     List<Pair<Input,Structure>> res = new ArrayList<Pair<Input,Structure>>();
 
     File folder = new File(path);
@@ -97,22 +100,39 @@ public class Dataset {
       }
     };
     //read examples
-    for(String file:folder.list(textFilter)){
-      LogInfo.begin_track("Reading process %s",file);
+    for(String fileName:folder.list(textFilter)){
+      File file = new File(folder,fileName);
+      LogInfo.begin_track("Reading process %s",new File(folder,fileName));
       Input input = generateInput(file);
-      Structure structure = generateStructure(input);
+      Structure structure = generateStructure(input, 
+          new File(folder,fileName.replace(DatasetUtils.TEXT_EXTENSION, DatasetUtils.ANNOTATION_EXTENSION)));
       res.add(Pair.makePair(input, structure));
+      LogInfo.end_track();
     }
+    LogInfo.logs(stats);
     return res;
   }
 
-  private Input generateInput(String file) throws IOException {
+  private Input generateInput(File file) throws IOException, InterruptedException {
     String text = IOUtils.slurpFile(file);
     if(opts.verbose>0)
       LogInfo.logs("Dataset.readFromPath: text=%s",text);
     //get annotation
     Annotation annotation = new Annotation(text);
-    processor.annotate(annotation);
+    //trying 5 times since for some reason the parser throws exception non-deterministically
+    for(int tries = 0; tries < 5; ++tries) {
+      try {
+        processor.annotate(annotation);
+     
+        break;
+      }
+      catch(NoSuchParseException e) {
+        LogInfo.errors("Parse failed, tries=%s",tries);
+        Thread.sleep(1000);
+        if(tries==5) throw e;
+      }
+    }
+
     //get some stats
     List<CoreMap> sentences = annotation.get(SentencesAnnotation.class);
     stats.add("files",1.0);
@@ -123,16 +143,16 @@ public class Dataset {
       Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
       syntacticParse.setSpans();
     }
-    return new Input(annotation, file.substring(0, file.lastIndexOf('.')));
+    return new Input(annotation, file.getName().substring(0, file.getName().lastIndexOf('.')));
   }
 
-  private Structure generateStructure(Input input) {
+  private Structure generateStructure(Input input, File file) {
 
     Map<String,Integer> triggerMap = new HashMap<String,Integer>(); //map from trigger description to token index
     Map<String,IntPair> entityMap = new HashMap<String,IntPair>(); //map from entity description to token span
 
     //first pass - gather triggers and entity maps
-    for(String line: IOUtils.readLines(input.id+DatasetUtils.ANNOTATION_EXTENSION)) {
+    for(String line: IOUtils.readLines(file)) {
       getTriggersAndEntities(input,line,triggerMap,entityMap);
     }
     //generate trigger array
@@ -144,11 +164,10 @@ public class Dataset {
       arguments[i] = new String[input.getNumberOfArgumentCandidates(i)];
 
     //second pass - populate relations and arguments
-    for(String line: IOUtils.readLines(input.id+DatasetUtils.ANNOTATION_EXTENSION)) {
+    for(String line: IOUtils.readLines(file)) {
       getRolesAndRelations(input, line,triggerMap,entityMap,arguments,relations);
     }
 
-    LogInfo.logs(stats);
     Structure res = new Structure(input, triggers, arguments, relations);
     return res;
   }
@@ -175,12 +194,12 @@ public class Dataset {
         String[] dependentParts = eventDetails[i].split(":");
         String edgeLabel = dependentParts[0];
         String id = dependentParts[1];
-        if(DatasetUtils.isEventEventRelation(edgeLabel)) {
+        if(DatasetUtils.isRole(edgeLabel)) {
           IntPair span = entityMap.get(id);
-          arguments[input.getTriggerIndex(triggerTokenIndex)][input.getArgumentSpanIndex(span)]=
+          arguments[input.getTriggerIndex(triggerTokenIndex)][input.getArgumentSpanIndex(triggerTokenIndex,span)]=
               DatasetUtils.getLabel(edgeLabel);       
         }
-        else if(DatasetUtils.isRole(edgeLabel)) {
+        else if(DatasetUtils.isEventEventRelation(edgeLabel)) {
           int otherTriggerTokenIndex = triggerMap.get(id);
           int triggerId1 = input.getTriggerIndex(triggerTokenIndex);
           int triggerId2 = input.getTriggerIndex(otherTriggerTokenIndex);
@@ -212,7 +231,7 @@ public class Dataset {
         triggerMap.put(tokens[0], beginToken);
       }
       else if(offsets[0].equals(DatasetUtils.ENTITY_TYPE)) {
-        entityMap.put(offsets[0], DatasetUtils.getSpan(beginToken,endToken+1));
+        entityMap.put(tokens[0], DatasetUtils.getSpan(beginToken,endToken+1));
       }
       else throw new RuntimeException("Line does not specify a trigger or entity: " + line);
     }
@@ -228,18 +247,18 @@ public class Dataset {
   public List<Pair<Input,Structure>> getTrainFold(int foldNum) {
     if(foldNum>=opts.numOfFolds || foldNum < 0) 
       throw new RuntimeException("Illegal fold num, num of folds="+opts.numOfFolds+", fold requested="+foldNum);
-   
+
     List<Pair<Input,Structure>> res = new ArrayList<Pair<Input,Structure>>();
     List<Pair<Input,Structure>> trainExamples = allExamples.get("train");
     int startIndex = foldNum*(trainExamples.size() / opts.numOfFolds);
     int endIndex = (foldNum+1)*(trainExamples.size() / opts.numOfFolds);
-    
+
     for(int i = 0; i < startIndex; ++i)
       res.add(trainExamples.get(i));
     for(int i = endIndex; i < trainExamples.size(); ++i)
       res.add(trainExamples.get(i));
     return res;
-   
+
   }
 
   public List<Pair<Input,Structure>> getDevFold(int foldNum) {
@@ -250,7 +269,7 @@ public class Dataset {
     List<Pair<Input,Structure>> trainExamples = allExamples.get("train");
     int startIndex = foldNum*(trainExamples.size() / opts.numOfFolds);
     int endIndex = (foldNum+1)*(trainExamples.size() / opts.numOfFolds);
-    
+
     for(int i = startIndex; i < endIndex; ++i)
       res.add(trainExamples.get(i));
     return res;
@@ -263,5 +282,12 @@ public class Dataset {
       if (maxPair.getFirst().equals(group))
         maxExamples = maxPair.getSecond();
     return maxExamples;
+  }
+
+  public static void main(String[] args) throws IOException, InterruptedException {
+
+    opts.inPaths.add(Pair.makePair("train","/Users/jonathanberant/Projects/CS224U/NLPCodeBase/lib/Dataset/train"));
+    Dataset d = new Dataset();
+    d.read();
   }
 }
