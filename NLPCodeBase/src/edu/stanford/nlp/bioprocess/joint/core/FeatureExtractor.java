@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -64,11 +63,10 @@ public class FeatureExtractor {
     CoreMap sentence = getContainingSentence(sentences, tokenId, tokenId);
     Tree event = getEventNode(sentence, tokenId);
     
-  //LogInfo.logs("Current node's text - " + getText(event));
+    //LogInfo.logs("Current node's text - " + getText(event));
     FeatureVector fv = new FeatureVector(); //TODO
     List<String> features = new ArrayList<String>();
     String currentWord = event.value();
-    //List<Tree> leaves = event.getLeaves();
     Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
     SemanticGraph graph = sentence.get(CollapsedCCProcessedDependenciesAnnotation.class);
     CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
@@ -77,7 +75,6 @@ public class FeatureExtractor {
     
     IndexedWord word = Utils.findDependencyNode(sentence, event);
     Tree parent = event.parent(root);
-    //IntPair eventSpan = event.getSpan();
     
     String parentCFGRule = parent.value() + "->";
     for(Tree n:parent.getChildrenAsList()) {
@@ -85,7 +82,7 @@ public class FeatureExtractor {
     }
     parentCFGRule = parentCFGRule.trim();
    
-    if(useLexicalFeatures){
+    if(useLexicalFeatures){//lexical
         String text = token.lemma().toLowerCase();
         if(verbForms.containsKey(text)) {
             features.add("lemma="+verbForms.get(text));
@@ -93,7 +90,7 @@ public class FeatureExtractor {
         else {
             features.add("lemma="+token.lemma().toLowerCase());
         }
-        features.add("word="+token.originalText());
+        features.add("word="+token.originalText());//lexical
         features.add("POSlemma=" + currentWord+","+token.lemma());
         
         if(clusters.containsKey(text)) {
@@ -114,10 +111,10 @@ public class FeatureExtractor {
             features.add("nominalization");
         }
     }
-    
-    features.add("ParentPOS=" + parent.value());
-    features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));
-    features.add("POSparentrule=" + currentWord+","+parentCFGRule);
+ 
+    features.add("ParentPOS=" + parent.value());//both
+    features.add("path=" + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",").replace("up-ROOT,down-ROOT,", ""));//syntactic
+    features.add("POSparentrule=" + currentWord+","+parentCFGRule);//both
     
     String consecutiveTypes = "";
     if(currentTokenIndex > 0)
@@ -125,9 +122,9 @@ public class FeatureExtractor {
     consecutiveTypes += currentWord;
     if(currentTokenIndex < tokens.size() - 1)
         consecutiveTypes += tokens.get(currentTokenIndex+1).get(PartOfSpeechAnnotation.class);
-    features.add("consecutivetypes="+consecutiveTypes);
+    features.add("consecutivetypes="+consecutiveTypes);//?
    
-    features.add("bias");
+    features.add("bias");//?
     
     return fv;
     
@@ -163,12 +160,12 @@ public class FeatureExtractor {
     }
 
     //features.add("EntContainsS="+containS);
-    features.add("EvtLemma="+event.getLeaves().get(0).value());
-    features.add("EntCatDepRel=" + entity.value() + ","  + dependencyExists);
-    features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());
-    features.add("EvtToEntDepPath=" + ((depPath.equals("")||depPath.equals("[]")) ? 0 :depPath.split(",").length));
-    features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0));        
-    features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));
+    features.add("EvtLemma="+event.getLeaves().get(0).value());//lexical
+    features.add("EntCatDepRel=" + entity.value() + ","  + dependencyExists);//syntactic
+    features.add("EntHeadEvtPOS="+Utils.findCoreLabelFromTree(sentence, entity).lemma() + "," + event.preTerminalYield().get(0).value());//both
+    features.add("EvtToEntDepPath=" + ((depPath.equals("")||depPath.equals("[]")) ? 0 :depPath.split(",").length));//syntactic
+    features.add("EntHeadEvtHead=" + entity.headTerminal(new CollinsHeadFinder()) + "," + event.getLeaves().get(0)); //syntactic
+    features.add("EntNPAndRelatedToEvt=" + (entity.value().equals("NP") && Utils.isNodesRelated(sentence, entity, event)));//both
     features.add("bias");
     
     return fv;
@@ -212,11 +209,11 @@ public class FeatureExtractor {
     if(verbForms.containsKey(lemma2)) {
         lemma2 = verbForms.get(lemma2);
     }
-    features.add("lemmas:" + lemma1 + "+" + lemma2);
+    features.add("lemmas:" + lemma1 + "+" + lemma2);//lexical
     
     //Is event2 immediately after event1?
     if(!runGlobalModel) {
-        features.add("isImmediatelyAfter:" + isImmediatelyAfter);
+        features.add("isImmediatelyAfter:" + isImmediatelyAfter);//other
     }
     
     if(isImmediatelyAfter) {
@@ -230,22 +227,22 @@ public class FeatureExtractor {
                     
             if(!TemporalConnectives.contains(word.toLowerCase())) {
                 if(POS.startsWith("VB") && POS2.equals("IN")) { 
-                    features.add("wordsInBetween:" + word + " " + word2);
+                    features.add("wordsInBetween:" + word + " " + word2);//lexical
                     wordCounter++;
                 }
                 else
-                    features.add("wordsInBetween:" + word);
+                    features.add("wordsInBetween:" + word);//lexical
             }
             else {  
                 if(sentenceBetweenEvents < 2) {
                     //LogInfo.logs("TEMPORAL CONNECTIVE ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + word.toLowerCase());
                     if(useBaselineFeaturesOnly) {
-                        features.add("temporalConnective:" + word.toLowerCase());
+                        features.add("temporalConnective:" + word.toLowerCase());//connective
                     }
                     else {
-                        features.add("connector:" + word.toLowerCase());
+                        features.add("connector:" + word.toLowerCase());//connective
                         if(AdvModClusters.containsKey(word.toLowerCase())) {
-                            features.add("connectorCluster:" + AdvModClusters.get(word.toLowerCase()));
+                            features.add("connectorCluster:" + AdvModClusters.get(word.toLowerCase()));//connective
                         }
                     }
                 }
@@ -261,54 +258,54 @@ public class FeatureExtractor {
             if(wordsInBetween.size() <= 5) {
                 for(int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
                     if(wordsInBetween.get(wordCounter).first.equals("and")) 
-                            features.add("closeAndInBetween");
+                            features.add("closeAndInBetween");//lexical
                 }
             }
             
             //If event1 is the first event in the paragraph and is a nominalization, it is likely that others are sub-events
             if(trig1 == 0 && event1.value().startsWith("NN")) {
-                features.add("firstAndNominalization");
+                features.add("firstAndNominalization");//lexical
             }
         }
         //Are the lemmas same?  
-        features.add("eventLemmasSame:" + lemma1.equals(lemma2));
+        features.add("eventLemmasSame:" + lemma1.equals(lemma2));//lexical
         
         //If second trigger is noun, the determiner related to it in dependency tree.
         if(pos2.startsWith("NN")) {
             String determiner = Utils.getDeterminer(sentence2, event2);
             if(determiner != null) {
-                features.add("determinerBefore2:" + determiner);
+                features.add("determinerBefore2:" + determiner);//syntactic
             }
         }
     }
     
     //POS tags of both events
-    features.add("POS:" + pos1 + "+" + pos2);
-    features.add("numSentencesInBetween:" + quantizedSentenceCount(sentenceBetweenEvents));
-    features.add("numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));
+    features.add("POS:" + pos1 + "+" + pos2);//lexical
+    features.add("numSentencesInBetween:" + quantizedSentenceCount(sentenceBetweenEvents));//lexical
+    features.add("numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));//lexical
     
     //Features if the two triggers are in the same sentence.
     if (sentenceBetweenEvents == 0) {
         //Lowest common ancestor between the two event triggers. Reduces score.
         Tree root = sentence1.get(TreeCoreAnnotations.TreeAnnotation.class);
         Tree lca = Trees.getLowestCommonAncestor(event1, event2, root);
-        features.add("lowestCommonAncestor:" + lca.value());
+        features.add("lowestCommonAncestor:" + lca.value());//syntactic
         
         //Dependency path if the event triggers are in the same sentence.
         //LogInfo.logs(example.id + " " + lemma1 + " " + lemma2);
         String deppath = Utils.getUndirectedDependencyPath_Events(sentence1, event1, event2);
         if(!deppath.isEmpty()) {
             if(!useBaselineFeaturesOnly) {
-                features.add("deppath:" + deppath);
-                features.add("deppathwithword:" + Utils.getUndirectedDependencyPath_Events_WithWords(sentence1, event1, event2));
+                features.add("deppath:" + deppath);//syntactic
+                features.add("deppathwithword:" + Utils.getUndirectedDependencyPath_Events_WithWords(sentence1, event1, event2));//syntactic
             }
             //Does event1 dominate event2
             if(deppath.contains("->") && !deppath.contains("<-")) {
-                features.add("1dominates2");
+                features.add("1dominates2");//syntactic
             }
             
             if(deppath.contains("<-") && !deppath.contains("->")) {
-                features.add("2dominates1");
+                features.add("2dominates1");//syntactic
             }
         }
         
@@ -318,13 +315,13 @@ public class FeatureExtractor {
         for(Pair<String, String> markRelation: markRelations) {
             //LogInfo.logs("MARKER ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + markRelation);
             if(useBaselineFeaturesOnly) {
-                features.add("markRelation:" + markRelation.first());
+                features.add("markRelation:" + markRelation.first());//mark
             }
             else {
-                features.add("connector:" + markRelation.first());
+                features.add("connector:" + markRelation.first());//mark
                 //In some cases, we don't have clusters for some relation.
                 if(!markRelation.second().isEmpty())
-                    features.add("connectorCluster:" + markRelation.second());
+                    features.add("connectorCluster:" + markRelation.second());//mark
             }
         }
             
@@ -334,13 +331,13 @@ public class FeatureExtractor {
         for(Pair<String, String> ppRelation: ppRelations) {
             //LogInfo.logs("PP ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + ppRelation);
             if(useBaselineFeaturesOnly) {
-                features.add("PPRelation:" + ppRelation.first());
+                features.add("PPRelation:" + ppRelation.first());//pp
             }
             else {
-                features.add("connector:" + ppRelation.first());
+                features.add("connector:" + ppRelation.first());//pp
                 //In some cases, we don't have clusters (if we haven't included in the list.
                 if(!ppRelation.second().isEmpty()) {
-                    features.add("connectorCluster:" + ppRelation.second());
+                    features.add("connectorCluster:" + ppRelation.second());//pp
                 }
             }
         }
@@ -353,13 +350,13 @@ public class FeatureExtractor {
         for(Pair<String, String> advModRelation: advModRelations) {
             //LogInfo.logs("ADVMOD ADDED: " + example.id + " " + lemma1 + " " + lemma2 + " " + advModRelation);
             if(useBaselineFeaturesOnly) {
-                features.add("advModRelation:" + advModRelation.first());
+                features.add("advModRelation:" + advModRelation.first());//advmod
             }
             else {
-                features.add("connector:" + advModRelation.first());
+                features.add("connector:" + advModRelation.first());//advmod
                 //In some cases, we don't have clusters for some relation.
                 if(!advModRelation.second().isEmpty()) {
-                    features.add("connectorCluster:" + advModRelation.second());
+                    features.add("connectorCluster:" + advModRelation.second());//advmod
                 }
             }
         }
@@ -367,7 +364,7 @@ public class FeatureExtractor {
     
     String advMod = extractAdvModRelation(graph2, indexedWord2);
     if(advMod != null && !advMod.isEmpty()) {
-        features.add("advMod:" + advMod);
+        features.add("advMod:" + advMod);//advmod
     }
     
     //See if the two triggers share a common lemma as child in the dependency graph.
@@ -395,7 +392,7 @@ public class FeatureExtractor {
         for(SemanticGraphEdge e1:edges1) {
             for(SemanticGraphEdge e2:edges2) {
                 if(e1.getTarget().equals(e2.getTarget())) {
-                    features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());
+                    features.add("shareChild:" + e1.getRelation() + "+" + e2.getRelation());//syntactic
                     break;
                 }
             }
