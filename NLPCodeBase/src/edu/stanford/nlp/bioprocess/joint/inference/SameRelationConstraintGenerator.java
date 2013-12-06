@@ -14,6 +14,12 @@ import edu.stanford.nlp.bioprocess.ilp.BioprocessesInput;
 import edu.stanford.nlp.bioprocess.ilp.Inference;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
 
+/**
+ * 
+ * @author heatherchen1003
+ * Same contradiction. If ti is the same event as tk, their temporal ordering
+ * with a third trigger tj may result in a ontradiction.
+ */
 public class SameRelationConstraintGenerator extends ILPConstraintGenerator {
 
   public SameRelationConstraintGenerator() {
