@@ -39,16 +39,17 @@ public class DatasetUtils {
   public static String PERMISSIBILE_SPAN="ALL";
 
   public static int[] mapCharBeginOffsetToTokenIndex(List<CoreLabel> tokens) {
-    int[] res = new int[tokens.get(tokens.size()-1).get(CharacterOffsetBeginAnnotation.class)];
+    int[] res = new int[tokens.get(tokens.size()-1).get(CharacterOffsetBeginAnnotation.class)+1];
     Arrays.fill(res, -1);
     for(int i = 0; i < tokens.size(); ++i) {
-      res[tokens.get(i).get(CharacterOffsetBeginAnnotation.class)]=i;
+      int beginIndex = tokens.get(i).get(CharacterOffsetBeginAnnotation.class);
+      res[beginIndex]=i;
     }    
     return res;
   }
 
   public static int[] mapCharEndOffsetToTokenIndex(List<CoreLabel> tokens) {
-    int[] res = new int[tokens.get(tokens.size()-1).get(CharacterOffsetEndAnnotation.class)];
+    int[] res = new int[tokens.get(tokens.size()-1).get(CharacterOffsetEndAnnotation.class)+1];
     Arrays.fill(res, -1);
     for(int i = 0; i < tokens.size(); ++i) {
       res[tokens.get(i).get(CharacterOffsetEndAnnotation.class)]=i;
