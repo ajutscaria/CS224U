@@ -201,6 +201,7 @@ public class Input implements IInstance {
    */
   private IntPair[] createRelationCandidates(Annotation annotation,
       int[] triggerCandidates) {
+    //TODO reimplement
     IntPair[] res = new IntPair[(triggerCandidates.length * (triggerCandidates.length-1))];
     int index=0;
     for(int i = 0; i < triggerCandidates.length-1; ++i) {
