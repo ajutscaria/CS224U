@@ -177,8 +177,9 @@ public class Dataset {
         String id = dependentParts[1];
         if(DatasetUtils.isEventEventRelation(edgeLabel)) {
           IntPair span = entityMap.get(id);
-          arguments[input.getTriggerIndex(triggerTokenIndex)][input.getArgumentSpanIndex(span)]=
-              DatasetUtils.getLabel(edgeLabel);       
+          arguments[input.getTriggerIndex(triggerTokenIndex)]
+              [input.getArgumentSpanIndex(input.getTriggerIndex(triggerTokenIndex),span)] =
+              DatasetUtils.getLabel(edgeLabel);  //heather
         }
         else if(DatasetUtils.isRole(edgeLabel)) {
           int otherTriggerTokenIndex = triggerMap.get(id);

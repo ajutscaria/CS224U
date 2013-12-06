@@ -32,8 +32,14 @@ import edu.stanford.nlp.util.Pair;
 import edu.stanford.nlp.util.StringUtils;
 import fig.basic.LogInfo;
 
+/**
+ * 
+ * @author heatherchen1003
+ * TODO: Make sure what is trigger token. -> span(token, token+1)?
+ * TODO: Discuss about the domains of features
+ * 
+ */
 public class FeatureExtractor {
-  
   static boolean printDebug = false;
   static boolean printAnnotations = false;
   static boolean useLexicalFeatures = true;
