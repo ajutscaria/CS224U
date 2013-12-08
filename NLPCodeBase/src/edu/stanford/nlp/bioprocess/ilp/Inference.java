@@ -48,7 +48,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
   // the id for A & B in the above list. This can be done better
   public static final int E_ID = 0;
   public final static int O_ID = 1;
-  public boolean debug = true;
+  public boolean debug = false;
   private List<Example> testSet;
   private List<ILPConstraintGenerator> constraints;
   private List<BioDatum> eventPredicted;
@@ -277,14 +277,14 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
       this.addConstraint(solver, constraint);
     System.out.println("finish adding entity children constraints");
 
-    /*
-     * System.out.println("Start adding entity event overlap constraints");
-     * BioprocessesInput entityeventoverlap = new BioprocessesInput("entity",
-     * entityOverlapEvent.size(), entityLabels.length, entityOverlapEvent); for
-     * (ILPConstraint constraint : overlap.getILPConstraints(entityeventoverlap,
-     * lexicon)) this.addConstraint(solver, constraint);
-     * System.out.println("finish adding entity event overlap constraints");
-     */
+    
+    /*System.out.println("Start adding entity event overlap constraints");
+    BioprocessesInput entityeventoverlap = new BioprocessesInput("entity",
+    entityOverlapEvent.size(), entityLabels.length, entityOverlapEvent); for
+    (ILPConstraint constraint : overlap.getILPConstraints(entityeventoverlap,
+    lexicon)) this.addConstraint(solver, constraint);
+    System.out.println("finish adding entity event overlap constraints");
+    */
 
     System.out.println("Start adding event-event relation constraints");
     for (ILPConstraint constraint : relation.getILPConstraints(relationinput,
@@ -304,14 +304,14 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
      * System.out.println("finish adding prev contradiction constraints");
      */
 
-    System.out.println("Start adding connectivity constraints");
+    /*System.out.println("Start adding connectivity constraints");
     for (ILPConstraint constraint : conn.getILPConstraints(relationinput,
         lexicon))
       this.addConstraint(solver, constraint);
     System.out.println("finish adding connectivity constraints");
 
     System.out.println("done adding constraints");
-
+    */
     // printILP(solver, lexicon);
   }
 
@@ -386,6 +386,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
       int var;
       String varName;
 
+      /*
       // connectivity
       score = 0; // ? Yij
       var = solver.addBooleanVariable(score);
@@ -417,7 +418,7 @@ public class Inference extends AbstractILPInference<ExampleStructure> {
       varName = getVariableName(event2, event1, "flow", "connectivity");
       lexicon.addVariable(varName, var);
       // System.out.println(varName);
-
+      */
       // System.out.println("Relation "+Id+" - Event1:"+event1+", Event2:"+event2);
       for (int labelId = 0; labelId < relationLabels.length; labelId++) {
         score = relationPredicted.get(Id).getRelationProb(

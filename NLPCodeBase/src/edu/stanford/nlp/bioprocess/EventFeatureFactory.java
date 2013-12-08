@@ -194,10 +194,11 @@ public class EventFeatureFactory extends FeatureExtractor {
     	//int count = 0;
     	test = true;
 		for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
-			if(node.isLeaf() || node.value().equals("ROOT") || !node.isPreTerminal() || 
-					!(node.value().startsWith("JJR") || node.value().startsWith("JJS") ||
-							node.value().startsWith("NN") || node.value().equals("JJ") ||
-							node.value().startsWith("VB")))
+			String value = node.value();
+      if(node.isLeaf() || value.equals("ROOT") || !node.isPreTerminal() || 
+					!(value.startsWith("JJR") || value.startsWith("JJS") ||
+							value.startsWith("NN") || value.equals("JJ") ||
+							value.startsWith("VB")))
 				continue;
 			//count++;
 			String type = eventNodes.keySet().contains(node) ? "E" : "O";
