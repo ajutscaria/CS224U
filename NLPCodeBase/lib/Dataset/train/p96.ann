@@ -4,7 +4,7 @@ T2	Event 79 83	bind
 E2	Event:T2 cotemporal:E3 agent:T11 theme:T12
 T3	Event 155 162	secrete
 E3	Event:T3 enables:E4 agent:T13 theme:T14
-T4	Event 177 181	bind
+T4	Event 177 182	binds
 E4	Event:T4 causes:E6 causes2:E5 agent:T14 theme:T15
 T6	Event 287 291	grow
 E6	Event:T6 causes:E7 agent:T17 location:T16 agent2:T18

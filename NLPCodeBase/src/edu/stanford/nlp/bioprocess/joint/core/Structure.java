@@ -1,5 +1,7 @@
 package edu.stanford.nlp.bioprocess.joint.core;
 
+import java.io.Serializable;
+
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
 import edu.illinois.cs.cogcomp.indsup.learning.FeatureVector;
 import edu.stanford.nlp.util.IntPair;
@@ -8,8 +10,10 @@ import edu.stanford.nlp.util.IntPair;
  * 
  * @author svivek
  */
-public class Structure implements IStructure {
-	public final Input input;
+public class Structure implements IStructure, Serializable {
+	
+  private static final long serialVersionUID = -5015837729312326526L;
+  public final Input input;
 	private final String[] relations;
 	private final String[][] arguments;
 	private final String[] triggers;

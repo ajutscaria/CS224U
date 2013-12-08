@@ -13,7 +13,7 @@ T6	Entity 104 128	The supernatant (liquid)
 T9	Event 132 138	poured
 E4	Event:T9 theme:T6 destination:T10 next-event:E5
 T10	Entity 144 156	another tube
-T11	Event 161 171	centrifuge
+T11	Event 161 172	centrifuged
 E5	Event:T11 theme:T6 location:T10 next-event:E6
 T12	Event 226 234	repeated
 E6	Event:T12 theme:T13 super-event:E7

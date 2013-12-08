@@ -324,12 +324,11 @@ public class Utils {
 	  }
   
   public static CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
-	//LogInfo.logs(begin + ":" + end);
     for(CoreMap sentence:sentences) {
       if(sentence.get(CharacterOffsetBeginAnnotation.class) <= begin && sentence.get(CharacterOffsetEndAnnotation.class) >= end)
         return sentence;
     }
-    return null;
+    throw new RuntimeException("could not find sentence containing this character sequence");
   }
   
   public static Span getSpanFromSentence(CoreMap sentence, int begin, int end) {
