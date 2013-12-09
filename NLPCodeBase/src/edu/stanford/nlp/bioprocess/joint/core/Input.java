@@ -1,5 +1,6 @@
 package edu.stanford.nlp.bioprocess.joint.core;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -16,7 +17,9 @@ import edu.stanford.nlp.util.IntPair;
  * @author svivek
  * 
  */
-public class Input implements IInstance {
+public class Input implements IInstance, Serializable {
+ 
+  private static final long serialVersionUID = 7286517679265381516L;
   public final Annotation annotation;
   public final String id;
 
@@ -106,10 +109,10 @@ public class Input implements IInstance {
     // each argument candidate of each trigger should be a valid token.
     for (int triggerId = 0; triggerId < triggerCandidates.length; triggerId++) {
       for (IntPair span : argumentCandidates[triggerId]) {
-        assert span.getSource() >= 0 && span.getSource() < numTokens : "Invalid tokens in "
+        assert span.getSource() >= 0 && span.getSource() <= numTokens : "Invalid tokens in "
             + span;
 
-        assert span.getTarget() >= 0 && span.getTarget() < numTokens : "Invalid tokens in "
+        assert span.getTarget() >= 0 && span.getTarget() <= numTokens : "Invalid tokens in "
             + span;
       }
     }

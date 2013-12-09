@@ -5,15 +5,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 
+import edu.stanford.nlp.bioprocess.Utils;
+import edu.stanford.nlp.bioprocess.joint.core.Input;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.PartOfSpeechAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
+import edu.stanford.nlp.trees.CollinsHeadFinder;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IntPair;
+import fig.basic.LogInfo;
 import fig.prob.SampleUtils;
 
 /**
@@ -36,7 +42,7 @@ public class DatasetUtils {
       AGENT = "agent", ORIGIN = "origin", TIME = "time", RAW_MATERIAL = "raw-material";
   public static final List<String> Punctuations = Arrays.asList(".", ",");
 
-  public static String PERMISSIBILE_SPAN="ALL";
+  public static String PERMISSIBILE_SPAN="NODE";
 
   public static int[] mapCharBeginOffsetToTokenIndex(List<CoreLabel> tokens) {
     int[] res = new int[tokens.get(tokens.size()-1).get(CharacterOffsetBeginAnnotation.class)+1];
@@ -102,13 +108,46 @@ public class DatasetUtils {
     else throw new RuntimeException("Illegal label: " + edgeLabel);
   }
 
-  public static IntPair getSpan(int beginToken, int endToken) {
+  public static IntPair getEntitySpan(Input input, IntPair span) {
     if(PERMISSIBILE_SPAN.equals("ALL"))
-      return new IntPair(beginToken,endToken);
+      return span;
     else if(PERMISSIBILE_SPAN.equals("NODE")) {
-      return new IntPair(0,0);
+      //find the corrected node span
+      Tree resNode=null;
+      int offset = 0;
+      List<CoreMap> sentences = input.annotation.get(SentencesAnnotation.class);
+      for(CoreMap sentence: sentences) {
+        if(span.getSource()>=offset && span.getTarget() <= offset+sentence.get(TokensAnnotation.class).size()) {
+          resNode = getEntityNode(sentence, new IntPair(span.getSource()-offset,span.getTarget()-offset));
+          IntPair resSpan = new IntPair(offset+resNode.getSpan().getSource(),
+              offset+resNode.getSpan().getTarget()+1); //node spans are inclusive
+          return resSpan;
+        }       
+        offset+=sentence.get(TokensAnnotation.class).size();
+      }
+      throw new RuntimeException("Could not find entity span");
     }
     throw new RuntimeException("Illegal type of permissible span: " + PERMISSIBILE_SPAN);
+  }
+
+  public static int getEventNodeIndex(Input input, IntPair span) {
+
+    if(span.getSource()+1==span.getTarget()) { //to save time - all span 1 are nodes
+      return span.getSource();
+    }
+
+    int offset = 0;
+    List<CoreMap> paragraph = input.annotation.get(SentencesAnnotation.class);
+
+    for(CoreMap sentence: paragraph) {
+      if(span.getSource()>=offset && span.getTarget() <= offset+sentence.get(TokensAnnotation.class).size()) {
+        Tree eventNode = getEventNode(sentence,new IntPair(span.getSource()-offset,span.getTarget()-offset));
+        IndexedWord head = Utils.findDependencyNode(sentence, eventNode);
+        return offset+(head.index()-1); //index in indexed word starts at 1 not 0
+      }       
+      offset+=sentence.get(TokensAnnotation.class).size();
+    }
+    throw new RuntimeException("Could not find event span for paragraph: " + paragraph);
   }
 
   public static <V> List<V> shuffle(List<V> examples, Random rand) {
@@ -122,17 +161,31 @@ public class DatasetUtils {
     return res;
   }
 
-  //// FROM HERE COPIED AJU'S CODE ////
-
-  public static Tree getEntityNodeBest(CoreMap sentence, IntPair entitySpan) {
+  private static Tree getNodeInIndex(CoreMap sentence, int index) {
     Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
     for (Tree node : syntacticParse.preOrderNodeList()) {
       if(node.isLeaf())
         continue;
 
       IntPair span = node.getSpan();
-      if(span.getSource() == entitySpan.getSource() && span.getTarget() == entitySpan.getTarget()-1) {
-        if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS"))
+      if(span.getSource()==index && span.getTarget()==index)
+        return node;
+    }
+    throw new RuntimeException("There should be a node for every index");
+  }
+
+  //// FROM HERE COPIED AJU'S CODE ////
+
+  private static Tree getEntityNodeBest(CoreMap sentence, IntPair entitySpan) {
+    Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    for (Tree node : syntacticParse.preOrderNodeList()) {
+      if(node.isLeaf())
+        continue;
+
+      IntPair span = node.getSpan();
+      if(span.getSource() == entitySpan.getSource() && span.getTarget() == entitySpan.getTarget()-1) { //node spans are inclusive
+        if(node.value().equals("NN") || node.value().equals("PRP") || node.value().equals("NP") || node.value().equals("NNS") 
+            || node.value().equals("X"))
           return node;
       }
       if(span.getSource() == entitySpan.getSource() - 1 && span.getTarget() == entitySpan.getTarget() - 1) {
@@ -152,7 +205,7 @@ public class DatasetUtils {
         }
       }
     }
-    return null;  
+    return null;
   }
 
   public static Tree getEntityNode(CoreMap sentence, IntPair entitySpan) {
@@ -182,6 +235,72 @@ public class DatasetUtils {
       }
       entitySpanNoFirstToken = new IntPair(entitySpanNoFirstToken.getSource()+1,entitySpanNoFirstToken.getTarget());
     }
-    throw new RuntimeException("Could not find a node for sentence " + sentence + " and span " + entitySpan); 
+    //if nothing works - return the last word in the span
+    bestMatch = getNodeInIndex(sentence, entitySpan.getTarget()-1);
+    LogInfo.warnings("Returning the last node in span, sentence=%s, span=%s, node=%s",sentence, entitySpan, bestMatch);
+    return bestMatch; 
+  }
+
+
+  public static Tree getEventNode(CoreMap sentence, IntPair eventSpan) {
+    Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    for(Tree node:syntacticParse.postOrderNodeList()) {
+      if(node.isLeaf())
+        continue;
+
+      IntPair span = node.getSpan();
+      if(span.getSource() == eventSpan.getSource() && span.getTarget() == eventSpan.getTarget()-1) {
+        if(node.headPreTerminal(new CollinsHeadFinder()).value().equals("IN"))
+          return getSingleEventNode(sentence, eventSpan);
+        return node.headPreTerminal(new CollinsHeadFinder());
+      }
+
+      if(span.getSource() == eventSpan.getSource() - 1 && span.getTarget() == eventSpan.getTarget() - 1) {
+        //To check for an extra determiner like "a" or "the" in front of the entity
+        String POSTag = sentence.get(TokensAnnotation.class).get(span.getSource()).get(PartOfSpeechAnnotation.class);
+        if(POSTag.equals("DT") || POSTag.equals("PRP$")) {
+          return  node.headPreTerminal(new CollinsHeadFinder());
+        }
+      }
+    }
+    Tree ret = getSingleEventNode(sentence, eventSpan);
+    if(ret!=null)
+      return ret.headPreTerminal(new CollinsHeadFinder());
+    throw new RuntimeException("Did not find event node for sentence: " + sentence + ", span="+eventSpan);
+  }
+
+  public static Tree getSingleEventNode(CoreMap sentence, IntPair eventSpan) {
+    Tree syntacticParse = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
+    for(int i = eventSpan.getSource(); i < eventSpan.getTarget(); i++) {
+      for(Tree node:syntacticParse.postOrderNodeList()) {
+        if(node.isLeaf())
+          continue;
+
+        IntPair span = node.getSpan();
+        if(span.getSource() == i && span.getTarget() == i && 
+            ( (node.value().startsWith("VB") && !node.firstChild().value().equals("is") && !node.firstChild().value().equals("in")) || node.value().startsWith("NN"))) {
+          return node;
+        }
+      }
+    }
+    //If everything fails, returns first pre-terminal
+    for(Tree node:syntacticParse.postOrderNodeList()) {
+      if(node.isLeaf())
+        continue;
+
+      IntPair span = node.getSpan();
+      if(span.getSource() == eventSpan.getSource() && span.getTarget() == eventSpan.getSource()) {
+        return node;
+      }
+    }
+    return null;
+  }
+
+  public static CoreMap getContainingSentence(List<CoreMap> sentences, int begin, int end) {
+    for(CoreMap sentence:sentences) {
+      if(sentence.get(CharacterOffsetBeginAnnotation.class) <= begin && sentence.get(CharacterOffsetEndAnnotation.class) >= end)
+        return sentence;
+    }
+    return null;
   }
 }
