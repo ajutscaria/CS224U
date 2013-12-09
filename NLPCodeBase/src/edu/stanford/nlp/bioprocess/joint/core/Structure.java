@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
 import edu.illinois.cs.cogcomp.indsup.learning.FeatureVector;
+import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.IntPair;
 
 /**
@@ -42,8 +43,43 @@ public class Structure implements IStructure, Serializable {
 
 	@Override
 	public String toString() {
-		// TODO Auto-generated method stub
-		return super.toString();
+
+		// some sort of a to string. This will be very verbose, though
+		StringBuffer sb = new StringBuffer();
+
+		for (int triggerId = 0; triggerId < input.getNumberOfTriggers(); triggerId++) {
+			CoreLabel triggerCoreLabel = input.getTriggerCoreLabel(triggerId);
+			sb.append("Event trigger: " + triggerCoreLabel.originalText()
+					+ " (token index" + triggerCoreLabel.index() + ")\t"
+					+ triggers[triggerId] + "\n");
+
+			sb.append("Arguments: \n");
+			for (int argId = 0; argId < input
+					.getNumberOfArgumentCandidates(triggerId); argId++) {
+
+				sb.append("\t" + arguments[triggerId][argId] + "\t");
+				for (CoreLabel c : input.getArgumentCandidate(triggerId, argId))
+					sb.append(c.originalText() + " ");
+				sb.append("\n");
+
+			}
+			sb.append("\n");
+		}
+
+		sb.append("Event-event relations:\n");
+		for (int rId = 0; rId < input.getNumberOfEERelationCandidates(); rId++) {
+			IntPair ee = input.getEERelationCandidatePair(rId);
+
+			sb.append("\t" + relations[rId] + "\t");
+
+			CoreLabel source = input.getTriggerCoreLabel(ee.getSource());
+			CoreLabel target = input.getTriggerCoreLabel(ee.getTarget());
+
+			sb.append("\t" + source.originalText() + "\t" + target.originalText()
+					+ "\n");
+		}
+
+		return sb.toString();
 	}
 
 	@Override
