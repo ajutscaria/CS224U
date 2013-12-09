@@ -57,8 +57,8 @@ public class ValidAConstraintGenerator extends ILPConstraintGenerator {
 				coefs[counter] = 1;
 			    counter++;
 			}
-			constraints.add(new ILPConstraint(vars, coefs, 0,
-					ILPConstraint.GREATER_THAN));
+			//constraints.add(new ILPConstraint(vars, coefs, 0,
+			//		ILPConstraint.GREATER_THAN));
 			
 		}
 		

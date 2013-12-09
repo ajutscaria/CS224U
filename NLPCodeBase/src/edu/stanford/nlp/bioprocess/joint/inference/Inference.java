@@ -125,23 +125,20 @@ public class Inference extends AbstractILPInference<Structure> {
       InferenceVariableLexManager lexicon) {
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       // adding trigger
-      double score = getEventScore(eventId, true);
-      int var = solver.addBooleanVariable(score);
-      String varName = getVariableName(eventId, E_ID, "event"); // 0: E
-      lexicon.addVariable(varName, var);
-
-      score = getEventScore(eventId, false);
-      var = solver.addBooleanVariable(score);
-      varName = getVariableName(eventId, O_ID, "event"); // 0: E, 1: O
-      lexicon.addVariable(varName, var);
+      for (int labelId = 0; labelId < eventLabels.length; labelId++) {
+        double score = getEventScore(eventId, eventLabels[labelId]);
+        int var = solver.addBooleanVariable(score);
+        String varName = getVariableName(eventId, labelId, "event");
+        lexicon.addVariable(varName, var);
+      }
 
       // adding entities for an event
       for (int entityId = 0; entityId < input
           .getNumberOfArgumentCandidates(eventId); entityId++) {
         for (int labelId = 0; labelId < entityLabels.length; labelId++) {
-          score = getEntityScore(eventId, entityId, entityLabels[labelId]);
-          var = solver.addBooleanVariable(score);
-          varName = getVariableName(eventId, entityId, labelId, "entity");
+          double score = getEntityScore(eventId, entityId, entityLabels[labelId]);
+          int var = solver.addBooleanVariable(score);
+          String varName = getVariableName(eventId, entityId, labelId, "entity");
           lexicon.addVariable(varName, var);
         }
       }
@@ -166,20 +163,17 @@ public class Inference extends AbstractILPInference<Structure> {
     return type + event1 + " " + event2 + ",label" + labelId;
   }
 
-  private double getEventScore(int eventId, boolean label) {
-    // for now, some random scores
+  private double getEventScore(int eventId, String label) {
     FeatureVector fv = FeatureExtractor.getTriggerLabelFV(input, eventId, label);
     return fv.dotProduct(params);
   }
   
   private double getEntityScore(int eventId, int entityId, String label) {
-    // for now, some random scores
     FeatureVector fv = FeatureExtractor.getArgumentLabelFV(input, eventId, entityId, label);
     return fv.dotProduct(params);
   }
   
   private double getRelationScore(int event1, int event2, String label) {
-    // for now, some random scores
     FeatureVector fv = FeatureExtractor.getRelationLabelFV(input, event1, event2, label);
     return fv.dotProduct(params);
   }
@@ -187,19 +181,16 @@ public class Inference extends AbstractILPInference<Structure> {
   @Override
   protected Structure getOutput(ILPSolver solver,
       InferenceVariableLexManager lexicon) throws Exception {
-
-    boolean[] triggers = new boolean[input.getNumberOfTriggers()];
+    
+    String[] triggers = new String[input.getNumberOfTriggers()];
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       for (int labelId = 0; labelId < eventLabels.length; labelId++) {
         String varName = getVariableName(eventId, labelId, "event");
         int var = lexicon.getVariable(varName);
-
-        if (solver.getBooleanValue(var) && labelId == E_ID) {
-          triggers[eventId] = true;
+        if (solver.getBooleanValue(var)){
+          triggers[eventId] = eventLabels[labelId];
           break;
-        } else {
-          triggers[eventId] = false;
-        }
+        } 
       }
     }
 
@@ -232,6 +223,7 @@ public class Inference extends AbstractILPInference<Structure> {
         } 
       }
     }
-    return null;// new ExampleStructure(input, labels);
+    //return null;
+    return new Structure(input, triggers, arguments, relations);
   }
 }
