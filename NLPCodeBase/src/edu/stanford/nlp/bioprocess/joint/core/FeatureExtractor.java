@@ -29,6 +29,7 @@ import fig.basic.Option;
  * Extracts features from input
  * @author heatherchen1003 TODO: Make sure what is trigger token. -> span(token,
  *         token+1)? TODO: Discuss about the domains of features
+ *         TODO: get features from coref resolution
  * 
  */
 public class FeatureExtractor {
@@ -40,6 +41,8 @@ public class FeatureExtractor {
     public boolean useBaselineFeaturesOnly = true;
     @Option(gloss = "run global model or not")
     public boolean runGlobalModel = false;
+    @Option(gloss = "window for event-event relation")
+    public int window = 10;
   }
   
   public static Options opts = new Options();
@@ -63,7 +66,7 @@ public class FeatureExtractor {
         fv.add("lexical", "lemma="+ Dictionary.verbForms.get(text));
       } else {
         //features.add("lemma=" + token.lemma().toLowerCase());
-        fv.add("lexical", "lemma="+ token.lemma().toLowerCase());
+        fv.add("lexical", "lemma="+ text);
       }
       //features.add("word=" + token.originalText());
       fv.add("lexical", "word="+ token.originalText());
@@ -101,43 +104,6 @@ public class FeatureExtractor {
     //features.add("postag_trigram=" + postagTrigram);
     fv.add("syntactic", "postag_trigram=" + postagTrigram);
     return fv;
-  }
-
-  private static void addAdvModFeature(CoreMap sentence, Tree event,
-      FeatureVector fv, String currentPOS, String text) {
-    SemanticGraph depGraph = sentence
-        .get(CollapsedCCProcessedDependenciesAnnotation.class);
-    IndexedWord word = Utils.findDependencyNode(sentence, event);
-    for (SemanticGraphEdge e : depGraph.getOutEdgesSorted(word)) {
-      if (e.getRelation().toString().equals("advmod")
-          && (currentPOS.startsWith("VB") || Dictionary.nominalizations.contains(text)))
-        //features.add("advmod:" + e.getTarget());
-        fv.add("lexical", "advmod:" + e.getTarget());
-    }
-  }
-
-  private static String getPosTagTrigram(CoreMap sentence, Tree event,
-      String currentPOS) {
-    List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
-    int currentTokenIndex = event.getSpan().getSource();
-    String postagTrigram = "";
-    if (currentTokenIndex > 0)
-      postagTrigram += tokens.get(currentTokenIndex - 1).get(
-          PartOfSpeechAnnotation.class);
-    postagTrigram += currentPOS;
-    if (currentTokenIndex < tokens.size() - 1)
-      postagTrigram += tokens.get(currentTokenIndex + 1).get(
-          PartOfSpeechAnnotation.class);
-    return postagTrigram;
-  }
-
-  private static String buildParentCFGRule(Tree parent) {
-    StringBuilder parentCFGRuleBuild = new StringBuilder(parent.value() + "->");
-    for (Tree n : parent.getChildrenAsList()) {
-      parentCFGRuleBuild.append(n.value() + "|");
-    }
-    String parentCFGRule = parentCFGRuleBuild.toString().trim();
-    return parentCFGRule;
   }
 
   public static FeatureVector getArgumentFV(Input input, int trigger,
@@ -194,7 +160,6 @@ public class FeatureExtractor {
   }
 
   public static FeatureVector getRelationFV(Input input, int trig1, int trig2) {
-
     List<CoreMap> sentences = input.annotation.get(SentencesAnnotation.class);
     int tokenId1 = input.getTriggerTokenId(trig1);
     CoreMap sentence1 = AnnotationUtils.getContainingSentence(sentences, tokenId1, tokenId1);
@@ -204,24 +169,60 @@ public class FeatureExtractor {
     Tree event2 = AnnotationUtils.getEventNode(sentence2, tokenId2);
     ClusterSetup();
 
-    FeatureVector fv = new FeatureVector();// TODO
-    List<String> features = new ArrayList<String>();
-    CoreLabel event1CoreLabel = Utils.findCoreLabelFromTree(sentence1, event1);
-
-    CoreLabel event2CoreLabel = Utils
-        .findCoreLabelFromTree(sentence2, event2);
-
-    // XXX: This may not work anymore
-    boolean isImmediatelyAfter = (trig2 == trig1 + 1) ? true : false;
-
-    List<Pair<String, String>> wordsInBetween = AnnotationUtils.findWordsInBetween(input,
-        event1, event2);
+    FeatureVector fv = new FeatureVector();
+    
     // Number of sentences and words between two event mentions. Quantized to
     // 'Low', 'Medium', 'High' etc.
     Pair<Integer, Integer> countsSentenceAndWord = AnnotationUtils.findNumberOfSentencesAndWordsBetween(
         input, event1, event2);
     int sentenceBetweenEvents = countsSentenceAndWord.first();
-    int wordsBetweenEvents = countsSentenceAndWord.second();
+    int wordsBetweenEvents = countsSentenceAndWord.second(); 
+    
+    // XXX: This may not work anymore
+    //boolean isImmediatelyAfter = (trig2 == trig1 + 1) ? true : false;
+    boolean isWithinWindow = (wordsBetweenEvents < opts.window) ? true : false;
+
+    // Lemmas of both events
+    lemmaEventPairFeature(sentence1, event1, sentence2, event2, fv);
+
+    if (isWithinWindow) {
+      // Add words in between two event mentions if they are adjacent in text.
+      addWordsBetweenEventsFeature(input, event1, event2, fv,
+          sentenceBetweenEvents);
+      
+      // If event1 is the first event in the paragraph and is a
+      // nominalization, it is likely that others are sub-events
+      if (trig1 == 0 && event1.value().startsWith("NN")) {
+        //features.add("firstAndNominalization");
+        fv.add("firstAndNominalization", "firstAndNominalization");
+      }
+      
+      // Extract advmod relation
+      // LogInfo.logs("Trying AdvMod: " + example.id + " " + lemma1 + " " +
+      // lemma2 + " ");
+      extractAdvmodRelationFeature(sentence1, event1, sentence2, event2, fv);
+    }
+
+    String pos1 = event1.value(), pos2 = event2.value();
+    // If second trigger is noun, the determiner related to it in dependency
+    // tree.
+    if (pos2.startsWith("NN")) {
+      String determiner = Utils.getDeterminer(sentence2, event2);
+      if (determiner != null) {
+        //features.add("determinerBefore2:" + determiner);
+        fv.add("coref", "determinerBefore2:" + determiner);
+      }
+    }
+    
+    // POS tags of both events
+    //features.add("POS:" + pos1 + "+" + pos2);
+    fv.add("syntactic", "POS:" + pos1 + "+" + pos2);
+    /*features.add("numSentencesInBetween:"
+        + quantizedSentenceCount(sentenceBetweenEvents));*/
+    fv.add("distance", "numSentencesInBetween:"
+        + quantizedSentenceCount(sentenceBetweenEvents));
+    //features.add("numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));
+    fv.add("distance", "numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));
 
     SemanticGraph graph1 = sentence1
         .get(CollapsedCCProcessedDependenciesAnnotation.class);
@@ -229,97 +230,23 @@ public class FeatureExtractor {
     SemanticGraph graph2 = sentence2
         .get(CollapsedCCProcessedDependenciesAnnotation.class);
     IndexedWord indexedWord2 = Utils.findDependencyNode(sentence2, event2);
-
-    String pos1 = event1.value(), pos2 = event2.value();
-
-    // Lemmas of both events
-    String lemma1 = event1CoreLabel.lemma().toLowerCase();
-    if (Dictionary.verbForms.containsKey(lemma1)) {
-      lemma1 = Dictionary.verbForms.get(lemma1);
-    }
-    String lemma2 = event2CoreLabel.lemma().toLowerCase();
-    if (Dictionary.verbForms.containsKey(lemma2)) {
-      lemma2 = Dictionary.verbForms.get(lemma2);
-    }
-    features.add("lemmas:" + lemma1 + "+" + lemma2);// lexical
-
-    // Is event2 immediately after event1? TODO - meaningless now - delete!
-    if (!opts.runGlobalModel) {
-      features.add("isImmediatelyAfter:" + isImmediatelyAfter);// other
+    String advMod = extractAdvModRelation(graph2, indexedWord2);
+    if (advMod != null && !advMod.isEmpty()) {
+      //features.add("advMod:" + advMod);
+      fv.add("advmod", "advMod:" + advMod);
     }
 
-    if (isImmediatelyAfter) {
-      // Add words in between two event mentions if they are adjacent in text.
-      for (int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
-        Pair<String, String> pair = wordsInBetween.get(wordCounter);
-        String POS = pair.second, word = pair.first;
-        String POS2;
-        if (wordCounter < wordsInBetween.size() - 1)
-          POS2 = wordsInBetween.get(wordCounter + 1).second;
-        else
-          POS2 = "";
-
-        String word2;
-        if (wordCounter < wordsInBetween.size() - 1)
-          word2 = wordsInBetween.get(wordCounter + 1).first;
-        else
-          word2 = "";
-
-        if (!Dictionary.TemporalConnectives.contains(word.toLowerCase())) {
-          if (POS.startsWith("VB") && POS2.equals("IN")) {
-            features.add("wordsInBetween:" + word + " " + word2);// lexical
-            wordCounter++;
-          } else
-            features.add("wordsInBetween:" + word);// lexical
-        } else {
-          if (sentenceBetweenEvents < 2) {
-            if (opts.useBaselineFeaturesOnly) {
-              features.add("temporalConnective:" + word.toLowerCase());// connective
-            } else {
-              features.add("connector:" + word.toLowerCase());// connective
-              if (AdvModClusters.containsKey(word.toLowerCase())) {
-                features.add("connectorCluster:"
-                    + AdvModClusters.get(word.toLowerCase()));// connective
-              }
-            }
-          }
-        }
-      }
-    }
-
-
-    if (isImmediatelyAfter) {
-      // If event1 is the first event in the paragraph and is a
-      // nominalization, it is likely that others are sub-events
-      if (trig1 == 0 && event1.value().startsWith("NN")) {
-        features.add("firstAndNominalization");// separate domain firstAndNominalization
-      }
-    }
-    // Are the lemmas same?
-    features.add("eventLemmasSame:" + lemma1.equals(lemma2));// coref
-
-    // If second trigger is noun, the determiner related to it in dependency
-    // tree.
-    if (pos2.startsWith("NN")) {
-      String determiner = Utils.getDeterminer(sentence2, event2);
-      if (determiner != null) {
-        features.add("determinerBefore2:" + determiner);// coref
-      }
-    }
-    //should we get features from the coref resolution
-
-    // POS tags of both events
-    features.add("POS:" + pos1 + "+" + pos2);// syntactic
-    features.add("numSentencesInBetween:"
-        + quantizedSentenceCount(sentenceBetweenEvents));// distance
-    features.add("numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));// distance
-
+    // See if the two triggers share a common lemma as child in the dependency
+    // graph. Currently not used.
+    //shareSameLemmaAsChildFeature(fv, graph1, indexedWord1, graph2, indexedWord2);
+    
     // Features if the two triggers are in the same sentence.
     if (sentenceBetweenEvents == 0) {
       // Lowest common ancestor between the two event triggers. Reduces score.
       Tree root = sentence1.get(TreeCoreAnnotations.TreeAnnotation.class);
       Tree lca = Trees.getLowestCommonAncestor(event1, event2, root);
-      features.add("lowestCommonAncestor:" + lca.value());// syntactic
+      //features.add("lowestCommonAncestor:" + lca.value());
+      fv.add("syntactic", "lowestCommonAncestor:" + lca.value());
 
       // Dependency path if the event triggers are in the same sentence.
       // LogInfo.logs(example.id + " " + lemma1 + " " + lemma2);
@@ -327,18 +254,24 @@ public class FeatureExtractor {
           event1, event2);
       if (!deppath.isEmpty()) {
         if (!opts.useBaselineFeaturesOnly) {
-          features.add("deppath:" + deppath);// syntactic
-          features.add("deppathwithword:"
+          //features.add("deppath:" + deppath);
+          fv.add("syntactic", "deppath:" + deppath);
+          /*features.add("deppathwithword:"
               + Utils.getUndirectedDependencyPath_Events_WithWords(sentence1,
-                  event1, event2));// syntactic
+                  event1, event2));*/
+          fv.add("syntactic", "deppathwithword:"
+              + Utils.getUndirectedDependencyPath_Events_WithWords(sentence1,
+                  event1, event2));
         }
         // Does event1 dominate event2
         if (deppath.contains("->") && !deppath.contains("<-")) {
-          features.add("1dominates2");// syntactic
+          //features.add("1dominates2");
+          fv.add("syntactic", "1dominates2");
         }
 
         if (deppath.contains("<-") && !deppath.contains("->")) {
-          features.add("2dominates1");// syntactic
+          //features.add("2dominates1");
+          fv.add("syntactic", "2dominates1");
         }
       }
 
@@ -351,12 +284,15 @@ public class FeatureExtractor {
         // LogInfo.logs("MARKER ADDED: " + example.id + " " + lemma1 + " " +
         // lemma2 + " " + markRelation);
         if (opts.useBaselineFeaturesOnly) {
-          features.add("markRelation:" + markRelation.first());// mark
+          //features.add("markRelation:" + markRelation.first());
+          fv.add("connective", "markRelation:" + markRelation.first());
         } else {
-          features.add("connector:" + markRelation.first());// mark
+          //features.add("connector:" + markRelation.first());
+          fv.add("connective", "connector:" + markRelation.first());
           // In some cases, we don't have clusters for some relation.
           if (!markRelation.second().isEmpty())
-            features.add("connectorCluster:" + markRelation.second());// mark
+            //features.add("connectorCluster:" + markRelation.second());
+            fv.add("connective", "connectorCluster:" + markRelation.second());
         }
       }
 
@@ -369,46 +305,102 @@ public class FeatureExtractor {
         // LogInfo.logs("PP ADDED: " + example.id + " " + lemma1 + " " + lemma2
         // + " " + ppRelation);
         if (opts.useBaselineFeaturesOnly) {
-          features.add("PPRelation:" + ppRelation.first());// pp
+          //features.add("PPRelation:" + ppRelation.first());
+          fv.add("connective", "PPRelation:" + ppRelation.first());
         } else {
-          features.add("connector:" + ppRelation.first());// pp
+          //features.add("connector:" + ppRelation.first());
+          fv.add("connective", "connector:" + ppRelation.first());
           // In some cases, we don't have clusters (if we haven't included in
           // the list.
           if (!ppRelation.second().isEmpty()) {
-            features.add("connectorCluster:" + ppRelation.second());// pp
+            //features.add("connectorCluster:" + ppRelation.second());
+            fv.add("connective", "connectorCluster:" + ppRelation.second());
+          }
+        }
+      }
+      
+      // Do they share a common argument in the dependency tree? (if they are in
+      // the same sentence)
+      List<SemanticGraphEdge> edges1 = graph1.getOutEdgesSorted(indexedWord1);
+      List<SemanticGraphEdge> edges2 = graph2.getOutEdgesSorted(indexedWord2);
+      for (SemanticGraphEdge e1 : edges1) {
+        for (SemanticGraphEdge e2 : edges2) {
+          if (e1.getTarget().equals(e2.getTarget())) {
+            /*features.add("shareChild:" + e1.getRelation() + "+"
+                + e2.getRelation());*/
+            fv.add("share", "shareChild:" + e1.getRelation() + "+"
+                + e2.getRelation());
+            break;
           }
         }
       }
     }
 
-    if (isImmediatelyAfter) {
-      // Extract advmod relation
-      // LogInfo.logs("Trying AdvMod: " + example.id + " " + lemma1 + " " +
-      // lemma2 + " ");
-      List<Pair<String, String>> advModRelations = extractAdvModRelation(
-          sentence1, sentence2, event1, event2);
-      for (Pair<String, String> advModRelation : advModRelations) {
-        // LogInfo.logs("ADVMOD ADDED: " + example.id + " " + lemma1 + " " +
-        // lemma2 + " " + advModRelation);
-        if (opts.useBaselineFeaturesOnly) {
-          features.add("advModRelation:" + advModRelation.first());// advmod
-        } else {
-          features.add("connector:" + advModRelation.first());// advmod
-          // In some cases, we don't have clusters for some relation.
-          if (!advModRelation.second().isEmpty()) {
-            features.add("connectorCluster:" + advModRelation.second());// advmod
-          }
+    return fv;
+  }
+  
+  private static void addAdvModFeature(CoreMap sentence, Tree event,
+      FeatureVector fv, String currentPOS, String text) {
+    SemanticGraph depGraph = sentence
+        .get(CollapsedCCProcessedDependenciesAnnotation.class);
+    IndexedWord word = Utils.findDependencyNode(sentence, event);
+    for (SemanticGraphEdge e : depGraph.getOutEdgesSorted(word)) {
+      if (e.getRelation().toString().equals("advmod")
+          && (currentPOS.startsWith("VB") || Dictionary.nominalizations.contains(text)))
+        //features.add("advmod:" + e.getTarget());
+        fv.add("lexical", "advmod:" + e.getTarget());
+    }
+  }
+
+  private static String getPosTagTrigram(CoreMap sentence, Tree event,
+      String currentPOS) {
+    List<CoreLabel> tokens = sentence.get(TokensAnnotation.class);
+    int currentTokenIndex = event.getSpan().getSource();
+    String postagTrigram = "";
+    if (currentTokenIndex > 0)
+      postagTrigram += tokens.get(currentTokenIndex - 1).get(
+          PartOfSpeechAnnotation.class);
+    postagTrigram += currentPOS;
+    if (currentTokenIndex < tokens.size() - 1)
+      postagTrigram += tokens.get(currentTokenIndex + 1).get(
+          PartOfSpeechAnnotation.class);
+    return postagTrigram;
+  }
+
+  private static String buildParentCFGRule(Tree parent) {
+    StringBuilder parentCFGRuleBuild = new StringBuilder(parent.value() + "->");
+    for (Tree n : parent.getChildrenAsList()) {
+      parentCFGRuleBuild.append(n.value() + "|");
+    }
+    String parentCFGRule = parentCFGRuleBuild.toString().trim();
+    return parentCFGRule;
+  }
+
+  private static void extractAdvmodRelationFeature(CoreMap sentence1,
+      Tree event1, CoreMap sentence2, Tree event2, FeatureVector fv) {
+    List<Pair<String, String>> advModRelations = extractAdvModRelation(
+        sentence1, sentence2, event1, event2);
+    for (Pair<String, String> advModRelation : advModRelations) {
+      // LogInfo.logs("ADVMOD ADDED: " + example.id + " " + lemma1 + " " +
+      // lemma2 + " " + advModRelation);
+      if (opts.useBaselineFeaturesOnly) {
+        //features.add("advModRelation:" + advModRelation.first());
+        fv.add("advmod", "advModRelation:" + advModRelation.first());
+      } else {
+        //features.add("connector:" + advModRelation.first());
+        fv.add("advmod", "connector:" + advModRelation.first());
+        // In some cases, we don't have clusters for some relation.
+        if (!advModRelation.second().isEmpty()) {
+          //features.add("connectorCluster:" + advModRelation.second());
+          fv.add("advmod", "connectorCluster:" + advModRelation.second());
         }
       }
     }
+  }
 
-    String advMod = extractAdvModRelation(graph2, indexedWord2);
-    if (advMod != null && !advMod.isEmpty()) {
-      features.add("advMod:" + advMod);// advmod
-    }
-
-    // See if the two triggers share a common lemma as child in the dependency
-    // graph.
+  private static void shareSameLemmaAsChildFeature(FeatureVector fv,
+      SemanticGraph graph1, IndexedWord indexedWord1, SemanticGraph graph2,
+      IndexedWord indexedWord2) {
     List<Pair<IndexedWord, String>> w1Children = new ArrayList<Pair<IndexedWord, String>>();
     for (SemanticGraphEdge e : graph1.getOutEdgesSorted(indexedWord1)) {
       w1Children.add(new Pair<IndexedWord, String>(e.getTarget(), e
@@ -421,31 +413,82 @@ public class FeatureExtractor {
           // System.out.println(indexedWord1 + ":" + indexedWord2 +
           // " share children. " + pair.first.originalText()
           // +":" +pair.second+ "+" +e.getRelation().toString());
-          // features.add("shareSameLemmaAsChild:"+ pair.second+ "+"
-          // +e.getRelation().toString());
+          //features.add("shareSameLemmaAsChild:"+ pair.second+ "+" +e.getRelation().toString());
+          fv.add("share", "shareSameLemmaAsChild:"+ pair.second+ "+" +e.getRelation().toString());
         }
         // System.out.println(indexedWord1 + ":" + indexedWord2 +
         // " share children. " + w.originalText());
-        // features.add("shareSameLemmaAsChild")// + w.originalText());
+        //features.add("shareSameLemmaAsChild");// + w.originalText());
+        fv.add("share", "shareSameLemmaAsChild");
       }
     }
+  }
 
-    // Do they share a common argument in the dependency tree? (if they are in
-    // the same sentence)
-    if (sentenceBetweenEvents == 0) { 
-      List<SemanticGraphEdge> edges1 = graph1.getOutEdgesSorted(indexedWord1);
-      List<SemanticGraphEdge> edges2 = graph2.getOutEdgesSorted(indexedWord2);
-      for (SemanticGraphEdge e1 : edges1) {
-        for (SemanticGraphEdge e2 : edges2) {
-          if (e1.getTarget().equals(e2.getTarget())) {
-            features.add("shareChild:" + e1.getRelation() + "+"
-                + e2.getRelation());//shared arguments
-            break;
+  private static void lemmaEventPairFeature(CoreMap sentence1, Tree event1,
+      CoreMap sentence2, Tree event2, FeatureVector fv) {
+    CoreLabel event1CoreLabel = Utils.findCoreLabelFromTree(sentence1, event1);
+    CoreLabel event2CoreLabel = Utils.findCoreLabelFromTree(sentence2, event2);
+    String lemma1 = event1CoreLabel.lemma().toLowerCase();
+    if (Dictionary.verbForms.containsKey(lemma1)) {
+      lemma1 = Dictionary.verbForms.get(lemma1);
+    }
+    String lemma2 = event2CoreLabel.lemma().toLowerCase();
+    if (Dictionary.verbForms.containsKey(lemma2)) {
+      lemma2 = Dictionary.verbForms.get(lemma2);
+    }
+    //features.add("lemmas:" + lemma1 + "+" + lemma2);
+    fv.add("lexical", "lemmas:" + lemma1 + "+" + lemma2);
+    // Are the lemmas same?
+    //features.add("eventLemmasSame:" + lemma1.equals(lemma2));
+    fv.add("coref", "eventLemmasSame:" + lemma1.equals(lemma2));
+  }
+
+  private static void addWordsBetweenEventsFeature(Input input, Tree event1,
+      Tree event2, FeatureVector fv, int sentenceBetweenEvents) {
+    List<Pair<String, String>> wordsInBetween = AnnotationUtils.findWordsInBetween(input,
+        event1, event2);
+    for (int wordCounter = 0; wordCounter < wordsInBetween.size(); wordCounter++) {
+      Pair<String, String> pair = wordsInBetween.get(wordCounter);
+      String POS = pair.second, word = pair.first;
+      String POS2;
+      if (wordCounter < wordsInBetween.size() - 1)
+        POS2 = wordsInBetween.get(wordCounter + 1).second;
+      else
+        POS2 = "";
+
+      String word2;
+      if (wordCounter < wordsInBetween.size() - 1)
+        word2 = wordsInBetween.get(wordCounter + 1).first;
+      else
+        word2 = "";
+
+      if (!Dictionary.TemporalConnectives.contains(word.toLowerCase())) {
+        if (POS.startsWith("VB") && POS2.equals("IN")) {
+          //features.add("wordsInBetween:" + word + " " + word2);
+          fv.add("lexical", "wordsInBetween:" + word + " " + word2);
+          wordCounter++;
+        } else{
+          //features.add("wordsInBetween:" + word);
+          fv.add("lexical", "wordsInBetween:" + word);
+        }
+      } else {
+        if (sentenceBetweenEvents < 2) {
+          if (opts.useBaselineFeaturesOnly) {
+            //features.add("temporalConnective:" + word.toLowerCase());
+            fv.add("connective", "temporalConnective:" + word.toLowerCase());
+          } else {
+            //features.add("connector:" + word.toLowerCase());// connective
+            fv.add("connective", "connector:" + word.toLowerCase());
+            if (AdvModClusters.containsKey(word.toLowerCase())) {
+              /*features.add("connectorCluster:"
+                  + AdvModClusters.get(word.toLowerCase()));*/
+              fv.add("connective", "connectorCluster:"
+                  + AdvModClusters.get(word.toLowerCase()));
+            }
           }
         }
       }
     }
-    return fv;
   }
 
   public static FeatureVector getTriggerLabelFV(Input input, int trigger,
