@@ -28,7 +28,7 @@ import fig.basic.Option;
 /**
  * Extracts features from input
  * @author heatherchen1003 TODO: Make sure what is trigger token. -> span(token,
- *         token+1)? TODO: Discuss about the domains of features
+ *         token+1)? 
  *         TODO: get features from coref resolution
  * 
  */
@@ -349,6 +349,57 @@ public class FeatureExtractor {
     return fv;
   }
   
+  public static FeatureVector getTriggerLabelFV(Input input, int trigger,
+      String label) {
+    FeatureVector fv = getTriggerFV(input, trigger);
+    ArrayList<String> indicatorFeatures = fv.getIndicateFeatures();
+    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
+        .getGeneralFeatures();
+    for (String f : indicatorFeatures) {
+      f = label + "&" + f;
+    }
+    for (fig.basic.Pair<String, Double> f : generalFeatures) {
+      f.setFirst(label + "&" + f.getFirst());
+    }
+    return fv;
+  }
+
+  public static FeatureVector getArgumentLabelFV(Input input, int trigger,
+      int argument, String label) {
+    FeatureVector fv = getArgumentFV(input, trigger, argument);
+    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
+    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
+        .getGeneralFeatures();
+    for (String f : indicateFeatures) {
+      f = label + "&" + f;
+    }
+    for (fig.basic.Pair<String, Double> f : generalFeatures) {
+      f.setFirst(label + "&" + f.getFirst());
+    }
+    return fv;
+  }
+
+  public static FeatureVector getRelationLabelFV(Input input, int trig1,
+      int trig2, String label) {
+    FeatureVector fv = getRelationFV(input, trig1, trig2);
+    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
+    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
+        .getGeneralFeatures();
+    for (String f : indicateFeatures) {
+      f = label + "&" + f;
+    }
+    for (fig.basic.Pair<String, Double> f : generalFeatures) {
+      f.setFirst(label + "&" + f.getFirst());
+    }
+    return fv;
+  }
+  
+  public static FeatureVector getFeatures(Structure s){
+    Input input = s.input;
+    //TODO
+    return null;
+  }
+  
   private static void addAdvModFeature(CoreMap sentence, Tree event,
       FeatureVector fv, String currentPOS, String text) {
     SemanticGraph depGraph = sentence
@@ -501,50 +552,7 @@ public class FeatureExtractor {
     }
   }
 
-  public static FeatureVector getTriggerLabelFV(Input input, int trigger,
-      String label) {
-    FeatureVector fv = getTriggerFV(input, trigger);
-    ArrayList<String> indicatorFeatures = fv.getIndicateFeatures();
-    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
-        .getGeneralFeatures();
-    for (String f : indicatorFeatures) {
-      f = label + "&" + f;
-    }
-    for (fig.basic.Pair<String, Double> f : generalFeatures) {
-      f.setFirst(label + "&" + f.getFirst());
-    }
-    return fv;
-  }
 
-  public static FeatureVector getArgumentLabelFV(Input input, int trigger,
-      int argument, String label) {
-    FeatureVector fv = getArgumentFV(input, trigger, argument);
-    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
-    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
-        .getGeneralFeatures();
-    for (String f : indicateFeatures) {
-      f = label + "&" + f;
-    }
-    for (fig.basic.Pair<String, Double> f : generalFeatures) {
-      f.setFirst(label + "&" + f.getFirst());
-    }
-    return fv;
-  }
-
-  public static FeatureVector getRelationLabelFV(Input input, int trig1,
-      int trig2, String label) {
-    FeatureVector fv = getRelationFV(input, trig1, trig2);
-    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
-    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
-        .getGeneralFeatures();
-    for (String f : indicateFeatures) {
-      f = label + "&" + f;
-    }
-    for (fig.basic.Pair<String, Double> f : generalFeatures) {
-      f.setFirst(label + "&" + f.getFirst());
-    }
-    return fv;
-  }
   
   private static void ClusterSetup() {
     MarkAndPPClusters.put("if", RelationType.PreviousEvent.toString());

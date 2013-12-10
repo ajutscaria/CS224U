@@ -24,9 +24,9 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IntPair;
+import edu.stanford.nlp.util.Pair;
 import fig.basic.LogInfo;
 import fig.basic.Option;
-import fig.basic.Pair;
 import fig.basic.StatFig;
 
 /**
@@ -90,8 +90,8 @@ public class Dataset {
       allExamples = IOUtils.readObjectFromFile(opts.inFile);
     else {
       for (Pair<String, String> pathPair : opts.inPaths) {
-        String group = pathPair.getFirst();
-        String path = pathPair.getSecond();
+        String group = pathPair.first();
+        String path = pathPair.second();
         List<Pair<Input,Structure>> examples = readFromPath(path,getMaxExamples(group));
         examples = DatasetUtils.shuffle(examples,rand);
         allExamples.put(group, examples);
@@ -285,8 +285,8 @@ public class Dataset {
   private static int getMaxExamples(String group) {
     int maxExamples = Integer.MAX_VALUE;
     for (Pair<String, Integer> maxPair : opts.maxExamples)
-      if (maxPair.getFirst().equals(group))
-        maxExamples = maxPair.getSecond();
+      if (maxPair.first().equals(group))
+        maxExamples = maxPair.second();
     return maxExamples;
   }
 

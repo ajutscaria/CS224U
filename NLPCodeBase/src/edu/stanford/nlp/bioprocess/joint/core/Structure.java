@@ -90,7 +90,8 @@ public class Structure implements IStructure, Serializable {
 
 	public FeatureVector getFeatures() {
 		// TODO Go over all assignments and compute feature vector
-		return null;
+	   
+	   return FeatureExtractor.getFeatures(this);
 	}
 
 	public String getTriggerLabel(int triggerId) {
