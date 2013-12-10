@@ -33,6 +33,7 @@ import fig.basic.Option;
  * 
  */
 public class FeatureExtractor {
+  
 
   public static class Options {
     @Option(gloss = "use lexical feature or not")
@@ -49,6 +50,15 @@ public class FeatureExtractor {
   private static final  HashMap<String, String> MarkAndPPClusters = new HashMap<String, String>();
   private static final  HashMap<String, String> AdvModClusters = new HashMap<String, String>();
 
+  public FeatureExtractor(boolean useLexicalFeatures, boolean useBaselineFeaturesOnly, boolean runGlobalModel,
+      int window){
+    opts.useLexicalFeatures = useLexicalFeatures;
+    opts.useBaselineFeaturesOnly = useBaselineFeaturesOnly;
+    opts.runGlobalModel = runGlobalModel;
+    opts.window = window;
+  }
+  
+  
   public static FeatureVector getTriggerFV(Input input, int trigger) {
     List<CoreMap> sentences = input.annotation.get(SentencesAnnotation.class);
     int tokenId = input.getTriggerTokenId(trigger);
@@ -75,7 +85,7 @@ public class FeatureExtractor {
 
       if (Dictionary.clusters.containsKey(text)) {
         //features.add("clusterID=" + Dictionary.clusters.get(text));
-        fv.add("cluster", "clusterID", Dictionary.clusters.get(text));
+        fv.add("cluster", "clusterID=" + Dictionary.clusters.get(text));
       }
       
       addAdvModFeature(sentence, event, fv, currentPOS, text);

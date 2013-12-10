@@ -8,10 +8,6 @@ import java.util.List;
 import java.util.Map;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IInstance;
-import edu.stanford.nlp.bioprocess.BioDatum;
-import edu.stanford.nlp.bioprocess.Utils;
-import edu.stanford.nlp.bioprocess.ArgumentRelation.RelationType;
-import edu.stanford.nlp.ie.machinereading.structure.Span;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
