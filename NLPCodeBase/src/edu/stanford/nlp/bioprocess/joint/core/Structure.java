@@ -1,9 +1,9 @@
 package edu.stanford.nlp.bioprocess.joint.core;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IStructure;
-import edu.illinois.cs.cogcomp.indsup.learning.FeatureVector;
 import edu.stanford.nlp.ling.CoreLabel;
 import edu.stanford.nlp.util.IntPair;
 
@@ -12,9 +12,9 @@ import edu.stanford.nlp.util.IntPair;
  * @author svivek
  */
 public class Structure implements IStructure, Serializable {
-	
-  private static final long serialVersionUID = -5015837729312326526L;
-  public final Input input;
+
+	private static final long serialVersionUID = -5015837729312326526L;
+	public final Input input;
 	private final String[] relations;
 	private final String[][] arguments;
 	private final String[] triggers;
@@ -83,8 +83,13 @@ public class Structure implements IStructure, Serializable {
 	}
 
 	@Override
-	public FeatureVector getFeatureVector() {
+	public edu.illinois.cs.cogcomp.indsup.learning.FeatureVector getFeatureVector() {
 		// XXX: This function is not needed for this project
+		return null;
+	}
+
+	public FeatureVector getFeatures() {
+		// TODO Go over all assignments and compute feature vector
 		return null;
 	}
 
@@ -110,6 +115,40 @@ public class Structure implements IStructure, Serializable {
 		assert input.isValidTriggerId(trigger2);
 
 		return relations[input.getEERelationIndex(trigger1, trigger2)];
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + Arrays.hashCode(arguments);
+		result = prime * result + ((input == null) ? 0 : input.hashCode());
+		result = prime * result + Arrays.hashCode(relations);
+		result = prime * result + Arrays.hashCode(triggers);
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Structure other = (Structure) obj;
+		if (!Arrays.deepEquals(arguments, other.arguments))
+			return false;
+		if (input == null) {
+			if (other.input != null)
+				return false;
+		} else if (!input.equals(other.input))
+			return false;
+		if (!Arrays.equals(relations, other.relations))
+			return false;
+		if (!Arrays.equals(triggers, other.triggers))
+			return false;
+		return true;
 	}
 
 }
