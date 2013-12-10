@@ -396,8 +396,22 @@ public class FeatureExtractor {
   
   public static FeatureVector getFeatures(Structure s){
     Input input = s.input;
-    //TODO
-    return null;
+    FeatureVector fv = new FeatureVector();
+    for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
+      fv.add(getTriggerLabelFV(input, eventId, s.getTriggerLabel(eventId)), new AllFeatureMatcher());
+    }
+    for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
+      for (int entityId = 0; entityId < input
+          .getNumberOfArgumentCandidates(eventId); entityId++) {
+        fv.add(getArgumentLabelFV(input, eventId, entityId, s.getArgumentCandidateLabel(eventId, entityId)), new AllFeatureMatcher());
+      }
+    }
+    for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
+      int event1 = input.getEERelationCandidatePair(Id).getSource(); 
+      int event2 = input.getEERelationCandidatePair(Id).getTarget(); 
+      fv.add(getRelationLabelFV(input, event1, event2, s.getEERelationLabel(event1, event2)), new AllFeatureMatcher());
+    }
+    return fv;
   }
   
   private static void addAdvModFeature(CoreMap sentence, Tree event,
