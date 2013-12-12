@@ -1,0 +1,25 @@
+T1	Event 10 31	enzymatic degradation
+E1	Event:T1 next-event:E2 theme:T17
+T2	Entity 45 92	a second DNA strand, complementary to the first
+T3	Event 97 108	synthesized
+E2	Event:T3 agent:T4 result:T5 result2:T2 next-event:E4
+T4	Entity 112 126	DNA polymerase
+T5	Entity 142 161	double-stranded DNA
+T6	Entity 172 196	complementary DNA (cDNA)
+*	same-entity T5 T6 T7 T14
+T7	Entity 251 259	the cDNA
+T8	Event 244 250	modify
+E3	Event:T8 agent:T9 theme:T7 super-event:E4 cotemporal:E5
+T9	Entity 219 234	the researchers
+T10	Event 201 207	create
+E4	Event:T10 result:T18
+T11	Event 263 269	adding
+E5	Event:T11 raw-material:T12 location:T13 next-event:E6 agent:T9 theme:T7
+T12	Entity 270 310	restriction enzyme recognition sequences
+T13	Entity 314 323	each end.
+T14	Entity 329 337	the cDNA
+T15	Event 341 349	inserted
+E6	Event:T15 theme:T14 theme2:T16
+T16	Entity 355 365	vector DNA
+T17	Entity 35 43	the mRNA
+T18	Entity 208 217	a library

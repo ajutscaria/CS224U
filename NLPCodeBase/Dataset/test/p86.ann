@@ -1,0 +1,45 @@
+T1	Event 107 112	split
+E1	Event:T1 next-event:E2 raw-material:T12
+T2	Event 114 123	providing
+E2	Event:T2 next-event:E3 result:T13 agent:T12
+T3	Event 182 188	giving
+E3	Event:T3 next-event:E6 agent:T12 result:T15
+T5	Event 252 260	transfer
+E5	Event:T5 same-event:E7 agent:T16 raw-material:T18 origin:T19 destination:T20
+T6	Event 219 227	absorbed
+E6	Event:T6 causes:E5 theme:T16 agent:T17
+T7	Event 670 676	reduce
+E7	Event:T7 same-event:E8 agent:T22 raw-material:T23 raw-material2:T24 result:T25
+T8	Event 695 701	adding
+E8	Event:T8 next-event:E9 agent:T22 raw-material:T26
+T9	Event 765 773	generate
+E9	Event:T9 same-event:E11 agent:T27 result:T28
+T4	Event 785 797	chemiosmosis
+E4	Event:T4 super-event:E9 causes:E10
+T10	Event 811 819	addition
+E10	Event:T10 raw-material:T29 raw-material2:T30
+T11	Event 866 886	photophosphorylation
+E11	Event:T11 
+T12	Entity 98 103	Water
+T13	Entity 124 157	a source of electrons and protons
+T14	Entity 159 176	hydrogen ions, H+
+*	same-entity T14 T13
+T15	Entity 193 195	O2
+T16	Entity 213 218	Light
+T17	Entity 231 242	chlorophyll
+T18	Entity 264 295	the electrons and hydrogen ions
+T19	Entity 301 306	water
+T20	Entity 310 334	an acceptor called NADP+
+T21	Entity 336 379	nicotinamide adenine dinucleotide phosphate
+*	same-entity T20 T21 T24
+T22	Entity 631 650	The light reactions
+T23	Entity 655 666	solar power
+T24	Entity 677 682	NADP+
+T25	Entity 686 691	NADPH
+T26	Entity 702 738	a pair of electrons along with an H+
+*	same-entity T16 T23
+T27	Entity 740 759	The light reactions
+*	same-entity T22 T27
+T28	Entity 774 777	ATP
+T29	Entity 823 840	a phosphate group
+T30	Entity 844 847	ADP

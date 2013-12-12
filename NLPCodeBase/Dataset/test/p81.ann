@@ -1,0 +1,64 @@
+T1	Event 202 206	open
+E1	Event:T1 same-event:E6 agent:T15 theme:T16 time:T17
+T2	Event 242 247	close
+E2	Event:T2 same-event:E3 agent:T15 theme:T18 time:T19
+T3	Event 314 321	Closing
+E3	Event:T3 same-event:E11 theme:T20 time:T21 agent:T22
+T4	Event 365 373	conserve
+E4	Event:T4 cotemporal:E5 super-event:E3 agent:T22 theme:T23
+T5	Event 393 401	prevents
+E5	Event:T5 super-event:E3 theme:T24 destination:T25
+T6	Event 473 477	open
+E6	Event:T6 next-event:E7 time:T26 theme:T27
+T7	Event 492 499	take up
+E7	Event:T7 next-event:E8 agent:T28 raw-material:T29
+T8	Event 508 519	incorporate
+E8	Event:T8 same-event:E10 agent:T28 raw-material:T30 result:T31
+T9	Event 762 767	store
+E9	Event:T9 next-event:E11 agent:T32 theme:T33 location:T36
+T10	Event 791 795	make
+E10	Event:T10 next-event:E9 agent:T34 time:T35
+T11	Event 863 868	close
+E11	Event:T11 next-event:E12 time:T37 agent:T38
+T12	Event 915 921	supply
+E12	Event:T12 cotemporal:E13 time:T39 agent:T40 raw-material:T41 raw-material2:T42
+T13	Event 965 973	released
+E13	Event:T13 next-event:E14 theme:T43 origin:T44
+T14	Event 1029 1041	incorporated
+E14	Event:T14 raw-material:T43 result:T45 location:T46
+T15	Entity 189 201	These plants
+T16	Entity 207 220	their stomata
+T17	Entity 228 237	the night
+T18	Entity 248 252	them
+*	same-entity T16 T18 T20 T27 T38
+T19	Entity 260 267	the day
+T20	Entity 322 329	stomata
+T21	Entity 337 344	the day
+T22	Entity 351 364	desert plants
+T23	Entity 374 379	water
+T24	Entity 402 405	CO2
+T25	Entity 420 430	the leaves
+T26	Entity 439 448	the night
+T27	Entity 455 468	their stomata
+T28	Entity 479 491	these plants
+T29	Entity 500 503	CO2
+T30	Entity 520 522	it
+*	same-entity T29 T30 T43
+T31	Entity 528 554	a variety of organic acids
+T32	Entity 728 761	The mesophyll cells of CAM plants
+T33	Entity 768 785	the organic acids
+*	same-entity T31 T33 T44
+T34	Entity 786 790	they
+*	same-entity T34 T32
+T35	Entity 803 812	the night
+T36	Entity 816 830	their vacuoles
+T37	Entity 837 844	morning
+T38	Entity 851 862	the stomata
+T39	Entity 877 884	the day
+T40	Entity 891 910	the light reactions
+T41	Entity 922 925	ATP
+T42	Entity 930 935	NADPH
+T43	Entity 958 961	CO2
+T44	Entity 979 996	the organic acids
+T45	Entity 1047 1052	sugar
+T46	Entity 1056 1072	the chloroplasts

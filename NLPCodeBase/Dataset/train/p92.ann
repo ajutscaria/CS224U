@@ -1,0 +1,19 @@
+T1	Event 77 83	mature
+E1	Event:T1 cotemporal:E4 agent:T6
+T2	Event 86 92	moving
+E2	Event:T2 super-event:E1 cotemporal:E3 agent:T6 origin:T7 destination:T8
+T3	Event 130 138	carrying
+E3	Event:T3 agent:T6 theme:T9
+T4	Event 187 194	recycle
+E4	Event:T4 same-event:E5 agent:T10 theme:T11
+T5	Event 254 266	transporting
+E5	Event:T5 agent:T10 theme:T12 destination:T13
+T6	Entity 45 75	the Golgi cisternae themselves
+T7	Entity 98 105	the cis
+T8	Entity 109 123	the trans face
+T9	Entity 139 152	some proteins
+T10	Entity 173 186	some vesicles
+T11	Entity 195 202	enzymes
+T12	Entity 267 271	them
+*	same-entity T12 T11
+T13	Entity 286 339	a less mature region where their functions are needed

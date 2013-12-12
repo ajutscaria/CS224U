@@ -1,0 +1,53 @@
+T1	Event 274 281	acquire
+E1	Event:T1 next-event:E3 agent:T14 theme:T15
+T2	Event 325 333	drinking
+E2	Event:T2 causes:E1 agent:T14 theme:T17
+T3	Event 367 371	form
+E3	Event:T3 next-event:E4 agent:T18 result:T19 location:T20
+T4	Event 423 430	produce
+E4	Event:T4 next-event:E5 agent:T18 result:T21
+T5	Event 487 495	modifies
+E5	Event:T5 causes:E6 agent:T23 theme:T24
+T6	Event 591 610	unable to hydrolyze
+E6	Event:T6 causes:E8 agent:T25 raw-material:T26 result:T27
+T7	Event 673 684	stimulating
+E7	Event:T7 causes:E11 agent:T28 raw-material:T29 result:T30
+T8	Static-Event 647 658	active form
+E8	Static-Event:T8 causes:E7 agent:T28
+T9	Event 917 925	diarrhea
+E9	Event:T9 causes:E10 agent:T36
+T10	Event 957 960	die
+E10	Event:T10 agent:T36
+T11	Static-Event 730 748	high concentration
+E11	Static-Event:T11 causes:E12 theme:T31
+T12	Event 788 795	secrete
+E12	Event:T12 causes:E13 agent:T32 theme:T33 destination:T34
+T13	Event 864 871	osmosis
+E13	Event:T13 causes:E9 agent:T35
+T14	Entity 267 273	People
+T15	Entity 282 303	the cholera bacterium
+T16	Entity 305 320	Vibrio cholerae
+*	same-entity T15 T16 T18
+T17	Entity 334 352	contaminated water
+T18	Entity 354 366	The bacteria
+T19	Entity 372 381	a biofilm
+T20	Entity 385 418	the lining of the small intestine
+T21	Entity 431 438	a toxin
+T22	Entity 440 457	The cholera toxin
+*	same-entity T21 T22 T23
+T23	Entity 461 470	an enzyme
+T24	Entity 496 507	a G protein
+T25	Entity 565 587	the modified G protein
+*	same-entity T24 T25 T28
+T26	Entity 611 614	GTP
+T27	Entity 618 621	GDP
+T28	Entity 623 625	it
+T29	Entity 685 701	adenylyl cyclase
+T30	Entity 710 714	cAMP
+T31	Entity 752 756	cAMP
+*	same-entity T30 T31
+T32	Entity 764 784	the intestinal cells
+T33	Entity 796 818	large amounts of salts
+T34	Entity 824 838	the intestines
+T35	Entity 845 850	water
+T36	Entity 873 891	An infected person

@@ -1,0 +1,27 @@
+T1	Event 166 171	binds
+E1	Event:T1 same-event:E2 same-event2:E6 agent:T14 theme:T15 location:T16
+T2	Event 262 269	binding
+E2	Event:T2 causes:E3 theme:T17
+T3	Event 296 303	changes
+E3	Event:T3 causes:E4 theme:T18 agent:T17
+T4	Event 364 376	transduction
+E4	Event:T4 next-event:E5
+T5	Event 401 409	converts
+E5	Event:T5 agent:T6 raw-material:T10 result:T11 next-event:E7
+T7	Event 937 945	triggers
+E7	Event:T7 agent:T8 theme:T9 time:T19
+T8	Entity 907 928	the transduced signal
+T9	Entity 946 974	a specific cellular response
+T6	Entity 378 400	The transduction stage
+T10	Entity 410 420	the signal
+T11	Entity 452 480	a specific cellular response
+T12	Event 127 137	"detected"
+E6	Event:T12 theme:T13 same-event:E2
+T13	Entity 106 123	A chemical signal
+T14	Entity 143 165	the signaling molecule
+*	same-entity T14 T13
+T15	Entity 175 193	a receptor protein
+T16	Entity 205 242	the cell's surface or inside the cell
+T17	Entity 273 295	the signaling molecule
+T18	Entity 304 324	the receptor protein
+T19	Entity 872 905	the third stage of cell signaling

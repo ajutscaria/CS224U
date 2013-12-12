@@ -15,6 +15,7 @@ import edu.stanford.nlp.bioprocess.joint.core.FeatureVector;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
 import edu.stanford.nlp.bioprocess.joint.core.Params;
 import edu.stanford.nlp.bioprocess.joint.core.Structure;
+import edu.stanford.nlp.bioprocess.joint.reader.DatasetUtils;
 import fig.basic.LogInfo;
 
 /**
@@ -23,14 +24,20 @@ import fig.basic.LogInfo;
  * 
  */
 public class Inference extends AbstractILPInference<Structure> {
-  public static final String[] eventLabels = { "E", "O" };
-  public static final String[] entityLabels = { "E", "O" }; // Can chagne into
-                                                            // multi-class
-  public static String[] relationLabels = {};
+  public static final String[] eventLabels = { "O", "E" };
+  //public static final String[] entityLabels = { "O", "E" }; 
+  public static final String[] entityLabels = {DatasetUtils.NONE_LABEL, DatasetUtils.AGENT, DatasetUtils.THEME,
+    DatasetUtils.ORIGIN, DatasetUtils.DESTINATION, DatasetUtils.LOCATION, DatasetUtils.RESULT, DatasetUtils.RAW_MATERIAL,
+    DatasetUtils.TIME}; 
+  
+  public static String[] relationLabels = {DatasetUtils.NONE_LABEL, DatasetUtils.SAME_EVENT, DatasetUtils.PREVIOUS_EVENT,
+    DatasetUtils.NEXT_EVENT, DatasetUtils.CAUSE, DatasetUtils.CAUSED, DatasetUtils.ENABLES, DatasetUtils.ENABLED,
+    DatasetUtils.SUPER_EVENT,DatasetUtils.SUB_EVENT, DatasetUtils.COTEMPORAL_EVENT};
 
   // the id for A & B in the above list. This can be done better public static
-  public final static int E_ID = 0;
-  public final static int O_ID = 1;
+  public final static int E_ID = 1;
+  public final static int O_ID = 0;
+  public final static int NONE_ID = 0;
 
   private List<ILPConstraintGenerator> constraints;
   private Input input;
@@ -46,10 +53,10 @@ public class Inference extends AbstractILPInference<Structure> {
     constraints.add(new ValidAConstraintGenerator());
     constraints.add(new EntityChildrenConstraintGenerator());
     constraints.add(new RelationEventConstraintGenerator());
-    constraints.add(new PrevRelationConstraintGenerator());
-    constraints.add(new SameRelationConstraintGenerator());
-    constraints.add(new ConnectivityConstraintGenerator());
-    constraints.add(new OverlapConstraintGenerator());
+    //constraints.add(new PrevRelationConstraintGenerator());
+    //constraints.add(new SameRelationConstraintGenerator());
+    //constraints.add(new ConnectivityConstraintGenerator());
+    //constraints.add(new OverlapConstraintGenerator());
   }
 
   @Override

@@ -1,0 +1,34 @@
+T1	Event 376 384	interact
+E1	Event:T1 causes:E2 agent:T13 theme:T14
+T2	Event 432 440	contract
+E2	Event:T2 same-event:E3 agent:T15
+T3	Event 446 457	contraction
+E3	Event:T3 next-event:E4 agent:T16
+T4	Event 561 568	deepens
+E4	Event:T4 causes:E5 agent:T17
+T5	Event 594 601	pinched
+E5	Event:T5 theme:T18 result:T19
+T7	Event 102 112	appearance
+E7	Event:T7 cotemporal:E8 result:T9 super-event:E9 location:T22
+T8	Event 302 312	associated
+E8	Event:T8 same-event:E1 location:T10 theme:T11 theme2:T12
+T6	Event 58 66	cleavage
+E6	Event:T6 
+T9	Entity 116 133	a cleavage furrow
+T10	Entity 221 255	the cytoplasmic side of the furrow
+T11	Entity 259 301	a contractile ring of actin microfilaments
+T12	Entity 318 349	molecules of the protein myosin
+T13	Entity 351 375	The actin microfilaments
+T14	Entity 390 410	the myosin molecules
+*	same-entity T13 T11 T15 T16
+*	same-entity T14 T12
+T15	Entity 420 428	the ring
+T16	Entity 461 503	the dividing cell's ring of microfilaments
+T17	Entity 541 560	The cleavage furrow
+T18	Entity 575 590	the parent cell
+*	same-entity T9 T17 T20
+T19	Entity 620 650	two completely separated cells
+T20	Entity 135 171	a shallow groove in the cell surface
+T21	Event 86 94	cleavage
+E9	Event:T21 same-event:E6
+T22	Entity 177 200	the old metaphase plate

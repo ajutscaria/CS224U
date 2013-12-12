@@ -1,0 +1,37 @@
+T1	Entity 86 100	dehydrogenases
+T2	Entity 71 78	Enzymes
+*	same-entity T2 T1 T10
+T3	Event 101 107	remove
+E1	Event:T3 agent:T1 theme:T5 theme2:T7 same-event:E2
+T4	Event 216 225	oxidizing
+E2	Event:T4 theme:T9 agent:T1 next-event:E3
+T5	Entity 108 132	a pair of hydrogen atoms
+T6	Entity 134 159	2 electrons and 2 protons
+*	same-entity T5 T6
+T7	Entity 166 179	the substrate
+T8	Entity 181 188	glucose
+*	same-entity T7 T8 T9
+T9	Entity 226 228	it
+T10	Entity 230 240	The enzyme
+T11	Event 241 249	delivers
+E3	Event:T11 theme:T12 agent:T10 destination:T13 cotemporal:E4 same-event:E5
+T12	Entity 250 285	the 2 electrons along with 1 proton
+T13	Entity 289 301	its coenzyme
+T14	Entity 303 307	NAD+
+*	same-entity T13 T14 T20 T24
+T15	Event 342 350	released
+E4	Event:T15 theme:T16 destination:T17
+T16	Entity 322 338	The other proton
+T17	Entity 379 403	the surrounding solution
+T18	Event 408 417	receiving
+E5	Event:T18 theme:T19 agent:T20 causes:E6 same-event:E7
+T19	Entity 418 485	2 negatively charged electrons but only 1 positively charged proton
+T20	Entity 487 491	NAD+
+*	same-entity T19 T12
+T21	Event 507 518	neutralized
+E6	Event:T21 theme:T22
+T22	Entity 496 506	its charge
+T23	Event 530 537	reduced
+E7	Event:T23 causes:E6 theme:T24 result:T25 same-event:E3
+T24	Entity 524 526	it
+T25	Entity 541 545	NADH

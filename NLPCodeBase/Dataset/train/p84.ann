@@ -1,0 +1,33 @@
+T1	Event 172 176	move
+E1	Event:T1 next-event:E2 super-event:E8 agent:T10 location:T11 destination:T12
+T2	Event 234 242	coalesce
+E2	Event:T2 next-event:E3 agent:T13 result:T14
+T3	Event 328 335	collect
+E3	Event:T3 cotemporal:E4 agent:T15 location:T16
+T4	Event 360 365	grows
+E4	Event:T4 same-event:E5 agent:T17
+T5	Event 382 390	enlarges
+E5	Event:T5 next-event:E6 agent:T18
+T6	Event 422 427	fuses
+E6	Event:T6 agent:T19 theme:T20 result:T21 next-event:E7
+T7	Event 623 629	formed
+E7	Event:T7 location:T23 agent:T22
+T8	Event 0 11	Cytokinesis
+E8	Event:T8 location:T9
+T9	Entity 15 26	plant cells
+T10	Entity 130 171	vesicles derived from the Golgi apparatus
+T11	Entity 183 195	microtubules
+T12	Entity 199 221	the middle of the cell
+T13	Entity 229 233	they
+*	same-entity T13 T10
+T14	Entity 254 266	a cell plate
+T15	Entity 284 327	Cell wall materials carried in the vesicles
+T16	Entity 339 353	the cell plate
+T17	Entity 357 359	it
+*	same-entity T17 T16 T18
+T18	Entity 367 381	The cell plate
+T19	Entity 397 421	its surrounding membrane
+T20	Entity 433 484	the plasma membrane along the perimeter of the cell
+T21	Entity 486 504	Two daughter cells
+T22	Entity 559 574	a new cell wall
+T23	Entity 638 656	the daughter cells

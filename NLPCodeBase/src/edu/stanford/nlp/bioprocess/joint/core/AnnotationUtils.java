@@ -7,6 +7,8 @@ import java.util.List;
 
 import edu.stanford.nlp.bioprocess.Utils;
 import edu.stanford.nlp.ie.machinereading.structure.Span;
+import edu.stanford.nlp.ling.CoreAnnotations.TokenBeginAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokenEndAnnotation;
 import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.EndIndexAnnotation;
@@ -28,12 +30,15 @@ public class AnnotationUtils {
   public static CoreMap getContainingSentence(List<CoreMap> sentences,
       int begin, int end) {
     // LogInfo.logs(begin + ":" + end);
+    int offset = 0;
     for (CoreMap sentence : sentences) {
-      if (sentence.get(BeginIndexAnnotation.class) <= begin
-          && sentence.get(EndIndexAnnotation.class) >= end)
+      if (sentence.get(TokenBeginAnnotation.class)+offset <= begin
+          && sentence.get(TokenEndAnnotation.class)+offset >= end)
         return sentence;
+      else
+        offset += sentence.get(TokensAnnotation.class).size();
     }
-    return null;
+    throw new RuntimeException("Could not find sentence!");
   }
 
   public static Tree getSingleEventNode(CoreMap sentence, int eventToken) {

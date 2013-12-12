@@ -1,0 +1,26 @@
+T1	Event 86 91	share
+E1	Event:T1 cotemporal:E2 raw-material:T9 theme:T10 agent:T8
+T2	Entity 0 22	Soil-dwelling bacteria
+T3	Entity 30 42	myxobacteria
+T4	Event 169 176	secrete
+E2	Event:T4 causes:E3 time:T11 agent:T12 theme:T13
+T5	Event 225 234	aggregate
+E3	Event:T5 next-event:E4 agent:T14 result:T16
+T6	Event 293 301	produces
+E4	Event:T6 causes:E5 agent:T17 result:T18
+T7	Event 333 342	surviving
+E5	Event:T7 agent:T18
+T8	Entity 44 60	"slime bacteria"
+*	same-entity T3 T2 T8
+T9	Entity 66 82	chemical signals
+T10	Entity 92 131	information about nutrient availability
+T11	Entity 138 152	food is scarce
+T12	Entity 154 168	starving cells
+T13	Entity 177 187	a molecule
+T14	Entity 204 221	neighboring cells
+T15	Entity 236 245	The cells
+*	same-entity T14 T15
+T16	Entity 251 262	a structure
+T17	Entity 271 286	a fruiting body
+*	same-entity T16 T17
+T18	Entity 302 321	thick-walled spores

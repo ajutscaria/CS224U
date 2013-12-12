@@ -1,0 +1,12 @@
+T1	Event 36 41	sinks
+E1	Event:T1 agent:T4 result:T5 next-event:E2
+T2	Event 81 88	deepens
+E2	Event:T2 agent:T6 cotemporal:E3
+T3	Event 93 100	pinches
+E3	Event:T3 agent:T7 result:T8
+T4	Entity 0 35	A small area of the plasma membrane
+T5	Entity 57 65	a pocket
+T6	Entity 70 80	the pocket
+T7	Entity 90 92	it
+*	same-entity T7 T6
+T8	Entity 113 173	a vesicle containing material that had been outside the cell

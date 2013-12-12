@@ -1,0 +1,49 @@
+T1	Entity 0 9	Histamine
+T2	Event 10 18	released
+E1	Event:T2 theme:T1 location:T3 causes:E3
+T3	Entity 22 37	sites of damage
+T5	Entity 47 67	nearby blood vessels
+T6	Event 71 77	dilate
+E3	Event:T6 agent:T5 causes:E4
+T7	Static-Event 94 103	permeable
+E4	Static-Event:T7 agent:T5 next-event:E5
+T9	Entity 105 126	Activated macrophages
+T10	Entity 131 142	neutrophils
+T11	Event 143 152	discharge
+E5	Event:T11 agent:T10 agent2:T9 theme:T12 next-event:E7
+T12	Entity 153 162	cytokines
+T16	Entity 217 232	These cytokines
+T17	Event 241 251	blood flow
+E7	Event:T17 agent:T16 location:T19 causes:E8 causes2:E2
+T19	Entity 255 286	the site of injury or infection
+T21	Static-Event 334 341	redness
+E8	Static-Event:T21 
+T23	Event 438 442	leak
+E9	Event:T23 agent:T24 theme:T25 causes:E10 destination:T26
+T24	Entity 411 437	Blood-engorged capillaries
+T25	Entity 443 448	fluid
+T26	Entity 454 473	neighboring tissues
+T27	Event 483 491	swelling
+E10	Event:T27 next-event:E13
+T32	Event 613 620	release
+E13	Event:T32 agent:T33 causes:E14 theme:T8
+T33	Entity 567 596	Activated complement proteins
+T35	Event 635 645	attracting
+E14	Event:T35 theme:T36 next-event:E15 agent:T8
+T36	Entity 651 667	phagocytic cells
+T37	Event 673 678	enter
+E15	Event:T37 agent:T36 next-event:E16 destination:T38
+T38	Entity 679 694	injured tissues
+T39	Event 738 750	phagocytosis
+E16	Event:T39 agent:T36 cotemporal:E17
+T41	Event 808 815	deliver
+E17	Event:T41 agent:T42 theme:T43 causes:E18
+T42	Entity 770 801	enhanced blood flow to the site
+T43	Entity 816 838	antimicrobial peptides
+T44	Event 857 869	accumulation
+E18	Event:T44 theme:T45
+T45	Entity 873 876	pus
+*	same-entity T12 T16
+T4	Static-Event 346 372	increased skin temperature
+E2	Static-Event:T4 next-event:E9
+T8	Entity 624 633	histamine

@@ -1,0 +1,20 @@
+T1	Entity 5 13	the cell
+T2	Event 17 27	stimulated
+E1	Event:T2 causes:E2 theme:T1
+T3	Entity 29 43	gated channels
+T4	Event 44 48	open
+E2	Event:T4 enables:E3 agent:T3
+T5	Event 69 78	diffusion
+E3	Event:T5 agent:T6
+T6	Entity 65 68	Na+
+T7	Entity 80 91	Sodium ions
+T8	Event 97 108	"fall" down
+E4	Event:T8 super-event:E3 agent:T7 theme:T9
+T9	Entity 115 139	electrochemical gradient
+T10	Event 155 177	concentration gradient
+E5	Event:T10 causes:E4 raw-material:T12
+T11	Event 196 206	attraction
+E6	Event:T11 causes:E4 agent:T13 theme:T14
+T12	Entity 181 184	Na+
+T13	Entity 210 223	these cations
+T14	Entity 227 269	the negative side (inside) of the membrane

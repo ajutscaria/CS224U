@@ -1,0 +1,26 @@
+T1	Event 36 42	swells
+E1	Event:T1 same-event:E4 agent:T9
+T2	Event 52 58	enters
+E2	Event:T2 causes:E1 same-event:E3 agent:T10
+T3	Event 62 69	osmosis
+E3	Event:T3 agent:T10
+T4	Event 130 136	expand
+E4	Event:T4 next-event:E5 agent:T11
+T5	Event 160 166	exerts
+E5	Event:T5 causes:E6 agent:T12 theme:T13
+T6	Event 225 232	opposes
+E6	Event:T6 next-event:E7 agent:T14 theme:T15
+T7	Static-Event 282 288	turgid
+E7	Static-Event:T7 same-event:E8 agent:T16
+T8	Static-Event 295 299	firm
+E8	Static-Event:T8 
+T9	Entity 21 35	the plant cell
+T10	Entity 46 51	water
+T11	Entity 95 124	the relatively inelastic wall
+T12	Entity 157 159	it
+*	same-entity T11 T12
+T13	Entity 167 194	a back pressure on the cell
+T14	Entity 203 218	turgor pressure
+*	same-entity T14 T13
+T15	Entity 241 253	water uptake
+T16	Entity 270 278	the cell

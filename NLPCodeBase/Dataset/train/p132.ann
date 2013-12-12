@@ -1,0 +1,16 @@
+T1	Event 295 304	sequenced
+E1	Event:T1 next-event:E2 super-event:E3 theme:T8 time:T9
+T2	Event 353 362	assembles
+E2	Event:T2 agent:T10 theme:T11
+T3	Event 71 81	sequencing
+E3	Event:T3 causes:E4 causes2:E5
+T4	Event 137 146	increases
+E4	Event:T4 cotemporal:E5 theme:T6
+T5	Event 160 169	decreases
+E5	Event:T5 theme:T7
+T6	Entity 150 155	speed
+T7	Entity 173 210	the cost of sequencing entire genomes
+T8	Entity 237 290	many very small fragments (fewer than 100 base pairs)
+T9	Entity 308 321	the same time
+T10	Entity 327 344	computer software
+T11	Entity 363 384	the complete sequence

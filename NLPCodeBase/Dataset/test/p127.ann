@@ -1,0 +1,22 @@
+T1	Event 453 460	descent
+E1	Event:T1 causes:E2
+T2	Static-Event 506 515	diversity
+E2	Static-Event:T2 theme:T14 time:T15
+T3	Event 259 264	lived
+E3	Event:T3 cotemporal:E4 agent:T6 location:T7 time:T8
+T4	Event 314 325	accumulated
+E4	Event:T4 causes:E5 agent:T9 theme:T10
+T5	Event 370 373	fit
+E5	Event:T5 super-event:E1 agent:T11 theme:T12 theme2:T13
+T6	Entity 216 258	the descendants of that ancestral organism
+T7	Entity 268 284	various habitats
+T8	Entity 290 307	millions of years
+T9	Entity 309 313	they
+*	same-entity T9 T6 T12
+T10	Entity 326 347	diverse modifications
+T11	Entity 352 363	adaptations
+*	same-entity T10 T11
+T12	Entity 374 378	them
+T13	Entity 382 403	specific ways of life
+T14	Entity 519 523	life
+T15	Entity 531 536	today

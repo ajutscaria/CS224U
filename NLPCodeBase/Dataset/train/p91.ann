@@ -1,0 +1,19 @@
+T1	Event 23 28	grows
+E1	Event:T1 cotemporal:E2 agent:T5 origin:T6
+T2	Event 65 73	threaded
+E2	Event:T2 next-event:E3 theme:T7 destination:T8 location:T9
+T3	Event 178 184	enters
+E3	Event:T3 cotemporal:E4 agent:T10 destination:T11
+T4	Event 202 207	folds
+E4	Event:T4 agent:T12 result:T13
+T5	Entity 3 22	a polypeptide chain
+T6	Entity 34 50	a bound ribosome
+T7	Entity 52 61	the chain
+*	same-entity T5 T7 T10 T12
+T8	Entity 79 91	the ER lumen
+T9	Entity 100 106	a pore
+T10	Entity 158 177	the new polypeptide
+T11	Entity 185 197	the ER lumen
+*	same-entity T8 T11
+T12	Entity 199 201	it
+T13	Entity 213 229	its native shape

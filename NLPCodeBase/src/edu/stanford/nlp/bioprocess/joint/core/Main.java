@@ -17,9 +17,9 @@ public class Main implements Runnable {
 
   public static class Options {
     @Option(gloss = "Dataset dir")
-    public String datasetDir;
+    public String datasetdir;
     @Option(gloss = "Run on dev or test")
-    public String runOn;
+    public String runon;
     @Option(gloss = "Number of folds for cross validation")
     public int numOfFolds = 10;
 
@@ -36,17 +36,20 @@ public class Main implements Runnable {
 
   public static Options opts = new Options();
 
+  @Option(gloss="Dataset dir") public String datasetDir;
+  @Option(gloss="Run on dev or test") public String runOn;
+  
   @Override
   public void run() {
     // TODO Auto-generated method stub
     LogInfo.begin_track("main");
-    String trainDirectory = opts.datasetDir + "/train/";
-    String testDirectory = opts.datasetDir + "/test/";
-    String sampleDirectory = opts.datasetDir + "/sample/";
+    String trainDirectory = datasetDir + "/train/";
+    String testDirectory = datasetDir + "/test/";
+    String sampleDirectory = datasetDir + "/sample/";
 
     Dataset.opts.inPaths.add(Pair.makePair("test", testDirectory));
-    Dataset.opts.inPaths.add(Pair.makePair("test", trainDirectory));
-    Dataset.opts.inPaths.add(Pair.makePair("test", sampleDirectory));
+    Dataset.opts.inPaths.add(Pair.makePair("train", trainDirectory));
+    //Dataset.opts.inPaths.add(Pair.makePair("sample", sampleDirectory));
     Dataset.opts.inFile = "serializeddata";
     Dataset.opts.numOfFolds = opts.numOfFolds;
     Dataset d = new Dataset();
@@ -64,13 +67,13 @@ public class Main implements Runnable {
     }
     
     //TODO: Should have a better way to sync?
-    FeatureExtractor.opts.runGlobalModel = opts.runGlobalModel;
+    /*FeatureExtractor.opts.runGlobalModel = opts.runGlobalModel;
     FeatureExtractor.opts.useBaselineFeaturesOnly = opts.useBaselineFeaturesOnly;
     FeatureExtractor.opts.useLexicalFeatures = opts.useLexicalFeatures;
-    FeatureExtractor.opts.window = opts.window;
-    if (opts.runOn.equals("dev")) {
+    FeatureExtractor.opts.window = opts.window;*/
+    if (runOn.equals("dev")) {
       runJointLearningDev(d);
-    } else if (opts.runOn.equals("test")) {
+    } else if (runOn.equals("test")) {
       runJointLearningTest(d);
     }
 

@@ -1,0 +1,48 @@
+T1	Entity 34 37	CO2
+T2	Entity 43 50	the air
+T3	Entity 56 73	organic molecules
+T4	Event 20 33	incorporating
+E1	Event:T4 raw-material:T1 origin:T2 destination:T3 location:T5 same-event:E2 super-event:E7
+T5	Entity 93 108	the chloroplast
+T7	Event 123 136	incorporation
+E2	Event:T7 raw-material:T8 destination:T9 same-event:E3
+T8	Entity 140 146	carbon
+*	same-entity T1 T8 T13 T19
+T9	Entity 152 169	organic compounds
+*	same-entity T3 T9
+T10	Event 182 197	carbon fixation
+E3	Event:T10 next-event:E4 same-event:E1
+T11	Event 221 228	reduces
+E4	Event:T11 raw-material:T13 result:T14 raw-material2:T16 cotemporal:E6 super-event:E8
+T13	Entity 229 245	the fixed carbon
+T14	Entity 249 261	carbohydrate
+T15	Event 269 277	addition
+E5	Event:T15 raw-material:T16 result:T14 agent:T17 same-event:E4 theme:T13
+T16	Entity 281 290	electrons
+T17	Entity 326 331	NADPH
+T18	Event 398 405	convert
+E6	Event:T18 raw-material:T19 result:T20 raw-material2:T23 super-event:E9
+T19	Entity 406 409	CO2
+T20	Entity 413 425	carbohydrate
+*	same-entity T14 T20
+T23	Entity 458 473	chemical energy
+T24	Entity 489 492	ATP
+*	same-entity T23 T24 T28 T31
+T6	Event 4 9	cycle
+E7	Event:T6 same-event:E8 same-event2:E10 same-event3:E11 same-event4:E12
+T12	Event 203 215	Calvin cycle
+E8	Event:T12 same-event:E9 same-event2:E10 same-event3:E11 same-event4:E12
+T21	Event 431 443	Calvin cycle
+E9	Event:T21 raw-material:T23 same-event:E7 same-event2:E10 same-event3:E11 same-event4:E12
+T22	Event 558 570	Calvin cycle
+E10	Event:T22 result:T25 same-event:E11 raw-material:T30 raw-material2:T31 same-event2:E12
+T25	Entity 582 587	sugar
+T26	Event 869 881	Calvin cycle
+E11	Event:T26 same-event:E12
+T27	Entity 971 976	NADPH
+T28	Entity 981 984	ATP
+*	same-entity T27 T17 T30
+T29	Event 994 1006	Calvin cycle
+E12	Event:T29 raw-material:T28 raw-material2:T27
+T30	Entity 632 637	NADPH
+T31	Entity 642 645	ATP

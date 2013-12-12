@@ -1,0 +1,29 @@
+T1	Entity 0 33	These chloride transport channels
+T2	Static-Event 38 57	defective or absent
+E1	Static-Event:T2 location:T3 causes:E3 theme:T1
+T3	Entity 61 81	the plasma membranes
+T4	Event 98 105	inherit
+E2	Event:T4 agent:T6 theme:T5 causes:E1
+T5	Entity 106 147	two recessive alleles for cystic fibrosis
+T6	Entity 85 93	children
+T7	Static-Event 177 195	high concentration
+E3	Static-Event:T7 causes:E4 theme:T16
+T8	Static-Event 281 301	thicker and stickier
+E4	Static-Event:T8 next-event:E5 theme:T9
+T9	Entity 236 270	the mucus that coats certain cells
+T10	Entity 315 324	The mucus
+*	same-entity T10 T9
+T11	Event 325 334	builds up
+E5	Event:T11 agent:T10 location:T12 causes:E6
+T12	Entity 338 392	the pancreas, lungs, digestive tract, and other organs
+T13	Event 405 435	multiple (pleiotropic) effects
+E6	Event:T13 
+T14	Event 452 462	absorption
+E7	Event:T14 super-event:E6 theme:T17 location:T18 cotemporal:E8
+T16	Entity 199 221	extracellular chloride
+T17	Entity 466 475	nutrients
+T18	Entity 481 496	the intestines,
+T19	Event 505 515	bronchitis
+E8	Event:T19 cotemporal:E9
+T20	Event 531 551	bacterial infections
+E9	Event:T20 cotemporal:E7

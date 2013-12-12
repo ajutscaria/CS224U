@@ -1,0 +1,23 @@
+T1	Event 10 21	homogenized
+E1	Event:T1 theme:T2 location:T3 causes:E2
+T2	Entity 0 5	Cells
+T3	Entity 25 34	a blender
+T4	Event 38 43	break
+E2	Event:T4 theme:T5 location:T3 next-event:E3
+T5	Entity 44 48	them
+*	same-entity T5 T2
+T7	Entity 53 87	The resulting mixture (homogenate)
+T8	Event 91 102	centrifuged
+E3	Event:T8 theme:T7 next-event:E4
+T6	Entity 104 128	The supernatant (liquid)
+T9	Event 132 138	poured
+E4	Event:T9 theme:T6 destination:T10 next-event:E5
+T10	Entity 144 156	another tube
+T11	Event 161 172	centrifuged
+E5	Event:T11 theme:T6 location:T10 next-event:E6
+T12	Event 226 234	repeated
+E6	Event:T12 theme:T13 super-event:E7
+T13	Entity 210 222	This process
+T14	Event 255 284	"differential centrifugation"
+E7	Event:T14 result:T15
+T15	Entity 296 315	a series of pellets

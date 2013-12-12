@@ -1,0 +1,14 @@
+T1	Entity 0 42	The nation’s 11 million illegal immigrants
+T2	Event 57 61	wait
+E1	Event:T2 ?
+T3	Entity 65 75	full decade
+T4	Entity 82 92	green card
+T5	Event 103 107	earn
+E2	Event:T5 ?
+T6	Entity 108 119	citizenship
+T7	Entity 125 136	three years
+T8	Entity 157 166	provision
+T9	Event 173 182	finalized
+E3	Event:T9 ?
+T10	Entity 186 222	a bipartisan group of eight senators
+T11	Event 

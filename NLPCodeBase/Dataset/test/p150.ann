@@ -1,0 +1,16 @@
+T1	Static-Event 23 35	heterozygous
+E1	Static-Event:T1 cotemporal:E2 agent:T5 location:T6 causes:E3
+T2	Static-Event 63 70	greater
+E2	Static-Event:T2 causes:E3 agent:T5 theme:T7
+T3	Static-Event 127 149	heterozygote advantage
+E3	Static-Event:T3 next-event:E4 agent:T8
+T4	Event 194 202	maintain
+E4	Event:T4 agent:T10 theme:T11 location:T12
+T5	Entity 3 14	individuals
+T6	Entity 39 57	a particular locus
+T7	Entity 71 78	fitness
+T8	Entity 114 118	they
+*	same-entity T5 T8
+T10	Entity 167 184	natural selection
+T11	Entity 203 222	two or more alleles
+T12	Entity 226 236	that locus

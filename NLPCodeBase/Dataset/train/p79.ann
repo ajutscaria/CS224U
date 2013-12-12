@@ -1,0 +1,34 @@
+T1	Event 18 25	strikes
+E1	Event:T1 theme:T9 agent:T8 location:T10 causes:E2
+T2	Event 85 93	boosting
+E2	Event:T2 agent:T8 theme:T11 result:T12 next-event:E3
+T3	Event 158 163	falls
+E3	Event:T3 agent:T13 result:T14 cotemporal:E4
+T4	Event 249 255	raised
+E4	Event:T4 theme:T15 result:T16 next-event:E5
+T5	Event 322 329	relayed
+E5	Event:T5 theme:T17 destination:T18 next-event:E6
+T6	Event 366 373	reaches
+E6	Event:T6 location:T21 destination:T20 next-event:E7 agent:T19
+T7	Event 456 463	excites
+E7	Event:T7 agent:T22 theme:T23 location:T24 result:T25
+T8	Entity 0 17	A photon of light
+T9	Entity 26 44	a pigment molecule
+T10	Entity 48 83	a light-harvesting complex of PS II
+T11	Entity 94 114	one of its electrons
+T12	Entity 118 139	a higher energy level
+T13	Entity 144 157	this electron
+*	same-entity T11 T13
+T14	Entity 172 188	its ground state
+T15	Entity 190 230	an electron in a nearby pigment molecule
+T16	Entity 259 275	an excited state
+T17	Entity 305 315	the energy
+T18	Entity 333 356	other pigment molecules
+T19	Entity 363 365	it
+*	same-entity T19 T17 T22
+T20	Entity 374 414	the P680 pair of chlorophyll a molecules
+T21	Entity 418 451	the PS II reaction-center complex
+T22	Entity 453 455	It
+T23	Entity 464 475	an electron
+T24	Entity 479 504	this pair of chlorophylls
+T25	Entity 508 529	a higher energy state

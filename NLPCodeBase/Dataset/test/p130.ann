@@ -1,0 +1,30 @@
+T1	Event 327 334	destroy
+E1	Event:T1 causes:E2 agent:T10 theme:T11
+T2	Static-Event 246 255	resistant
+E2	Static-Event:T2 next-event:E3 agent:T7 theme:T8
+T3	Event 372 382	developing
+E3	Event:T3 causes:E4 agent:T12 theme:T13
+T4	Event 468 477	developed
+E4	Event:T4 next-event:E5 agent:T14 theme:T15 time:T16
+T5	Event 549 554	using
+E5	Event:T5 next-event:E6 agent:T17 theme:T18
+T6	Event 657 665	appeared
+E6	Event:T6 agent:T20 time:T19
+T7	Entity 176 232	more than 20% of the S. aureus strains seen in hospitals
+T8	Entity 259 269	penicillin
+T9	Entity 290 299	an enzyme
+T10	Entity 301 314	penicillinase
+*	same-entity T9 T10
+T11	Entity 335 345	penicillin
+*	same-entity T8 T11
+T12	Entity 347 358	Researchers
+T13	Entity 383 435	antibiotics that were not destroyed by penicillinase
+T14	Entity 441 467	some S. aureus populations
+T15	Entity 478 505	resistance to each new drug
+T16	Entity 513 524	a few years
+T17	Entity 535 542	doctors
+T18	Entity 555 590	the powerful antibiotic methicillin
+T19	Entity 603 612	two years
+T20	Entity 614 656	methicillin-resistant strains of S. aureus
+T21	Entity 271 285	These bacteria
+*	same-entity T7 T21

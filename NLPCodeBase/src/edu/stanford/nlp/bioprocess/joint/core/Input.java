@@ -9,9 +9,17 @@ import java.util.List;
 import java.util.Map;
 
 import edu.illinois.cs.cogcomp.indsup.inference.IInstance;
+import edu.stanford.nlp.bioprocess.Utils;
+import edu.stanford.nlp.ling.CoreAnnotations.BeginIndexAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetBeginAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.CharacterOffsetEndAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.EndIndexAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.SentencesAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokenBeginAnnotation;
+import edu.stanford.nlp.ling.CoreAnnotations.TokenEndAnnotation;
 import edu.stanford.nlp.ling.CoreAnnotations.TokensAnnotation;
 import edu.stanford.nlp.ling.CoreLabel;
+import edu.stanford.nlp.ling.IndexedWord;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
@@ -41,6 +49,7 @@ public class Input implements IInstance, Serializable {
 	 * A map from trigger token to trigger id
 	 */
 	private final Map<Integer, Integer> triggerCandidateToId;
+	private List<Integer> eventToSentence = new ArrayList<Integer>();
 
 	/**
 	 * A list of maps, one for each trigger, each of which is a map from the
@@ -244,20 +253,29 @@ public class Input implements IInstance, Serializable {
 		// TODO Auto-generated method stub
 		IntPair[][] res = new IntPair[triggerCandidates.length][];
 		List<CoreMap> sentences = annotation.get(SentencesAnnotation.class);
-
+      
 		for (int i = 0; i < res.length; i++) {
 			int tokenId = getTriggerTokenId(i);
-			List<IntPair> entities = new ArrayList<IntPair>();
-			CoreMap sentence = AnnotationUtils.getContainingSentence(sentences,
-					tokenId, tokenId);
+			//System.out.println("event "+i+" with token ID:"+tokenId);
+			List<Tree> entities = new ArrayList<Tree>();
+			int whichSentence = eventToSentence.get(i);
+			int position = 0;
+			
+            for(int j=0; j<whichSentence; j++)
+              position += annotation.get(SentencesAnnotation.class).get(j).get(TokensAnnotation.class).size();
+            //System.out.println("which sentence:"+whichSentence+", position:"+position);
+			CoreMap sentence = annotation.get(SentencesAnnotation.class).get(whichSentence);
 			for (Tree node : sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				if (node.isLeaf() || node.value().equals("ROOT"))
 					continue;
-				entities.add(node.getSpan());
+				entities.add(node);
 			}
 			res[i] = new IntPair[entities.size()];
 			for (int j = 0; j < entities.size(); j++) {
-				res[i][j] = entities.get(j);
+			    int begin = entities.get(j).getSpan().getSource();
+			    int end = entities.get(j).getSpan().getTarget();
+				res[i][j] = new IntPair(begin+position, end+position+1);//span does include the start but not the end
+				//System.out.println(entities.get(j)+": "+begin+", "+end+"; new begin:"+(begin+position)+", new end:"+(end+position));
 			}
 		}
 
@@ -281,10 +299,11 @@ public class Input implements IInstance, Serializable {
 	 */
 	private int[] createTriggerCandidates(Annotation annotation) {
 		// TODO Auto-generated method stub
-
+        
 		List<Tree> eventNodes = new ArrayList<Tree>();
+		int counter = 0;
 		for (CoreMap sentence : annotation.get(SentencesAnnotation.class)) {
-			for (Tree node : sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+		  for (Tree node : sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
 				String value = node.value();
 				if (node.isLeaf()
 						|| value.equals("ROOT")
@@ -293,14 +312,24 @@ public class Input implements IInstance, Serializable {
 								|| value.startsWith("NN") || value.equals("JJ") || value
 									.startsWith("VB")))
 					continue;
+				//System.out.println(sentence+": "+node.toString());
 				eventNodes.add(node);
+				eventToSentence.add(counter);
 				// count++;
 			}
+		    counter++;
 		}
-
+        //System.out.println(eventNodes.size());
 		int[] res = new int[eventNodes.size()];
 		for (int i = 0; i < eventNodes.size(); i++) {
-			res[i] = eventNodes.get(i).getSpan().getSource();
+		    //getEventNodeTokenIndex(eventNodes.get(i));
+		    int whichSentence = eventToSentence.get(i);
+		    int position = 0;
+		    for(int j=0; j<whichSentence; j++)
+		      position += annotation.get(SentencesAnnotation.class).get(j).get(TokensAnnotation.class).size();
+		    position += eventNodes.get(i).getSpan().getSource();
+			res[i] = position;
+			System.out.println(eventNodes.get(i)+"- "+i+":"+res[i]);
 		}
 
 		/*
@@ -311,6 +340,7 @@ public class Input implements IInstance, Serializable {
 		 */
 		return res;
 	}
+	
 
 	@Override
 	public String toString() {

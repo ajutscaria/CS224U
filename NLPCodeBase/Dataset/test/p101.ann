@@ -1,0 +1,22 @@
+T1	Event 107 112	split
+E1	Event:T1 raw-material:T4 next-event:E2
+T2	Event 114 123	providing
+E2	Event:T2 next-event:E3 agent:T4 result:T5
+T3	Event 182 188	giving
+E3	Event:T3 agent:T4 result:T7 next-event:E4
+T4	Entity 98 103	Water
+T5	Entity 124 157	a source of electrons and protons
+T6	Entity 159 176	hydrogen ions, H+
+*	same-entity T5 T6
+T7	Entity 193 195	O2
+T8	Event 219 227	absorbed
+E4	Event:T8 causes:E5 theme:T10 agent:T11
+T9	Event 252 260	transfer
+E5	Event:T9 agent:T10 raw-material:T12 origin:T13 destination:T14
+T10	Entity 213 218	Light
+T11	Entity 231 242	chlorophyll
+T12	Entity 264 295	the electrons and hydrogen ions
+T13	Entity 301 306	water
+T14	Entity 313 334	acceptor called NADP+
+T15	Entity 336 379	nicotinamide adenine dinucleotide phosphate
+*	same-entity T14 T15

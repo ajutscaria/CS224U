@@ -355,12 +355,16 @@ public class FeatureExtractor {
     ArrayList<String> indicatorFeatures = fv.getIndicateFeatures();
     ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
         .getGeneralFeatures();
-    for (String f : indicatorFeatures) {
-      f = label + "&" + f;
-    }
-    for (fig.basic.Pair<String, Double> f : generalFeatures) {
-      f.setFirst(label + "&" + f.getFirst());
-    }
+    //System.out.println("indicator feature size:"+indicatorFeatures.size());
+    //System.out.println("general feature size:"+generalFeatures.size());
+    if(indicatorFeatures!=null)
+      for (String f : indicatorFeatures) {
+        f = label + "&" + f;
+      }
+    if(generalFeatures!=null)
+      for (fig.basic.Pair<String, Double> f : generalFeatures) {
+        f.setFirst(label + "&" + f.getFirst());
+      }
     return fv;
   }
 
@@ -370,12 +374,14 @@ public class FeatureExtractor {
     ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
     ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
         .getGeneralFeatures();
-    for (String f : indicateFeatures) {
-      f = label + "&" + f;
-    }
-    for (fig.basic.Pair<String, Double> f : generalFeatures) {
-      f.setFirst(label + "&" + f.getFirst());
-    }
+    if(indicateFeatures!=null)
+      for (String f : indicateFeatures) {
+        f = label + "&" + f;
+      }
+    if(generalFeatures!=null)
+      for (fig.basic.Pair<String, Double> f : generalFeatures) {
+        f.setFirst(label + "&" + f.getFirst());
+      }
     return fv;
   }
 
@@ -385,12 +391,14 @@ public class FeatureExtractor {
     ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
     ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
         .getGeneralFeatures();
-    for (String f : indicateFeatures) {
-      f = label + "&" + f;
-    }
-    for (fig.basic.Pair<String, Double> f : generalFeatures) {
-      f.setFirst(label + "&" + f.getFirst());
-    }
+    if(indicateFeatures!=null)
+      for (String f : indicateFeatures) {
+        f = label + "&" + f;
+      }
+    if(generalFeatures!=null)
+      for (fig.basic.Pair<String, Double> f : generalFeatures) {
+        f.setFirst(label + "&" + f.getFirst());
+      }
     return fv;
   }
   

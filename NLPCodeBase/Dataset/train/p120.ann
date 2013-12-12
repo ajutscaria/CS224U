@@ -1,0 +1,30 @@
+T1	Event 118 122	aims
+E1	Event:T1 next-event:E5 agent:T9 raw-material:T10 theme:T11
+T2	Event 278 285	stained
+E2	Event:T2 next-event:E3 theme:T12 raw-material:T13
+T3	Event 320 326	attach
+E3	Event:T3 causes:E4 agent:T13 theme:T14
+T4	Event 364 373	enhancing
+E4	Event:T4 next-event:E1 agent:T13 theme:T15
+T5	Event 453 460	passing
+E5	Event:T5 next-event:E6 agent:T16 theme:T17
+T6	Event 486 495	scattered
+E6	Event:T6 causes:E7 theme:T16 location:T18
+T7	Event 537 548	transmitted
+E7	Event:T7 next-event:E8 theme:T19
+T8	Event 560 568	displays
+E8	Event:T8 agent:T20 result:T21
+T9	Entity 110 117	The TEM
+T10	Entity 123 139	an electron beam
+T11	Entity 148 183	a very thin section of the specimen
+T12	Entity 256 268	The specimen
+T13	Entity 291 312	atoms of heavy metals
+T14	Entity 330 357	certain cellular structures
+T15	Entity 374 420	the electron density of some parts of the cell
+T16	Entity 439 452	The electrons
+*	same-entity T10 T16
+T17	Entity 469 481	the specimen
+T18	Entity 501 522	in the denser regions
+T19	Entity 527 532	fewer
+T20	Entity 550 559	The image
+T21	Entity 569 605	the pattern of transmitted electrons

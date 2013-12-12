@@ -1,0 +1,19 @@
+T1	Event 55 65	duplicated
+E1	Event:T1 next-event:E2 theme:T7
+T2	Event 435 442	persist
+E2	Event:T2 enables:E3 agent:T11 time:T12
+T3	Event 483 493	accumulate
+E3	Event:T3 agent:T13
+T4	Event 73 79	errors
+E4	Event:T4 causes:E1 time:T8
+T5	Event 124 132	slippage
+E5	Event:T5 causes:E1 time:T9
+T6	Event 164 174	activities
+E6	Event:T6 causes:E1 agent:T10
+T7	Entity 45 50	genes
+T8	Entity 83 90	meiosis
+T9	Entity 140 155	DNA replication
+T10	Entity 178 199	transposable elements
+T11	Entity 381 430	Gene duplications that do not have severe effects
+T12	Entity 448 459	generations
+T13	Entity 470 479	mutations

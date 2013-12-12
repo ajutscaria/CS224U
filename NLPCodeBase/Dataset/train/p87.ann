@@ -1,0 +1,27 @@
+T1	Event 11 23	fermentation
+E1	Event:T1 theme:T7
+T2	Event 52 61	converted
+E2	Event:T2 super-event:E1 raw-material:T8 result:T9
+T3	Event 118 126	releases
+E3	Event:T3 super-event:E2 causes:E4 theme:T11 agent:T13 raw-material:T12
+T4	Event 170 179	converted
+E4	Event:T4 next-event:E5 result:T14 raw-material:T12
+T5	Event 257 264	reduced
+E5	Event:T5 causes:E6 agent:T17 result:T16 raw-material:T15
+T6	Event 290 301	regenerates
+E6	Event:T6 result:T18
+T7	Entity 3 10	alcohol
+T8	Entity 40 48	pyruvate
+T9	Entity 65 72	ethanol
+T10	Entity 74 87	ethyl alcohol
+*	same-entity T9 T10 T16
+T11	Entity 127 141	carbon dioxide
+T12	Entity 147 159	the pyruvate
+T13	Entity 103 117	The first step
+*	same-entity T8 T12
+T14	Entity 183 219	the two-carbon compound acetaldehyde
+T15	Entity 241 253	acetaldehyde
+*	same-entity T14 T15
+T16	Entity 276 283	ethanol
+T17	Entity 268 272	NADH
+T18	Entity 302 320	the supply of NAD+

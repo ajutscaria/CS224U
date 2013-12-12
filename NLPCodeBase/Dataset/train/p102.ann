@@ -1,0 +1,31 @@
+T1	Event 16 23	absorbs
+E1	Event:T1 causes:E2 same-event:E4 agent:T8 theme:T9 same-event2:E7
+T2	Event 78 86	elevated
+E2	Event:T2 same-event:E6 theme:T10 destination:T11 origin:T12
+T3	Static-Event 223 235	ground state
+E3	Static-Event:T3 next-event:E1 agent:T13
+T4	Event 237 247	Absorption
+E4	Event:T4 causes:E6 same-event:E7 theme:T14
+T5	Event 361 374	excited state
+E5	Event:T5 agent:T17
+T6	Event 260 266	boosts
+E6	Event:T6 causes:E5 theme:T15 agent:T14 destination:T16
+T7	Event 393 401	absorbed
+E7	Event:T7 theme:T18 theme2:T19
+T8	Entity 5 15	a molecule
+T9	Entity 24 41	a photon of light
+T10	Entity 43 74	one of the molecule's electrons
+T11	Entity 90 135	an orbital where it has more potential energy
+T12	Entity 161 179	its normal orbital
+T13	Entity 181 201	the pigment molecule
+T14	Entity 251 259	a photon
+*	same-entity T9 T14
+T15	Entity 267 278	an electron
+*	same-entity T15 T10
+T16	Entity 282 309	an orbital of higher energy
+*	same-entity T16 T11
+T17	Entity 315 335	the pigment molecule
+*	same-entity T13 T17
+T18	Entity 376 392	The only photons
+T19	Entity 406 512	those whose energy is exactly equal to the energy difference between the ground state and an excited state
+*	same-entity T18 T19

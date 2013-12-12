@@ -1,0 +1,20 @@
+T1	Event 531 538	isolate
+E1	Event:T1 causes:E2 agent:T13 theme:T14
+T2	Event 83 92	formation
+E2	Event:T2 result:T6 agent:T7
+T3	Event 196 202	impede
+E3	Event:T3 causes:E4 causes2:E5 agent:T8 theme:T9
+T4	Event 300 305	block
+E4	Event:T4 cotemporal:E5 causes:E1 agent:T10 theme:T11
+T5	Event 340 345	limit
+E5	Event:T5 causes:E1 agent:T10 theme:T12
+T6	Entity 96 109	a new species
+T7	Entity 120 142	reproductive isolation
+T8	Entity 161 190	biological factors (barriers)
+T9	Entity 203 258	members of two species from interbreeding and producing
+T10	Entity 286 299	Such barriers
+*	same-entity T8 T10
+T11	Entity 306 335	gene flow between the species
+T12	Entity 346 370	the formation of hybrids
+T13	Entity 481 514	a combination of several barriers
+T14	Entity 539 559	a species' gene pool

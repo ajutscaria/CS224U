@@ -1,0 +1,23 @@
+T1	Event 74 82	disposed
+E1	Event:T1 same-event:E5 theme:T6
+T2	Static-Event 409 414	brake
+E2	Static-Event:T2 next-event:E3 super-event:E1 agent:T9 location:T10
+T3	Event 421 432	released by
+E3	Event:T3 enables:E4 theme:T9 agent:T11
+T4	Event 459 469	activation
+E4	Event:T4 agent:T12 theme:T13 theme2:T15
+T5	Event 0 9	Apoptosis
+E5	Event:T5 super-event:E6
+T6	Entity 54 69	cell components
+T7	Event 39 44	death
+E6	Event:T7 theme:T8
+T8	Entity 34 38	cell
+T9	Entity 351 368	A protein (Ced-9)
+T10	Entity 372 398	the mitochondrial membrane
+T11	Entity 433 447	a death signal
+T12	Entity 449 451	it
+*	same-entity T12 T9
+T13	Entity 473 481	caspases
+T14	Entity 483 526	the main proteases that carry out apoptosis
+*	same-entity T13 T14
+T15	Entity 532 541	nucleases

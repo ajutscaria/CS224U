@@ -1,0 +1,25 @@
+T1	Event 15 23	transfer
+E1	Event:T1 next-event:E2 agent:T7 agent2:T6 theme:T8 destination:T9
+T2	Event 77 81	move
+E2	Event:T2 cotemporal:E3 agent:T10 theme:T11
+T3	Event 98 104	losing
+E3	Event:T3 next-event:E4 agent:T10 theme:T12 time:T13
+T4	Event 170 176	passed
+E4	Event:T4 cotemporal:E5 theme:T14 destination:T15
+T5	Event 184 192	reducing
+E5	Event:T5 agent:T14 theme:T17 result:T16
+T6	Entity 0 4	NADH
+T7	Entity 9 14	FADH2
+T8	Entity 24 33	electrons
+T9	Entity 37 65	the electron transport chain
+T10	Entity 67 76	Electrons
+*	same-entity T8 T10 T14
+T11	Entity 87 96	the chain
+*	same-entity T9 T11
+T12	Entity 105 111	energy
+T13	Entity 115 145	several energy-releasing steps
+T14	Entity 156 165	electrons
+T15	Entity 180 182	O2
+T16	Entity 199 202	H2O
+T17	Entity 193 195	it
+*	same-entity T17 T15

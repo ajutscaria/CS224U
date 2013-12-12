@@ -48,7 +48,7 @@ public class Dataset {
     public int numOfFolds = 2;
     @Option(gloss="verbosity") public int verbose=0;
     @Option(gloss="Whether to serialize the dataset") public boolean serialize=false;
-    @Option(gloss="Whether to load the dataset from serialized file") public boolean loadFromFile=true;
+    @Option(gloss="Whether to load the dataset from serialized file") public boolean loadFromFile=false;
     @Option(gloss="Path to write the dataset")
     public String outFile;
     @Option(gloss="Path to read serializeddataset")
@@ -164,10 +164,12 @@ public class Dataset {
     String[] triggers = generateTriggersFromMap(input,triggerMap);
     //init relations and argument arrays
     String[] relations = new String[input.getNumberOfEERelationCandidates()];
+    Arrays.fill(relations, DatasetUtils.NONE_LABEL);//heather
     String[][] arguments = new String[input.getNumberOfTriggers()][];
-    for(int i = 0; i < arguments.length; ++i) 
+    for(int i = 0; i < arguments.length; ++i){ 
       arguments[i] = new String[input.getNumberOfArgumentCandidates(i)];
-
+      Arrays.fill(arguments[i], DatasetUtils.NONE_LABEL);//heather
+    }
     //second pass - populate relations and arguments
     for(String line: IOUtils.readLines(file)) {
       getRolesAndRelations(input, line,triggerMap,entityMap,arguments,relations);
@@ -189,6 +191,7 @@ public class Dataset {
   private void getRolesAndRelations(Input input, String line,
       Map<String, Integer> triggerMap, Map<String, IntPair> entityMap, String[][] arguments, String[] relations) {
 
+    //System.out.println(line);
     if(line.startsWith("E")) {
       String[] parts = line.split("\t");
       String[] eventDetails = parts[1].split("\\s+");
@@ -196,20 +199,28 @@ public class Dataset {
         "In event line first token should be event: " + eventDetails[0].split(":")[0];
 
       int triggerTokenIndex = triggerMap.get(eventDetails[0].split(":")[1]);
+      //System.out.println(triggerTokenIndex);
       for(int i = 1; i < eventDetails.length; ++i) {
         String[] dependentParts = eventDetails[i].split(":");
         String edgeLabel = dependentParts[0];
         String id = dependentParts[1];
         if(DatasetUtils.isRole(edgeLabel)) {
           IntPair span = entityMap.get(id);
-          arguments[input.getTriggerIndex(triggerTokenIndex)][input.getArgumentSpanIndex(triggerTokenIndex,span)]=
+          //heather
+          int triggerId = input.getTriggerIndex(triggerTokenIndex);
+          arguments[triggerId][input.getArgumentSpanIndex(triggerId,span)]=
               DatasetUtils.getLabel(edgeLabel);       
         }
         else if(DatasetUtils.isEventEventRelation(edgeLabel)) {
           int otherTriggerTokenIndex = triggerMap.get(id);
+          //System.out.println("other:"+otherTriggerTokenIndex);
           int triggerId1 = input.getTriggerIndex(triggerTokenIndex);
           int triggerId2 = input.getTriggerIndex(otherTriggerTokenIndex);
-          relations[input.getEERelationIndex(triggerId1,triggerId2)]=DatasetUtils.getLabel(edgeLabel);
+          //heather
+          if(triggerId1 > triggerId2){
+            relations[input.getEERelationIndex(triggerId2,triggerId1)]=DatasetUtils.getLabel(edgeLabel);
+          }else
+            relations[input.getEERelationIndex(triggerId1,triggerId2)]=DatasetUtils.getLabel(edgeLabel);
         }
         else throw new RuntimeException("Line contains unknown event-event relation or role: " + line);
       }
@@ -293,7 +304,7 @@ public class Dataset {
   public static void main(String[] args) throws IOException, InterruptedException, ClassNotFoundException {
 
     opts.inPaths.add(Pair.makePair("test","lib/Dataset/debug"));
-    opts.inFile = "serializeddata";
+    //opts.inFile = "serializeddata";
     Dataset d = new Dataset();
     d.read();
   }
