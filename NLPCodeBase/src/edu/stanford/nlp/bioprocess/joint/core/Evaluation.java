@@ -71,11 +71,11 @@ public class Evaluation {
           .getNumberOfArgumentCandidates(eventId); entityId++) {
         if(gold.getArgumentCandidateLabel(eventId, entityId).equals(predicted.getArgumentCandidateLabel(eventId, entityId))){
           tp++;
-        }else if(gold.getArgumentCandidateLabel(eventId, entityId)!=null && 
-            predicted.getArgumentCandidateLabel(eventId, entityId)==null){
+        }else if(gold.getArgumentCandidateLabel(eventId, entityId)!=DatasetUtils.NONE_LABEL && 
+            predicted.getArgumentCandidateLabel(eventId, entityId)==DatasetUtils.NONE_LABEL){
           fn++;    
-        }else if(gold.getArgumentCandidateLabel(eventId, entityId)==null && 
-            predicted.getArgumentCandidateLabel(eventId, entityId)!=null){
+        }else if(gold.getArgumentCandidateLabel(eventId, entityId)==DatasetUtils.NONE_LABEL && 
+            predicted.getArgumentCandidateLabel(eventId, entityId)!=DatasetUtils.NONE_LABEL){
           fp++;
         }
       }
@@ -95,11 +95,11 @@ public class Evaluation {
       assert gold.input.getEERelationCandidatePair(Id).getTarget() == predicted.input.getEERelationCandidatePair(Id).getTarget();
       if(gold.getEERelationLabel(event1, event2).equals(predicted.getEERelationLabel(event1, event2))){
         tp++;
-      }else if(gold.getEERelationLabel(event1, event2)!=null && 
-          predicted.getEERelationLabel(event1, event2)==null){
+      }else if(gold.getEERelationLabel(event1, event2)!=DatasetUtils.NONE_LABEL && 
+          predicted.getEERelationLabel(event1, event2)==DatasetUtils.NONE_LABEL){
         fn++;    
-      }else if(gold.getEERelationLabel(event1, event2)==null && 
-          predicted.getEERelationLabel(event1, event2)!=null){
+      }else if(gold.getEERelationLabel(event1, event2)==DatasetUtils.NONE_LABEL && 
+          predicted.getEERelationLabel(event1, event2)!=DatasetUtils.NONE_LABEL){
         fp++;
       }
     }
