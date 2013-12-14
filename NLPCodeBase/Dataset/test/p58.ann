@@ -1,0 +1,19 @@
+T1	Entity 15 60	a segment of the strand containing the damage
+T4	Event 64 81	cut out (excised)
+E2	Event:T4 theme:T1 agent:T5 next-event:E3
+T5	Entity 85 105	a DNA-cutting enzyme
+T6	Entity 107 117	a nuclease
+T7	Entity 123 140	the resulting gap
+T8	Event 149 155	filled
+E3	Event:T8 theme:T7 raw-material:T9 same-event:E5
+T9	Entity 164 175	nucleotides
+T11	Entity 183 203	the undamaged strand
+*	same-entity T5 T6
+T13	Event 243 250	filling
+E5	Event:T13 agent:T14 theme:T15 agent2:T17 agent3:T18
+T14	Entity 219 230	The enzymes
+T15	Entity 251 258	the gap
+T17	Entity 263 279	a DNA polymerase
+T18	Entity 284 294	DNA ligase
+T2	Static-Event 209 217	template
+E1	Static-Event:T2 agent:T11 cotemporal:E3

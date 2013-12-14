@@ -1,0 +1,43 @@
+T1	Event 188 196	attaches
+E1	Event:T1 same-event:E2 agent:T12 theme:T14 same-event2:E3 same-event3:E10
+T2	Event 362 367	binds
+E2	Event:T2 same-event:E3 agent:T16 theme:T17 same-event2:E10
+T3	Event 416 423	binding
+E3	Event:T3 causes:E4 same-event:E10 agent:T19
+T4	Event 473 479	change
+E4	Event:T4 same-event:E5 theme:T20 theme2:T22
+T5	Event 521 527	change
+E5	Event:T5 causes:E6 theme:T21
+T6	Event 537 546	activates
+E6	Event:T6 enables:E7 theme:T23
+T7	Event 576 584	interact
+E7	Event:T7 agent:T24 theme:T25
+T8	Event 781 787	events
+E8	Event:T8 location:T28
+T9	Event 701 712	aggregation
+E9	Event:T9 causes:E8 theme:T27
+T10	Event 677 684	binding
+E10	Event:T10 causes:E9 agent:T26
+T11	Static-Event 126 139	complementary
+E11	Static-Event:T11 enables:E1 agent:T12 theme:T13
+T12	Entity 100 122	The signaling molecule
+T13	Entity 152 183	a specific site on the receptor
+T14	Entity 197 202	there
+*	same-entity T13 T14
+T15	Entity 276 298	The signaling molecule
+T16	Entity 310 318	a ligand
+*	same-entity T12 T15 T16 T18 T19 T26
+T17	Entity 371 387	another molecule
+T18	Entity 333 343	a molecule
+T19	Entity 409 415	Ligand
+T20	Entity 441 459	a receptor protein
+T21	Entity 499 508	receptors
+*	same-entity T20 T21
+T22	Entity 483 488	shape
+T23	Entity 547 559	the receptor
+T24	Entity 570 572	it
+*	same-entity T23 T24
+T25	Entity 590 614	other cellular molecules
+T26	Entity 670 676	ligand
+T27	Entity 716 746	two or more receptor molecules
+T28	Entity 795 803	the cell

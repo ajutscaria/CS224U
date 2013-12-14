@@ -1,0 +1,16 @@
+T1	Entity 0 11	Health care
+T2	Entity 15 32	the United States
+T3	Event 36 44	provided
+E1	Event:T3 theme:T1 location:T2 agent:T4
+T4	Entity 53 75	distinct organizations
+T5	Entity 77 99	Health care facilities
+T6	Event 112 117	owned
+E2	Event:T6 theme:T5 agent:T8
+T7	Event 122 130	operated
+E3	Event:T7 theme:T5 agent:T8
+T8	Entity 134 159	private sector businesses
+T9	Entity 161 177	Health insurance
+T10	Entity 182 205	public sector employees
+T11	Event 219 227	provided
+E4	Event:T11 agent:T12 theme:T9 theme:T10
+T12	Entity 231 245	the government

@@ -1,0 +1,17 @@
+T1	Event 70 82	metagenomics
+E1	Event:T1 
+T2	Event 169 178	collected
+E2	Event:T2 super-event:E1 next-event:E3 theme:T6 origin:T7
+T3	Event 212 221	sequenced
+E3	Event:T3 next-event:E4 theme:T6 result:T9
+T4	Event 273 280	sorting
+E4	Event:T4 next-event:E5 agent:T8 theme:T9
+T5	Event 311 321	assembling
+E5	Event:T5 agent:T8 theme:T10 result:T11
+T6	Entity 123 165	DNA from a group of species (a metagenome)
+T7	Entity 184 207	an environmental sample
+T8	Entity 230 247	computer software
+T9	Entity 285 306	the partial sequences
+T10	Entity 322 326	them
+*	same-entity T10 T9
+T11	Entity 332 348	specific genomes

@@ -1,0 +1,23 @@
+T1	Event 14 18	fuse
+E1	Event:T1 agent:T3 cotemporal:E2
+T2	Event 23 27	form
+E2	Event:T2 agent:T3 result:T4 next-event:E3
+T3	Entity 6 13	gametes
+T4	Entity 28 44	a diploid zygote
+T5	Event 46 53	meiosis
+E3	Event:T5 same-event:E4
+T6	Entity 148 161	haploid cells
+T7	Event 115 122	Meiosis
+E4	Event:T7 result:T6 next-event:E5
+T8	Event 172 178	divide
+E5	Event:T8 result:T9 next-event:E6 result2:T10 agent:T6
+T9	Entity 214 237	unicellular descendants
+T10	Entity 241 279	a haploid multicellular adult organism
+T11	Event 336 343	mitoses
+E6	Event:T11 result:T13 next-event:E7 agent:T12
+T12	Entity 295 315	the haploid organism
+T13	Entity 355 364	the cells
+T14	Event 370 377	develop
+E7	Event:T14 result:T15 agent:T13
+T15	Entity 383 390	gametes
+*	same-entity T10 T12

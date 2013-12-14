@@ -1,0 +1,39 @@
+T1	Event 541 551	metastasis
+E1	Event:T1 
+T2	Event 9 16	changes
+E2	Event:T2 causes:E3 location:T12
+T3	Event 59 63	lose
+E3	Event:T3 enables:E4 agent:T13 theme:T14
+T4	Event 144 150	spread
+E4	Event:T4 cotemporal:E5 agent:T15 destination:T16
+T5	Event 194 201	secrete
+E5	Event:T5 causes:E6 agent:T17 theme:T18
+T6	Event 250 254	grow
+E6	Event:T6 next-event:E7 agent:T19 destination:T20
+T7	Event 295 303	separate
+E7	Event:T7 next-event:E8 agent:T21 origin:T22
+T8	Event 329 334	enter
+E8	Event:T8 next-event:E9 destination:T23 destination2:T24 agent:T21
+T9	Event 372 378	travel
+E9	Event:T9 next-event:E10 destination:T25 agent:T21
+T10	Event 423 434	proliferate
+E10	Event:T10 result:T11 super-event:E1 agent:T26
+T11	Entity 444 455	a new tumor
+T12	Entity 20 36	the cell surface
+T13	Entity 43 55	cancer cells
+T14	Entity 64 125	attachments to neighboring cells and the extracellular matrix
+T15	Entity 136 140	them
+*	same-entity T13 T15 T17
+T16	Entity 156 170	nearby tissues
+T17	Entity 172 184	Cancer cells
+T18	Entity 202 221	signaling molecules
+T19	Entity 233 246	blood vessels
+T20	Entity 262 271	the tumor
+T21	Entity 273 290	A few tumor cells
+T22	Entity 309 327	the original tumor
+T23	Entity 335 348	blood vessels
+*	same-entity T19 T23
+T24	Entity 353 366	lymph vessels
+T25	Entity 382 405	other parts of the body
+T26	Entity 414 418	they
+*	same-entity T21 T26

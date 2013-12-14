@@ -1,0 +1,21 @@
+T1	Event 7 22	DNA replication
+E1	Event:T1 
+T2	Entity 24 39	DNA polymerases
+T3	Event 40 49	proofread
+E2	Event:T3 agent:T2 theme:T4 theme2:T5 super-event:E1 cotemporal:E3
+T4	Entity 50 65	each nucleotide
+T5	Entity 74 86	its template
+T7	Entity 98 100	it
+T8	Event 104 109	added
+E3	Event:T8 theme:T7 theme2:T9 next-event:E4
+T9	Entity 113 131	the growing strand
+T10	Event 138 145	finding
+E4	Event:T10 theme:T11 agent:T12 next-event:E5
+T11	Entity 146 178	an incorrectly paired nucleotide
+T12	Entity 180 194	the polymerase
+T13	Event 195 202	removes
+E5	Event:T13 agent:T12 theme:T14 next-event:E6
+T14	Entity 203 217	the nucleotide
+T15	Event 235 244	synthesis
+E6	Event:T15 agent:T12
+*	same-entity T7 T4

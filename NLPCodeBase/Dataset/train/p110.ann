@@ -1,0 +1,37 @@
+T1	Event 48 55	overlap
+E1	Event:T1 super-event:E2 next-event:E4 theme:T12 theme2:T13
+T2	Event 86 95	metaphase
+E2	Event:T2 next-event:E3
+T3	Event 122 130	anaphase
+E3	Event:T3 
+T4	Event 157 164	reduced
+E4	Event:T4 cotemporal:E5 super-event:E3 theme:T14
+T5	Event 212 216	walk
+E5	Event:T5 causes:E6 agent:T15 theme:T16 raw-material:T17
+T6	Event 288 292	push
+E6	Event:T6 cotemporal:E7 agent:T18 theme:T19
+T7	Event 340 346	pushed
+E7	Event:T7 causes:E8 theme:T20
+T8	Event 354 364	elongating
+E8	Event:T8 cotemporal:E9 theme:T21
+T9	Event 410 418	lengthen
+E9	Event:T9 same-event:E10 agent:T22
+T10	Event 435 443	addition
+E10	Event:T10 causes:E11 raw-material:T23 theme:T24
+T11	Event 533 540	overlap
+E11	Event:T11 agent:T25
+T12	Entity 0 47	Nonkinetochore microtubules from opposite poles
+T13	Entity 56 66	each other
+T14	Entity 132 153	the region of overlap
+T15	Entity 168 211	motor proteins attached to the microtubules
+T16	Entity 217 221	them
+T17	Entity 251 266	energy from ATP
+T18	Entity 271 287	the microtubules
+*	same-entity T16 T18 T12 T22 T25
+T19	Entity 304 314	each other
+T20	Entity 316 335	their spindle poles
+T21	Entity 365 373	the cell
+T22	Entity 393 409	the microtubules
+T23	Entity 447 463	tubulin subunits
+T24	Entity 467 489	their overlapping ends
+T25	Entity 504 520	the microtubules

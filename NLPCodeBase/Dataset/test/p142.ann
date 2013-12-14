@@ -1,0 +1,9 @@
+T1	Event 21 28	changes
+E1	Event:T1 causes:E2 theme:T4
+T2	Event 79 86	changes
+E2	Event:T2 causes:E3 theme:T5
+T3	Event 138 145	changes
+E3	Event:T3 theme:T6
+T4	Entity 32 72	regulatory sequences of particular genes
+T5	Entity 90 114	gene expression patterns
+T6	Entity 149 158	body form

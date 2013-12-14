@@ -1,0 +1,27 @@
+T1	Event 30 37	reduced
+E1	Event:T1 cotemporal:E2 agent:T7 theme:T8
+T2	Event 110 119	increased
+E2	Event:T2 causes:E3 agent:T9 theme:T10
+T3	Static-Event 169 172	low
+E3	Static-Event:T3 next-event:E4 theme:T11
+T4	Event 269 274	added
+E4	Event:T4 causes:E5 theme:T12 time:T14 origin:T15 destination:T13
+T5	Event 356 363	entered
+E5	Event:T5 causes:E6 agent:T16 destination:T17
+T6	Event 406 414	improved
+E6	Event:T6 agent:T18 result:T19
+T7	Entity 20 25	drift
+T8	Entity 38 88	the genetic variation of the small 1993 population
+T9	Entity 90 95	Drift
+*	same-entity T7 T9
+T10	Entity 120 152	the frequency of harmful alleles
+T11	Entity 173 190	egg-hatching rate
+T12	Entity 230 239	271 birds
+T13	Entity 278 301	the Illinois population
+T14	Entity 307 317	four years
+T15	Entity 245 263	neighboring states
+T16	Entity 344 355	New alleles
+T17	Entity 364 378	the population
+T18	Entity 384 405	the egg-hatching rate
+T19	Entity 418 426	over 90%
+*	same-entity T11 T18

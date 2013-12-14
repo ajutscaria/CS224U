@@ -10,7 +10,7 @@ public interface FeatureMatcher {
 }
 
 class AllFeatureMatcher implements FeatureMatcher {
-  private AllFeatureMatcher() { }
+  public AllFeatureMatcher() { } //heather
   @Override
   public boolean matches(String feature) { return true; }
   public static final AllFeatureMatcher matcher = new AllFeatureMatcher();

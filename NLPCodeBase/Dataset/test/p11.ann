@@ -1,0 +1,34 @@
+T2	Event 77 83	reduce
+E1	Event:T2 theme:T3 same-event:E2
+T3	Entity 84 108	the size of a population
+T5	Event 119 123	drop
+E2	Event:T5 theme:T21 causes:E12
+T9	Entity 297 312	certain alleles
+T10	Static-Event 320 335	overrepresented
+E4	Static-Event:T10 theme:T9 cotemporal:E5 causes:E3 cotemporal2:E6
+T11	Static-Event 371 387	underrepresented
+E5	Static-Event:T11 cotemporal:E6 theme:T13 causes:E3
+T12	Static-Event 405 411	absent
+E6	Static-Event:T12 theme:T14 causes:E3
+T13	Entity 357 363	others
+T14	Entity 393 397	some
+*	same-entity T9 T13 T14
+T1	Event 9 15	change
+E10	Event:T1 theme:T20 causes:E1
+T4	Event 46 59	fire or flood
+E11	Event:T4 same-event:E10
+T20	Entity 19 34	the environment
+T21	Entity 127 142	population size
+T6	Event 157 174	bottleneck effect
+E12	Event:T6 causes:E4 causes2:E5 causes3:E6
+T7	Event 432 445	genetic drift
+E3	Event:T7 causes:E9
+T8	Entity 487 500	the gene pool
+T15	Static-Event 530 542	large enough
+E7	Static-Event:T15 theme:T16 causes:E8
+T16	Entity 507 521	the population
+T17	Event 567 578	less impact
+E8	Event:T17 agent:T18
+T18	Entity 548 561	chance events
+T19	Event 476 483	effects
+E9	Event:T19 theme:T8 next-event:E7

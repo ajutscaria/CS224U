@@ -1,0 +1,24 @@
+T1	Event 357 364	diverge
+E1	Event:T1 same-event:E6 agent:T11
+T2	Static-Event 97 107	polyploidy
+E2	Static-Event:T2 next-event:E5
+T3	Event 3 11	accident
+E3	Event:T3 causes:E2 time:T9 result:T10
+T4	Event 769 778	branching
+E4	Event:T4 agent:T16
+T5	Event 368 380	accumulating
+E5	Event:T5 causes:E1 agent:T11 theme:T12
+T6	Event 587 597	divergence
+E6	Event:T6 causes:E7 theme:T13
+T7	Static-Event 658 663	novel
+E7	Static-Event:T7 causes:E8 agent:T14
+T8	Event 677 685	changing
+E8	Event:T8 causes:E4 theme:T15 agent:T14
+T9	Entity 15 22	meiosis
+T10	Entity 37 74	one or more extra sets of chromosomes
+T11	Entity 313 352	The genes in the one or more extra sets
+T12	Entity 381 390	mutations
+T13	Entity 601 613	another copy
+T14	Entity 626 645	its encoded protein
+T15	Entity 686 710	the organism's phenotype
+T16	Entity 786 799	a new species

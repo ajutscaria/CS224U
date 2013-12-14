@@ -1,0 +1,32 @@
+T1	Event 0 13	Crossing over
+E1	Event:T1 super-event:E2 same-event:E9 same-event2:E5 time:T6
+T2	Event 35 45	prophase I
+E2	Event:T2 
+T3	Entity 49 71	homologous chromosomes
+T4	Event 72 76	pair
+E3	Event:T4 agent:T3 location:T5 super-event:E1 cotemporal:E4
+T5	Entity 85 104	along their lengths
+T6	Entity 21 31	very early
+T9	Entity 106 130	Each gene on one homolog
+T10	Static-Event 134 141	aligned
+E4	Static-Event:T10 theme:T9 theme2:T11 next-event:E6
+T11	Entity 157 200	the corresponding gene on the other homolog
+T12	Event 214 229	crossover event
+E5	Event:T12 
+T13	Event 333 339	broken
+E6	Event:T13 super-event:E5 theme:T16 agent:T17 location:T18 next-event:E7
+T16	Entity 231 266	the DNA of two nonsister chromatids
+T17	Entity 343 360	specific proteins
+T18	Entity 364 394	precisely corresponding points
+T19	Entity 400 443	the two segments beyond the crossover point
+T20	Event 453 459	joined
+E7	Event:T20 theme:T19 same-event:E8 theme2:T21
+T21	Entity 463 482	the other chromatid
+T22	Entity 490 510	a paternal chromatid
+T23	Event 514 520	joined
+E8	Event:T23 location:T25 theme:T22 theme2:T24
+T25	Entity 554 580	beyond the crossover point
+T26	Event 611 624	crossing over
+E9	Event:T26 result:T27 same-event:E5
+T27	Entity 634 700	chromosomes with new combinations of maternal and paternal alleles
+T24	Entity 524 553	a piece of maternal chromatid

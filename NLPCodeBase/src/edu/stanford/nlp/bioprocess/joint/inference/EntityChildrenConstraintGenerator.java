@@ -23,7 +23,7 @@ import edu.stanford.nlp.bioprocess.joint.core.Input;
 public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
 
   public EntityChildrenConstraintGenerator() {
-    super("A => Exists(B)", false);
+    super("A => ~Exists(B)", false);
   }
 
   @Override
@@ -39,18 +39,20 @@ public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
       buildEntityChildrenMap(input, entityChildren, eventId);
       System.out.println("entityChildren size: " + entityChildren.size());
       for (Integer parentId : entityChildren.keySet()) {
-        for (Integer childId : entityChildren.get(parentId)) {
-          int[] var = new int[2];
-          double[] coef = new double[2];
-  
-          var[0] = lexicon.getVariable(Inference.getVariableName(eventId, parentId,
-              Inference.E_ID, "entity"));
-          coef[0] = -1;
-          var[1] = lexicon.getVariable(Inference.getVariableName(eventId, childId,
-              Inference.O_ID, "entity"));
-          coef[1] = 1;
-          constraints.add(new ILPConstraint(var, coef, 0,
-              ILPConstraint.GREATER_THAN));
+        for (Integer childId : entityChildren.get(parentId)) {     
+          for (int labelId = 1; labelId < Inference.entityLabels.length; labelId++) {//except NONE
+            int[] var = new int[2];
+            double[] coef = new double[2];
+            var[0] = lexicon.getVariable(Inference.getVariableName(eventId, parentId,
+                labelId, "entity"));
+            coef[0] = -1;
+            var[1] = lexicon.getVariable(Inference.getVariableName(eventId, childId,
+                Inference.NONE_ID, "entity"));
+            coef[1] = 1;
+            constraints.add(new ILPConstraint(var, coef, 0,
+                ILPConstraint.GREATER_THAN));
+          }
+          
         }
   
       }

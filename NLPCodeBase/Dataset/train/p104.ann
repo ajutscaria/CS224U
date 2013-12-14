@@ -1,0 +1,16 @@
+T1	Event 356 363	release
+E1	Event:T1 next-event:E5 agent:T8 theme:T9
+T2	Event 331 337	injury
+E2	Event:T2 next-event:E1
+T3	Event 435 439	heal
+E3	Event:T3 agent:T10 theme:T11
+T4	Event 207 217	stimulates
+E4	Event:T4 same-event:E5 agent:T6 theme:T7
+T5	Event 400 413	proliferation
+E5	Event:T5 causes:E3 theme:T10
+T6	Entity 202 206	PDGF
+T7	Entity 218 237	fibroblast division
+T8	Entity 346 355	platelets
+T9	Entity 364 368	PDGF
+T10	Entity 417 428	fibroblasts
+T11	Entity 440 449	the wound

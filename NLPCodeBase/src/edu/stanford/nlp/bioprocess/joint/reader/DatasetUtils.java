@@ -36,8 +36,10 @@ public class DatasetUtils {
   public static final String STATIC_ENTITY_TYPE = "Static-Event";
   public static final String EVENT_LABEL = "E";
   public static final String OTHER_LABEL = "O";
+  public static final String NONE_LABEL = "NONE";
   public static final String NEXT_EVENT = "next-event", COTEMPORAL_EVENT = "cotemporal", SAME_EVENT = "same-event",
       SUPER_EVENT = "super-event", ENABLES = "enables", CAUSE ="cause",
+      PREVIOUS_EVENT = "previous-event", SUB_EVENT = "sub_event", ENABLED = "enabled", CAUSED = "caused",
       DESTINATION = "destination", LOCATION = "location", THEME = "theme", RESULT = "result", 
       AGENT = "agent", ORIGIN = "origin", TIME = "time", RAW_MATERIAL = "raw-material";
   public static final List<String> Punctuations = Arrays.asList(".", ",");
@@ -105,6 +107,17 @@ public class DatasetUtils {
     if(edgeLabel.startsWith(LOCATION)) return LOCATION;
     if(edgeLabel.startsWith(TIME)) return TIME;
 
+    else throw new RuntimeException("Illegal label: " + edgeLabel);
+  }
+  
+  public static String getReverseLabel(String edgeLabel) {
+    //EVENT-EVENT RELATIONS
+    if(edgeLabel.startsWith(NEXT_EVENT)) return PREVIOUS_EVENT;
+    if(edgeLabel.startsWith(COTEMPORAL_EVENT)) return COTEMPORAL_EVENT;
+    if(edgeLabel.startsWith(SAME_EVENT)) return SAME_EVENT;
+    if(edgeLabel.startsWith(SUPER_EVENT)) return SUB_EVENT;
+    if(edgeLabel.startsWith(ENABLES)) return ENABLED;
+    if(edgeLabel.startsWith(CAUSE)) return CAUSED;
     else throw new RuntimeException("Illegal label: " + edgeLabel);
   }
 

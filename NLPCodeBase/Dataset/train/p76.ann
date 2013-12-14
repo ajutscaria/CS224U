@@ -1,0 +1,27 @@
+T1	Event 46 50	held
+E1	Event:T1 location:T7 agent:T8 next-event:E2 raw-material:T6
+T2	Event 208 216	catalyze
+E2	Event:T2 agent:T11 raw-material:T12 result:T13 next-event:E3 theme:T19
+T3	Event 273 280	departs
+E3	Event:T3 agent:T14 causes:E4 origin:T15
+T4	Static-Event 322 326	free
+E4	Static-Event:T4 agent:T16 enables:E5
+T5	Event 330 334	take
+E5	Event:T5 agent:T16 raw-material:T17 location:T18
+T6	Entity 29 42	the substrate
+T7	Entity 54 69	the active site
+T8	Entity 73 100	so-called weak interactions
+T9	Entity 110 124	hydrogen bonds
+T10	Entity 129 140	ionic bonds
+*	same-entity T8 T9 T10
+T11	Entity 142 178	R groups of a few of the amino acids
+T12	Entity 235 244	substrate
+T13	Entity 248 255	product
+T14	Entity 261 272	the product
+*	same-entity T13 T14
+T15	Entity 286 301	the active site
+T16	Entity 303 313	The enzyme
+T17	Entity 335 361	another substrate molecule
+T18	Entity 367 382	its active site
+T19	Entity 217 231	the conversion
+*	same-entity T12 T6

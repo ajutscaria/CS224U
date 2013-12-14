@@ -1,0 +1,23 @@
+T1	Event 29 39	glycolysis
+E1	Event:T1 
+T2	Event 72 89	energy investment
+E2	Event:T2 super-event:E1 same-event:E4
+T3	Event 94 107	energy payoff
+E3	Event:T3 super-event:E1 same-event:E6
+T4	Event 120 143	energy investment phase
+E4	Event:T4 
+T5	Event 163 169	spends
+E5	Event:T5 agent:T6 theme:T7 super-event:E4
+T6	Entity 145 153	the cell
+T7	Entity 170 173	ATP
+T8	Event 226 245	energy payoff phase
+E6	Event:T8 
+T9	Event 259 267	produced
+E7	Event:T9 result:T11 agent:T10 super-event:E6 cotemporal:E8
+T10	Entity 271 302	substrate-level phosphorylation
+T11	Entity 252 255	ATP
+T12	Event 315 322	reduced
+E8	Event:T12 super-event:E6 raw-material:T13 result:T14 agent:T15
+T13	Entity 307 311	NAD+
+T14	Entity 326 330	NADH
+T15	Entity 334 382	electrons released from the oxidation of glucose

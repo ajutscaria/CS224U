@@ -1,0 +1,23 @@
+T1	Entity 0 7	Enzymes
+T2	Event 8 14	modify
+E1	Event:T2 agent:T1 theme:T3 causes:E2 causes2:E3
+T3	Entity 15 61	the two ends of a eukaryotic pre-mRNA molecule
+T4	Entity 63 80	The modified ends
+T5	Event 97 103	export
+E2	Event:T5 agent:T4 theme:T8 origin:T9 cotemporal:E3 next-event:E4
+T7	Entity 152 160	the mRNA
+T8	Entity 107 111	mRNA
+T9	Entity 117 128	the nucleus
+T10	Entity 134 138	they
+*	same-entity T10 T4
+T6	Event 144 151	protect
+E3	Event:T6 agent:T10 theme:T7
+T11	Entity 184 192	the mRNA
+T12	Event 193 200	reaches
+E4	Event:T12 agent:T11 destination:T13 next-event:E5
+T13	Entity 201 214	the cytoplasm
+T14	Entity 216 233	the modified ends
+T15	Event 305 315	attachment
+E5	Event:T15 agent:T14 agent2:T16 theme:T17
+T16	Entity 255 283	certain cytoplasmic proteins
+T17	Entity 296 304	ribosome

@@ -1,0 +1,24 @@
+T1	Event 23 33	last stage
+E1	Event:T1 super-event2:E5 same-event:E6
+T2	Event 75 94	lyses (breaks open)
+E2	Event:T2 agent:T3 super-event:E1 cotemporal:E3
+T3	Entity 61 74	the bacterium
+T4	Event 99 107	releases
+E3	Event:T4 agent:T3 theme:T5 super-event:E1 next-event:E4
+T5	Entity 108 118	the phages
+T6	Entity 155 175	Each of these phages
+*	same-entity T6 T5
+T7	Event 185 191	infect
+E4	Event:T7 theme:T8 agent:T6 super-event:E1
+T8	Entity 192 206	a healthy cell
+T10	Entity 254 284	an entire bacterial population
+T11	Event 229 241	lytic cycles
+E6	Event:T11 causes:E8
+T12	Entity 288 304	just a few hours
+T9	Event 37 46	infection
+E5	Event:T9 
+T13	Event 129 137	produced
+E7	Event:T13 theme:T5 location:T14 next-event:E3
+T14	Entity 145 153	the cell
+T15	Event 246 253	destroy
+E8	Event:T15 theme:T10 time:T12

@@ -1,0 +1,19 @@
+T1	Static-Event 164 174	variations
+E1	Static-Event:T1 cotemporal:E2 agent:T5 location:T6 theme:T7
+T2	Static-Event 233 239	better
+E2	Static-Event:T2 causes:E3 agent:T8 theme:T9
+T3	Event 276 283	produce
+E3	Event:T3 causes:E4 agent:T10 result:T11
+T4	Event 421 427	passed
+E4	Event:T4 theme:T12 destination:T13 origin:T14
+T5	Entity 128 139	Individuals
+T6	Entity 143 155	a population
+T7	Entity 178 200	their heritable traits
+T8	Entity 217 223	traits
+T9	Entity 240 267	suited to their environment
+T10	Entity 206 211	those
+*	same-entity T5 T10
+T11	Entity 284 298	more offspring
+T12	Entity 407 414	alleles
+T13	Entity 431 450	the next generation
+T14	Entity 492 514	the present generation

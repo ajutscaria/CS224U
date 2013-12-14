@@ -1,0 +1,22 @@
+T1	Event 4 11	binding
+E1	Event:T1 causes:E2 agent:T7 theme:T8 location:T9
+T2	Event 82 90	triggers
+E2	Event:T2 next-event:E3 agent:T7 theme:T10
+T3	Event 285 294	activates
+E3	Event:T3 next-event:E4 agent:T12 theme:T13
+T4	Event 319 328	activates
+E4	Event:T4 next-event:E5 agent:T13 theme:T14
+T5	Event 425 434	activated
+E5	Event:T5 causes:E6 theme:T15
+T6	Event 413 421	response
+E6	Event:T6 agent:T15
+T7	Entity 15 44	a specific signaling molecule
+T8	Entity 48 58	a receptor
+T9	Entity 62 81	the plasma membrane
+T10	Entity 91 144	the first step in the chain of molecular interactions
+T11	Entity 146 177	the signal transduction pathway
+*	same-entity T10 T11
+T12	Entity 255 284	the signal-activated receptor
+T13	Entity 295 311	another molecule
+T14	Entity 333 349	another molecule
+T15	Entity 368 379	the protein

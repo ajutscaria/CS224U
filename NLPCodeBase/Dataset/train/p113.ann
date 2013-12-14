@@ -1,0 +1,17 @@
+T1	Event 95 103	activate
+E1	Event:T1 same-event:E2 agent:T4 theme:T5
+T2	Event 219 228	activated
+E2	Event:T2 next-event:E3 theme:T8 theme2:T9
+T3	Event 301 308	release
+E3	Event:T3 agent:T9 raw-material:T10 theme:T11 origin:T12
+T4	Entity 26 49	the hormone epinephrine
+T5	Entity 104 135	a succession of relay molecules
+T6	Entity 147 151	cAMP
+*	same-entity T5 T6 T7
+T7	Entity 156 175	two protein kinases
+T8	Entity 201 218	The final protein
+T9	Entity 232 265	the enzyme glycogen phosphorylase
+*	same-entity T8 T9
+T10	Entity 278 297	inorganic phosphate
+T11	Entity 309 325	glucose monomers
+T12	Entity 331 339	glycogen

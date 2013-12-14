@@ -1,0 +1,15 @@
+T1	Event 431 440	combining
+E1	Event:T1 next-event:E2 agent:T4 theme:T5 result:T6
+T2	Event 596 605	decompose
+E2	Event:T2 same-event:E3 agent:T7 theme:T8 result:T9
+T3	Event 651 663	regeneration
+E3	Event:T3 result:T10
+T4	Entity 381 411	The acetyl group of acetyl CoA
+T5	Entity 446 471	the compound oxaloacetate
+T6	Entity 481 488	citrate
+T7	Entity 575 595	The next seven steps
+T8	Entity 606 617	the citrate
+*	same-entity T6 T8
+T9	Entity 626 638	oxaloacetate
+T10	Entity 667 679	oxaloacetate
+*	same-entity T9 T10

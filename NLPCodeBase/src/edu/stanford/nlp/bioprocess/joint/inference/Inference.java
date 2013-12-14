@@ -15,6 +15,7 @@ import edu.stanford.nlp.bioprocess.joint.core.FeatureVector;
 import edu.stanford.nlp.bioprocess.joint.core.Input;
 import edu.stanford.nlp.bioprocess.joint.core.Params;
 import edu.stanford.nlp.bioprocess.joint.core.Structure;
+import edu.stanford.nlp.bioprocess.joint.reader.DatasetUtils;
 import fig.basic.LogInfo;
 
 /**
@@ -23,14 +24,20 @@ import fig.basic.LogInfo;
  * 
  */
 public class Inference extends AbstractILPInference<Structure> {
-  public static final String[] eventLabels = { "E", "O" };
-  public static final String[] entityLabels = { "E", "O" }; // Can chagne into
-                                                            // multi-class
-  public static String[] relationLabels = {};
+  public static final String[] eventLabels = { "O", "E" };
+  //public static final String[] entityLabels = { "O", "E" }; 
+  public static final String[] entityLabels = {DatasetUtils.NONE_LABEL, DatasetUtils.AGENT, DatasetUtils.THEME,
+    DatasetUtils.ORIGIN, DatasetUtils.DESTINATION, DatasetUtils.LOCATION, DatasetUtils.RESULT, DatasetUtils.RAW_MATERIAL,
+    DatasetUtils.TIME}; 
+  
+  public static String[] relationLabels = {DatasetUtils.NONE_LABEL, DatasetUtils.SAME_EVENT, DatasetUtils.PREVIOUS_EVENT,
+    DatasetUtils.NEXT_EVENT, DatasetUtils.CAUSE, DatasetUtils.CAUSED, DatasetUtils.ENABLES, DatasetUtils.ENABLED,
+    DatasetUtils.SUPER_EVENT,DatasetUtils.SUB_EVENT, DatasetUtils.COTEMPORAL_EVENT};
 
   // the id for A & B in the above list. This can be done better public static
-  public final static int E_ID = 0;
-  public final static int O_ID = 1;
+  public final static int E_ID = 1;
+  public final static int O_ID = 0;
+  public final static int NONE_ID = 0;
 
   private List<ILPConstraintGenerator> constraints;
   private Input input;
@@ -46,10 +53,10 @@ public class Inference extends AbstractILPInference<Structure> {
     constraints.add(new ValidAConstraintGenerator());
     constraints.add(new EntityChildrenConstraintGenerator());
     constraints.add(new RelationEventConstraintGenerator());
-    constraints.add(new PrevRelationConstraintGenerator());
-    constraints.add(new SameRelationConstraintGenerator());
-    constraints.add(new ConnectivityConstraintGenerator());
-    constraints.add(new OverlapConstraintGenerator());
+    //constraints.add(new PrevRelationConstraintGenerator());
+    //constraints.add(new SameRelationConstraintGenerator());
+    //constraints.add(new ConnectivityConstraintGenerator());
+    //constraints.add(new OverlapConstraintGenerator());
   }
 
   @Override
@@ -125,23 +132,20 @@ public class Inference extends AbstractILPInference<Structure> {
       InferenceVariableLexManager lexicon) {
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       // adding trigger
-      double score = getEventScore(eventId, true);
-      int var = solver.addBooleanVariable(score);
-      String varName = getVariableName(eventId, E_ID, "event"); // 0: E
-      lexicon.addVariable(varName, var);
-
-      score = getEventScore(eventId, false);
-      var = solver.addBooleanVariable(score);
-      varName = getVariableName(eventId, O_ID, "event"); // 0: E, 1: O
-      lexicon.addVariable(varName, var);
+      for (int labelId = 0; labelId < eventLabels.length; labelId++) {
+        double score = getEventScore(eventId, eventLabels[labelId]);
+        int var = solver.addBooleanVariable(score);
+        String varName = getVariableName(eventId, labelId, "event");
+        lexicon.addVariable(varName, var);
+      }
 
       // adding entities for an event
       for (int entityId = 0; entityId < input
           .getNumberOfArgumentCandidates(eventId); entityId++) {
         for (int labelId = 0; labelId < entityLabels.length; labelId++) {
-          score = getEntityScore(eventId, entityId, entityLabels[labelId]);
-          var = solver.addBooleanVariable(score);
-          varName = getVariableName(eventId, entityId, labelId, "entity");
+          double score = getEntityScore(eventId, entityId, entityLabels[labelId]);
+          int var = solver.addBooleanVariable(score);
+          String varName = getVariableName(eventId, entityId, labelId, "entity");
           lexicon.addVariable(varName, var);
         }
       }
@@ -166,20 +170,17 @@ public class Inference extends AbstractILPInference<Structure> {
     return type + event1 + " " + event2 + ",label" + labelId;
   }
 
-  private double getEventScore(int eventId, boolean label) {
-    // for now, some random scores
+  private double getEventScore(int eventId, String label) {
     FeatureVector fv = FeatureExtractor.getTriggerLabelFV(input, eventId, label);
     return fv.dotProduct(params);
   }
   
   private double getEntityScore(int eventId, int entityId, String label) {
-    // for now, some random scores
     FeatureVector fv = FeatureExtractor.getArgumentLabelFV(input, eventId, entityId, label);
     return fv.dotProduct(params);
   }
   
   private double getRelationScore(int event1, int event2, String label) {
-    // for now, some random scores
     FeatureVector fv = FeatureExtractor.getRelationLabelFV(input, event1, event2, label);
     return fv.dotProduct(params);
   }
@@ -187,19 +188,16 @@ public class Inference extends AbstractILPInference<Structure> {
   @Override
   protected Structure getOutput(ILPSolver solver,
       InferenceVariableLexManager lexicon) throws Exception {
-
-    boolean[] triggers = new boolean[input.getNumberOfTriggers()];
+    
+    String[] triggers = new String[input.getNumberOfTriggers()];
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       for (int labelId = 0; labelId < eventLabels.length; labelId++) {
         String varName = getVariableName(eventId, labelId, "event");
         int var = lexicon.getVariable(varName);
-
-        if (solver.getBooleanValue(var) && labelId == E_ID) {
-          triggers[eventId] = true;
+        if (solver.getBooleanValue(var)){
+          triggers[eventId] = eventLabels[labelId];
           break;
-        } else {
-          triggers[eventId] = false;
-        }
+        } 
       }
     }
 
@@ -232,6 +230,7 @@ public class Inference extends AbstractILPInference<Structure> {
         } 
       }
     }
-    return null;// new ExampleStructure(input, labels);
+    //return null;
+    return new Structure(input, triggers, arguments, relations);
   }
 }

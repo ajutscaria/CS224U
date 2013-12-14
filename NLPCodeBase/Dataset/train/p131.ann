@@ -1,0 +1,21 @@
+T1	Event 140 150	sequencing
+E1	Event:T1 next-event:E3 agent:T6 theme:T8 result:T10
+T2	Event 182 185	cut
+E2	Event:T2 next-event:E1 theme:T7
+T3	Event 223 231	assemble
+E3	Event:T3 next-event:E4 agent:T9 raw-material:T10 result:T11
+T4	Event 468 476	sequence
+E4	Event:T4 next-event:E5 theme:T12 agent:T14
+T5	Static-Event 679 687	complete
+E5	Static-Event:T5 agent:T15
+T6	Entity 7 40	the whole-genome shotgun approach
+T7	Entity 186 189	DNA
+T8	Entity 154 167	DNA fragments
+T9	Entity 191 217	Powerful computer programs
+T10	Entity 232 294	the resulting very large number of overlapping short sequences
+T11	Entity 300 328	a single continuous sequence
+T12	Entity 477 500	the entire human genome
+T13	Entity 410 419	a company
+T14	Entity 421 436	Celera Genomics
+*	same-entity T13 T14
+T15	Entity 636 666	sequencing of the human genome

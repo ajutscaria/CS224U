@@ -1,0 +1,20 @@
+T1	Entity 23 33	the beetle
+T2	Event 34 39	faces
+E1	Event:T2 agent:T1 cotemporal:E2 location:T3 causes:E4
+T4	Event 60 64	blow
+E2	Event:T4 theme:T5 location:T6 agent:T3 cotemporal:E3
+T5	Entity 65 68	fog
+T6	Entity 76 85	the dunes
+T7	Event 0 7	Tilting
+E3	Event:T7 agent:T1 cotemporal:E1
+T9	Entity 87 107	Droplets of moisture
+T10	Event 121 128	collect
+E4	Event:T10 agent:T9 next-event:E5 location:T11
+T11	Entity 132 149	the beetle's body
+T12	Entity 168 177	its mouth
+T13	Event 154 157	run
+E5	Event:T13 agent:T9 destination:T12
+*	same-entity T1 T11
+T14	Entity 113 120	the fog
+*	same-entity T5 T14
+T3	Entity 45 54	the winds

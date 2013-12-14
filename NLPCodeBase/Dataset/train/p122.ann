@@ -1,0 +1,16 @@
+T1	Event 36 44	receives
+E1	Event:T1 next-event:E2 agent:T4 raw-material:T5 origin:T6 result:T7
+T2	Event 164 171	reduces
+E2	Event:T2 next-event:E3 agent:T8 origin:T9 theme:T10
+T3	Event 208 213	loses
+E3	Event:T3 agent:T10 theme:T11 result:T12
+T4	Entity 0 35	Each molecule of 3-phosphoglycerate
+T5	Entity 45 74	an additional phosphate group
+T6	Entity 80 83	ATP
+T7	Entity 94 117	1,3-bisphosphoglycerate
+T8	Entity 125 144	a pair of electrons
+T9	Entity 158 163	NADPH
+T10	Entity 172 195	1,3-bisphosphoglycerate
+T11	Entity 214 231	a phosphate group
+T12	Entity 242 245	G3P
+*	same-entity T7 T10

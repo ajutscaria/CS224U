@@ -20,7 +20,7 @@ import edu.stanford.nlp.bioprocess.joint.core.Input;
 public class ValidAConstraintGenerator extends ILPConstraintGenerator {
 
   public ValidAConstraintGenerator() {
-    super("A => Exists(B)", false);
+    super("~A => ~Exists(B)", false);
   }
 
   @Override
@@ -39,7 +39,7 @@ public class ValidAConstraintGenerator extends ILPConstraintGenerator {
         coef[0] = -1;
 
         var[1] = lexicon.getVariable(Inference.getVariableName(eventId, entityId,
-            Inference.O_ID, "entity"));
+            Inference.NONE_ID, "entity"));
         coef[1] = 1;
 
         constraints.add(new ILPConstraint(var, coef, 0,

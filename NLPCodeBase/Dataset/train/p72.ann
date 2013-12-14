@@ -1,0 +1,30 @@
+T1	Event 152 162	exocytosis
+E1	Event:T1 
+T2	Entity 164 183	A transport vesicle
+T3	Event 193 199	budded
+E2	Event:T3 agent:T2 origin:T4 next-event:E3 super-event:E1
+T4	Entity 205 224	the Golgi apparatus
+T5	Entity 273 292	the plasma membrane
+T6	Event 225 230	moves
+E3	Event:T6 theme:T7 destination:T5 agent:T2 next-event:E4
+T7	Entity 237 269	microtubules of the cytoskeleton
+T8	Event 350 357	contact
+E4	Event:T8 agent:T9 agent2:T10 next-event:E5
+T9	Entity 324 339	plasma membrane
+*	same-entity T5 T9
+T10	Entity 299 319	the vesicle membrane
+T11	Event 377 386	rearrange
+E5	Event:T11 causes:E6 agent:T12 theme:T16
+T12	Entity 359 376	specific proteins
+T13	Event 453 457	fuse
+E6	Event:T13 next-event:E7 agent:T17
+T14	Event 492 497	spill
+E7	Event:T14 next-event:E8 agent:T18 destination:T19
+T15	Event 551 558	becomes
+E8	Event:T15 agent:T20 theme:T21
+T16	Entity 387 426	the lipid molecules of the two bilayers
+T17	Entity 435 452	the two membranes
+T18	Entity 459 486	The contents of the vesicle
+T19	Entity 501 524	the outside of the cell
+T20	Entity 530 550	the vesicle membrane
+T21	Entity 567 586	the plasma membrane

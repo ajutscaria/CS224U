@@ -1,0 +1,26 @@
+T1	Event 21 33	deactivating
+E1	Event:T1 agent:T2 raw-material:T3 next-event2:E5
+T2	Entity 0 11	Methicillin
+T3	Entity 34 43	a protein
+T5	Event 65 75	synthesize
+E2	Event:T5 theme:T6 agent:T9 next-event:E1
+T6	Entity 76 92	their cell walls
+T9	Entity 49 57	bacteria
+T12	Entity 218 234	some individuals
+T13	Event 248 258	synthesize
+E5	Event:T13 agent:T12 theme:T14 causes:E7 raw-material:T16
+T14	Entity 259 275	their cell walls
+T16	Entity 282 301	a different protein
+T18	Entity 340 357	These individuals
+*	same-entity T12 T18 T22
+T19	Event 358 366	survived
+E7	Event:T19 agent:T18 theme:T20 next-event:E8
+T20	Entity 367 393	the methicillin treatments
+T21	Event 398 408	reproduced
+E8	Event:T21 agent:T18 causes:E9
+T22	Entity 464 491	these resistant individuals
+T23	Static-Event 499 518	increasingly common
+E9	Static-Event:T23 causes:E10 theme:T22
+T24	Event 535 541	spread
+E10	Event:T24 agent:T26
+T26	Entity 545 549	MRSA

@@ -1,0 +1,23 @@
+T1	Event 449 457	increase
+E1	Event:T1 causes:E2 agent:T14 theme:T15
+T2	Event 524 530	refine
+E2	Event:T2 agent:T14 theme:T16
+T3	Static-Event 294 300	slight
+E3	Static-Event:T3 next-event:E4 super-event:E6 agent:T10
+T4	Event 345 355	accumulate
+E4	Event:T4 cotemporal:E5 agent:T11 location:T12
+T5	Event 410 418	diminish
+E5	Event:T5 causes:E1 agent:T13 location:T12
+T6	Event 128 137	selection
+E6	Event:T6 causes:E7
+T7	Event 171 183	modification
+E7	Event:T7 theme:T8 time:T9
+T8	Entity 187 194	species
+T9	Entity 200 228	many hundreds of generations
+T10	Entity 238 289	the advantages of some heritable traits over others
+T11	Entity 302 329	the advantageous variations
+T12	Entity 359 373	the population
+T13	Entity 379 404	less favorable variations
+T14	Entity 431 443	this process
+T15	Entity 458 513	the frequency of individuals with favorable adaptations
+T16	Entity 531 580	the match between organisms and their environment

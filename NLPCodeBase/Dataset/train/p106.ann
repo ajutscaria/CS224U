@@ -1,0 +1,20 @@
+T1	Event 18 28	accumulate
+E1	Event:T1 next-event:E2 agent:T7 time:T8
+T2	Event 39 48	associate
+E2	Event:T2 next-event:E3 agent:T7 theme:T9 result:T10
+T3	Event 95 109	phosphorylates
+E3	Event:T3 causes:E4 agent:T10 theme:T11
+T4	Event 133 143	initiating
+E4	Event:T4 theme:T12
+T5	Static-Event 181 187	kinase
+E5	Static-Event:T5 cotemporal:E6 agent:T13
+T6	Event 206 216	activating
+E6	Event:T6 super-event:E3 agent:T13 theme:T14
+T7	Entity 5 12	cyclins
+T8	Entity 36 38	G2
+T9	Entity 54 67	Cdk molecules
+T10	Entity 69 94	the resulting MPF complex
+T11	Entity 110 131	a variety of proteins
+T12	Entity 144 151	mitosis
+T13	Entity 153 156	MPF
+T14	Entity 217 230	other kinases
