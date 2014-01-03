@@ -62,9 +62,13 @@ public class FeatureExtractor {
   public static FeatureVector getTriggerFV(Input input, int trigger) {
     List<CoreMap> sentences = input.annotation.get(SentencesAnnotation.class);
     int tokenId = input.getTriggerTokenId(trigger);
-    CoreMap sentence = AnnotationUtils.getContainingSentence(sentences, tokenId, tokenId);
-    Tree event = AnnotationUtils.getEventNode(sentence, tokenId);
+    Pair<CoreMap, Integer> result = AnnotationUtils.getContainingSentenceAndOffset(sentences, tokenId, tokenId);
+    CoreMap sentence = result.first;
+    int offset = result.second;
+    Tree event = AnnotationUtils.getEventNode(sentence, tokenId-offset);
 
+    LogInfo.begin_track("Features for event "+trigger);
+    LogInfo.logs("eventNode "+event.toString()+", in sentence "+sentence);
     FeatureVector fv = new FeatureVector();
     String currentPOS = event.value();
 
@@ -72,26 +76,20 @@ public class FeatureExtractor {
       CoreLabel token = Utils.findCoreLabelFromTree(sentence, event);
       String text = token.lemma().toLowerCase();
       if (Dictionary.verbForms.containsKey(text)) {
-        //features.add("lemma=" + Dictionary.verbForms.get(text));
         fv.add("lexical", "lemma="+ Dictionary.verbForms.get(text));
       } else {
-        //features.add("lemma=" + token.lemma().toLowerCase());
         fv.add("lexical", "lemma="+ text);
       }
-      //features.add("word=" + token.originalText());
       fv.add("lexical", "word="+ token.originalText());
-      //features.add("POSlemma=" + currentPOS + "," + token.lemma());
       fv.add("lexical", "POSlemma="+ currentPOS + "," + token.lemma());
 
       if (Dictionary.clusters.containsKey(text)) {
-        //features.add("clusterID=" + Dictionary.clusters.get(text));
         fv.add("cluster", "clusterID=" + Dictionary.clusters.get(text));
       }
       
       addAdvModFeature(sentence, event, fv, currentPOS, text);
 
       if (Dictionary.nominalizations.contains(token.value())) {
-        //features.add("nominalization");
         fv.add("lexical", "nominalization");
       }
     }
@@ -99,20 +97,16 @@ public class FeatureExtractor {
     Tree root = sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
     Tree parent = event.parent(root);
     String parentCFGRule = buildParentCFGRule(parent);
-    //features.add("ParentPOS=" + parent.value());
     fv.add("syntactic", "ParentPOS=" + parent.value());
-    /*features.add("path="
-        + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",")
-        .replace("up-ROOT,down-ROOT,", ""));*/
     fv.add("syntactic", "path="
         + StringUtils.join(Trees.pathNodeToNode(root, event, root), ",")
         .replace("up-ROOT,down-ROOT,", ""));
-    //features.add("POSparentrule=" + currentPOS + "," + parentCFGRule);
     fv.add("syntactic", "POSparentrule=" + currentPOS + "," + parentCFGRule);
     
     String postagTrigram = getPosTagTrigram(sentence, event, currentPOS);
-    //features.add("postag_trigram=" + postagTrigram);
     fv.add("syntactic", "postag_trigram=" + postagTrigram);
+    fv.printFeatures();
+    LogInfo.end_track();
     return fv;
   }
 
@@ -120,11 +114,20 @@ public class FeatureExtractor {
       int argument) {
     List<CoreMap> sentences = input.annotation.get(SentencesAnnotation.class);
     IntPair entityspan = input.getArgumentCandidateSpan(trigger, argument);
-    CoreMap sentence = AnnotationUtils.getContainingSentence(sentences, entityspan.getSource(),
-        entityspan.getTarget());
+    Pair<CoreMap, Integer> result = AnnotationUtils.getContainingSentenceAndOffset(sentences, entityspan.getSource(),
+        entityspan.getTarget()-1);
+    CoreMap sentence = result.first;
+    int offset = result.second;
+    
     int eventtokenId = input.getTriggerTokenId(trigger);
-    Tree event = AnnotationUtils.getEventNode(sentence, eventtokenId);
-    Tree entity = AnnotationUtils.getEntityNode(sentence, entityspan);
+    Tree event = AnnotationUtils.getEventNode(sentence, eventtokenId-offset);
+    Tree entity = AnnotationUtils.getEntityNode(sentence, 
+        new IntPair(entityspan.getSource()-offset, entityspan.getTarget()-offset));
+    System.out.println(sentence.toString()+": "+event.toString()+", "+entity.toString()+"\n");
+    
+    LogInfo.begin_track("Features for entity "+argument+" of event "+trigger);
+    LogInfo.logs("entityNode "+entity.toString()+" for event "+event.toString()+" in sentence: "+sentence);
+    
     FeatureVector fv = new FeatureVector();
     
     boolean containS = false;
@@ -134,51 +137,46 @@ public class FeatureExtractor {
         break;
       }
     }
-    //features.add("EntContainsS="+containS);/
+    
     fv.add("syntactic", "EntContainsS="+containS);
-    //features.add("EvtLemma=" + event.getLeaves().get(0).value());
     fv.add("lexical", "EvtLemma=" + event.getLeaves().get(0).value());
     boolean dependencyExists = Utils.isNodesRelated(sentence, entity, event);
-    //features.add("EntCatDepRel=" + entity.value() + "," + dependencyExists);
     fv.add("syntactic", "EntCatDepRel=" + entity.value() + "," + dependencyExists);
-    /*features.add("EntHeadEvtPOS="
-        + Utils.findCoreLabelFromTree(sentence, entity).lemma() + ","
-        + event.preTerminalYield().get(0).value());*/
     fv.add("lexical", "EntHeadEvtPOS="
         + Utils.findCoreLabelFromTree(sentence, entity).lemma() + ","
         + event.preTerminalYield().get(0).value());
     String depPath = Utils.getDependencyPath(sentence, entity, event);
-    /*features.add("EvtToEntDepPath="
-        + ((depPath.equals("") || depPath.equals("[]")) ? 0 : depPath
-            .split(",").length));*/
     fv.add("syntactic", "EvtToEntDepPath="
         + ((depPath.equals("") || depPath.equals("[]")) ? 0 : depPath
             .split(",").length));
-    /*features.add("EntHeadEvtHead="
-        + entity.headTerminal(new CollinsHeadFinder()) + ","
-        + event.getLeaves().get(0));*/
     fv.add("lexical", "EntHeadEvtHead="
         + entity.headTerminal(new CollinsHeadFinder()) + ","
         + event.getLeaves().get(0));
-    /*features.add("EntNPAndRelatedToEvt="
-        + (entity.value().equals("NP") && Utils.isNodesRelated(sentence,
-            entity, event)));*/
     fv.add("lexical", "EntNPAndRelatedToEvt="
         + (entity.value().equals("NP") && Utils.isNodesRelated(sentence,
             entity, event)));
+    fv.printFeatures();
+    LogInfo.end_track();
     return fv;
   }
 
   public static FeatureVector getRelationFV(Input input, int trig1, int trig2) {
     List<CoreMap> sentences = input.annotation.get(SentencesAnnotation.class);
     int tokenId1 = input.getTriggerTokenId(trig1);
-    CoreMap sentence1 = AnnotationUtils.getContainingSentence(sentences, tokenId1, tokenId1);
-    Tree event1 = AnnotationUtils.getEventNode(sentence1, tokenId1);
+    Pair<CoreMap,Integer> result1 = AnnotationUtils.getContainingSentenceAndOffset(sentences, tokenId1, tokenId1);
+    CoreMap sentence1 = result1.first;
+    int offset1 = result1.second;
+    Tree event1 = AnnotationUtils.getEventNode(sentence1, tokenId1-offset1);
     int tokenId2 = input.getTriggerTokenId(trig2);
-    CoreMap sentence2 = AnnotationUtils.getContainingSentence(sentences, tokenId2, tokenId2);
-    Tree event2 = AnnotationUtils.getEventNode(sentence2, tokenId2);
+    Pair<CoreMap, Integer> result2 = AnnotationUtils.getContainingSentenceAndOffset(sentences, tokenId2, tokenId2);
+    CoreMap sentence2 = result2.first;
+    int offset2 = result2.second;
+    Tree event2 = AnnotationUtils.getEventNode(sentence2, tokenId2-offset2);
     ClusterSetup();
 
+    LogInfo.begin_track("Features for event-event "+trig1+","+trig2);
+    LogInfo.logs("event1 "+event1.toString()+" , event2 "+event2.toString());
+    
     FeatureVector fv = new FeatureVector();
     
     // Number of sentences and words between two event mentions. Quantized to
@@ -203,7 +201,6 @@ public class FeatureExtractor {
       // If event1 is the first event in the paragraph and is a
       // nominalization, it is likely that others are sub-events
       if (trig1 == 0 && event1.value().startsWith("NN")) {
-        //features.add("firstAndNominalization");
         fv.add("firstAndNominalization", "firstAndNominalization");
       }
       
@@ -219,19 +216,14 @@ public class FeatureExtractor {
     if (pos2.startsWith("NN")) {
       String determiner = Utils.getDeterminer(sentence2, event2);
       if (determiner != null) {
-        //features.add("determinerBefore2:" + determiner);
         fv.add("coref", "determinerBefore2:" + determiner);
       }
     }
     
     // POS tags of both events
-    //features.add("POS:" + pos1 + "+" + pos2);
     fv.add("syntactic", "POS:" + pos1 + "+" + pos2);
-    /*features.add("numSentencesInBetween:"
-        + quantizedSentenceCount(sentenceBetweenEvents));*/
     fv.add("distance", "numSentencesInBetween:"
         + quantizedSentenceCount(sentenceBetweenEvents));
-    //features.add("numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));
     fv.add("distance", "numWordsInBetween:" + quantizedWordCount(wordsBetweenEvents));
 
     SemanticGraph graph1 = sentence1
@@ -242,7 +234,6 @@ public class FeatureExtractor {
     IndexedWord indexedWord2 = Utils.findDependencyNode(sentence2, event2);
     String advMod = extractAdvModRelation(graph2, indexedWord2);
     if (advMod != null && !advMod.isEmpty()) {
-      //features.add("advMod:" + advMod);
       fv.add("advmod", "advMod:" + advMod);
     }
 
@@ -255,7 +246,6 @@ public class FeatureExtractor {
       // Lowest common ancestor between the two event triggers. Reduces score.
       Tree root = sentence1.get(TreeCoreAnnotations.TreeAnnotation.class);
       Tree lca = Trees.getLowestCommonAncestor(event1, event2, root);
-      //features.add("lowestCommonAncestor:" + lca.value());
       fv.add("syntactic", "lowestCommonAncestor:" + lca.value());
 
       // Dependency path if the event triggers are in the same sentence.
@@ -264,23 +254,17 @@ public class FeatureExtractor {
           event1, event2);
       if (!deppath.isEmpty()) {
         if (!opts.useBaselineFeaturesOnly) {
-          //features.add("deppath:" + deppath);
           fv.add("syntactic", "deppath:" + deppath);
-          /*features.add("deppathwithword:"
-              + Utils.getUndirectedDependencyPath_Events_WithWords(sentence1,
-                  event1, event2));*/
           fv.add("syntactic", "deppathwithword:"
               + Utils.getUndirectedDependencyPath_Events_WithWords(sentence1,
                   event1, event2));
         }
         // Does event1 dominate event2
         if (deppath.contains("->") && !deppath.contains("<-")) {
-          //features.add("1dominates2");
           fv.add("syntactic", "1dominates2");
         }
 
         if (deppath.contains("<-") && !deppath.contains("->")) {
-          //features.add("2dominates1");
           fv.add("syntactic", "2dominates1");
         }
       }
@@ -294,14 +278,11 @@ public class FeatureExtractor {
         // LogInfo.logs("MARKER ADDED: " + example.id + " " + lemma1 + " " +
         // lemma2 + " " + markRelation);
         if (opts.useBaselineFeaturesOnly) {
-          //features.add("markRelation:" + markRelation.first());
           fv.add("connective", "markRelation:" + markRelation.first());
         } else {
-          //features.add("connector:" + markRelation.first());
           fv.add("connective", "connector:" + markRelation.first());
           // In some cases, we don't have clusters for some relation.
           if (!markRelation.second().isEmpty())
-            //features.add("connectorCluster:" + markRelation.second());
             fv.add("connective", "connectorCluster:" + markRelation.second());
         }
       }
@@ -315,15 +296,12 @@ public class FeatureExtractor {
         // LogInfo.logs("PP ADDED: " + example.id + " " + lemma1 + " " + lemma2
         // + " " + ppRelation);
         if (opts.useBaselineFeaturesOnly) {
-          //features.add("PPRelation:" + ppRelation.first());
           fv.add("connective", "PPRelation:" + ppRelation.first());
         } else {
-          //features.add("connector:" + ppRelation.first());
           fv.add("connective", "connector:" + ppRelation.first());
           // In some cases, we don't have clusters (if we haven't included in
           // the list.
           if (!ppRelation.second().isEmpty()) {
-            //features.add("connectorCluster:" + ppRelation.second());
             fv.add("connective", "connectorCluster:" + ppRelation.second());
           }
         }
@@ -336,8 +314,6 @@ public class FeatureExtractor {
       for (SemanticGraphEdge e1 : edges1) {
         for (SemanticGraphEdge e2 : edges2) {
           if (e1.getTarget().equals(e2.getTarget())) {
-            /*features.add("shareChild:" + e1.getRelation() + "+"
-                + e2.getRelation());*/
             fv.add("share", "shareChild:" + e1.getRelation() + "+"
                 + e2.getRelation());
             break;
@@ -345,7 +321,8 @@ public class FeatureExtractor {
         }
       }
     }
-
+    fv.printFeatures();
+    LogInfo.end_track();
     return fv;
   }
   
@@ -355,8 +332,6 @@ public class FeatureExtractor {
     ArrayList<String> indicatorFeatures = fv.getIndicateFeatures();
     ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
         .getGeneralFeatures();
-    //System.out.println("indicator feature size:"+indicatorFeatures.size());
-    //System.out.println("general feature size:"+generalFeatures.size());
     if(indicatorFeatures!=null)
       for (String f : indicatorFeatures) {
         f = label + "&" + f;

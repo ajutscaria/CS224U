@@ -30,16 +30,29 @@ public class AnnotationUtils {
   public static CoreMap getContainingSentence(List<CoreMap> sentences,
       int begin, int end) {
     // LogInfo.logs(begin + ":" + end);
-    int offset = 0;
     for (CoreMap sentence : sentences) {
-      if (sentence.get(TokenBeginAnnotation.class)+offset <= begin
-          && sentence.get(TokenEndAnnotation.class)+offset >= end)
+      if (sentence.get(TokenBeginAnnotation.class) <= begin
+          && sentence.get(TokenEndAnnotation.class)-1 >= end)
         return sentence;
-      else
-        offset += sentence.get(TokensAnnotation.class).size();
     }
     throw new RuntimeException("Could not find sentence!");
   }
+  
+  public static Pair<CoreMap, Integer> getContainingSentenceAndOffset(List<CoreMap> sentences,
+      int begin, int end) {
+    // LogInfo.logs(begin + ":" + end);
+    int offset = 0;
+    for (CoreMap sentence : sentences) {
+      if (sentence.get(TokenBeginAnnotation.class) <= begin
+          && (sentence.get(TokenEndAnnotation.class)-1) >= end)
+        return new Pair<CoreMap, Integer>(sentence, offset);
+      else{
+        offset += sentence.get(TokensAnnotation.class).size();
+      }
+    }
+    throw new RuntimeException("Could not find sentence!");
+  }
+  
 
   public static Tree getSingleEventNode(CoreMap sentence, int eventToken) {
     Tree syntacticParse = sentence
@@ -79,22 +92,22 @@ public class AnnotationUtils {
   public static Tree getEventNode(CoreMap sentence, int eventToken) {
     Tree syntacticParse = sentence
         .get(TreeCoreAnnotations.TreeAnnotation.class);
-    Span entitySpan = new Span(eventToken, eventToken + 1); // single word of
+    Span eventSpan = new Span(eventToken, eventToken + 1); // single word of
     // event
     for (Tree node : syntacticParse.postOrderNodeList()) {
       if (node.isLeaf())
         continue;
 
       IntPair span = node.getSpan();
-      if (span.getSource() == entitySpan.start()
-          && span.getTarget() == entitySpan.end() - 1) {
+      if (span.getSource() == eventSpan.start()
+          && span.getTarget() == eventSpan.end() - 1) {
         if (node.headPreTerminal(new CollinsHeadFinder()).value().equals("IN"))
           return getSingleEventNode(sentence, eventToken);
         return node.headPreTerminal(new CollinsHeadFinder());
       }
 
-      if (span.getSource() == entitySpan.start() - 1
-          && span.getTarget() == entitySpan.end() - 1) {
+      if (span.getSource() == eventSpan.start() - 1
+          && span.getTarget() == eventSpan.end() - 1) {
         // To check for an extra determiner like "a" or "the" in front of the
         // entity
         String POSTag = sentence.get(TokensAnnotation.class)
@@ -108,6 +121,19 @@ public class AnnotationUtils {
     if (ret != null)
       return ret.headPreTerminal(new CollinsHeadFinder());
 
+    System.out.println(sentence+", eventToken:"+eventToken);
+    System.out.println("event span:"+eventSpan.start()+", "+eventSpan.end());
+    for (Tree node : syntacticParse.postOrderNodeList()) {
+      if (node.isLeaf())
+        continue;
+
+      IntPair span = node.getSpan();
+      if (span.getSource() == eventSpan.start()
+          && span.getTarget() == eventSpan.end() - 1) {
+        return node;
+      }
+    }
+    
     // syntacticParse.pennPrint();
     LogInfo.logs("No EVENT match found!");
     return null;
@@ -119,9 +145,12 @@ public class AnnotationUtils {
     // syntacticParse.setSpans();
     Span entitySpan = new Span(entityspan.getSource(), entityspan.getTarget());
     for (Tree node : syntacticParse.preOrderNodeList()) {
+      
       if (node.isLeaf())
         continue;
-
+      //System.out.println(node.toString());
+      //System.out.println(node.value());
+      //System.out.println(node.getSpan().getSource()+"---"+node.getSpan().getTarget());
       IntPair span = node.getSpan();
       if (span.getSource() == entitySpan.start()
           && span.getTarget() == entitySpan.end() - 1) {
@@ -162,13 +191,13 @@ public class AnnotationUtils {
   public static Tree getEntityNode(CoreMap sentence, IntPair entityspan) {
     // Tree syntacticParse =
     // sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
-
     // Perfect Match
+    //System.out.println("entity span inside annotation util: "+entityspan.getSource()+","+entityspan.getTarget());
     Tree bestMatch = getEntityNodeBest(sentence, entityspan);
+    
     if (bestMatch != null) {
       return bestMatch;
     }
-
     IntPair entityNoLastToken = new IntPair(entityspan.getSource(),
         entityspan.getTarget() - 1);
     while (entityNoLastToken.getTarget() - entityNoLastToken.getSource() != 0) {
@@ -178,24 +207,34 @@ public class AnnotationUtils {
         // LogInfo.logs(entity.getValue() + "| Found match - " + bestMatch);
         return bestMatch;
       }
-      entityNoLastToken = new IntPair(entityspan.getSource(),
-          entityspan.getTarget() - 1);
+      entityNoLastToken = new IntPair(entityNoLastToken.getSource(),
+          entityNoLastToken.getTarget() - 1);
     }
     // LogInfo.logs("Missed second section");
     IntPair entityNoFirstToken = new IntPair(entityspan.getSource() + 1,
         entityspan.getTarget());
     while (entityNoFirstToken.getTarget() - entityNoFirstToken.getSource() != 0) {
       // Remove first token
-
       bestMatch = getEntityNodeBest(sentence, entityNoFirstToken);
       if (bestMatch != null) {
         // LogInfo.logs(entity.getValue() + "| Found match - " + bestMatch);
         return bestMatch;
       }
-      entityNoFirstToken = new IntPair(entityspan.getSource() + 1,
-          entityspan.getTarget());
+      entityNoFirstToken = new IntPair(entityNoFirstToken.getSource() + 1,
+          entityNoFirstToken.getTarget());
     }
-
+    
+    //System.out.println("entity span inside annotation util 2: "+entityspan.getSource()+","+entityspan.getTarget());
+    for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
+      IntPair span = node.getSpan();
+      if (node.isLeaf())
+        continue;
+      if (span.getSource() == entityspan.getSource()
+          && span.getTarget() == entityspan.getTarget() - 1) {
+        return node;
+      }
+    }
+    
     LogInfo.logs("No ENTITY match found!");
 
     // syntacticParse.pennPrint();

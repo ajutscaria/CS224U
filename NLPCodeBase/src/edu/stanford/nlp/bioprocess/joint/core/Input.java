@@ -25,6 +25,7 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.trees.TreeCoreAnnotations;
 import edu.stanford.nlp.util.CoreMap;
 import edu.stanford.nlp.util.IntPair;
+import fig.basic.LogInfo;
 
 /**
  * 
@@ -329,7 +330,7 @@ public class Input implements IInstance, Serializable {
 		      position += annotation.get(SentencesAnnotation.class).get(j).get(TokensAnnotation.class).size();
 		    position += eventNodes.get(i).getSpan().getSource();
 			res[i] = position;
-			System.out.println(eventNodes.get(i)+"- "+i+":"+res[i]);
+			LogInfo.logs(eventNodes.get(i)+"- "+i+":"+res[i]);
 		}
 
 		/*

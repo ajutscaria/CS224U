@@ -1,6 +1,7 @@
 package edu.stanford.nlp.bioprocess.joint.core;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Random;
 
 import edu.illinois.cs.cogcomp.infer.ilp.ILPSolverFactory;
@@ -9,6 +10,7 @@ import edu.stanford.nlp.bioprocess.joint.inference.Inference;
 import edu.stanford.nlp.bioprocess.joint.learn.StructuredPerceptron;
 import edu.stanford.nlp.bioprocess.joint.reader.Dataset;
 import edu.stanford.nlp.util.Pair;
+import edu.stanford.nlp.util.logging.Redwood;
 import fig.basic.LogInfo;
 import fig.basic.Option;
 import fig.exec.Execution;
@@ -20,8 +22,6 @@ public class Main implements Runnable {
     public String datasetdir;
     @Option(gloss = "Run on dev or test")
     public String runon;
-    @Option(gloss = "Number of folds for cross validation")
-    public int numOfFolds = 10;
 
     // for FeatureExtractor
     @Option(gloss = "use lexical feature or not")
@@ -36,54 +36,58 @@ public class Main implements Runnable {
 
   public static Options opts = new Options();
 
-  @Option(gloss="Dataset dir") public String datasetDir;
-  @Option(gloss="Run on dev or test") public String runOn;
-  
+  @Option(gloss = "Dataset dir")
+  public String datasetDir;
+  @Option(gloss = "Run mode (dev or test currently)")
+  public String mode;
+
   @Override
   public void run() {
     // TODO Auto-generated method stub
     LogInfo.begin_track("main");
     String trainDirectory = datasetDir + "/train/";
     String testDirectory = datasetDir + "/test/";
-    String sampleDirectory = datasetDir + "/sample/";
 
     Dataset.opts.inPaths.add(Pair.makePair("test", testDirectory));
     Dataset.opts.inPaths.add(Pair.makePair("train", trainDirectory));
-    //Dataset.opts.inPaths.add(Pair.makePair("sample", sampleDirectory));
+    // Dataset.opts.inPaths.add(Pair.makePair("sample", sampleDirectory));
     Dataset.opts.inFile = "serializeddata";
-    Dataset.opts.numOfFolds = opts.numOfFolds;
     Dataset d = new Dataset();
     try {
       d.read();
     } catch (ClassNotFoundException e) {
-      e.printStackTrace();
       throw new RuntimeException(e);
     } catch (IOException e) {
-      e.printStackTrace();
       throw new RuntimeException(e);
     } catch (InterruptedException e) {
-      e.printStackTrace();
       throw new RuntimeException(e);
     }
-    
-    //TODO: Should have a better way to sync?
-    /*FeatureExtractor.opts.runGlobalModel = opts.runGlobalModel;
-    FeatureExtractor.opts.useBaselineFeaturesOnly = opts.useBaselineFeaturesOnly;
-    FeatureExtractor.opts.useLexicalFeatures = opts.useLexicalFeatures;
-    FeatureExtractor.opts.window = opts.window;*/
-    if (runOn.equals("dev")) {
-      runJointLearningDev(d);
-    } else if (runOn.equals("test")) {
-      runJointLearningTest(d);
+
+    // TODO: Should have a better way to sync?
+    /*
+     * FeatureExtractor.opts.runGlobalModel = opts.runGlobalModel;
+     * FeatureExtractor.opts.useBaselineFeaturesOnly =
+     * opts.useBaselineFeaturesOnly; FeatureExtractor.opts.useLexicalFeatures =
+     * opts.useLexicalFeatures; FeatureExtractor.opts.window = opts.window;
+     */
+    try {
+      if (mode.equals("dev")) {
+        runJointLearningDev(d);
+      } else if (mode.equals("test")) {
+        //runJointLearningTest(d);
+        testInference(d);    
+      }
+    } catch (Exception e) {
+      throw new RuntimeException(e);
     }
 
     LogInfo.end_track();
   }
 
-  private void runJointLearningDev(Dataset d) {//cross-validation
-    
-    Evaluation eval = new Evaluation(opts.numOfFolds);
-    for(int i=0; i<opts.numOfFolds; i++){
+  private void runJointLearningDev(Dataset d) {// cross-validation
+
+    Evaluation eval = new Evaluation(Dataset.opts.numOfFolds);
+    for (int i = 0; i < Dataset.opts.numOfFolds; i++) {
       StructuredPerceptron perceptron = new StructuredPerceptron(new Random());
       Params params;
       try {
@@ -105,35 +109,51 @@ public class Main implements Runnable {
           throw new RuntimeException(e);
         }
       }
-    } 
+    }
     eval.calcScore();
   }
-  
-  private void runJointLearningTest(Dataset d) {
-    StructuredPerceptron perceptron = new StructuredPerceptron(new Random());
-    Params params;
+
+  private void testInference(Dataset d) throws Exception {
+    StructuredPerceptron perceptron = new StructuredPerceptron(new Random(1));
+    //Params params = new Params();
+    Params params = perceptron.learn(d.examples("train"));
     Evaluation eval = new Evaluation(1);
-    try {
-      params = perceptron.learn(d.examples("train"));
-    } catch (Exception e1) {
-      e1.printStackTrace();
-      throw new RuntimeException(e1);
-    }
+    List<Pair<Input, Structure>> dataset = d.examples("train");
+
+    Input input = dataset.get(0).first;
+    Structure structure = dataset.get(0).second;
+
+    //LogInfo.logs(input.toString());
+    //LogInfo.logs(structure);
+
+    ILPSolverFactory solverFactory = new ILPSolverFactory(
+        SolverType.CuttingPlaneGurobi);
+    Inference inference = new Inference(input, params, solverFactory, false);
+
+    Structure prediction = inference.runInference();
+    eval.score(structure, prediction, 0);
+    eval.calcScore();
+    //LogInfo.logs(prediction);
+  }
+
+  private void runJointLearningTest(Dataset d) throws Exception {
+    StructuredPerceptron perceptron = new StructuredPerceptron(new Random(1));
+    Evaluation eval = new Evaluation(1); // we are guaranteed that test is always
+                                         // exactly one fold
+    Params params = perceptron.learn(d.examples("train"));
+
     for (Pair<Input, Structure> ex : d.examples("test")) {
       ILPSolverFactory solverFactory = new ILPSolverFactory(
           SolverType.CuttingPlaneGurobi);
       Inference inference = new Inference(ex.first(), params, solverFactory,
           false);
-      try {
-        Structure predicted = inference.runInference();
-        eval.score(ex.second(), predicted, 1);
-      } catch (Exception e) {
-        e.printStackTrace();
-        throw new RuntimeException(e);
-      }
+
+      Structure predicted = inference.runInference();
+      eval.score(ex.second(), predicted, 0);
+
     }
     eval.calcScore();
-    
+
   }
 
   /***

@@ -45,7 +45,7 @@ public class Dataset {
     @Option(gloss = "Maximum number of examples to read")
     public ArrayList<Pair<String, Integer>> maxExamples = new ArrayList<Pair<String, Integer>>();
     @Option(gloss = "Number of folds for cross validation")
-    public int numOfFolds = 2;
+    public int numOfFolds = 10;
     @Option(gloss="verbosity") public int verbose=0;
     @Option(gloss="Whether to serialize the dataset") public boolean serialize=false;
     @Option(gloss="Whether to load the dataset from serialized file") public boolean loadFromFile=false;
@@ -218,7 +218,7 @@ public class Dataset {
           int triggerId2 = input.getTriggerIndex(otherTriggerTokenIndex);
           //heather
           if(triggerId1 > triggerId2){
-            relations[input.getEERelationIndex(triggerId2,triggerId1)]=DatasetUtils.getLabel(edgeLabel);
+            relations[input.getEERelationIndex(triggerId2,triggerId1)]=DatasetUtils.getReverseLabel(edgeLabel);
           }else
             relations[input.getEERelationIndex(triggerId1,triggerId2)]=DatasetUtils.getLabel(edgeLabel);
         }

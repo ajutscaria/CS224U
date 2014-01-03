@@ -14,7 +14,7 @@ import edu.stanford.nlp.bioprocess.joint.core.Structure;
 import edu.stanford.nlp.bioprocess.joint.inference.Inference;
 import edu.stanford.nlp.bioprocess.joint.reader.DatasetUtils;
 import edu.stanford.nlp.util.Pair;
-import edu.stanford.nlp.util.logging.Redwood;
+import fig.basic.LogInfo;
 import fig.basic.Option;
 
 public class StructuredPerceptron {
@@ -46,7 +46,7 @@ public class StructuredPerceptron {
 	}
 
 	public Params learn(List<Pair<Input, Structure>> data) throws Exception {
-		Redwood.startTrack("Perceptron");
+	    LogInfo.begin_track("Perceptron");
 		Params w = new Params();
 		Params a = new Params();
 
@@ -59,16 +59,16 @@ public class StructuredPerceptron {
 		}
 
 		Params avg = average(w, a, n);
-
-		Redwood.endTrack("Perceptron");
+        LogInfo.end_track();
 
 		return avg;
 	}
 
 	private int runEpoch(int epoch, List<Pair<Input, Structure>> data, Params w,
 			Params a, int n) throws Exception {
-		Redwood.startTrack("Epoch " + epoch);
-		Redwood.log("Shuffling examples");
+		
+		LogInfo.begin_track("Epoch " + epoch);
+		LogInfo.logs("Shuffling examples");
 		DatasetUtils.shuffle(data, random);
 
 		int numUpdates = 0;
@@ -105,19 +105,20 @@ public class StructuredPerceptron {
 			count++;
 			n++;
 			if (count % opts.reportCount == 0) {
-				Redwood.log(count + " examples seen in epoch, number of updates = "
-						+ numUpdates);
-				Redwood.log("Total time spent on inference in this epoch: "
-						+ inferenceTime);
+				
+				LogInfo.logs(count + " examples seen in epoch, number of updates = "
+                        + numUpdates);
+				
+				LogInfo.logs("Total time spent on inference in this epoch: "
+                    + inferenceTime);
 			}
 		}
 
-		Redwood.log("End of epoch summary: " + count
+		LogInfo.logs("End of epoch summary: " + count
 				+ " examples seen in epoch, number of updates = " + numUpdates);
-		Redwood
-				.log("Total time spent on inference in this epoch: " + inferenceTime);
+		LogInfo.logs("Total time spent on inference in this epoch: " + inferenceTime);
 
-		Redwood.endTrack("Epoch " + epoch);
+		LogInfo.end_track();
 
 		return n;
 	}
@@ -150,7 +151,7 @@ public class StructuredPerceptron {
 	 * @return
 	 */
 	private Params average(Params w, Params a, int n) {
-		Redwood.log("Averaging parameters");
+		LogInfo.logs("Averaging parameters");
 
 		Params p = new Params();
 

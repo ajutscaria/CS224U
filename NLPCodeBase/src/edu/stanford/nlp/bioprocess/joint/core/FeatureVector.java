@@ -151,4 +151,19 @@ public class FeatureVector {
     }
     LogInfo.end_track();
   }
+  
+  public void printFeatures(){
+    ArrayList<String> indicatorFeatures = getIndicateFeatures();
+    ArrayList<fig.basic.Pair<String, Double>> generalFeatures = getGeneralFeatures();
+    if(indicatorFeatures!=null)
+      for (String f : indicatorFeatures) {
+        LogInfo.logs(f);
+      }
+    if(generalFeatures!=null){    
+      for (fig.basic.Pair<String, Double> f : generalFeatures) {
+        LogInfo.logs(f.getFirst()+":"+f.getSecond());
+      }
+      throw new RuntimeException("general feature not null");
+    }
+  }
 }

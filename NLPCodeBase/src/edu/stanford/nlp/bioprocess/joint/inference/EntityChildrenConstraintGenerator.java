@@ -37,7 +37,7 @@ public class EntityChildrenConstraintGenerator extends ILPConstraintGenerator {
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       Map<Integer, HashSet<Integer>> entityChildren = new HashMap<Integer, HashSet<Integer>>();
       buildEntityChildrenMap(input, entityChildren, eventId);
-      System.out.println("entityChildren size: " + entityChildren.size());
+      //System.out.println("entityChildren size: " + entityChildren.size());
       for (Integer parentId : entityChildren.keySet()) {
         for (Integer childId : entityChildren.get(parentId)) {     
           for (int labelId = 1; labelId < Inference.entityLabels.length; labelId++) {//except NONE

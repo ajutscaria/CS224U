@@ -81,6 +81,7 @@ public class Inference extends AbstractILPInference<Structure> {
 
   private void addEERelation(ILPSolver solver,
       InferenceVariableLexManager lexicon) {
+    LogInfo.logs("start adding event event relation variables");
     for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
       int event1 = input.getEERelationCandidatePair(Id).getSource(); 
       int event2 = input.getEERelationCandidatePair(Id).getTarget(); 
@@ -126,10 +127,12 @@ public class Inference extends AbstractILPInference<Structure> {
         lexicon.addVariable(varName, var);
       }
     }
+    LogInfo.logs("finish adding event entity variables");
   }
 
   private void addEventEntity(ILPSolver solver,
       InferenceVariableLexManager lexicon) {
+    LogInfo.logs("start adding event entity variables");
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       // adding trigger
       for (int labelId = 0; labelId < eventLabels.length; labelId++) {
@@ -150,6 +153,7 @@ public class Inference extends AbstractILPInference<Structure> {
         }
       }
     }
+    LogInfo.logs("finish adding event entity variables");
   }
 
   public static String getVariableName(int slotId, int labelId) {
@@ -171,16 +175,19 @@ public class Inference extends AbstractILPInference<Structure> {
   }
 
   private double getEventScore(int eventId, String label) {
+    //LogInfo.logs("getting score for event "+eventId+", label "+label);
     FeatureVector fv = FeatureExtractor.getTriggerLabelFV(input, eventId, label);
     return fv.dotProduct(params);
   }
   
   private double getEntityScore(int eventId, int entityId, String label) {
+    //LogInfo.logs("getting score for entity "+entityId+" for event "+eventId+", with label "+label);
     FeatureVector fv = FeatureExtractor.getArgumentLabelFV(input, eventId, entityId, label);
     return fv.dotProduct(params);
   }
   
   private double getRelationScore(int event1, int event2, String label) {
+    //LogInfo.logs("getting score for event-event relation "+event1+", "+event2+", with label "+label);
     FeatureVector fv = FeatureExtractor.getRelationLabelFV(input, event1, event2, label);
     return fv.dotProduct(params);
   }
