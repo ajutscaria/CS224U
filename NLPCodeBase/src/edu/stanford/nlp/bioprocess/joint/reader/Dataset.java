@@ -161,6 +161,7 @@ public class Dataset {
       getTriggersAndEntities(input,line,triggerMap,entityMap,beginOffset,endOffset);
     }
     //generate trigger array
+    
     String[] triggers = generateTriggersFromMap(input,triggerMap);
     //init relations and argument arrays
     String[] relations = new String[input.getNumberOfEERelationCandidates()];
@@ -208,7 +209,8 @@ public class Dataset {
           IntPair span = entityMap.get(id);
           //heather
           int triggerId = input.getTriggerIndex(triggerTokenIndex);
-          arguments[triggerId][input.getArgumentSpanIndex(triggerId,span)]=
+          if(input.getArgumentSpanIndex(triggerId,span) != -1)
+              arguments[triggerId][input.getArgumentSpanIndex(triggerId,span)]=
               DatasetUtils.getLabel(edgeLabel);       
         }
         else if(DatasetUtils.isEventEventRelation(edgeLabel)) {

@@ -67,8 +67,6 @@ public class FeatureExtractor {
     int offset = result.second;
     Tree event = AnnotationUtils.getEventNode(sentence, tokenId-offset);
 
-    LogInfo.begin_track("Features for event "+trigger);
-    LogInfo.logs("eventNode "+event.toString()+", in sentence "+sentence);
     FeatureVector fv = new FeatureVector();
     String currentPOS = event.value();
 
@@ -105,8 +103,10 @@ public class FeatureExtractor {
     
     String postagTrigram = getPosTagTrigram(sentence, event, currentPOS);
     fv.add("syntactic", "postag_trigram=" + postagTrigram);
+    /*LogInfo.begin_track("Features for event "+trigger);
+    LogInfo.logs("eventNode "+event.toString()+", in sentence "+sentence);
     fv.printFeatures();
-    LogInfo.end_track();
+    LogInfo.end_track();*/
     return fv;
   }
 
@@ -123,10 +123,7 @@ public class FeatureExtractor {
     Tree event = AnnotationUtils.getEventNode(sentence, eventtokenId-offset);
     Tree entity = AnnotationUtils.getEntityNode(sentence, 
         new IntPair(entityspan.getSource()-offset, entityspan.getTarget()-offset));
-    System.out.println(sentence.toString()+": "+event.toString()+", "+entity.toString()+"\n");
-    
-    LogInfo.begin_track("Features for entity "+argument+" of event "+trigger);
-    LogInfo.logs("entityNode "+entity.toString()+" for event "+event.toString()+" in sentence: "+sentence);
+    //System.out.println(sentence.toString()+": "+event.toString()+", "+entity.toString()+"\n");
     
     FeatureVector fv = new FeatureVector();
     
@@ -155,8 +152,11 @@ public class FeatureExtractor {
     fv.add("lexical", "EntNPAndRelatedToEvt="
         + (entity.value().equals("NP") && Utils.isNodesRelated(sentence,
             entity, event)));
+    /*LogInfo.begin_track("Features for entity "+argument+" of event "+trigger);
+    LogInfo.logs("Entity span:"+entityspan.getSource()+"~"+entityspan.getTarget());
+    LogInfo.logs("entityNode "+entity.toString()+" for event "+event.toString()+" in sentence: "+sentence);
     fv.printFeatures();
-    LogInfo.end_track();
+    LogInfo.end_track();*/
     return fv;
   }
 
@@ -173,9 +173,6 @@ public class FeatureExtractor {
     int offset2 = result2.second;
     Tree event2 = AnnotationUtils.getEventNode(sentence2, tokenId2-offset2);
     ClusterSetup();
-
-    LogInfo.begin_track("Features for event-event "+trig1+","+trig2);
-    LogInfo.logs("event1 "+event1.toString()+" , event2 "+event2.toString());
     
     FeatureVector fv = new FeatureVector();
     
@@ -321,59 +318,88 @@ public class FeatureExtractor {
         }
       }
     }
+    /*LogInfo.begin_track("Features for event-event "+trig1+","+trig2);
+    LogInfo.logs("event1 "+event1.toString()+" , event2 "+event2.toString());
     fv.printFeatures();
-    LogInfo.end_track();
+    LogInfo.end_track();*/
     return fv;
   }
   
   public static FeatureVector getTriggerLabelFV(Input input, int trigger,
       String label) {
+    //LogInfo.begin_track("Features for event "+trigger);
     FeatureVector fv = getTriggerFV(input, trigger);
-    ArrayList<String> indicatorFeatures = fv.getIndicateFeatures();
+    ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
     ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
         .getGeneralFeatures();
-    if(indicatorFeatures!=null)
-      for (String f : indicatorFeatures) {
+    if(indicateFeatures!=null)
+      for(int i=0; i<indicateFeatures.size();i++){
+        indicateFeatures.set(i, label+"&"+indicateFeatures.get(i));
+      }
+      /*for (String f : indicateFeatures) {
         f = label + "&" + f;
-      }
+      }*/
     if(generalFeatures!=null)
-      for (fig.basic.Pair<String, Double> f : generalFeatures) {
-        f.setFirst(label + "&" + f.getFirst());
+      for(int i=0; i<generalFeatures.size();i++){
+        generalFeatures.get(i).setFirst(label + "&" + generalFeatures.get(i).getFirst());
       }
+      /*for (fig.basic.Pair<String, Double> f : generalFeatures) {
+        f.setFirst(label + "&" + f.getFirst());
+      }*/
+    //fv.printFeatures();
+    //LogInfo.end_track();
     return fv;
   }
 
   public static FeatureVector getArgumentLabelFV(Input input, int trigger,
       int argument, String label) {
+    //LogInfo.begin_track("Features for argument "+argument+" of trigger "+trigger);
     FeatureVector fv = getArgumentFV(input, trigger, argument);
     ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
     ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
         .getGeneralFeatures();
     if(indicateFeatures!=null)
-      for (String f : indicateFeatures) {
+      for(int i=0; i<indicateFeatures.size();i++){
+        indicateFeatures.set(i, label+"&"+indicateFeatures.get(i));
+      }
+      /*for (String f : indicateFeatures) {
         f = label + "&" + f;
-      }
+      }*/
     if(generalFeatures!=null)
-      for (fig.basic.Pair<String, Double> f : generalFeatures) {
-        f.setFirst(label + "&" + f.getFirst());
+      for(int i=0; i<generalFeatures.size();i++){
+        generalFeatures.get(i).setFirst(label + "&" + generalFeatures.get(i).getFirst());
       }
+      /*for (fig.basic.Pair<String, Double> f : generalFeatures) {
+        f.setFirst(label + "&" + f.getFirst());
+      }*/
+    //fv.printFeatures();
+    //LogInfo.end_track();
     return fv;
   }
 
   public static FeatureVector getRelationLabelFV(Input input, int trig1,
       int trig2, String label) {
+    //LogInfo.begin_track("Features for event"+trig1+"-"+"event"+trig2);
     FeatureVector fv = getRelationFV(input, trig1, trig2);
     ArrayList<String> indicateFeatures = fv.getIndicateFeatures();
     ArrayList<fig.basic.Pair<String, Double>> generalFeatures = fv
         .getGeneralFeatures();
     if(indicateFeatures!=null)
-      for (String f : indicateFeatures) {
+      for(int i=0; i<indicateFeatures.size();i++){
+        indicateFeatures.set(i, label+"&"+indicateFeatures.get(i));
+      }
+      /*for (String f : indicateFeatures) {
         f = label + "&" + f;
-      }
+      }*/
     if(generalFeatures!=null)
-      for (fig.basic.Pair<String, Double> f : generalFeatures) {
-        f.setFirst(label + "&" + f.getFirst());
+      for(int i=0; i<generalFeatures.size();i++){
+        generalFeatures.get(i).setFirst(label + "&" + generalFeatures.get(i).getFirst());
       }
+      /*for (fig.basic.Pair<String, Double> f : generalFeatures) {
+        f.setFirst(label + "&" + f.getFirst());
+      }*/
+    //fv.printFeatures();
+    //LogInfo.end_track();
     return fv;
   }
   
@@ -394,6 +420,9 @@ public class FeatureExtractor {
       int event2 = input.getEERelationCandidatePair(Id).getTarget(); 
       fv.add(getRelationLabelFV(input, event1, event2, s.getEERelationLabel(event1, event2)), new AllFeatureMatcher());
     }
+    /*LogInfo.begin_track("Final feature vector for structure");
+    fv.printFeatures();
+    LogInfo.end_track();*/
     return fv;
   }
   
@@ -405,7 +434,6 @@ public class FeatureExtractor {
     for (SemanticGraphEdge e : depGraph.getOutEdgesSorted(word)) {
       if (e.getRelation().toString().equals("advmod")
           && (currentPOS.startsWith("VB") || Dictionary.nominalizations.contains(text)))
-        //features.add("advmod:" + e.getTarget());
         fv.add("lexical", "advmod:" + e.getTarget());
     }
   }

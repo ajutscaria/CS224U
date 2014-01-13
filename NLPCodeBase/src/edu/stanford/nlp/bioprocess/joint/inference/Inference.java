@@ -24,7 +24,7 @@ import fig.basic.LogInfo;
  * 
  */
 public class Inference extends AbstractILPInference<Structure> {
-  public static final String[] eventLabels = { "O", "E" };
+  public static final String[] eventLabels = { DatasetUtils.OTHER_LABEL, DatasetUtils.EVENT_LABEL };
   //public static final String[] entityLabels = { "O", "E" }; 
   public static final String[] entityLabels = {DatasetUtils.NONE_LABEL, DatasetUtils.AGENT, DatasetUtils.THEME,
     DatasetUtils.ORIGIN, DatasetUtils.DESTINATION, DatasetUtils.LOCATION, DatasetUtils.RESULT, DatasetUtils.RAW_MATERIAL,
@@ -48,6 +48,7 @@ public class Inference extends AbstractILPInference<Structure> {
     this.input = input;
     this.params = params;
 
+    LogInfo.logs("Start adding constraints for "+input.id);
     constraints = new ArrayList<ILPConstraintGenerator>();
     constraints.add(new UniqueLabelConstraintGenerator());
     constraints.add(new ValidAConstraintGenerator());
@@ -57,6 +58,7 @@ public class Inference extends AbstractILPInference<Structure> {
     //constraints.add(new SameRelationConstraintGenerator());
     //constraints.add(new ConnectivityConstraintGenerator());
     //constraints.add(new OverlapConstraintGenerator());
+    LogInfo.logs("finish adding constraints");
   }
 
   @Override
@@ -177,18 +179,21 @@ public class Inference extends AbstractILPInference<Structure> {
   private double getEventScore(int eventId, String label) {
     //LogInfo.logs("getting score for event "+eventId+", label "+label);
     FeatureVector fv = FeatureExtractor.getTriggerLabelFV(input, eventId, label);
+    //LogInfo.logs("score for event "+eventId+", label "+label+" = "+fv.dotProduct(params));
     return fv.dotProduct(params);
   }
   
   private double getEntityScore(int eventId, int entityId, String label) {
     //LogInfo.logs("getting score for entity "+entityId+" for event "+eventId+", with label "+label);
     FeatureVector fv = FeatureExtractor.getArgumentLabelFV(input, eventId, entityId, label);
+    //LogInfo.logs("score for entity "+entityId+" of event "+eventId+", label "+label+" = "+fv.dotProduct(params));
     return fv.dotProduct(params);
   }
   
   private double getRelationScore(int event1, int event2, String label) {
     //LogInfo.logs("getting score for event-event relation "+event1+", "+event2+", with label "+label);
     FeatureVector fv = FeatureExtractor.getRelationLabelFV(input, event1, event2, label);
+    //LogInfo.logs("score for event1 "+event1+", event2 "+event2+", label "+label+" = "+fv.dotProduct(params));
     return fv.dotProduct(params);
   }
 
@@ -196,6 +201,7 @@ public class Inference extends AbstractILPInference<Structure> {
   protected Structure getOutput(ILPSolver solver,
       InferenceVariableLexManager lexicon) throws Exception {
     
+    LogInfo.logs("Start getting output");
     String[] triggers = new String[input.getNumberOfTriggers()];
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       for (int labelId = 0; labelId < eventLabels.length; labelId++) {
@@ -237,6 +243,7 @@ public class Inference extends AbstractILPInference<Structure> {
         } 
       }
     }
+    LogInfo.logs("Finish getting output");
     //return null;
     return new Structure(input, triggers, arguments, relations);
   }

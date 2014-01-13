@@ -99,6 +99,7 @@ public class FeatureVector {
         if (matcher.matches(pair.getFirst()))
           MapUtils.incr(map, pair.getFirst(), factor * pair.getSecond());
     }
+    
   }
 
   public Map<String, Double> toMap() {

@@ -1,5 +1,6 @@
 package edu.stanford.nlp.bioprocess.joint.learn;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -90,14 +91,19 @@ public class StructuredPerceptron {
 
 			if (!gold.equals(prediction)) {
 				// update
-				FeatureVector update = getUpdate(gold, prediction);
+				Map<String, Double> update = getUpdate(gold, prediction);
 
 				// hopefully this takes care of the learning rate
-				w.update(update.toMap());
+				//w.update(update.toMap());
+				w.update(update);
 
-				FeatureVector aUpdate = new FeatureVector();
-				aUpdate.increment(n * 1.0, update.toMap());
-				a.update(aUpdate.toMap());
+				//FeatureVector aUpdate = new FeatureVector();
+				//aUpdate.increment(n * 1.0, update.toMap());
+				for(String key:update.keySet()){
+				  update.put(key, n*1.0*update.get(key));
+				}
+				//a.update(aUpdate.toMap());
+				a.update(update);
 
 				numUpdates++;
 			}
@@ -130,13 +136,41 @@ public class StructuredPerceptron {
 	 * @param prediction
 	 * @return
 	 */
-	private FeatureVector getUpdate(Structure gold, Structure prediction) {
+	private Map<String, Double> getUpdate(Structure gold, Structure prediction) {
 		FeatureVector goldFeatures = gold.getFeatures();
 		FeatureVector predictedFeatures = prediction.getFeatures();
-
-		FeatureVector update = new FeatureVector();
-		update.increment(1.0, goldFeatures.toMap());
-		update.increment(-1.0, predictedFeatures.toMap());
+		/*LogInfo.begin_track("print gold feature vector");
+        goldFeatures.printFeatures();
+        LogInfo.end_track();
+        LogInfo.begin_track("print predicted feature vector");
+        predictedFeatures.printFeatures();
+        LogInfo.end_track();*/
+		
+		//FeatureVector update = new FeatureVector();
+        Map<String, Double> update = new HashMap<String, Double>();
+		Map<String, Double> goldMap = goldFeatures.toMap();
+		Map<String, Double> predictedMap = predictedFeatures.toMap();
+		for(String key:goldMap.keySet()){
+		  if(predictedMap.containsKey(key)){
+		    update.put(key, goldMap.get(key)-predictedMap.get(key));
+		  }else{
+		    update.put(key, goldMap.get(key));
+		  }
+		}
+		for(String key:predictedMap.keySet()){
+		  if(!goldMap.containsKey(key)){
+            update.put(key, -predictedMap.get(key));
+          }
+		}
+		/*LogInfo.begin_track("print update map");
+		for(String key:update.keySet())
+		  LogInfo.logs(key+","+update.get(key));
+		LogInfo.end_track();*/
+		//update.increment(1.0, goldFeatures.toMap());
+		//update.increment(-1.0, predictedFeatures.toMap());
+		/*LogInfo.begin_track("print feature vector update");
+		update.printFeatures();
+		LogInfo.end_track();*/
 		return update;
 	}
 

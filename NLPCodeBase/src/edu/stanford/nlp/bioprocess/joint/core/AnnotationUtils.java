@@ -94,7 +94,7 @@ public class AnnotationUtils {
         .get(TreeCoreAnnotations.TreeAnnotation.class);
     Span eventSpan = new Span(eventToken, eventToken + 1); // single word of
     // event
-    for (Tree node : syntacticParse.postOrderNodeList()) {
+    /*for (Tree node : syntacticParse.postOrderNodeList()) {
       if (node.isLeaf())
         continue;
 
@@ -120,9 +120,9 @@ public class AnnotationUtils {
     Tree ret = getSingleEventNode(sentence, eventToken);
     if (ret != null)
       return ret.headPreTerminal(new CollinsHeadFinder());
-
-    System.out.println(sentence+", eventToken:"+eventToken);
-    System.out.println("event span:"+eventSpan.start()+", "+eventSpan.end());
+    */
+    //System.out.println(sentence+", eventToken:"+eventToken);
+    //System.out.println("event span:"+eventSpan.start()+", "+eventSpan.end());
     for (Tree node : syntacticParse.postOrderNodeList()) {
       if (node.isLeaf())
         continue;
@@ -193,7 +193,7 @@ public class AnnotationUtils {
     // sentence.get(TreeCoreAnnotations.TreeAnnotation.class);
     // Perfect Match
     //System.out.println("entity span inside annotation util: "+entityspan.getSource()+","+entityspan.getTarget());
-    Tree bestMatch = getEntityNodeBest(sentence, entityspan);
+    /*Tree bestMatch = getEntityNodeBest(sentence, entityspan);
     
     if (bestMatch != null) {
       return bestMatch;
@@ -223,7 +223,7 @@ public class AnnotationUtils {
       entityNoFirstToken = new IntPair(entityNoFirstToken.getSource() + 1,
           entityNoFirstToken.getTarget());
     }
-    
+    */
     //System.out.println("entity span inside annotation util 2: "+entityspan.getSource()+","+entityspan.getTarget());
     for(Tree node: sentence.get(TreeCoreAnnotations.TreeAnnotation.class)) {
       IntPair span = node.getSpan();

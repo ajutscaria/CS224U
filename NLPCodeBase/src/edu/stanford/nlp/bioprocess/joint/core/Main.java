@@ -74,8 +74,8 @@ public class Main implements Runnable {
       if (mode.equals("dev")) {
         runJointLearningDev(d);
       } else if (mode.equals("test")) {
-        //runJointLearningTest(d);
-        testInference(d);    
+        runJointLearningTest(d);
+        //testInference(d);    
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -87,28 +87,41 @@ public class Main implements Runnable {
   private void runJointLearningDev(Dataset d) {// cross-validation
 
     Evaluation eval = new Evaluation(Dataset.opts.numOfFolds);
-    for (int i = 0; i < Dataset.opts.numOfFolds; i++) {
+    //for (int i = 0; i < Dataset.opts.numOfFolds; i++) {
+    for(int i=0; i< 1; i++){
+      LogInfo.begin_track("Fold "+i);
       StructuredPerceptron perceptron = new StructuredPerceptron(new Random());
-      Params params;
-      try {
+      Params params = new Params();
+      /*LogInfo.logs("Training examples in this fold "+d.getTrainFold(i).size());
+      for(Pair<Input, Structure> pair:d.getTrainFold(i)){
+        LogInfo.logs(pair.first.id);
+      }
+      LogInfo.logs("Development examples in this fold "+d.getDevFold(i).size());
+      for(Pair<Input, Structure> pair:d.getDevFold(i)){
+        LogInfo.logs(pair.first.id);
+      }*/
+      /*try {
         params = perceptron.learn(d.getTrainFold(i));
       } catch (Exception e1) {
         e1.printStackTrace();
         throw new RuntimeException(e1);
       }
-      for (Pair<Input, Structure> ex : d.getTrainFold(i)) {
+      for (Pair<Input, Structure> ex : d.getDevFold(i)) {
         ILPSolverFactory solverFactory = new ILPSolverFactory(
             SolverType.CuttingPlaneGurobi);
         Inference inference = new Inference(ex.first(), params, solverFactory,
             false);
         try {
           Structure predicted = inference.runInference();
+          LogInfo.begin_track("Prediction for example "+ex.first.id);
           eval.score(ex.second(), predicted, i);
+          LogInfo.end_track();
         } catch (Exception e) {
           e.printStackTrace();
           throw new RuntimeException(e);
         }
-      }
+      }*/
+      LogInfo.end_track();
     }
     eval.calcScore();
   }
@@ -142,6 +155,7 @@ public class Main implements Runnable {
                                          // exactly one fold
     Params params = perceptron.learn(d.examples("train"));
 
+    LogInfo.logs("Start predicting on the test set");
     for (Pair<Input, Structure> ex : d.examples("test")) {
       ILPSolverFactory solverFactory = new ILPSolverFactory(
           SolverType.CuttingPlaneGurobi);
@@ -149,8 +163,9 @@ public class Main implements Runnable {
           false);
 
       Structure predicted = inference.runInference();
+      LogInfo.begin_track("Predicting "+ex.first().id);
       eval.score(ex.second(), predicted, 0);
-
+      LogInfo.end_track();
     }
     eval.calcScore();
 

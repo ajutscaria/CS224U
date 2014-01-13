@@ -184,9 +184,13 @@ public class Input implements IInstance, Serializable {
 		Map<IntPair, Integer> argsForTrigger = this.argumentCandidateToId
 				.get(triggerId);
 
-		if (!argsForTrigger.containsKey(span))
-			throw new RuntimeException("Invalid argument candidate " + span
-					+ " for trigger id" + triggerId);
+		if (!argsForTrigger.containsKey(span)){
+		  LogInfo.logs("Invalid argument candidate " + span
+              + " for trigger id" + triggerId);
+		  return -1;
+			/*throw new RuntimeException("Invalid argument candidate " + span
+					+ " for trigger id" + triggerId);*/
+		}
 		return argsForTrigger.get(span);
 	}
 
@@ -261,7 +265,7 @@ public class Input implements IInstance, Serializable {
 			List<Tree> entities = new ArrayList<Tree>();
 			int whichSentence = eventToSentence.get(i);
 			int position = 0;
-			
+			//LogInfo.begin_track("Entities for event "+i);
             for(int j=0; j<whichSentence; j++)
               position += annotation.get(SentencesAnnotation.class).get(j).get(TokensAnnotation.class).size();
             //System.out.println("which sentence:"+whichSentence+", position:"+position);
@@ -270,7 +274,10 @@ public class Input implements IInstance, Serializable {
 				if (node.isLeaf() || node.value().equals("ROOT"))
 					continue;
 				entities.add(node);
+				//LogInfo.logs(node.toString());
 			}
+			//LogInfo.logs(entities.size()+" entity nodes in total");
+			//LogInfo.end_track();
 			res[i] = new IntPair[entities.size()];
 			for (int j = 0; j < entities.size(); j++) {
 			    int begin = entities.get(j).getSpan().getSource();
@@ -311,7 +318,8 @@ public class Input implements IInstance, Serializable {
 						|| !node.isPreTerminal()
 						|| !(value.startsWith("JJR") || value.startsWith("JJS")
 								|| value.startsWith("NN") || value.equals("JJ") || value
-									.startsWith("VB")))
+									.startsWith("VB") 
+									|| value.equals("RB") || value.equals("RBR")))
 					continue;
 				//System.out.println(sentence+": "+node.toString());
 				eventNodes.add(node);

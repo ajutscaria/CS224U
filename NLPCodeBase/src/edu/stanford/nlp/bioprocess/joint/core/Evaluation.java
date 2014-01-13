@@ -42,11 +42,15 @@ public class Evaluation {
   }
 
   private void scoreEvents(Structure gold, Structure predicted, int fold) {
-    int tp = 0, fp = 0, fn = 0;
+    int tp = 0, fp = 0, fn = 0, tn = 0;
     assert gold.input.getNumberOfTriggers() == predicted.input.getNumberOfTriggers();
     for (int eventId = 0; eventId < gold.input.getNumberOfTriggers(); eventId++) {
+      LogInfo.logs("Event "+eventId+", gold:"+gold.getTriggerLabel(eventId)+", predicted:"+predicted.getTriggerLabel(eventId));
       if(gold.getTriggerLabel(eventId).equals(predicted.getTriggerLabel(eventId))){
-        tp++;
+        if(gold.getTriggerLabel(eventId).equals(DatasetUtils.EVENT_LABEL))
+          tp++;
+        else
+          tn++;
       }else if(gold.getTriggerLabel(eventId).equals(DatasetUtils.EVENT_LABEL) && 
           predicted.getTriggerLabel(eventId).equals(DatasetUtils.OTHER_LABEL)){
         fn++;    
@@ -56,6 +60,7 @@ public class Evaluation {
       }
         
     }
+    LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
     tpEvt[fold] += tp;
     fpEvt[fold] += fp;
     fnEvt[fold] += fn;
@@ -63,46 +68,58 @@ public class Evaluation {
   }
 
   private void scoreArguments(Structure gold, Structure predicted, int fold) {
-    int tp = 0, fp = 0, fn = 0;
+    int tp = 0, fp = 0, fn = 0, tn = 0;
     assert gold.input.getNumberOfTriggers() == predicted.input.getNumberOfTriggers();
     for (int eventId = 0; eventId < gold.input.getNumberOfTriggers(); eventId++) {
+      LogInfo.begin_track("For event "+eventId);
       assert gold.input.getNumberOfArgumentCandidates(eventId) == predicted.input.getNumberOfArgumentCandidates(eventId);
       for (int entityId = 0; entityId < gold.input
           .getNumberOfArgumentCandidates(eventId); entityId++) {
+        LogInfo.logs("Entity "+entityId+", gold:"+gold.getArgumentCandidateLabel(eventId, entityId)+", predicted:"+predicted.getArgumentCandidateLabel(eventId, entityId));
         if(gold.getArgumentCandidateLabel(eventId, entityId).equals(predicted.getArgumentCandidateLabel(eventId, entityId))){
-          tp++;
-        }else if(gold.getArgumentCandidateLabel(eventId, entityId)!=DatasetUtils.NONE_LABEL && 
-            predicted.getArgumentCandidateLabel(eventId, entityId)==DatasetUtils.NONE_LABEL){
+          if(!gold.getArgumentCandidateLabel(eventId, entityId).equals(DatasetUtils.NONE_LABEL))
+            tp++;
+          else
+            tn++;
+        }else if(!gold.getArgumentCandidateLabel(eventId, entityId).equals(DatasetUtils.NONE_LABEL) && 
+            predicted.getArgumentCandidateLabel(eventId, entityId).equals(DatasetUtils.NONE_LABEL)){
           fn++;    
-        }else if(gold.getArgumentCandidateLabel(eventId, entityId)==DatasetUtils.NONE_LABEL && 
-            predicted.getArgumentCandidateLabel(eventId, entityId)!=DatasetUtils.NONE_LABEL){
+        }else if(gold.getArgumentCandidateLabel(eventId, entityId).equals(DatasetUtils.NONE_LABEL) && 
+            !predicted.getArgumentCandidateLabel(eventId, entityId).equals(DatasetUtils.NONE_LABEL)){
           fp++;
         }
       }
+      LogInfo.end_track();
     }
+    LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
     tpEnt[fold] += tp;
     fpEnt[fold] += fp;
     fnEnt[fold] += fn;
   }
 
   private void scoreEERelations(Structure gold, Structure predicted, int fold) {
-    int tp = 0, fp = 0, fn = 0;
+    int tp = 0, fp = 0, fn = 0, tn = 0;
     assert gold.input.getNumberOfEERelationCandidates() == predicted.input.getNumberOfEERelationCandidates();
     for (int Id = 0; Id < gold.input.getNumberOfEERelationCandidates(); Id++) {
       int event1 = gold.input.getEERelationCandidatePair(Id).getSource(); 
       int event2 = gold.input.getEERelationCandidatePair(Id).getTarget(); 
       assert gold.input.getEERelationCandidatePair(Id).getSource() == predicted.input.getEERelationCandidatePair(Id).getSource(); 
       assert gold.input.getEERelationCandidatePair(Id).getTarget() == predicted.input.getEERelationCandidatePair(Id).getTarget();
+      LogInfo.logs("Event-event ("+event1+","+event2+")"+", gold:"+gold.getEERelationLabel(event1, event2)+", predicted:"+predicted.getEERelationLabel(event1, event2));
       if(gold.getEERelationLabel(event1, event2).equals(predicted.getEERelationLabel(event1, event2))){
-        tp++;
-      }else if(gold.getEERelationLabel(event1, event2)!=DatasetUtils.NONE_LABEL && 
-          predicted.getEERelationLabel(event1, event2)==DatasetUtils.NONE_LABEL){
+        if(!gold.getEERelationLabel(event1, event2).equals(DatasetUtils.NONE_LABEL))
+          tp++;
+        else
+          tn++;
+      }else if(!gold.getEERelationLabel(event1, event2).equals(DatasetUtils.NONE_LABEL) && 
+          predicted.getEERelationLabel(event1, event2).equals(DatasetUtils.NONE_LABEL)){
         fn++;    
-      }else if(gold.getEERelationLabel(event1, event2)==DatasetUtils.NONE_LABEL && 
-          predicted.getEERelationLabel(event1, event2)!=DatasetUtils.NONE_LABEL){
+      }else if(gold.getEERelationLabel(event1, event2).equals(DatasetUtils.NONE_LABEL) && 
+          !predicted.getEERelationLabel(event1, event2).equals(DatasetUtils.NONE_LABEL)){
         fp++;
       }
     }
+    LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
     tpRel[fold] += tp;
     fpRel[fold] += fp;
     fnRel[fold] += fn;
