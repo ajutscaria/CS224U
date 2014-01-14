@@ -76,8 +76,8 @@ public class Main implements Runnable {
       if (mode.equals("dev")) {
         runJointLearningDev(d);
       } else if (mode.equals("test")) {
-        runJointLearningTest(d);
-        // testInference(d);
+        //runJointLearningTest(d);
+        testInference(d);
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -212,11 +212,11 @@ public class Main implements Runnable {
       }
     };
 
-    StructuredPerceptron perceptron = new StructuredPerceptron(new Random(1), exampleReporter, epochReporter);
-    // Params params = new Params();
-    Params params = perceptron.learn(d.examples("train"));
+    //StructuredPerceptron perceptron = new StructuredPerceptron(new Random(1), exampleReporter, epochReporter);
+    Params params = new Params();
+    //Params params = perceptron.learn(d.examples("train"));
     Evaluation eval = new Evaluation(1);
-    List<Pair<Input, Structure>> dataset = d.examples("train");
+    List<Pair<Input, Structure>> dataset = d.examples("test");
 
     Input input = dataset.get(0).first;
     Structure structure = dataset.get(0).second;
