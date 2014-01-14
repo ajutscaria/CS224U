@@ -45,7 +45,7 @@ public class Dataset {
     @Option(gloss = "Maximum number of examples to read")
     public ArrayList<Pair<String, Integer>> maxExamples = new ArrayList<Pair<String, Integer>>();
     @Option(gloss = "Number of folds for cross validation")
-    public int numOfFolds = 10;
+    public int numOfFolds = 2;
     @Option(gloss="verbosity") public int verbose=0;
     @Option(gloss="Whether to serialize the dataset") public boolean serialize=false;
     @Option(gloss="Whether to load the dataset from serialized file") public boolean loadFromFile=false;

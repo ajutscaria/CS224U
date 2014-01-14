@@ -48,7 +48,7 @@ public class Inference extends AbstractILPInference<Structure> {
     this.input = input;
     this.params = params;
 
-    LogInfo.logs("Start adding constraints for "+input.id);
+    //LogInfo.logs("Start adding constraints for "+input.id);
     constraints = new ArrayList<ILPConstraintGenerator>();
     constraints.add(new UniqueLabelConstraintGenerator());
     constraints.add(new ValidAConstraintGenerator());
@@ -58,7 +58,7 @@ public class Inference extends AbstractILPInference<Structure> {
     //constraints.add(new SameRelationConstraintGenerator());
     //constraints.add(new ConnectivityConstraintGenerator());
     //constraints.add(new OverlapConstraintGenerator());
-    LogInfo.logs("finish adding constraints");
+    //LogInfo.logs("finish adding constraints");
   }
 
   @Override
@@ -75,15 +75,15 @@ public class Inference extends AbstractILPInference<Structure> {
   protected void addVariables(ILPSolver solver,
       InferenceVariableLexManager lexicon) {
 
-    LogInfo.logs("start adding variables");
+    //LogInfo.logs("start adding variables");
     addEventEntity(solver, lexicon);
     addEERelation(solver, lexicon);
-    LogInfo.logs("done adding variables");
+    //LogInfo.logs("done adding variables");
   }
 
   private void addEERelation(ILPSolver solver,
       InferenceVariableLexManager lexicon) {
-    LogInfo.logs("start adding event event relation variables");
+    //LogInfo.logs("start adding event event relation variables");
     for (int Id = 0; Id < input.getNumberOfEERelationCandidates(); Id++) {
       int event1 = input.getEERelationCandidatePair(Id).getSource(); 
       int event2 = input.getEERelationCandidatePair(Id).getTarget(); 
@@ -92,7 +92,7 @@ public class Inference extends AbstractILPInference<Structure> {
       String varName;
 
       // connectivity
-      score = 0; // ? Yij
+      /*score = 0; // ? Yij
       var = solver.addBooleanVariable(score);
       varName = getVariableName(event1, event2, "edge", "connectivity");
       lexicon.addVariable(varName, var);
@@ -121,7 +121,8 @@ public class Inference extends AbstractILPInference<Structure> {
       var = solver.addIntegerVariable(score);
       varName = getVariableName(event2, event1, "flow", "connectivity");
       lexicon.addVariable(varName, var);
-
+      */
+      
       for (int labelId = 0; labelId < relationLabels.length; labelId++) {
         score = getRelationScore(event1, event2, relationLabels[labelId]);
         var = solver.addBooleanVariable(score);
@@ -129,12 +130,12 @@ public class Inference extends AbstractILPInference<Structure> {
         lexicon.addVariable(varName, var);
       }
     }
-    LogInfo.logs("finish adding event entity variables");
+    //LogInfo.logs("finish adding event entity variables");
   }
 
   private void addEventEntity(ILPSolver solver,
       InferenceVariableLexManager lexicon) {
-    LogInfo.logs("start adding event entity variables");
+    //LogInfo.logs("start adding event entity variables");
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       // adding trigger
       for (int labelId = 0; labelId < eventLabels.length; labelId++) {
@@ -155,7 +156,7 @@ public class Inference extends AbstractILPInference<Structure> {
         }
       }
     }
-    LogInfo.logs("finish adding event entity variables");
+    //LogInfo.logs("finish adding event entity variables");
   }
 
   public static String getVariableName(int slotId, int labelId) {
@@ -201,7 +202,7 @@ public class Inference extends AbstractILPInference<Structure> {
   protected Structure getOutput(ILPSolver solver,
       InferenceVariableLexManager lexicon) throws Exception {
     
-    LogInfo.logs("Start getting output");
+    //LogInfo.logs("Start getting output");
     String[] triggers = new String[input.getNumberOfTriggers()];
     for (int eventId = 0; eventId < input.getNumberOfTriggers(); eventId++) {
       for (int labelId = 0; labelId < eventLabels.length; labelId++) {
@@ -243,7 +244,7 @@ public class Inference extends AbstractILPInference<Structure> {
         } 
       }
     }
-    LogInfo.logs("Finish getting output");
+    //LogInfo.logs("Finish getting output");
     //return null;
     return new Structure(input, triggers, arguments, relations);
   }

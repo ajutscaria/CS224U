@@ -54,10 +54,10 @@ public class Structure implements IStructure, Serializable {
             if(!triggers[triggerId].equals(DatasetUtils.OTHER_LABEL)) {
                 CoreLabel triggerCoreLabel = input.getTriggerCoreLabel(triggerId);
                 sb.append("Event trigger: " + triggerCoreLabel.originalText()
-                          + " (token index" + triggerCoreLabel.index() + ")\t"
+                          + " (token index " + triggerCoreLabel.index() + ")\t"
                           + triggers[triggerId] + "\n");
 
-                sb.append("Arguments: \n");
+                //sb.append("\tArguments: \n");
                 for (int argId = 0; argId < input
                          .getNumberOfArgumentCandidates(triggerId); argId++) {
 
@@ -70,11 +70,11 @@ public class Structure implements IStructure, Serializable {
                     }
 
                 }
-                sb.append("\n");
+                //sb.append("\n");
             }
         }
 
-        sb.append("Event-event relations:\n");
+        sb.append("\nEvent-event relations:\n");
         for (int rId = 0; rId < input.getNumberOfEERelationCandidates(); rId++) {
 
             IntPair ee = input.getEERelationCandidatePair(rId);

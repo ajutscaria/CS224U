@@ -13,6 +13,26 @@ public class Evaluation {
   private double[] precisionEnt, recallEnt, f1Ent;
   private double[] precisionEvt, recallEvt, f1Evt;
 
+  private class Stat{
+    double p;
+    double r;
+    double f1;
+    int tp;
+    int fp;
+    int fn;
+    public Stat(double p, double r, double f1){
+      this.f1 = f1;
+      this.p = p;
+      this.r = r;
+    }
+    
+    public Stat(int tp, int fp, int fn){
+      this.tp = tp;
+      this.fp = fp;
+      this.fn = fn;
+    }
+  }
+  
   public Evaluation(int numOfFold) {
     this.numOfFolds = numOfFold;
     tpRel = new int[numOfFold];
@@ -40,12 +60,27 @@ public class Evaluation {
     scoreArguments(gold, predicted, fold);
     scoreEERelations(gold, predicted, fold);
   }
+  
+  public Stat getEventMeasure(int fold){
+    Stat measures = new Stat(tpEvt[fold], fpEvt[fold], fnEvt[fold]);
+    return measures;
+  }
+  
+  public Stat getEntityMeasure(int fold){
+    Stat measures = new Stat(tpEnt[fold], fpEnt[fold], fnEnt[fold]);
+    return measures;
+  }
+  
+  public Stat getEERelationMeasure(int fold){
+    Stat measures = new Stat(tpRel[fold], fpRel[fold], fnRel[fold]);
+    return measures;
+  }
 
   private void scoreEvents(Structure gold, Structure predicted, int fold) {
     int tp = 0, fp = 0, fn = 0, tn = 0;
     assert gold.input.getNumberOfTriggers() == predicted.input.getNumberOfTriggers();
     for (int eventId = 0; eventId < gold.input.getNumberOfTriggers(); eventId++) {
-      LogInfo.logs("Event "+eventId+", gold:"+gold.getTriggerLabel(eventId)+", predicted:"+predicted.getTriggerLabel(eventId));
+      //LogInfo.logs("Event "+eventId+", gold:"+gold.getTriggerLabel(eventId)+", predicted:"+predicted.getTriggerLabel(eventId));
       if(gold.getTriggerLabel(eventId).equals(predicted.getTriggerLabel(eventId))){
         if(gold.getTriggerLabel(eventId).equals(DatasetUtils.EVENT_LABEL))
           tp++;
@@ -60,10 +95,17 @@ public class Evaluation {
       }
         
     }
-    LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
+    //LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
+    
     tpEvt[fold] += tp;
     fpEvt[fold] += fp;
     fnEvt[fold] += fn;
+    Stat measures = calcStats(tp, fp, fn);
+    Stat measuresCul = calcStats(tpEvt[fold], fpEvt[fold], fnEvt[fold]);
+    LogInfo.logs("Current Event (P/R/F1):"+ String.format("%.3f ", measures.p)+","+String.format("%.3f ", measures.r)+
+        ","+String.format("%.3f ", measures.f1));
+    LogInfo.logs("Cumulative Event (P/R/F1):"+ String.format("%.3f ", measuresCul.p)+","
+        +String.format("%.3f ", measuresCul.r)+","+String.format("%.3f ", measuresCul.f1));
 
   }
 
@@ -71,11 +113,11 @@ public class Evaluation {
     int tp = 0, fp = 0, fn = 0, tn = 0;
     assert gold.input.getNumberOfTriggers() == predicted.input.getNumberOfTriggers();
     for (int eventId = 0; eventId < gold.input.getNumberOfTriggers(); eventId++) {
-      LogInfo.begin_track("For event "+eventId);
+      //LogInfo.begin_track("For event "+eventId);
       assert gold.input.getNumberOfArgumentCandidates(eventId) == predicted.input.getNumberOfArgumentCandidates(eventId);
       for (int entityId = 0; entityId < gold.input
           .getNumberOfArgumentCandidates(eventId); entityId++) {
-        LogInfo.logs("Entity "+entityId+", gold:"+gold.getArgumentCandidateLabel(eventId, entityId)+", predicted:"+predicted.getArgumentCandidateLabel(eventId, entityId));
+        //LogInfo.logs("Entity "+entityId+", gold:"+gold.getArgumentCandidateLabel(eventId, entityId)+", predicted:"+predicted.getArgumentCandidateLabel(eventId, entityId));
         if(gold.getArgumentCandidateLabel(eventId, entityId).equals(predicted.getArgumentCandidateLabel(eventId, entityId))){
           if(!gold.getArgumentCandidateLabel(eventId, entityId).equals(DatasetUtils.NONE_LABEL))
             tp++;
@@ -89,12 +131,18 @@ public class Evaluation {
           fp++;
         }
       }
-      LogInfo.end_track();
+      //LogInfo.end_track();
     }
-    LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
+    //LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
     tpEnt[fold] += tp;
     fpEnt[fold] += fp;
     fnEnt[fold] += fn;
+    Stat measures = calcStats(tp, fp, fn);
+    Stat measuresCul = calcStats(tpEnt[fold], fpEnt[fold], fnEnt[fold]);
+    LogInfo.logs("Current Entity (P/R/F1):"+ String.format("%.3f ", measures.p)+","+String.format("%.3f ", measures.r)+
+        ","+String.format("%.3f ", measures.f1));
+    LogInfo.logs("Cumulative Entity (P/R/F1):"+ String.format("%.3f ", measuresCul.p)+","
+        +String.format("%.3f ", measuresCul.r)+","+String.format("%.3f ", measuresCul.f1));
   }
 
   private void scoreEERelations(Structure gold, Structure predicted, int fold) {
@@ -105,7 +153,7 @@ public class Evaluation {
       int event2 = gold.input.getEERelationCandidatePair(Id).getTarget(); 
       assert gold.input.getEERelationCandidatePair(Id).getSource() == predicted.input.getEERelationCandidatePair(Id).getSource(); 
       assert gold.input.getEERelationCandidatePair(Id).getTarget() == predicted.input.getEERelationCandidatePair(Id).getTarget();
-      LogInfo.logs("Event-event ("+event1+","+event2+")"+", gold:"+gold.getEERelationLabel(event1, event2)+", predicted:"+predicted.getEERelationLabel(event1, event2));
+      //LogInfo.logs("Event-event ("+event1+","+event2+")"+", gold:"+gold.getEERelationLabel(event1, event2)+", predicted:"+predicted.getEERelationLabel(event1, event2));
       if(gold.getEERelationLabel(event1, event2).equals(predicted.getEERelationLabel(event1, event2))){
         if(!gold.getEERelationLabel(event1, event2).equals(DatasetUtils.NONE_LABEL))
           tp++;
@@ -119,10 +167,23 @@ public class Evaluation {
         fp++;
       }
     }
-    LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
+    //LogInfo.logs("tp:"+tp+", fp:"+fp+", fn:"+fn+", tn:"+tn);
     tpRel[fold] += tp;
     fpRel[fold] += fp;
     fnRel[fold] += fn;
+    Stat measures = calcStats(tp, fp, fn);
+    Stat measuresCul = calcStats(tpRel[fold], fpRel[fold], fnRel[fold]);
+    LogInfo.logs("Current EE-Relation (P/R/F1):"+ String.format("%.3f ", measures.p)+","+String.format("%.3f ", measures.r)+
+        ","+String.format("%.3f ", measures.f1));
+    LogInfo.logs("Cumulative EE-Relation (P/R/F1):"+ String.format("%.3f ", measuresCul.p)+","
+        +String.format("%.3f ", measuresCul.r)+","+String.format("%.3f ", measuresCul.f1));
+  }
+  
+  private Stat calcStats(int tp, int fp, int fn){
+    double p = (double)tp/(tp+fp);
+    double r = (double)tp/(tp+fn);
+    double f1 = 2*p*r/(p+r);
+    return new Stat(p, r, f1);
   }
 
   public void calcScore() {
@@ -151,6 +212,24 @@ public class Evaluation {
         f1Ent);
     printScores("Relation", precisionRel, recallRel,
         f1Rel);
+  }
+  
+  public void setEventMeasure(int fold, Stat obj){
+    tpEvt[fold] = obj.tp;
+    fpEvt[fold] = obj.fp;
+    fnEvt[fold] = obj.fn;
+  }
+  
+  public void setEntityMeasure(int fold, Stat obj){
+    tpEnt[fold] = obj.tp;
+    fpEnt[fold] = obj.fp;
+    fnEnt[fold] = obj.fn;
+  }
+  
+  public void setEERelationMeasure(int fold, Stat obj){
+    tpRel[fold] = obj.tp;
+    fpRel[fold] = obj.fp;
+    fnRel[fold] = obj.fn;
   }
 
   private void printScores(String category, double[] precision, double[] recall,
